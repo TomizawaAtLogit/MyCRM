@@ -1,44 +1,137 @@
 @page "/projects"
 @inject ProjectsApiClient ProjectsApi
+@using System.ComponentModel.DataAnnotations
 
 <PageTitle>Projects</PageTitle>
 
 <h1>Projects</h1>
 
-<p>Browse the projects managed by the database-backed API.</p>
+<div class="row">
+    <div class="col-md-5">
+        <h4>Create Project</h4>
+        <EditForm Model="newProject" OnValidSubmit="CreateAsync">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="mb-2">
+                <InputText @bind-Value="newProject.Name" class="form-control" placeholder="Name" />
+            </div>
+            <div class="mb-2">
+                <InputTextArea @bind-Value="newProject.Description" class="form-control" placeholder="Description" />
+            </div>
+            <button class="btn btn-primary" type="submit">Create</button>
+        </EditForm>
+    </div>
 
-@if (projects is null)
-{
-    <p><em>Loading projectsÅc</em></p>
-}
-else if (projects.Length == 0)
-{
-    <p class="text-muted">No projects have been created yet.</p>
-}
-else
-{
-    <div class="list-group">
-        @foreach (var project in projects)
+    <div class="col-md-7">
+        <h4>Existing Projects</h4>
+        @if (projects is null)
         {
-            <article class="list-group-item list-group-item-action">
-                <div class="d-flex justify-content-between align-items-baseline">
-                    <strong>@project.Name</strong>
-                    <span class="text-muted">@project.CreatedAt.ToLocalTime():g</span>
-                </div>
-                @if (!string.IsNullOrWhiteSpace(project.Description))
+            <p><em>Loading...</em></p>
+        }
+        else if (projects.Length == 0)
+        {
+            <p class="text-muted">No projects.</p>
+        }
+        else
+        {
+            <ul class="list-group">
+                @foreach (var p in projects)
                 {
-                    <p class="mb-0 mt-1">@project.Description</p>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>@p.Name</strong>
+                            <div class="small text-muted">@p.CreatedAt.ToLocalTime():g</div>
+                            @if (!string.IsNullOrWhiteSpace(p.Description))
+                            {
+                                <div>@p.Description</div>
+                            }
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => StartEdit(p)">Edit</button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(p.Id)">Delete</button>
+                        </div>
+                    </li>
                 }
-            </article>
+            </ul>
         }
     </div>
+</div>
+
+@if (isEditing)
+{
+    <hr />
+    <h4>Edit Project</h4>
+    <EditForm Model="editModel" OnValidSubmit="SaveEditAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <input type="hidden" @bind="editModel.Id" />
+        <div class="mb-2">
+            <InputText @bind-Value="editModel.Name" class="form-control" />
+        </div>
+        <div class="mb-2">
+            <InputTextArea @bind-Value="editModel.Description" class="form-control" />
+        </div>
+        <button class="btn btn-primary" type="submit">Save</button>
+        <button class="btn btn-secondary ms-2" type="button" @onclick="CancelEdit">Cancel</button>
+    </EditForm>
 }
 
 @code {
     private ProjectDto[]? projects;
+    private NewModel newProject = new();
+    private EditModel editModel = new();
+    private bool isEditing;
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
         projects = await ProjectsApi.GetProjectsAsync();
     }
+
+    private async Task CreateAsync()
+    {
+        var dto = new ProjectCreateDto(newProject.Name, newProject.Description);
+        var created = await ProjectsApi.CreateProjectAsync(dto);
+        if (created is not null)
+        {
+            await LoadAsync();
+            newProject = new();
+        }
+    }
+
+    private void StartEdit(ProjectDto p)
+    {
+        editModel = new EditModel { Id = p.Id, Name = p.Name, Description = p.Description };
+        isEditing = true;
+    }
+
+    private async Task SaveEditAsync()
+    {
+        var dto = new ProjectCreateDto(editModel.Name, editModel.Description);
+        var ok = await ProjectsApi.UpdateProjectAsync(editModel.Id, dto);
+        if (ok)
+        {
+            isEditing = false;
+            await LoadAsync();
+        }
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        var ok = await ProjectsApi.DeleteProjectAsync(id);
+        if (ok) await LoadAsync();
+    }
+
+    private void CancelEdit()
+    {
+        isEditing = false;
+        editModel = new();
+    }
+
+    class NewModel { [Required] public string Name { get; set; } = string.Empty; public string? Description { get; set; } }
+    class EditModel { public int Id { get; set; } public string Name { get; set; } = string.Empty; public string? Description { get; set; } }
 }
