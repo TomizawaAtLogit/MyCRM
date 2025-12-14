@@ -21,7 +21,16 @@ builder.Services.AddHttpClient<WeatherApiClient>(client =>
 
 builder.Services.AddHttpClient<ProjectsApiClient>(client =>
     {
-        client.BaseAddress = new("https+http://dbapi");
+        // Allow overriding the DB API base URL in configuration for local development.
+        var dbApiBase = builder.Configuration["DbApiBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(dbApiBase))
+        {
+            client.BaseAddress = new(dbApiBase);
+        }
+        else
+        {
+            client.BaseAddress = new("https+http://dbapi");
+        }
     });
 
 var app = builder.Build();

@@ -1,6 +1,7 @@
 @page "/projects"
 @inject ProjectsApiClient ProjectsApi
 @using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
 
 <PageTitle>Projects</PageTitle>
 
@@ -9,11 +10,12 @@
 <div class="row">
     <div class="col-md-5">
         <h4>Create Project</h4>
-        <EditForm Model="newProject" OnValidSubmit="CreateAsync">
+        <EditForm EditContext="createEditContext" OnValidSubmit="CreateAsync" FormName="createForm">
             <DataAnnotationsValidator />
             <ValidationSummary />
             <div class="mb-2">
                 <InputText @bind-Value="newProject.Name" class="form-control" placeholder="Name" />
+                <ValidationMessage For="() => newProject.Name" />
             </div>
             <div class="mb-2">
                 <InputTextArea @bind-Value="newProject.Description" class="form-control" placeholder="Description" />
@@ -24,7 +26,11 @@
 
     <div class="col-md-7">
         <h4>Existing Projects</h4>
-        @if (projects is null)
+        @if (!string.IsNullOrEmpty(loadError))
+        {
+            <div class="alert alert-warning">Unable to load projects: @loadError</div>
+        }
+        else if (projects is null)
         {
             <p><em>Loading...</em></p>
         }
@@ -61,12 +67,13 @@
 {
     <hr />
     <h4>Edit Project</h4>
-    <EditForm Model="editModel" OnValidSubmit="SaveEditAsync">
+    <EditForm EditContext="editEditContext" OnValidSubmit="SaveEditAsync" FormName="editForm">
         <DataAnnotationsValidator />
         <ValidationSummary />
         <input type="hidden" @bind="editModel.Id" />
         <div class="mb-2">
             <InputText @bind-Value="editModel.Name" class="form-control" />
+            <ValidationMessage For="() => editModel.Name" />
         </div>
         <div class="mb-2">
             <InputTextArea @bind-Value="editModel.Description" class="form-control" />
@@ -78,34 +85,53 @@
 
 @code {
     private ProjectDto[]? projects;
+    private string? loadError;
     private NewModel newProject = new();
     private EditModel editModel = new();
     private bool isEditing;
+    private EditContext? createEditContext;
+    private EditContext? editEditContext;
 
     protected override async Task OnInitializedAsync()
     {
+        createEditContext = new EditContext(newProject);
+        editEditContext = new EditContext(editModel);
         await LoadAsync();
     }
 
     private async Task LoadAsync()
     {
-        projects = await ProjectsApi.GetProjectsAsync();
+        try
+        {
+            projects = await ProjectsApi.GetProjectsAsync();
+            loadError = null;
+        }
+        catch (Exception ex)
+        {
+            projects = Array.Empty<ProjectDto>();
+            loadError = ex.Message;
+        }
     }
 
     private async Task CreateAsync()
     {
+        // Ensure validation state is current
+        if (createEditContext is not null && !createEditContext.Validate()) return;
+
         var dto = new ProjectCreateDto(newProject.Name, newProject.Description);
         var created = await ProjectsApi.CreateProjectAsync(dto);
         if (created is not null)
         {
             await LoadAsync();
             newProject = new();
+            createEditContext = new EditContext(newProject);
         }
     }
 
     private void StartEdit(ProjectDto p)
     {
         editModel = new EditModel { Id = p.Id, Name = p.Name, Description = p.Description };
+        editEditContext = new EditContext(editModel);
         isEditing = true;
     }
 
