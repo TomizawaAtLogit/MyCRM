@@ -1,0 +1,44 @@
+@page "/projects"
+@inject ProjectsApiClient ProjectsApi
+
+<PageTitle>Projects</PageTitle>
+
+<h1>Projects</h1>
+
+<p>Browse the projects managed by the database-backed API.</p>
+
+@if (projects is null)
+{
+    <p><em>Loading projectsÅc</em></p>
+}
+else if (projects.Length == 0)
+{
+    <p class="text-muted">No projects have been created yet.</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var project in projects)
+        {
+            <article class="list-group-item list-group-item-action">
+                <div class="d-flex justify-content-between align-items-baseline">
+                    <strong>@project.Name</strong>
+                    <span class="text-muted">@project.CreatedAt.ToLocalTime():g</span>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(project.Description))
+                {
+                    <p class="mb-0 mt-1">@project.Description</p>
+                }
+            </article>
+        }
+    </div>
+}
+
+@code {
+    private ProjectDto[]? projects;
+
+    protected override async Task OnInitializedAsync()
+    {
+        projects = await ProjectsApi.GetProjectsAsync();
+    }
+}
