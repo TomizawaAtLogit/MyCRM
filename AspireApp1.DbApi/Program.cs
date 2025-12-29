@@ -1,5 +1,6 @@
 using AspireApp1.DbApi.Authorization;
 using AspireApp1.DbApi.Data;
+using AspireApp1.DbApi.Models;
 using AspireApp1.DbApi.Repositories;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Authorization;
@@ -63,6 +64,7 @@ try
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ProjectDbContext>();
+    
     // If there are EF migrations in the assembly, apply them; otherwise create the schema directly.
     var migrations = db.Database.GetMigrations();
     if (migrations != null && migrations.Any())
@@ -71,13 +73,80 @@ try
     }
     else
     {
-        db.Database.EnsureCreated();
+        // Check if database exists
+        var canConnect = db.Database.CanConnect();
+        if (!canConnect || !db.Database.GetPendingMigrations().Any())
+        {
+            db.Database.EnsureCreated();
+        }
+    }
+
+    // Seed initial data if database is empty
+    // Use a safer check that won't fail if tables don't exist yet
+    try
+    {
+        var hasUsers = db.Users.Any();
+        if (!hasUsers)
+        {
+            SeedData(db);
+        }
+    }
+    catch (Npgsql.PostgresException)
+    {
+        // Table doesn't exist yet, seed the data
+        SeedData(db);
     }
 }
 catch (Exception ex)
 {
     // swallow or log — during CI you may want to rethrow
-    Console.Error.WriteLine($"Migration failed: {ex}");
+    Console.Error.WriteLine($"Migration/Seed failed: {ex}");
+}
+
+void SeedData(ProjectDbContext db)
+{
+    Console.WriteLine("Seeding initial data...");
+    
+    // Create default roles
+    var adminRole = new Role
+    {
+        Name = "Admin",
+        Description = "Administrator role with full access",
+        PagePermissions = "Admin,Projects,Customers"
+    };
+    var userRole = new Role
+    {
+        Name = "User",
+        Description = "Standard user role",
+        PagePermissions = "Projects,Customers"
+    };
+    
+    db.Roles.AddRange(adminRole, userRole);
+    db.SaveChanges();
+
+    // Create a default admin user (you should change this in production!)
+    var adminUser = new User
+    {
+        WindowsUsername = Environment.UserName, // Current Windows user
+        DisplayName = "Administrator",
+        Email = "admin@example.com",
+        IsActive = true
+    };
+    
+    db.Users.Add(adminUser);
+    db.SaveChanges();
+
+    // Assign admin role to the default user
+    var userRole1 = new UserRole
+    {
+        UserId = adminUser.Id,
+        RoleId = adminRole.Id
+    };
+    
+    db.UserRoles.Add(userRole1);
+    db.SaveChanges();
+
+    Console.WriteLine($"Seed data created. Default admin user: {adminUser.WindowsUsername}");
 }
 
 app.Run();

@@ -1,0 +1,38 @@
+@inject IJSRuntime JSRuntime
+
+<button @onclick="ToggleTheme" class="theme-toggle-btn" title="Toggle theme">
+    <span class="bi @(isDarkMode ? "bi-sun-fill" : "bi-moon-stars-fill")" aria-hidden="true"></span>
+</button>
+
+@code {
+    private bool isDarkMode = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Get theme from localStorage
+            var theme = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "theme");
+            isDarkMode = theme == "dark";
+            
+            // Apply theme to HTML element
+            await JSRuntime.InvokeVoidAsync("eval", 
+                $"document.documentElement.setAttribute('data-theme', '{(isDarkMode ? "dark" : "light")}')");
+            
+            StateHasChanged();
+        }
+    }
+
+    private async Task ToggleTheme()
+    {
+        isDarkMode = !isDarkMode;
+        var theme = isDarkMode ? "dark" : "light";
+        
+        // Save theme to localStorage
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "theme", theme);
+        
+        // Apply theme to HTML element
+        await JSRuntime.InvokeVoidAsync("eval", 
+            $"document.documentElement.setAttribute('data-theme', '{theme}')");
+    }
+}
