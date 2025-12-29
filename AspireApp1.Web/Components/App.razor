@@ -11,13 +11,7 @@
     <link rel="stylesheet" href="@Assets["AspireApp1.FrontEnd.styles.css"]" />
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <script>
-        // Initialize theme before page renders to prevent flash
-        (function() {
-            const theme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', theme);
-        })();
-    </script>
+    <script src="js/theme.js"></script>
     <HeadOutlet />
 </head>
 

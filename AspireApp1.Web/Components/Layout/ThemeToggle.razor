@@ -11,28 +11,17 @@
     {
         if (firstRender)
         {
-            // Get theme from localStorage
-            var theme = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "theme");
+            // Get current theme
+            var theme = await JSRuntime.InvokeAsync<string>("themeManager.getTheme");
             isDarkMode = theme == "dark";
-            
-            // Apply theme to HTML element
-            await JSRuntime.InvokeVoidAsync("eval", 
-                $"document.documentElement.setAttribute('data-theme', '{(isDarkMode ? "dark" : "light")}')");
-            
             StateHasChanged();
         }
     }
 
     private async Task ToggleTheme()
     {
-        isDarkMode = !isDarkMode;
-        var theme = isDarkMode ? "dark" : "light";
-        
-        // Save theme to localStorage
-        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "theme", theme);
-        
-        // Apply theme to HTML element
-        await JSRuntime.InvokeVoidAsync("eval", 
-            $"document.documentElement.setAttribute('data-theme', '{theme}')");
+        // Toggle theme and get the new value
+        var newTheme = await JSRuntime.InvokeAsync<string>("themeManager.toggleTheme");
+        isDarkMode = newTheme == "dark";
     }
 }

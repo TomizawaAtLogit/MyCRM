@@ -65,35 +65,13 @@ try
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ProjectDbContext>();
     
-    // If there are EF migrations in the assembly, apply them; otherwise create the schema directly.
-    var migrations = db.Database.GetMigrations();
-    if (migrations != null && migrations.Any())
-    {
-        db.Database.Migrate();
-    }
-    else
-    {
-        // Check if database exists
-        var canConnect = db.Database.CanConnect();
-        if (!canConnect || !db.Database.GetPendingMigrations().Any())
-        {
-            db.Database.EnsureCreated();
-        }
-    }
-
+    // Ensure database is created
+    db.Database.EnsureCreated();
+    
     // Seed initial data if database is empty
     // Use a safer check that won't fail if tables don't exist yet
-    try
+    if (!db.Users.Any())
     {
-        var hasUsers = db.Users.Any();
-        if (!hasUsers)
-        {
-            SeedData(db);
-        }
-    }
-    catch (Npgsql.PostgresException)
-    {
-        // Table doesn't exist yet, seed the data
         SeedData(db);
     }
 }
