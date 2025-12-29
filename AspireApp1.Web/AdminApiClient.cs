@@ -1,0 +1,157 @@
+using System.ComponentModel.DataAnnotations;
+using System.Net.Http.Json;
+
+namespace AspireApp1.Web;
+
+// DTOs
+public record UserDto(
+    int Id,
+    string WindowsUsername,
+    string DisplayName,
+    string? Email,
+    bool IsActive,
+    List<RoleDto>? Roles);
+
+public record UserCreateDto(
+    [Required] string WindowsUsername,
+    [Required] string DisplayName,
+    string? Email,
+    bool IsActive);
+
+public record RoleDto(
+    int Id,
+    string Name,
+    string? Description,
+    string PagePermissions);
+
+public record RoleCreateDto(
+    [Required] string Name,
+    string? Description,
+    [Required] string PagePermissions);
+
+public class AdminApiClient
+{
+    private readonly HttpClient _http;
+
+    public AdminApiClient(HttpClient http)
+    {
+        _http = http;
+    }
+
+    // User operations
+    public async Task<UserDto[]> GetUsersAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            return await _http.GetFromJsonAsync<UserDto[]>("/api/admin/users", ct) 
+                   ?? Array.Empty<UserDto>();
+        }
+        catch (HttpRequestException)
+        {
+            return Array.Empty<UserDto>();
+        }
+    }
+
+    public async Task<UserDto?> GetUserAsync(int id, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _http.GetFromJsonAsync<UserDto>($"/api/admin/users/{id}", ct);
+        }
+        catch (HttpRequestException)
+        {
+            return null;
+        }
+    }
+
+    public async Task<UserDto?> GetUserByUsernameAsync(string username, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _http.GetFromJsonAsync<UserDto>($"/api/admin/users/by-username/{Uri.EscapeDataString(username)}", ct);
+        }
+        catch (HttpRequestException)
+        {
+            return null;
+        }
+    }
+
+    public async Task<UserDto?> CreateUserAsync(UserCreateDto dto, CancellationToken ct = default)
+    {
+        var res = await _http.PostAsJsonAsync("/api/admin/users", dto, ct);
+        if (res.IsSuccessStatusCode)
+            return await res.Content.ReadFromJsonAsync<UserDto>(ct);
+        return null;
+    }
+
+    public async Task<bool> UpdateUserAsync(int id, UserDto dto, CancellationToken ct = default)
+    {
+        var res = await _http.PutAsJsonAsync($"/api/admin/users/{id}", dto, ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteUserAsync(int id, CancellationToken ct = default)
+    {
+        var res = await _http.DeleteAsync($"/api/admin/users/{id}", ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    // Role assignment
+    public async Task<bool> AssignRoleAsync(int userId, int roleId, CancellationToken ct = default)
+    {
+        var res = await _http.PostAsync($"/api/admin/users/{userId}/roles/{roleId}", null, ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> RemoveRoleAsync(int userId, int roleId, CancellationToken ct = default)
+    {
+        var res = await _http.DeleteAsync($"/api/admin/users/{userId}/roles/{roleId}", ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    // Role operations
+    public async Task<RoleDto[]> GetRolesAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            return await _http.GetFromJsonAsync<RoleDto[]>("/api/admin/roles", ct) 
+                   ?? Array.Empty<RoleDto>();
+        }
+        catch (HttpRequestException)
+        {
+            return Array.Empty<RoleDto>();
+        }
+    }
+
+    public async Task<RoleDto?> GetRoleAsync(int id, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _http.GetFromJsonAsync<RoleDto>($"/api/admin/roles/{id}", ct);
+        }
+        catch (HttpRequestException)
+        {
+            return null;
+        }
+    }
+
+    public async Task<RoleDto?> CreateRoleAsync(RoleCreateDto dto, CancellationToken ct = default)
+    {
+        var res = await _http.PostAsJsonAsync("/api/admin/roles", dto, ct);
+        if (res.IsSuccessStatusCode)
+            return await res.Content.ReadFromJsonAsync<RoleDto>(ct);
+        return null;
+    }
+
+    public async Task<bool> UpdateRoleAsync(int id, RoleDto dto, CancellationToken ct = default)
+    {
+        var res = await _http.PutAsJsonAsync($"/api/admin/roles/{id}", dto, ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteRoleAsync(int id, CancellationToken ct = default)
+    {
+        var res = await _http.DeleteAsync($"/api/admin/roles/{id}", ct);
+        return res.IsSuccessStatusCode;
+    }
+}

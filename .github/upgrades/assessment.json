@@ -1,0 +1,1784 @@
+{
+  "settings": {
+    "components": {
+      "code": false,
+      "binaries": false
+    },
+    "targetId": "net10.0",
+    "targetDisplayName": ".NETCoreApp,Version=v10.0"
+  },
+  "analysisStartTime": "2025-12-29T23:30:42.4944414Z",
+  "analysisEndTime": "2025-12-29T23:30:46.6854278Z",
+  "privacyModeHelpUrl": "https://go.microsoft.com/fwlink/?linkid=2270980",
+  "stats": {
+    "summary": {
+      "projects": 6,
+      "issues": 5,
+      "incidents": 59,
+      "effort": 59
+    },
+    "charts": {
+      "severity": {
+        "Mandatory": 6,
+        "Optional": 3,
+        "Potential": 50,
+        "Information": 0
+      },
+      "category": {
+        "NuGet": 14,
+        "Project": 6,
+        "Api": 39
+      }
+    }
+  },
+  "projects": [
+    {
+      "path": "AspireApp1.ApiService\\AspireApp1.ApiService.csproj",
+      "startingProject": true,
+      "issues": 3,
+      "storyPoints": 3,
+      "properties": {
+        "appName": "AspireApp1.ApiService",
+        "projectKind": "AspNetCore",
+        "frameworks": [
+          "net9.0"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 3,
+        "numberOfCodeFiles": 1,
+        "linesTotal": 42,
+        "linesOfCode": 25,
+        "totalApiScanned": 31,
+        "minLinesOfCodeToChange": 1,
+        "maxLinesOfCodeToChange": 1
+      },
+      "ruleInstances": [
+        {
+          "incidentId": "307d769b-4b9c-41cb-bf92-03c533a24e6c",
+          "ruleId": "NuGet.0002",
+          "projectPath": "AspireApp1.ApiService\\AspireApp1.ApiService.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.AspNetCore.OpenApi, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.OpenApi, and replace with new package Microsoft.AspNetCore.OpenApi 10.0.1",
+              "protected": "Microsoft.AspNetCore.OpenApi, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.OpenApi, and replace with new package Microsoft.AspNetCore.OpenApi 10.0.1"
+            },
+            "kind": "File",
+            "path": "AspireApp1.ApiService\\AspireApp1.ApiService.csproj",
+            "snippet": "Microsoft.AspNetCore.OpenApi, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.OpenApi, and replace with new package Microsoft.AspNetCore.OpenApi 10.0.1",
+            "protectedSnippet": "Microsoft.AspNetCore.OpenApi, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.OpenApi, and replace with new package Microsoft.AspNetCore.OpenApi 10.0.1",
+            "label": "Microsoft.AspNetCore.OpenApi 9.0.0",
+            "properties": {
+              "PackageId": "Microsoft.AspNetCore.OpenApi",
+              "PackageVersion": "9.0.0",
+              "PackageNewVersion": "10.0.1",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "8632934b-2798-47c1-8597-6bd2f6c4c9b5",
+          "ruleId": "Project.0002",
+          "projectPath": "AspireApp1.ApiService\\AspireApp1.ApiService.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+              "protected": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.ApiService\\AspireApp1.ApiService.csproj",
+            "snippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+            "protectedSnippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+            "properties": {
+              "CurrentTargetFramework": "net9.0",
+              "RecommendedTargetFramework": "net10.0"
+            }
+          }
+        },
+        {
+          "incidentId": "c29bf4b9-f08e-4824-926b-92edbb03dd4c",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: Exception diagnostics are suppressed when IExceptionHandler.TryHandleAsync returns true ",
+          "projectPath": "AspireApp1.ApiService\\AspireApp1.ApiService.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "app.UseExceptionHandler();",
+              "protected": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder)"
+            },
+            "kind": "File",
+            "path": "AspireApp1.ApiService\\Program.cs",
+            "snippet": "app.UseExceptionHandler();",
+            "protectedSnippet": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder)",
+            "label": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder)",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/aspnet-core/10/exception-handler-diagnostics-suppressed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 14,
+            "column": 0
+          }
+        }
+      ],
+      "features": []
+    },
+    {
+      "path": "AspireApp1.AppHost\\AspireApp1.AppHost.csproj",
+      "startingProject": true,
+      "issues": 3,
+      "storyPoints": 3,
+      "properties": {
+        "appName": "AspireApp1.AppHost",
+        "projectKind": "DotNetCoreApp",
+        "frameworks": [
+          "net9.0"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 1,
+        "numberOfCodeFiles": 1,
+        "linesTotal": 15,
+        "linesOfCode": 15,
+        "totalApiScanned": 49,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [
+        {
+          "incidentId": "5de9ffef-0789-40f4-9d3f-1946d6a68bfc",
+          "ruleId": "NuGet.0002",
+          "projectPath": "AspireApp1.AppHost\\AspireApp1.AppHost.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Aspire.Hosting.AppHost, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Aspire.Hosting.AppHost, and replace with new package Aspire.Hosting.AppHost 13.1.0",
+              "protected": "Aspire.Hosting.AppHost, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Aspire.Hosting.AppHost, and replace with new package Aspire.Hosting.AppHost 13.1.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.AppHost\\AspireApp1.AppHost.csproj",
+            "snippet": "Aspire.Hosting.AppHost, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Aspire.Hosting.AppHost, and replace with new package Aspire.Hosting.AppHost 13.1.0",
+            "protectedSnippet": "Aspire.Hosting.AppHost, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Aspire.Hosting.AppHost, and replace with new package Aspire.Hosting.AppHost 13.1.0",
+            "label": "Aspire.Hosting.AppHost 9.0.0",
+            "properties": {
+              "PackageId": "Aspire.Hosting.AppHost",
+              "PackageVersion": "9.0.0",
+              "PackageNewVersion": "13.1.0",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "2ca22317-37c9-4164-95b9-a214849074c7",
+          "ruleId": "NuGet.0005",
+          "projectPath": "AspireApp1.AppHost\\AspireApp1.AppHost.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Aspire.Hosting.AppHost, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Aspire.Hosting.AppHost, and replace with new package Aspire.Hosting.AppHost, 13.1.0",
+              "protected": "Aspire.Hosting.AppHost, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Aspire.Hosting.AppHost, and replace with new package Aspire.Hosting.AppHost, 13.1.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.AppHost\\AspireApp1.AppHost.csproj",
+            "snippet": "Aspire.Hosting.AppHost, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Aspire.Hosting.AppHost, and replace with new package Aspire.Hosting.AppHost, 13.1.0",
+            "protectedSnippet": "Aspire.Hosting.AppHost, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Aspire.Hosting.AppHost, and replace with new package Aspire.Hosting.AppHost, 13.1.0",
+            "label": "Aspire.Hosting.AppHost 9.0.0",
+            "properties": {
+              "PackageId": "Aspire.Hosting.AppHost",
+              "PackageVersion": "9.0.0",
+              "PackageNewVersion": null,
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "d70c8f3a-d46c-4f75-bdcb-bcf4606592b9",
+          "ruleId": "Project.0002",
+          "projectPath": "AspireApp1.AppHost\\AspireApp1.AppHost.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+              "protected": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.AppHost\\AspireApp1.AppHost.csproj",
+            "snippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+            "protectedSnippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+            "properties": {
+              "CurrentTargetFramework": "net9.0",
+              "RecommendedTargetFramework": "net10.0"
+            }
+          }
+        }
+      ],
+      "features": []
+    },
+    {
+      "path": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+      "startingProject": true,
+      "issues": 3,
+      "storyPoints": 5,
+      "properties": {
+        "appName": "AspireApp1.BackEnd",
+        "projectKind": "AspNetCore",
+        "frameworks": [
+          "net9.0"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 29,
+        "numberOfCodeFiles": 28,
+        "linesTotal": 1511,
+        "linesOfCode": 1499,
+        "totalApiScanned": 2209,
+        "minLinesOfCodeToChange": 1,
+        "maxLinesOfCodeToChange": 1
+      },
+      "ruleInstances": [
+        {
+          "incidentId": "f3beaad3-d249-43b0-825e-4cc11d4d56fc",
+          "ruleId": "NuGet.0002",
+          "projectPath": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.EntityFrameworkCore.Design, 8.0.12\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.EntityFrameworkCore.Design, and replace with new package Microsoft.EntityFrameworkCore.Design 10.0.1",
+              "protected": "Microsoft.EntityFrameworkCore.Design, 8.0.12\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.EntityFrameworkCore.Design, and replace with new package Microsoft.EntityFrameworkCore.Design 10.0.1"
+            },
+            "kind": "File",
+            "path": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+            "snippet": "Microsoft.EntityFrameworkCore.Design, 8.0.12\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.EntityFrameworkCore.Design, and replace with new package Microsoft.EntityFrameworkCore.Design 10.0.1",
+            "protectedSnippet": "Microsoft.EntityFrameworkCore.Design, 8.0.12\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.EntityFrameworkCore.Design, and replace with new package Microsoft.EntityFrameworkCore.Design 10.0.1",
+            "label": "Microsoft.EntityFrameworkCore.Design 8.0.12",
+            "properties": {
+              "PackageId": "Microsoft.EntityFrameworkCore.Design",
+              "PackageVersion": "8.0.12",
+              "PackageNewVersion": "10.0.1",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "a683137d-a104-41b8-95fa-26e6a7e2b2f5",
+          "ruleId": "NuGet.0002",
+          "projectPath": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.EntityFrameworkCore.Tools, 8.0.12\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.EntityFrameworkCore.Tools, and replace with new package Microsoft.EntityFrameworkCore.Tools 10.0.1",
+              "protected": "Microsoft.EntityFrameworkCore.Tools, 8.0.12\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.EntityFrameworkCore.Tools, and replace with new package Microsoft.EntityFrameworkCore.Tools 10.0.1"
+            },
+            "kind": "File",
+            "path": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+            "snippet": "Microsoft.EntityFrameworkCore.Tools, 8.0.12\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.EntityFrameworkCore.Tools, and replace with new package Microsoft.EntityFrameworkCore.Tools 10.0.1",
+            "protectedSnippet": "Microsoft.EntityFrameworkCore.Tools, 8.0.12\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.EntityFrameworkCore.Tools, and replace with new package Microsoft.EntityFrameworkCore.Tools 10.0.1",
+            "label": "Microsoft.EntityFrameworkCore.Tools 8.0.12",
+            "properties": {
+              "PackageId": "Microsoft.EntityFrameworkCore.Tools",
+              "PackageVersion": "8.0.12",
+              "PackageNewVersion": "10.0.1",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "1046f1a0-c2bd-4601-bfae-b7c27d225a13",
+          "ruleId": "NuGet.0002",
+          "projectPath": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.AspNetCore.Authentication.Negotiate, 8.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.Authentication.Negotiate, and replace with new package Microsoft.AspNetCore.Authentication.Negotiate 10.0.1",
+              "protected": "Microsoft.AspNetCore.Authentication.Negotiate, 8.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.Authentication.Negotiate, and replace with new package Microsoft.AspNetCore.Authentication.Negotiate 10.0.1"
+            },
+            "kind": "File",
+            "path": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+            "snippet": "Microsoft.AspNetCore.Authentication.Negotiate, 8.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.Authentication.Negotiate, and replace with new package Microsoft.AspNetCore.Authentication.Negotiate 10.0.1",
+            "protectedSnippet": "Microsoft.AspNetCore.Authentication.Negotiate, 8.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.Authentication.Negotiate, and replace with new package Microsoft.AspNetCore.Authentication.Negotiate 10.0.1",
+            "label": "Microsoft.AspNetCore.Authentication.Negotiate 8.0.0",
+            "properties": {
+              "PackageId": "Microsoft.AspNetCore.Authentication.Negotiate",
+              "PackageVersion": "8.0.0",
+              "PackageNewVersion": "10.0.1",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "6fd28e0c-3015-43b0-a7f3-db3158c6fd07",
+          "ruleId": "Project.0002",
+          "projectPath": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+              "protected": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+            "snippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+            "protectedSnippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+            "properties": {
+              "CurrentTargetFramework": "net9.0",
+              "RecommendedTargetFramework": "net10.0"
+            }
+          }
+        },
+        {
+          "incidentId": "a7d653ef-176c-4cc0-9bb0-13a0bda1de7e",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: Exception diagnostics are suppressed when IExceptionHandler.TryHandleAsync returns true ",
+          "projectPath": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "app.UseExceptionHandler(\u0022/error\u0022);",
+              "protected": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.String)"
+            },
+            "kind": "File",
+            "path": "AspireApp1.DbApi\\Program.cs",
+            "snippet": "app.UseExceptionHandler(\u0022/error\u0022);",
+            "protectedSnippet": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.String)",
+            "label": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.String)",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/aspnet-core/10/exception-handler-diagnostics-suppressed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 50,
+            "column": 4
+          }
+        }
+      ],
+      "features": []
+    },
+    {
+      "path": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+      "startingProject": true,
+      "issues": 3,
+      "storyPoints": 38,
+      "properties": {
+        "appName": "AspireApp1.FrontEnd",
+        "projectKind": "AspNetCore",
+        "frameworks": [
+          "net9.0"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 26,
+        "numberOfCodeFiles": 5,
+        "linesTotal": 2908,
+        "linesOfCode": 755,
+        "totalApiScanned": 7255,
+        "minLinesOfCodeToChange": 36,
+        "maxLinesOfCodeToChange": 36
+      },
+      "ruleInstances": [
+        {
+          "incidentId": "ed937071-9680-4eef-b73d-5747d3f4de86",
+          "ruleId": "NuGet.0002",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.AspNetCore.Authentication.Negotiate, 8.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.Authentication.Negotiate, and replace with new package Microsoft.AspNetCore.Authentication.Negotiate 10.0.1",
+              "protected": "Microsoft.AspNetCore.Authentication.Negotiate, 8.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.Authentication.Negotiate, and replace with new package Microsoft.AspNetCore.Authentication.Negotiate 10.0.1"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+            "snippet": "Microsoft.AspNetCore.Authentication.Negotiate, 8.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.Authentication.Negotiate, and replace with new package Microsoft.AspNetCore.Authentication.Negotiate 10.0.1",
+            "protectedSnippet": "Microsoft.AspNetCore.Authentication.Negotiate, 8.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.Authentication.Negotiate, and replace with new package Microsoft.AspNetCore.Authentication.Negotiate 10.0.1",
+            "label": "Microsoft.AspNetCore.Authentication.Negotiate 8.0.0",
+            "properties": {
+              "PackageId": "Microsoft.AspNetCore.Authentication.Negotiate",
+              "PackageVersion": "8.0.0",
+              "PackageNewVersion": "10.0.1",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "618f7404-6011-4c88-86c8-a4e7e2a36c47",
+          "ruleId": "Project.0002",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+              "protected": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+            "snippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+            "protectedSnippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+            "properties": {
+              "CurrentTargetFramework": "net9.0",
+              "RecommendedTargetFramework": "net10.0"
+            }
+          }
+        },
+        {
+          "incidentId": "08d3d350-30da-4e27-a424-129220cb6668",
+          "ruleId": "Api.0003",
+          "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "return await res.Content.ReadFromJsonAsync\u003CProjectActivityDto\u003E(ct);",
+              "protected": "T:System.Net.Http.HttpContent"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\ProjectActivityApiClient.cs",
+            "snippet": "return await res.Content.ReadFromJsonAsync\u003CProjectActivityDto\u003E(ct);",
+            "protectedSnippet": "T:System.Net.Http.HttpContent",
+            "label": "T:System.Net.Http.HttpContent",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/default-http-streaming.md",
+                "isCustom": false
+              }
+            ],
+            "line": 109,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "ede6d9a2-8687-4a97-8992-087be5460d79",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "query.Add($\u0022activityType={Uri.EscapeDataString(activityType)}\u0022);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\ProjectActivityApiClient.cs",
+            "snippet": "query.Add($\u0022activityType={Uri.EscapeDataString(activityType)}\u0022);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 93,
+            "column": 16
+          }
+        },
+        {
+          "incidentId": "e4b9541c-8928-4e63-89d2-e110d61ecfee",
+          "ruleId": "Api.0003",
+          "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "return await res.Content.ReadFromJsonAsync\u003CCustomerOrderDto\u003E(ct);",
+              "protected": "T:System.Net.Http.HttpContent"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\CustomerApiClient.cs",
+            "snippet": "return await res.Content.ReadFromJsonAsync\u003CCustomerOrderDto\u003E(ct);",
+            "protectedSnippet": "T:System.Net.Http.HttpContent",
+            "label": "T:System.Net.Http.HttpContent",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/default-http-streaming.md",
+                "isCustom": false
+              }
+            ],
+            "line": 258,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "20a85253-ace3-4611-8b47-d8cd2ccee7cb",
+          "ruleId": "Api.0003",
+          "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "return await res.Content.ReadFromJsonAsync\u003CCustomerSystemDto\u003E(ct);",
+              "protected": "T:System.Net.Http.HttpContent"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\CustomerApiClient.cs",
+            "snippet": "return await res.Content.ReadFromJsonAsync\u003CCustomerSystemDto\u003E(ct);",
+            "protectedSnippet": "T:System.Net.Http.HttpContent",
+            "label": "T:System.Net.Http.HttpContent",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/default-http-streaming.md",
+                "isCustom": false
+              }
+            ],
+            "line": 237,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "60761887-7b13-4534-81b7-83846c08f7c0",
+          "ruleId": "Api.0003",
+          "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "return await res.Content.ReadFromJsonAsync\u003CCustomerSiteDto\u003E(ct);",
+              "protected": "T:System.Net.Http.HttpContent"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\CustomerApiClient.cs",
+            "snippet": "return await res.Content.ReadFromJsonAsync\u003CCustomerSiteDto\u003E(ct);",
+            "protectedSnippet": "T:System.Net.Http.HttpContent",
+            "label": "T:System.Net.Http.HttpContent",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/default-http-streaming.md",
+                "isCustom": false
+              }
+            ],
+            "line": 216,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "c911d79f-77a6-4de4-8709-dc09c96bda55",
+          "ruleId": "Api.0003",
+          "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "return await res.Content.ReadFromJsonAsync\u003CCustomerDatabaseDto\u003E(ct);",
+              "protected": "T:System.Net.Http.HttpContent"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\CustomerApiClient.cs",
+            "snippet": "return await res.Content.ReadFromJsonAsync\u003CCustomerDatabaseDto\u003E(ct);",
+            "protectedSnippet": "T:System.Net.Http.HttpContent",
+            "label": "T:System.Net.Http.HttpContent",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/default-http-streaming.md",
+                "isCustom": false
+              }
+            ],
+            "line": 195,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "8d0301cc-cfb8-4a54-8e6c-fbcd0e7db1d2",
+          "ruleId": "Api.0003",
+          "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "return await res.Content.ReadFromJsonAsync\u003CCustomerDto\u003E(ct);",
+              "protected": "T:System.Net.Http.HttpContent"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\CustomerApiClient.cs",
+            "snippet": "return await res.Content.ReadFromJsonAsync\u003CCustomerDto\u003E(ct);",
+            "protectedSnippet": "T:System.Net.Http.HttpContent",
+            "label": "T:System.Net.Http.HttpContent",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/default-http-streaming.md",
+                "isCustom": false
+              }
+            ],
+            "line": 174,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "359f767d-dffc-4c0d-b5e6-0b844d4ba6ca",
+          "ruleId": "Api.0003",
+          "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "return await res.Content.ReadFromJsonAsync\u003CProjectDto\u003E(cancellationToken: cancellationToken);",
+              "protected": "T:System.Net.Http.HttpContent"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\ProjectsApiClient.cs",
+            "snippet": "return await res.Content.ReadFromJsonAsync\u003CProjectDto\u003E(cancellationToken: cancellationToken);",
+            "protectedSnippet": "T:System.Net.Http.HttpContent",
+            "label": "T:System.Net.Http.HttpContent",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/default-http-streaming.md",
+                "isCustom": false
+              }
+            ],
+            "line": 42,
+            "column": 45
+          }
+        },
+        {
+          "incidentId": "8455da3b-233a-4f37-95c4-63811e557ce3",
+          "ruleId": "Api.0003",
+          "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "return await res.Content.ReadFromJsonAsync\u003CRoleDto\u003E(ct);",
+              "protected": "T:System.Net.Http.HttpContent"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\AdminApiClient.cs",
+            "snippet": "return await res.Content.ReadFromJsonAsync\u003CRoleDto\u003E(ct);",
+            "protectedSnippet": "T:System.Net.Http.HttpContent",
+            "label": "T:System.Net.Http.HttpContent",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/default-http-streaming.md",
+                "isCustom": false
+              }
+            ],
+            "line": 141,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "90481c06-e3fb-4497-8048-a30dd63fec1a",
+          "ruleId": "Api.0003",
+          "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "return await res.Content.ReadFromJsonAsync\u003CUserDto\u003E(ct);",
+              "protected": "T:System.Net.Http.HttpContent"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\AdminApiClient.cs",
+            "snippet": "return await res.Content.ReadFromJsonAsync\u003CUserDto\u003E(ct);",
+            "protectedSnippet": "T:System.Net.Http.HttpContent",
+            "label": "T:System.Net.Http.HttpContent",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/default-http-streaming.md",
+                "isCustom": false
+              }
+            ],
+            "line": 82,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "d3b508cf-4ab4-4460-9617-e4b69116caa1",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "return await _http.GetFromJsonAsync\u003CUserDto\u003E($\u0022/api/admin/users/by-username/{Uri.EscapeDataString(username)}\u0022, ct);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\AdminApiClient.cs",
+            "snippet": "return await _http.GetFromJsonAsync\u003CUserDto\u003E($\u0022/api/admin/users/by-username/{Uri.EscapeDataString(username)}\u0022, ct);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 70,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "8027978a-35e4-49d1-9855-c3bc89e1f009",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: Exception diagnostics are suppressed when IExceptionHandler.TryHandleAsync returns true ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "app.UseExceptionHandler(\u0022/Error\u0022, createScopeForErrors: true);",
+              "protected": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.String,System.Boolean)"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "app.UseExceptionHandler(\u0022/Error\u0022, createScopeForErrors: true);",
+            "protectedSnippet": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.String,System.Boolean)",
+            "label": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.String,System.Boolean)",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/aspnet-core/10/exception-handler-diagnostics-suppressed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 97,
+            "column": 4
+          }
+        },
+        {
+          "incidentId": "70f98e96-e258-4a7e-8f53-d454f4ffe8f4",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 89,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "18672a14-4f25-4162-bc57-bba8a969eaf6",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+              "protected": "M:System.Uri.#ctor(System.String)"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+            "protectedSnippet": "M:System.Uri.#ctor(System.String)",
+            "label": "M:System.Uri.#ctor(System.String)",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 89,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "3315acc5-5982-4c48-8caf-1a0fcd0f40d8",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 89,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "e219d830-dca1-4c70-967c-7999ca8e3351",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(dbApiBase);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(dbApiBase);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 85,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "14383d7d-f1ba-4ace-a768-07abdbaeb163",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(dbApiBase);",
+              "protected": "M:System.Uri.#ctor(System.String)"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(dbApiBase);",
+            "protectedSnippet": "M:System.Uri.#ctor(System.String)",
+            "label": "M:System.Uri.#ctor(System.String)",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 85,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "ed704256-ad83-4ce8-995b-0cb76f2f1a74",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(dbApiBase);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(dbApiBase);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 85,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "4d4baa81-05f3-403b-a297-ee2ef1ab4f88",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 76,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "9127bfdb-b1d9-4eac-a10e-e60b37f8b02e",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+              "protected": "M:System.Uri.#ctor(System.String)"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+            "protectedSnippet": "M:System.Uri.#ctor(System.String)",
+            "label": "M:System.Uri.#ctor(System.String)",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 76,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "36acff1a-f24d-4153-bca5-9ba2394f1111",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 76,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "09c49f8d-333e-4b64-ae47-04ab88567f8a",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(dbApiBase);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(dbApiBase);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 72,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "fff04fb6-bc0e-435c-a7ea-0faf569c7874",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(dbApiBase);",
+              "protected": "M:System.Uri.#ctor(System.String)"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(dbApiBase);",
+            "protectedSnippet": "M:System.Uri.#ctor(System.String)",
+            "label": "M:System.Uri.#ctor(System.String)",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 72,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "eb9a0a78-3e1a-4dfe-ad5c-ceacbb059e7f",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(dbApiBase);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(dbApiBase);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 72,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "5133299a-4fd5-4c77-8fb0-63e30d089881",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 63,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "b711d559-cf30-436a-bac4-4d8c18e8f1ac",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+              "protected": "M:System.Uri.#ctor(System.String)"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+            "protectedSnippet": "M:System.Uri.#ctor(System.String)",
+            "label": "M:System.Uri.#ctor(System.String)",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 63,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "9137acc1-f877-4b48-a080-8b2b331f0423",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 63,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "0a61a491-e997-463d-8128-af1dbd611eb1",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(dbApiBase);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(dbApiBase);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 59,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "d9380099-3521-43f7-8717-c96777511a74",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(dbApiBase);",
+              "protected": "M:System.Uri.#ctor(System.String)"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(dbApiBase);",
+            "protectedSnippet": "M:System.Uri.#ctor(System.String)",
+            "label": "M:System.Uri.#ctor(System.String)",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 59,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "3f6a3d9e-d21a-47ea-8f24-5890d779992f",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(dbApiBase);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(dbApiBase);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 59,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "a2167cef-b9b9-462f-b8b8-ae38fc0db72c",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 50,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "c25c8b34-8152-4e3d-a2f5-f85f7436bdb2",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+              "protected": "M:System.Uri.#ctor(System.String)"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+            "protectedSnippet": "M:System.Uri.#ctor(System.String)",
+            "label": "M:System.Uri.#ctor(System.String)",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 50,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "f6f5537b-313a-4ca2-a916-d32d845358a4",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 50,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "d9ce75a4-5023-411f-a35b-dfb45a59f2df",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(dbApiBase);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(dbApiBase);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 46,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "ce0068d5-73ad-400a-b43f-eddc0065cc85",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(dbApiBase);",
+              "protected": "M:System.Uri.#ctor(System.String)"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(dbApiBase);",
+            "protectedSnippet": "M:System.Uri.#ctor(System.String)",
+            "label": "M:System.Uri.#ctor(System.String)",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 46,
+            "column": 12
+          }
+        },
+        {
+          "incidentId": "d14c4478-5c35-406a-b2f3-e1f96de9d89e",
+          "ruleId": "Api.0003",
+          "description": "Breaking change: URI length limits removed ",
+          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "client.BaseAddress = new(dbApiBase);",
+              "protected": "T:System.Uri"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Web\\Program.cs",
+            "snippet": "client.BaseAddress = new(dbApiBase);",
+            "protectedSnippet": "T:System.Uri",
+            "label": "T:System.Uri",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/networking/10.0/uri-length-limits-removed.md",
+                "isCustom": false
+              }
+            ],
+            "line": 46,
+            "column": 12
+          }
+        }
+      ],
+      "features": []
+    },
+    {
+      "path": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+      "startingProject": true,
+      "issues": 3,
+      "storyPoints": 6,
+      "properties": {
+        "appName": "AspireApp1.ServiceDefaults",
+        "projectKind": "ClassLibrary",
+        "frameworks": [
+          "net9.0"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 1,
+        "numberOfCodeFiles": 1,
+        "linesTotal": 119,
+        "linesOfCode": 119,
+        "totalApiScanned": 102,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [
+        {
+          "incidentId": "872d31de-cfd1-41ef-afb3-46715f254056",
+          "ruleId": "NuGet.0002",
+          "projectPath": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.Extensions.Http.Resilience, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.Extensions.Http.Resilience, and replace with new package Microsoft.Extensions.Http.Resilience 10.1.0",
+              "protected": "Microsoft.Extensions.Http.Resilience, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.Extensions.Http.Resilience, and replace with new package Microsoft.Extensions.Http.Resilience 10.1.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+            "snippet": "Microsoft.Extensions.Http.Resilience, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.Extensions.Http.Resilience, and replace with new package Microsoft.Extensions.Http.Resilience 10.1.0",
+            "protectedSnippet": "Microsoft.Extensions.Http.Resilience, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.Extensions.Http.Resilience, and replace with new package Microsoft.Extensions.Http.Resilience 10.1.0",
+            "label": "Microsoft.Extensions.Http.Resilience 9.0.0",
+            "properties": {
+              "PackageId": "Microsoft.Extensions.Http.Resilience",
+              "PackageVersion": "9.0.0",
+              "PackageNewVersion": "10.1.0",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "0f359bff-ade5-433f-92da-cfb63b393eed",
+          "ruleId": "NuGet.0002",
+          "projectPath": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.Extensions.ServiceDiscovery, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.Extensions.ServiceDiscovery, and replace with new package Microsoft.Extensions.ServiceDiscovery 10.1.0",
+              "protected": "Microsoft.Extensions.ServiceDiscovery, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.Extensions.ServiceDiscovery, and replace with new package Microsoft.Extensions.ServiceDiscovery 10.1.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+            "snippet": "Microsoft.Extensions.ServiceDiscovery, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.Extensions.ServiceDiscovery, and replace with new package Microsoft.Extensions.ServiceDiscovery 10.1.0",
+            "protectedSnippet": "Microsoft.Extensions.ServiceDiscovery, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.Extensions.ServiceDiscovery, and replace with new package Microsoft.Extensions.ServiceDiscovery 10.1.0",
+            "label": "Microsoft.Extensions.ServiceDiscovery 9.0.0",
+            "properties": {
+              "PackageId": "Microsoft.Extensions.ServiceDiscovery",
+              "PackageVersion": "9.0.0",
+              "PackageNewVersion": "10.1.0",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "84acdec1-8bf8-4574-8c02-a8cb88732d14",
+          "ruleId": "NuGet.0002",
+          "projectPath": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "OpenTelemetry.Instrumentation.AspNetCore, 1.9.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove OpenTelemetry.Instrumentation.AspNetCore, and replace with new package OpenTelemetry.Instrumentation.AspNetCore 1.14.0",
+              "protected": "OpenTelemetry.Instrumentation.AspNetCore, 1.9.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove OpenTelemetry.Instrumentation.AspNetCore, and replace with new package OpenTelemetry.Instrumentation.AspNetCore 1.14.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+            "snippet": "OpenTelemetry.Instrumentation.AspNetCore, 1.9.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove OpenTelemetry.Instrumentation.AspNetCore, and replace with new package OpenTelemetry.Instrumentation.AspNetCore 1.14.0",
+            "protectedSnippet": "OpenTelemetry.Instrumentation.AspNetCore, 1.9.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove OpenTelemetry.Instrumentation.AspNetCore, and replace with new package OpenTelemetry.Instrumentation.AspNetCore 1.14.0",
+            "label": "OpenTelemetry.Instrumentation.AspNetCore 1.9.0",
+            "properties": {
+              "PackageId": "OpenTelemetry.Instrumentation.AspNetCore",
+              "PackageVersion": "1.9.0",
+              "PackageNewVersion": "1.14.0",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "3893b6a7-0a2c-473a-8f92-62ede3c698a0",
+          "ruleId": "NuGet.0002",
+          "projectPath": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "OpenTelemetry.Instrumentation.Http, 1.9.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove OpenTelemetry.Instrumentation.Http, and replace with new package OpenTelemetry.Instrumentation.Http 1.14.0",
+              "protected": "OpenTelemetry.Instrumentation.Http, 1.9.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove OpenTelemetry.Instrumentation.Http, and replace with new package OpenTelemetry.Instrumentation.Http 1.14.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+            "snippet": "OpenTelemetry.Instrumentation.Http, 1.9.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove OpenTelemetry.Instrumentation.Http, and replace with new package OpenTelemetry.Instrumentation.Http 1.14.0",
+            "protectedSnippet": "OpenTelemetry.Instrumentation.Http, 1.9.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove OpenTelemetry.Instrumentation.Http, and replace with new package OpenTelemetry.Instrumentation.Http 1.14.0",
+            "label": "OpenTelemetry.Instrumentation.Http 1.9.0",
+            "properties": {
+              "PackageId": "OpenTelemetry.Instrumentation.Http",
+              "PackageVersion": "1.9.0",
+              "PackageNewVersion": "1.14.0",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "303279cf-6231-4ad8-81ac-f728bacd77cf",
+          "ruleId": "NuGet.0005",
+          "projectPath": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.Extensions.ServiceDiscovery, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Microsoft.Extensions.ServiceDiscovery, and replace with new package Microsoft.Extensions.ServiceDiscovery, 10.1.0",
+              "protected": "Microsoft.Extensions.ServiceDiscovery, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Microsoft.Extensions.ServiceDiscovery, and replace with new package Microsoft.Extensions.ServiceDiscovery, 10.1.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+            "snippet": "Microsoft.Extensions.ServiceDiscovery, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Microsoft.Extensions.ServiceDiscovery, and replace with new package Microsoft.Extensions.ServiceDiscovery, 10.1.0",
+            "protectedSnippet": "Microsoft.Extensions.ServiceDiscovery, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Microsoft.Extensions.ServiceDiscovery, and replace with new package Microsoft.Extensions.ServiceDiscovery, 10.1.0",
+            "label": "Microsoft.Extensions.ServiceDiscovery 9.0.0",
+            "properties": {
+              "PackageId": "Microsoft.Extensions.ServiceDiscovery",
+              "PackageVersion": "9.0.0",
+              "PackageNewVersion": null,
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "5e58b506-3cc8-4fa7-a19b-f4850a3621dd",
+          "ruleId": "Project.0002",
+          "projectPath": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+              "protected": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+            "snippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+            "protectedSnippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+            "properties": {
+              "CurrentTargetFramework": "net9.0",
+              "RecommendedTargetFramework": "net10.0"
+            }
+          }
+        }
+      ],
+      "features": []
+    },
+    {
+      "path": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+      "startingProject": true,
+      "issues": 4,
+      "storyPoints": 4,
+      "properties": {
+        "appName": "AspireApp1.Tests",
+        "projectKind": "DotNetCoreApp",
+        "frameworks": [
+          "net9.0"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 3,
+        "numberOfCodeFiles": 1,
+        "linesTotal": 1813,
+        "linesOfCode": 28,
+        "totalApiScanned": 65,
+        "minLinesOfCodeToChange": 1,
+        "maxLinesOfCodeToChange": 1
+      },
+      "ruleInstances": [
+        {
+          "incidentId": "b9c4fd57-bd1c-45b2-9810-bd0749af7e13",
+          "ruleId": "NuGet.0002",
+          "projectPath": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Aspire.Hosting.Testing, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Aspire.Hosting.Testing, and replace with new package Aspire.Hosting.Testing 13.1.0",
+              "protected": "Aspire.Hosting.Testing, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Aspire.Hosting.Testing, and replace with new package Aspire.Hosting.Testing 13.1.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+            "snippet": "Aspire.Hosting.Testing, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Aspire.Hosting.Testing, and replace with new package Aspire.Hosting.Testing 13.1.0",
+            "protectedSnippet": "Aspire.Hosting.Testing, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Aspire.Hosting.Testing, and replace with new package Aspire.Hosting.Testing 13.1.0",
+            "label": "Aspire.Hosting.Testing 9.0.0",
+            "properties": {
+              "PackageId": "Aspire.Hosting.Testing",
+              "PackageVersion": "9.0.0",
+              "PackageNewVersion": "13.1.0",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "7fa45ca1-5ca3-437b-9aeb-8826d7afd7a4",
+          "ruleId": "NuGet.0005",
+          "projectPath": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Aspire.Hosting.Testing, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Aspire.Hosting.Testing, and replace with new package Aspire.Hosting.Testing, 13.1.0",
+              "protected": "Aspire.Hosting.Testing, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Aspire.Hosting.Testing, and replace with new package Aspire.Hosting.Testing, 13.1.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+            "snippet": "Aspire.Hosting.Testing, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Aspire.Hosting.Testing, and replace with new package Aspire.Hosting.Testing, 13.1.0",
+            "protectedSnippet": "Aspire.Hosting.Testing, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Aspire.Hosting.Testing, and replace with new package Aspire.Hosting.Testing, 13.1.0",
+            "label": "Aspire.Hosting.Testing 9.0.0",
+            "properties": {
+              "PackageId": "Aspire.Hosting.Testing",
+              "PackageVersion": "9.0.0",
+              "PackageNewVersion": null,
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "91bb434f-aef2-4117-9bc6-bbb7f10395c1",
+          "ruleId": "Project.0002",
+          "projectPath": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+              "protected": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+            "snippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+            "protectedSnippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
+            "properties": {
+              "CurrentTargetFramework": "net9.0",
+              "RecommendedTargetFramework": "net10.0"
+            }
+          }
+        },
+        {
+          "incidentId": "5928a7bf-1da8-4adb-bbdc-1f05b2f3bb34",
+          "ruleId": "Api.0002",
+          "description": "Breaking change: New TimeSpan.From*() overloads that take integers ",
+          "projectPath": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "await resourceNotificationService.WaitForResourceAsync(\u0022webfrontend\u0022, KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(30));",
+              "protected": "M:System.TimeSpan.FromSeconds(System.Int64)"
+            },
+            "kind": "File",
+            "path": "AspireApp1.Tests\\WebTests.cs",
+            "snippet": "await resourceNotificationService.WaitForResourceAsync(\u0022webfrontend\u0022, KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(30));",
+            "protectedSnippet": "M:System.TimeSpan.FromSeconds(System.Int64)",
+            "label": "M:System.TimeSpan.FromSeconds(System.Int64)",
+            "links": [
+              {
+                "title": "API \u30C9\u30AD\u30E5\u30E1\u30F3\u30C8",
+                "url": "https://github.com/dotnet/docs/blob/main/docs/core/compatibility/core-libraries/9.0/timespan-from-overloads.md",
+                "isCustom": false
+              }
+            ],
+            "line": 21,
+            "column": 8
+          }
+        }
+      ],
+      "features": []
+    }
+  ],
+  "rules": {
+    "NuGet.0002": {
+      "id": "NuGet.0002",
+      "isFeature": false,
+      "description": "\u9078\u629E\u3057\u305F\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF\u306B\u306F\u3001NuGet \u30D1\u30C3\u30B1\u30FC\u30B8\u306E\u30A2\u30C3\u30D7\u30B0\u30EC\u30FC\u30C9\u3092\u304A\u52E7\u3081\u3057\u307E\u3059\u3002\n\n\u6A19\u6E96\u306E .NET \u30D1\u30C3\u30B1\u30FC\u30B8\u3067\u306F\u3001\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u5BFE\u8C61\u3068\u306A\u308B .NET \u306E\u30D0\u30FC\u30B8\u30E7\u30F3\u3068\u4E00\u81F4\u3059\u308B\u30D0\u30FC\u30B8\u30E7\u30F3\u3092\u304A\u52E7\u3081\u3057\u307E\u3059\u3002\n\n\u4ED6\u306E\u3044\u304F\u3064\u304B\u306E\u30D1\u30C3\u30B1\u30FC\u30B8\u3082\u3001\u9078\u629E\u3057\u305F\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF\u306B\u9069\u3057\u3066\u3044\u307E\u3059\u3002",
+      "label": "NuGet \u30D1\u30C3\u30B1\u30FC\u30B8\u306E\u30A2\u30C3\u30D7\u30B0\u30EC\u30FC\u30C9\u3092\u304A\u3059\u3059\u3081\u3057\u307E\u3059",
+      "severity": "Potential",
+      "effort": 1,
+      "links": [
+        {
+          "url": "https://go.microsoft.com/fwlink/?linkid=2262530",
+          "isCustom": false
+        }
+      ]
+    },
+    "NuGet.0005": {
+      "id": "NuGet.0005",
+      "isFeature": false,
+      "description": "NuGet \u30D1\u30C3\u30B1\u30FC\u30B8\u306F\u975E\u63A8\u5968\u3067\u3059\u3002\n\n\u305D\u306E\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\u306B\u30A2\u30AF\u30BB\u30B9\u3057\u3001\u3053\u306E\u30D1\u30C3\u30B1\u30FC\u30B8\u306B\u3088\u3063\u3066\u63D0\u4F9B\u3055\u308C\u308B\u6A5F\u80FD\u306E\u7F6E\u304D\u63DB\u3048\u306B\u95A2\u3059\u308B\u30AC\u30A4\u30C0\u30F3\u30B9\u304C\u3042\u308B\u304B\u3069\u3046\u304B\u3092\u78BA\u8A8D\u3057\u307E\u3059\u3002",
+      "label": "NuGet \u30D1\u30C3\u30B1\u30FC\u30B8\u306F\u975E\u63A8\u5968\u3067\u3059",
+      "severity": "Optional",
+      "effort": 1,
+      "links": [
+        {
+          "url": "https://go.microsoft.com/fwlink/?linkid=2262531",
+          "isCustom": false
+        }
+      ]
+    },
+    "Project.0002": {
+      "id": "Project.0002",
+      "isFeature": false,
+      "description": "\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF\u306F\u3001\u3053\u306E\u30A2\u30C3\u30D7\u30B0\u30EC\u30FC\u30C9\u7528\u306B\u9078\u629E\u3057\u305F\u65B0\u3057\u3044\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF\u306B\u5909\u66F4\u3059\u308B\u5FC5\u8981\u304C\u3042\u308A\u307E\u3059\u3002\n\n\u30A2\u30C3\u30D7\u30B0\u30EC\u30FC\u30C9\u4E2D\u3001\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF\u306F\u3001\u8A72\u5F53\u3059\u308B\u5834\u5408\u3001\u5BFE\u5FDC\u3059\u308B\u30D7\u30E9\u30C3\u30C8\u30D5\u30A9\u30FC\u30E0\u306B\u8ABF\u6574\u3055\u308C\u307E\u3059\u3002\u5834\u5408\u306B\u3088\u3063\u3066\u306F\u3001\u6700\u65B0\u306E .NET \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF (Windows\u3001iOS\u3001Android \u306A\u3069) \u3067\u72EC\u81EA\u306E\u30D7\u30E9\u30C3\u30C8\u30D5\u30A9\u30FC\u30E0\u3092\u6301\u3064\u3088\u3046\u306B\u306A\u3063\u305F\u6A5F\u80FD\u3092\u4F7F\u7528\u3057\u3066\u3044\u305F\u5834\u5408\u3001\u30A2\u30C3\u30D7\u30B0\u30EC\u30FC\u30C9\u5F8C\u306B\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u3067\u8907\u6570\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF\u304C\u767A\u751F\u3059\u308B\u5834\u5408\u304C\u3042\u308A\u307E\u3059\u3002",
+      "label": "\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF\u3092\u5909\u66F4\u3059\u308B\u5FC5\u8981\u304C\u3042\u308B",
+      "severity": "Mandatory",
+      "effort": 1,
+      "links": [
+        {
+          "title": ".NET Framework\u304B\u3089 .NET \u3078\u306E\u79FB\u690D\u306E\u6982\u8981",
+          "url": "https://go.microsoft.com/fwlink/?linkid=2265227",
+          "isCustom": false
+        },
+        {
+          "title": ".NET \u30D7\u30ED\u30B8\u30A7\u30AF\u30C8 SDK",
+          "url": "https://go.microsoft.com/fwlink/?linkid=2265226",
+          "isCustom": false
+        }
+      ]
+    },
+    "Api.0003": {
+      "id": "Api.0003",
+      "isFeature": false,
+      "description": "API has a behavioral change in selected .NET version: code and binaries may behave differently at runtime without needing recompilation, but the new behavior might be undesirable and require updates.",
+      "label": "Behavioral change in selected .NET version",
+      "severity": "Potential",
+      "effort": 1
+    },
+    "Api.0002": {
+      "id": "Api.0002",
+      "isFeature": false,
+      "description": "API is source incompatible for selected .NET version: requires code changes to compile successfully when targeting a new version, such as removing obsolete APIs or changing method signatures.",
+      "label": "Source incompatible for selected .NET version",
+      "severity": "Potential",
+      "effort": 1,
+      "links": [
+        {
+          "title": ".NET \u306E\u7834\u58CA\u7684\u5909\u66F4",
+          "url": "https://go.microsoft.com/fwlink/?linkid=2262679",
+          "isCustom": false
+        }
+      ]
+    }
+  }
+}

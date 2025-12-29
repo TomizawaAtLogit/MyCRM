@@ -1,5 +1,8 @@
+using AspireApp1.FrontEnd;
+using AspireApp1.FrontEnd.Components;
 using AspireApp1.Web;
-using AspireApp1.Web.Components;
+using Microsoft.AspNetCore.Authentication.Negotiate;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,16 +15,71 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddOutputCache();
 
-builder.Services.AddHttpClient<WeatherApiClient>(client =>
+// Add Windows Authentication
+builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+    .AddNegotiate();
+
+// Add Authorization with AdminOnly policy
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
     {
-        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
-        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-        client.BaseAddress = new("https+http://apiservice");
+        policy.RequireAuthenticatedUser();
+        // In the frontend, we use a simple role-based check
+        // The actual authorization is enforced by the backend API
+        policy.RequireAssertion(context => 
+        {
+            // Allow access if user is authenticated
+            // Backend will enforce actual admin permissions
+            return context.User.Identity?.IsAuthenticated == true;
+        });
     });
+});
+
+builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddHttpClient<ProjectsApiClient>(client =>
     {
         // Allow overriding the DB API base URL in configuration for local development.
+        var dbApiBase = builder.Configuration["DbApiBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(dbApiBase))
+        {
+            client.BaseAddress = new(dbApiBase);
+        }
+        else
+        {
+            client.BaseAddress = new("https+http://dbapi");
+        }
+    });
+
+builder.Services.AddHttpClient<CustomerApiClient>(client =>
+    {
+        var dbApiBase = builder.Configuration["DbApiBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(dbApiBase))
+        {
+            client.BaseAddress = new(dbApiBase);
+        }
+        else
+        {
+            client.BaseAddress = new("https+http://dbapi");
+        }
+    });
+
+builder.Services.AddHttpClient<ProjectActivityApiClient>(client =>
+    {
+        var dbApiBase = builder.Configuration["DbApiBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(dbApiBase))
+        {
+            client.BaseAddress = new(dbApiBase);
+        }
+        else
+        {
+            client.BaseAddress = new("https+http://dbapi");
+        }
+    });
+
+builder.Services.AddHttpClient<AdminApiClient>(client =>
+    {
         var dbApiBase = builder.Configuration["DbApiBaseUrl"];
         if (!string.IsNullOrWhiteSpace(dbApiBase))
         {
@@ -43,6 +101,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseAntiforgery();
 

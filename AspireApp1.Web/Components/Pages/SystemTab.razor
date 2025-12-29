@@ -1,0 +1,123 @@
+@using System.ComponentModel.DataAnnotations
+@inject CustomerApiClient CustomerApi
+
+<div class="row">
+    <div class="col-md-8">
+        <h5>Systems</h5>
+        @if (Systems == null || !Systems.Any())
+        {
+            <p class="text-muted">No systems configured.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>System Name</th>
+                            <th>Component Type</th>
+                            <th>Manufacturer</th>
+                            <th>Model</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var system in Systems)
+                        {
+                            <tr>
+                                <td>@system.SystemName</td>
+                                <td>@system.ComponentType</td>
+                                <td>@system.Manufacturer</td>
+                                <td>@system.Model</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(system.Id)">Delete</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Add System</div>
+            <div class="card-body">
+                <EditForm Model="newSystem" OnValidSubmit="CreateAsync">
+                    <DataAnnotationsValidator />
+                    <div class="mb-2">
+                        <label class="form-label">System Name</label>
+                        <InputText @bind-Value="newSystem.SystemName" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Component Type</label>
+                        <InputText @bind-Value="newSystem.ComponentType" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Manufacturer</label>
+                        <InputText @bind-Value="newSystem.Manufacturer" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Model</label>
+                        <InputText @bind-Value="newSystem.Model" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Serial Number</label>
+                        <InputText @bind-Value="newSystem.SerialNumber" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Location</label>
+                        <InputText @bind-Value="newSystem.Location" class="form-control form-control-sm" />
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100">Add</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public int CustomerId { get; set; }
+
+    [Parameter]
+    public List<CustomerSystemDto> Systems { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    private NewSystemModel newSystem = new();
+
+    private async Task CreateAsync()
+    {
+        var dto = new CustomerSystemCreateDto(
+            newSystem.SystemName!,
+            newSystem.ComponentType,
+            newSystem.Manufacturer,
+            newSystem.Model,
+            newSystem.SerialNumber,
+            newSystem.Location,
+            null, null, null);
+
+        await CustomerApi.AddSystemAsync(CustomerId, dto);
+        newSystem = new();
+        await OnRefresh.InvokeAsync();
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        await CustomerApi.DeleteSystemAsync(CustomerId, id);
+        await OnRefresh.InvokeAsync();
+    }
+
+    class NewSystemModel
+    {
+        [Required]
+        public string? SystemName { get; set; }
+        public string? ComponentType { get; set; }
+        public string? Manufacturer { get; set; }
+        public string? Model { get; set; }
+        public string? SerialNumber { get; set; }
+        public string? Location { get; set; }
+    }
+}
