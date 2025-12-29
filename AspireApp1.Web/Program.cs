@@ -1,6 +1,7 @@
 using AspireApp1.FrontEnd;
 using AspireApp1.FrontEnd.Components;
 using AspireApp1.Web;
+using Microsoft.AspNetCore.Authentication.Negotiate;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,9 +15,56 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddOutputCache();
 
+// Add Windows Authentication
+builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+    .AddNegotiate();
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddCascadingAuthenticationState();
+
 builder.Services.AddHttpClient<ProjectsApiClient>(client =>
     {
         // Allow overriding the DB API base URL in configuration for local development.
+        var dbApiBase = builder.Configuration["DbApiBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(dbApiBase))
+        {
+            client.BaseAddress = new(dbApiBase);
+        }
+        else
+        {
+            client.BaseAddress = new("https+http://dbapi");
+        }
+    });
+
+builder.Services.AddHttpClient<CustomerApiClient>(client =>
+    {
+        var dbApiBase = builder.Configuration["DbApiBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(dbApiBase))
+        {
+            client.BaseAddress = new(dbApiBase);
+        }
+        else
+        {
+            client.BaseAddress = new("https+http://dbapi");
+        }
+    });
+
+builder.Services.AddHttpClient<ProjectActivityApiClient>(client =>
+    {
+        var dbApiBase = builder.Configuration["DbApiBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(dbApiBase))
+        {
+            client.BaseAddress = new(dbApiBase);
+        }
+        else
+        {
+            client.BaseAddress = new("https+http://dbapi");
+        }
+    });
+
+builder.Services.AddHttpClient<AdminApiClient>(client =>
+    {
         var dbApiBase = builder.Configuration["DbApiBaseUrl"];
         if (!string.IsNullOrWhiteSpace(dbApiBase))
         {
@@ -38,6 +86,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseAntiforgery();
 

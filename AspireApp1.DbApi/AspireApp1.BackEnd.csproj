@@ -9,6 +9,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.12" PrivateAssets="all" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AspireApp1.ServiceDefaults\AspireApp1.ServiceDefaults.csproj" />

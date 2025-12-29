@@ -1,5 +1,8 @@
+using AspireApp1.DbApi.Authorization;
 using AspireApp1.DbApi.Data;
 using AspireApp1.DbApi.Repositories;
+using Microsoft.AspNetCore.Authentication.Negotiate;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,10 +12,30 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Add Windows Authentication
+builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+    .AddNegotiate();
+
+// Add Authorization with custom policy
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.Requirements.Add(new AdminPolicyRequirement());
+    });
+});
+
+builder.Services.AddSingleton<IAuthorizationHandler, AdminPolicyHandler>();
+
 builder.Services.AddDbContext<ProjectDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IProjectActivityRepository, ProjectActivityRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 var app = builder.Build();
 
@@ -26,6 +49,9 @@ else
 {
     app.UseExceptionHandler("/error");
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Map controllers and a friendly root endpoint.
 app.MapControllers();
