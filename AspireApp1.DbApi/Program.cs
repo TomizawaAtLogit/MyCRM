@@ -66,13 +66,8 @@ try
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ProjectDbContext>();
     
-    // Delete and recreate database to fix PostgreSQL column naming issues
-    if (app.Environment.IsDevelopment())
-    {
-        Console.WriteLine("Recreating database with correct schema...");
-        db.Database.EnsureDeleted();
-        db.Database.EnsureCreated();
-    }
+    // Apply migrations instead of recreating database to preserve data
+    db.Database.Migrate();
     
     // Seed initial data if database is empty
     if (!db.Users.Any())

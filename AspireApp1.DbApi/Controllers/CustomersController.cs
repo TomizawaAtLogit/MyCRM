@@ -1,3 +1,4 @@
+using AspireApp1.DbApi.DTOs;
 using AspireApp1.DbApi.Models;
 using AspireApp1.DbApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -77,9 +78,18 @@ public class CustomersController : ControllerBase
 
     // Database endpoints
     [HttpPost("{customerId}/databases")]
-    public async Task<ActionResult<CustomerDatabase>> PostDatabase(int customerId, CustomerDatabase database)
+    public async Task<ActionResult<CustomerDatabase>> PostDatabase(int customerId, CustomerDatabaseCreateDto dto)
     {
-        database.CustomerId = customerId;
+        var database = new CustomerDatabase
+        {
+            CustomerId = customerId,
+            DatabaseName = dto.DatabaseName,
+            DatabaseType = dto.DatabaseType,
+            ServerName = dto.ServerName,
+            Port = dto.Port,
+            Version = dto.Version,
+            Description = dto.Description
+        };
         var created = await _repo.AddDatabaseAsync(database);
         return Ok(created);
     }
@@ -102,9 +112,19 @@ public class CustomersController : ControllerBase
 
     // Site endpoints
     [HttpPost("{customerId}/sites")]
-    public async Task<ActionResult<CustomerSite>> PostSite(int customerId, CustomerSite site)
+    public async Task<ActionResult<CustomerSite>> PostSite(int customerId, CustomerSiteCreateDto dto)
     {
-        site.CustomerId = customerId;
+        var site = new CustomerSite
+        {
+            CustomerId = customerId,
+            SiteName = dto.SiteName,
+            Address = dto.Address,
+            PostCode = dto.PostCode,
+            Country = dto.Country,
+            ContactPerson = dto.ContactPerson,
+            Phone = dto.Phone,
+            Description = dto.Description
+        };
         var created = await _repo.AddSiteAsync(site);
         return Ok(created);
     }
@@ -127,9 +147,19 @@ public class CustomersController : ControllerBase
 
     // System endpoints
     [HttpPost("{customerId}/systems")]
-    public async Task<ActionResult<CustomerSystem>> PostSystem(int customerId, CustomerSystem system)
+    public async Task<ActionResult<CustomerSystem>> PostSystem(int customerId, CustomerSystemCreateDto dto)
     {
-        system.CustomerId = customerId;
+        var system = new CustomerSystem
+        {
+            CustomerId = customerId,
+            SystemName = dto.SystemName,
+            ComponentType = dto.ComponentType,
+            Manufacturer = dto.Manufacturer,
+            Model = dto.Model,
+            SerialNumber = dto.SerialNumber,
+            Location = dto.Location,
+            Description = dto.Description
+        };
         var created = await _repo.AddSystemAsync(system);
         return Ok(created);
     }
