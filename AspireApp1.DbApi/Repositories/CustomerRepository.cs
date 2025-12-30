@@ -29,6 +29,8 @@ public class CustomerRepository : ICustomerRepository
             .Include(c => c.Databases)
             .Include(c => c.Sites)
             .Include(c => c.Systems)
+            .Include(c => c.NewSystems)
+                .ThenInclude(s => s.Components)
             .Include(c => c.Orders)
             .Include(c => c.ProjectActivities)
                 .ThenInclude(pa => pa.Project)
@@ -181,6 +183,64 @@ public class CustomerRepository : ICustomerRepository
         if (projectActivity != null)
         {
             _db.ProjectActivities.Remove(projectActivity);
+            await _db.SaveChangesAsync();
+        }
+    }
+
+    // New System operations
+    public async Task<Models.System> AddNewSystemAsync(Models.System system)
+    {
+        _db.Systems.Add(system);
+        await _db.SaveChangesAsync();
+        return system;
+    }
+
+    public async Task<Models.System?> GetSystemWithComponentsAsync(int systemId)
+    {
+        return await _db.Systems
+            .Include(s => s.Components)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.Id == systemId);
+    }
+
+    public async Task UpdateNewSystemAsync(Models.System system)
+    {
+        system.UpdatedAt = DateTime.UtcNow;
+        _db.Systems.Update(system);
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task DeleteNewSystemAsync(int id)
+    {
+        var system = await _db.Systems.FindAsync(id);
+        if (system != null)
+        {
+            _db.Systems.Remove(system);
+            await _db.SaveChangesAsync();
+        }
+    }
+
+    // SystemComponent operations
+    public async Task<SystemComponent> AddSystemComponentAsync(SystemComponent component)
+    {
+        _db.SystemComponents.Add(component);
+        await _db.SaveChangesAsync();
+        return component;
+    }
+
+    public async Task UpdateSystemComponentAsync(SystemComponent component)
+    {
+        component.UpdatedAt = DateTime.UtcNow;
+        _db.SystemComponents.Update(component);
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task DeleteSystemComponentAsync(int id)
+    {
+        var component = await _db.SystemComponents.FindAsync(id);
+        if (component != null)
+        {
+            _db.SystemComponents.Remove(component);
             await _db.SaveChangesAsync();
         }
     }

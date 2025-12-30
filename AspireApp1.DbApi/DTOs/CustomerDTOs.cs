@@ -34,3 +34,17 @@ public record CustomerOrderCreateDto(
     string? Status,
     decimal? Amount,
     string? Description);
+
+public record SystemCreateDto(
+    [Required] string SystemName,
+    string? Location,
+    DateTime? InstallationDate,
+    string? Description);
+
+public record SystemComponentCreateDto(
+    [Required] string ComponentType,
+    string? Manufacturer,
+    string? Model,
+    string? SerialNumber,
+    DateTime? WarrantyExpiration,
+    string? Description);

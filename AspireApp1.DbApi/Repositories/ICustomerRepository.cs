@@ -29,4 +29,15 @@ public interface ICustomerRepository
     Task DeleteSystemAsync(int id);
     Task DeleteOrderAsync(int id);
     Task DeleteProjectActivityAsync(int id);
+
+    // New System operations
+    Task<Models.System> AddNewSystemAsync(Models.System system);
+    Task<Models.System?> GetSystemWithComponentsAsync(int systemId);
+    Task UpdateNewSystemAsync(Models.System system);
+    Task DeleteNewSystemAsync(int id);
+
+    // SystemComponent operations
+    Task<SystemComponent> AddSystemComponentAsync(SystemComponent component);
+    Task UpdateSystemComponentAsync(SystemComponent component);
+    Task DeleteSystemComponentAsync(int id);
 }

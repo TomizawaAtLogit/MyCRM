@@ -12,6 +12,8 @@ namespace AspireApp1.DbApi.Data
         public DbSet<CustomerDatabase> CustomerDatabases { get; set; } = null!;
         public DbSet<CustomerSite> CustomerSites { get; set; } = null!;
         public DbSet<CustomerSystem> CustomerSystems { get; set; } = null!;
+        public DbSet<Models.System> Systems { get; set; } = null!;
+        public DbSet<SystemComponent> SystemComponents { get; set; } = null!;
         public DbSet<CustomerOrder> CustomerOrders { get; set; } = null!;
         public DbSet<ProjectActivity> ProjectActivities { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
@@ -47,6 +49,7 @@ namespace AspireApp1.DbApi.Data
                 b.HasMany(x => x.Databases).WithOne(x => x.Customer).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
                 b.HasMany(x => x.Sites).WithOne(x => x.Customer).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
                 b.HasMany(x => x.Systems).WithOne(x => x.Customer).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
+                b.HasMany(x => x.NewSystems).WithOne(x => x.Customer).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
                 b.HasMany(x => x.Orders).WithOne(x => x.Customer).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
                 b.HasMany(x => x.ProjectActivities).WithOne(x => x.Customer).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.SetNull);
             });
@@ -104,6 +107,42 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
                 b.HasIndex(x => x.CustomerId);
+            });
+
+            modelBuilder.Entity<Models.System>(b =>
+            {
+                b.ToTable("systems");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.CustomerId).HasColumnName("customer_id");
+                b.Property(x => x.SystemName).IsRequired().HasMaxLength(200).HasColumnName("system_name");
+                b.Property(x => x.Location).HasMaxLength(200).HasColumnName("location");
+                b.Property(x => x.InstallationDate).HasColumnName("installation_date");
+                b.Property(x => x.Description).HasColumnName("description");
+                b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
+                b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                
+                b.HasOne(x => x.Customer).WithMany(x => x.NewSystems).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
+                b.HasMany(x => x.Components).WithOne(x => x.System).HasForeignKey(x => x.SystemId).OnDelete(DeleteBehavior.Cascade);
+                b.HasIndex(x => x.CustomerId);
+            });
+
+            modelBuilder.Entity<SystemComponent>(b =>
+            {
+                b.ToTable("system_components");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.SystemId).HasColumnName("system_id");
+                b.Property(x => x.ComponentType).IsRequired().HasMaxLength(100).HasColumnName("component_type");
+                b.Property(x => x.Manufacturer).HasMaxLength(200).HasColumnName("manufacturer");
+                b.Property(x => x.Model).HasMaxLength(200).HasColumnName("model");
+                b.Property(x => x.SerialNumber).HasMaxLength(200).HasColumnName("serial_number");
+                b.Property(x => x.WarrantyExpiration).HasColumnName("warranty_expiration");
+                b.Property(x => x.Description).HasColumnName("description");
+                b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
+                b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                b.HasIndex(x => x.SystemId);
+                b.HasIndex(x => x.SerialNumber);
             });
 
             modelBuilder.Entity<CustomerOrder>(b =>

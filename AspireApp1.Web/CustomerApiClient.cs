@@ -24,6 +24,7 @@ public record CustomerWithChildrenDto(
     List<CustomerDatabaseDto> Databases,
     List<CustomerSiteDto> Sites,
     List<CustomerSystemDto> Systems,
+    List<SystemDto> NewSystems,
     List<CustomerOrderDto> Orders,
     List<CustomerProjectActivityDto> ProjectActivities);
 
@@ -146,6 +147,39 @@ public record CustomerProjectActivityCreateDto(
     string? NextAction,
     string? ActivityType,
     string? PerformedBy);
+
+public record SystemDto(
+    int Id,
+    int CustomerId,
+    string SystemName,
+    string? Location,
+    DateTime? InstallationDate,
+    string? Description,
+    List<SystemComponentDto> Components);
+
+public record SystemCreateDto(
+    [Required] string SystemName,
+    string? Location,
+    DateTime? InstallationDate,
+    string? Description);
+
+public record SystemComponentDto(
+    int Id,
+    int SystemId,
+    string ComponentType,
+    string? Manufacturer,
+    string? Model,
+    string? SerialNumber,
+    DateTime? WarrantyExpiration,
+    string? Description);
+
+public record SystemComponentCreateDto(
+    [Required] string ComponentType,
+    string? Manufacturer,
+    string? Model,
+    string? SerialNumber,
+    DateTime? WarrantyExpiration,
+    string? Description);
 
 public class CustomerApiClient
 {
@@ -274,6 +308,60 @@ public class CustomerApiClient
     public async Task<bool> DeleteSystemAsync(int customerId, int id, CancellationToken ct = default)
     {
         var res = await _http.DeleteAsync($"/api/customers/{customerId}/systems/{id}", ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    // New System operations (parent entity)
+    public async Task<SystemDto?> AddNewSystemAsync(int customerId, SystemCreateDto dto, CancellationToken ct = default)
+    {
+        var res = await _http.PostAsJsonAsync($"/api/customers/{customerId}/new-systems", dto, ct);
+        if (res.IsSuccessStatusCode)
+            return await res.Content.ReadFromJsonAsync<SystemDto>(ct);
+        return null;
+    }
+
+    public async Task<SystemDto?> GetSystemWithComponentsAsync(int customerId, int systemId, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _http.GetFromJsonAsync<SystemDto>($"/api/customers/{customerId}/new-systems/{systemId}", ct);
+        }
+        catch (HttpRequestException)
+        {
+            return null;
+        }
+    }
+
+    public async Task<bool> UpdateNewSystemAsync(int customerId, int id, SystemDto dto, CancellationToken ct = default)
+    {
+        var res = await _http.PutAsJsonAsync($"/api/customers/{customerId}/new-systems/{id}", dto, ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteNewSystemAsync(int customerId, int id, CancellationToken ct = default)
+    {
+        var res = await _http.DeleteAsync($"/api/customers/{customerId}/new-systems/{id}", ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    // SystemComponent operations (child entity)
+    public async Task<SystemComponentDto?> AddSystemComponentAsync(int customerId, int systemId, SystemComponentCreateDto dto, CancellationToken ct = default)
+    {
+        var res = await _http.PostAsJsonAsync($"/api/customers/{customerId}/new-systems/{systemId}/components", dto, ct);
+        if (res.IsSuccessStatusCode)
+            return await res.Content.ReadFromJsonAsync<SystemComponentDto>(ct);
+        return null;
+    }
+
+    public async Task<bool> UpdateSystemComponentAsync(int customerId, int systemId, int id, SystemComponentDto dto, CancellationToken ct = default)
+    {
+        var res = await _http.PutAsJsonAsync($"/api/customers/{customerId}/new-systems/{systemId}/components/{id}", dto, ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteSystemComponentAsync(int customerId, int systemId, int id, CancellationToken ct = default)
+    {
+        var res = await _http.DeleteAsync($"/api/customers/{customerId}/new-systems/{systemId}/components/{id}", ct);
         return res.IsSuccessStatusCode;
     }
 

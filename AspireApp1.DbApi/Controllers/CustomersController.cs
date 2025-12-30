@@ -205,6 +205,94 @@ public class CustomersController : ControllerBase
         return NoContent();
     }
 
+    // New System endpoints (parent entity)
+    [HttpPost("{customerId}/new-systems")]
+    public async Task<ActionResult<Models.System>> PostNewSystem(int customerId, SystemCreateDto dto)
+    {
+        var system = new Models.System
+        {
+            CustomerId = customerId,
+            SystemName = dto.SystemName,
+            Location = dto.Location,
+            InstallationDate = dto.InstallationDate,
+            Description = dto.Description
+        };
+        var created = await _repo.AddNewSystemAsync(system);
+        return Ok(created);
+    }
+
+    [HttpGet("{customerId}/new-systems/{systemId}")]
+    public async Task<ActionResult<Models.System>> GetSystemWithComponents(int customerId, int systemId)
+    {
+        var system = await _repo.GetSystemWithComponentsAsync(systemId);
+        if (system == null || system.CustomerId != customerId)
+            return NotFound();
+        return Ok(system);
+    }
+
+    [HttpPut("{customerId}/new-systems/{id}")]
+    public async Task<IActionResult> PutNewSystem(int customerId, int id, Models.System system)
+    {
+        if (id != system.Id || customerId != system.CustomerId)
+            return BadRequest();
+        await _repo.UpdateNewSystemAsync(system);
+        return NoContent();
+    }
+
+    [HttpDelete("{customerId}/new-systems/{id}")]
+    public async Task<IActionResult> DeleteNewSystem(int customerId, int id)
+    {
+        await _repo.DeleteNewSystemAsync(id);
+        return NoContent();
+    }
+
+    // SystemComponent endpoints (child entity)
+    [HttpPost("{customerId}/new-systems/{systemId}/components")]
+    public async Task<ActionResult<SystemComponent>> PostSystemComponent(int customerId, int systemId, SystemComponentCreateDto dto)
+    {
+        var system = await _repo.GetSystemWithComponentsAsync(systemId);
+        if (system == null || system.CustomerId != customerId)
+            return NotFound("System not found or doesn't belong to customer");
+
+        var component = new SystemComponent
+        {
+            SystemId = systemId,
+            ComponentType = dto.ComponentType,
+            Manufacturer = dto.Manufacturer,
+            Model = dto.Model,
+            SerialNumber = dto.SerialNumber,
+            WarrantyExpiration = dto.WarrantyExpiration,
+            Description = dto.Description
+        };
+        var created = await _repo.AddSystemComponentAsync(component);
+        return Ok(created);
+    }
+
+    [HttpPut("{customerId}/new-systems/{systemId}/components/{id}")]
+    public async Task<IActionResult> PutSystemComponent(int customerId, int systemId, int id, SystemComponent component)
+    {
+        if (id != component.Id || systemId != component.SystemId)
+            return BadRequest();
+        
+        var system = await _repo.GetSystemWithComponentsAsync(systemId);
+        if (system == null || system.CustomerId != customerId)
+            return NotFound("System not found or doesn't belong to customer");
+
+        await _repo.UpdateSystemComponentAsync(component);
+        return NoContent();
+    }
+
+    [HttpDelete("{customerId}/new-systems/{systemId}/components/{id}")]
+    public async Task<IActionResult> DeleteSystemComponent(int customerId, int systemId, int id)
+    {
+        var system = await _repo.GetSystemWithComponentsAsync(systemId);
+        if (system == null || system.CustomerId != customerId)
+            return NotFound("System not found or doesn't belong to customer");
+
+        await _repo.DeleteSystemComponentAsync(id);
+        return NoContent();
+    }
+
     // Project Activity endpoints
     [HttpPost("{customerId}/project-activities")]
     public async Task<ActionResult<ProjectActivity>> PostProjectActivity(int customerId, ProjectActivity projectActivity)
