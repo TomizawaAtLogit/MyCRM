@@ -1,0 +1,127 @@
+@using System.ComponentModel.DataAnnotations
+@inject CustomerApiClient CustomerApi
+
+<div class="row">
+    <div class="col-md-8">
+        <h5>Orders / Contracts</h5>
+        @if (Orders == null || !Orders.Any())
+        {
+            <p class="text-muted">No orders configured.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Order Number</th>
+                            <th>Contract Type</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Orders)
+                        {
+                            <tr>
+                                <td>@order.OrderNumber</td>
+                                <td>@order.ContractType</td>
+                                <td>@order.StartDate.ToShortDateString()</td>
+                                <td>@(order.EndDate?.ToShortDateString() ?? "-")</td>
+                                <td>@order.Status</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(order.Id)">Delete</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Add Order</div>
+            <div class="card-body">
+                <EditForm Model="newOrder" OnValidSubmit="CreateAsync">
+                    <DataAnnotationsValidator />
+                    <div class="mb-2">
+                        <label class="form-label">Order Number</label>
+                        <InputText @bind-Value="newOrder.OrderNumber" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Contract Type</label>
+                        <InputText @bind-Value="newOrder.ContractType" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Start Date</label>
+                        <InputDate @bind-Value="newOrder.StartDate" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">End Date</label>
+                        <InputDate @bind-Value="newOrder.EndDate" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Status</label>
+                        <InputText @bind-Value="newOrder.Status" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Value</label>
+                        <InputNumber @bind-Value="newOrder.ContractValue" class="form-control form-control-sm" />
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100">Add</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public int CustomerId { get; set; }
+
+    [Parameter]
+    public List<CustomerOrderDto> Orders { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    private NewOrderModel newOrder = new();
+
+    private async Task CreateAsync()
+    {
+        var dto = new CustomerOrderCreateDto(
+            newOrder.OrderNumber!,
+            newOrder.ContractType!,
+            newOrder.StartDate,
+            newOrder.EndDate,
+            newOrder.ContractValue,
+            null,
+            newOrder.Status,
+            null);
+
+        await CustomerApi.AddOrderAsync(CustomerId, dto);
+        newOrder = new();
+        await OnRefresh.InvokeAsync();
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        await CustomerApi.DeleteOrderAsync(CustomerId, id);
+        await OnRefresh.InvokeAsync();
+    }
+
+    class NewOrderModel
+    {
+        [Required]
+        public string? OrderNumber { get; set; }
+        [Required]
+        public string? ContractType { get; set; }
+        public DateTime StartDate { get; set; } = DateTime.Today;
+        public DateTime? EndDate { get; set; }
+        public decimal? ContractValue { get; set; }
+        public string? Status { get; set; }
+    }
+}

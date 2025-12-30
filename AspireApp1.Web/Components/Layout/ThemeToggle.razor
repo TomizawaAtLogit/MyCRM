@@ -1,0 +1,27 @@
+@inject IJSRuntime JSRuntime
+
+<button @onclick="ToggleTheme" class="theme-toggle-btn" title="Toggle theme">
+    <span class="bi @(isDarkMode ? "bi-sun-fill" : "bi-moon-stars-fill")" aria-hidden="true"></span>
+</button>
+
+@code {
+    private bool isDarkMode = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Get current theme
+            var theme = await JSRuntime.InvokeAsync<string>("themeManager.getTheme");
+            isDarkMode = theme == "dark";
+            StateHasChanged();
+        }
+    }
+
+    private async Task ToggleTheme()
+    {
+        // Toggle theme and get the new value
+        var newTheme = await JSRuntime.InvokeAsync<string>("themeManager.toggleTheme");
+        isDarkMode = newTheme == "dark";
+    }
+}

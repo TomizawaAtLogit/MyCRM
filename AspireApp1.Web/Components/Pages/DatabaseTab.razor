@@ -1,0 +1,122 @@
+@using System.ComponentModel.DataAnnotations
+@inject CustomerApiClient CustomerApi
+
+<div class="row">
+    <div class="col-md-8">
+        <h5>Databases</h5>
+        @if (Databases == null || !Databases.Any())
+        {
+            <p class="text-muted">No databases configured.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Server</th>
+                            <th>Port</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var db in Databases)
+                        {
+                            <tr>
+                                <td>@db.DatabaseName</td>
+                                <td>@db.DatabaseType</td>
+                                <td>@db.ServerName</td>
+                                <td>@db.Port</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(db.Id)">Delete</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Add Database</div>
+            <div class="card-body">
+                <EditForm Model="newDatabase" OnValidSubmit="CreateAsync">
+                    <DataAnnotationsValidator />
+                    <div class="mb-2">
+                        <label class="form-label">Database Name</label>
+                        <InputText @bind-Value="newDatabase.DatabaseName" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Type</label>
+                        <InputText @bind-Value="newDatabase.DatabaseType" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Server</label>
+                        <InputText @bind-Value="newDatabase.ServerName" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Port</label>
+                        <InputText @bind-Value="newDatabase.Port" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Version</label>
+                        <InputText @bind-Value="newDatabase.Version" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Description</label>
+                        <InputTextArea @bind-Value="newDatabase.Description" class="form-control form-control-sm" rows="2" />
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100">Add</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public int CustomerId { get; set; }
+
+    [Parameter]
+    public List<CustomerDatabaseDto> Databases { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    private NewDatabaseModel newDatabase = new();
+
+    private async Task CreateAsync()
+    {
+        var dto = new CustomerDatabaseCreateDto(
+            newDatabase.DatabaseName!,
+            newDatabase.DatabaseType,
+            newDatabase.ServerName,
+            newDatabase.Port,
+            newDatabase.Version,
+            newDatabase.Description);
+
+        await CustomerApi.AddDatabaseAsync(CustomerId, dto);
+        newDatabase = new();
+        await OnRefresh.InvokeAsync();
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        await CustomerApi.DeleteDatabaseAsync(CustomerId, id);
+        await OnRefresh.InvokeAsync();
+    }
+
+    class NewDatabaseModel
+    {
+        [Required]
+        public string? DatabaseName { get; set; }
+        public string? DatabaseType { get; set; }
+        public string? ServerName { get; set; }
+        public string? Port { get; set; }
+        public string? Version { get; set; }
+        public string? Description { get; set; }
+    }
+}

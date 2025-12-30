@@ -1,0 +1,124 @@
+@using System.ComponentModel.DataAnnotations
+@inject CustomerApiClient CustomerApi
+
+<div class="row">
+    <div class="col-md-8">
+        <h5>Sites</h5>
+        @if (Sites == null || !Sites.Any())
+        {
+            <p class="text-muted">No sites configured.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Site Name</th>
+                            <th>City</th>
+                            <th>State</th>
+                            <th>Contact</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var site in Sites)
+                        {
+                            <tr>
+                                <td>@site.SiteName</td>
+                                <td>@site.City</td>
+                                <td>@site.State</td>
+                                <td>@site.ContactPerson</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(site.Id)">Delete</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Add Site</div>
+            <div class="card-body">
+                <EditForm Model="newSite" OnValidSubmit="CreateAsync">
+                    <DataAnnotationsValidator />
+                    <div class="mb-2">
+                        <label class="form-label">Site Name</label>
+                        <InputText @bind-Value="newSite.SiteName" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Address</label>
+                        <InputText @bind-Value="newSite.Address" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">City</label>
+                        <InputText @bind-Value="newSite.City" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">State</label>
+                        <InputText @bind-Value="newSite.State" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Contact Person</label>
+                        <InputText @bind-Value="newSite.ContactPerson" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Phone</label>
+                        <InputText @bind-Value="newSite.Phone" class="form-control form-control-sm" />
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100">Add</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public int CustomerId { get; set; }
+
+    [Parameter]
+    public List<CustomerSiteDto> Sites { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    private NewSiteModel newSite = new();
+
+    private async Task CreateAsync()
+    {
+        var dto = new CustomerSiteCreateDto(
+            newSite.SiteName!,
+            newSite.Address,
+            newSite.City,
+            newSite.State,
+            null, null,
+            newSite.ContactPerson,
+            newSite.Phone,
+            null);
+
+        await CustomerApi.AddSiteAsync(CustomerId, dto);
+        newSite = new();
+        await OnRefresh.InvokeAsync();
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        await CustomerApi.DeleteSiteAsync(CustomerId, id);
+        await OnRefresh.InvokeAsync();
+    }
+
+    class NewSiteModel
+    {
+        [Required]
+        public string? SiteName { get; set; }
+        public string? Address { get; set; }
+        public string? City { get; set; }
+        public string? State { get; set; }
+        public string? ContactPerson { get; set; }
+        public string? Phone { get; set; }
+    }
+}

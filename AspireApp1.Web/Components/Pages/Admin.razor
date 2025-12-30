@@ -1,0 +1,773 @@
+@page "/admin"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.ComponentModel.DataAnnotations
+@attribute [Authorize(Policy = "AdminOnly")]
+@inject AdminApiClient AdminApi
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Admin - User & Role Management</PageTitle>
+
+<div class="container-fluid mt-4">
+    <h2>Admin Panel</h2>
+    <p class="text-muted">Manage users and roles</p>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link @(activeTab == "users" ? "active" : "")" 
+               @onclick="@(() => SwitchTab("users"))" 
+               style="cursor: pointer;">
+                Users
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(activeTab == "roles" ? "active" : "")" 
+               @onclick="@(() => SwitchTab("roles"))" 
+               style="cursor: pointer;">
+                Roles
+            </a>
+        </li>
+    </ul>
+
+    <!-- Users Tab -->
+    @if (activeTab == "users")
+    {
+        <div class="row mb-3">
+            <div class="col">
+                <button class="btn btn-primary" @onclick="ShowCreateUserForm">
+                    <span class="bi bi-plus-square-fill me-2"></span>Create User
+                </button>
+                <div class="form-check form-switch d-inline-block ms-3">
+                    <input class="form-check-input" type="checkbox" id="showInactiveUsers" 
+                           @bind="showInactiveUsers" @bind:after="LoadUsers">
+                    <label class="form-check-label" for="showInactiveUsers">
+                        Show inactive users
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        @if (loading)
+        {
+            <div class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Windows Username</th>
+                            <th>Display Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Roles</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in GetFilteredUsers())
+                        {
+                            <tr class="@(user.IsActive ? "" : "table-secondary text-muted")">
+                                <td>@user.Id</td>
+                                <td>@user.WindowsUsername</td>
+                                <td>@user.DisplayName</td>
+                                <td>@(user.Email ?? "-")</td>
+                                <td>
+                                    @if (user.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (user.Roles != null && user.Roles.Any())
+                                    {
+                                        @string.Join(", ", user.Roles.Select(r => r.Name))
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No roles</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (isAdmin)
+                                    {
+                                        <button class="btn btn-sm btn-primary me-1" 
+                                                @onclick="() => ShowEditUserForm(user)">
+                                            Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-secondary me-1" 
+                                                @onclick="() => ShowAssignRolesModal(user)">
+                                            Assign Roles
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" 
+                                                @onclick="() => ShowDeleteUserConfirmation(user)">
+                                            Delete
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+
+    <!-- Roles Tab -->
+    @if (activeTab == "roles")
+    {
+        <div class="row mb-3">
+            <div class="col">
+                <button class="btn btn-primary" @onclick="ShowCreateRoleForm">
+                    <span class="bi bi-plus-square-fill me-2"></span>Create Role
+                </button>
+            </div>
+        </div>
+
+        @if (loading)
+        {
+            <div class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var role in roles)
+                        {
+                            <tr>
+                                <td>@role.Id</td>
+                                <td>@role.Name</td>
+                                <td>@(role.Description ?? "-")</td>
+                                <td>
+                                    @if (isAdmin)
+                                    {
+                                        <button class="btn btn-sm btn-primary me-1" 
+                                                @onclick="() => ShowEditRoleForm(role)">
+                                            Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" 
+                                                @onclick="() => ShowDeleteRoleConfirmation(role)">
+                                            Delete
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+</div>
+
+<!-- Create/Edit User Modal -->
+@if (showUserModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(editingUser == null ? "Create User" : "Edit User")</h5>
+                    <button type="button" class="btn-close" @onclick="HideUserModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="userForm" OnValidSubmit="SaveUser">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Windows Username</label>
+                            <InputText @bind-Value="userForm!.WindowsUsername" class="form-control" 
+                                       disabled="@(editingUser != null)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Display Name</label>
+                            <InputText @bind-Value="userForm!.DisplayName" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <InputText @bind-Value="userForm!.Email" class="form-control" type="email" />
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <InputCheckbox @bind-Value="userForm!.IsActive" class="form-check-input" id="isActive" />
+                            <label class="form-check-label" for="isActive">Active</label>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="HideUserModal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Assign Roles Modal -->
+@if (showAssignRolesModal && assigningUser != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign Roles to @assigningUser.DisplayName</h5>
+                    <button type="button" class="btn-close" @onclick="HideAssignRolesModal"></button>
+                </div>
+                <div class="modal-body">
+                    @foreach (var role in roles)
+                    {
+                        var isAssigned = assigningUser.Roles?.Any(r => r.Id == role.Id) ?? false;
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="role-@role.Id" 
+                                   checked="@isAssigned"
+                                   @onchange="(e) => ToggleRole(assigningUser.Id, role.Id, (bool)e.Value!)">
+                            <label class="form-check-label" for="role-@role.Id">
+                                @role.Name
+                                @if (!string.IsNullOrEmpty(role.Description))
+                                {
+                                    <small class="text-muted">- @role.Description</small>
+                                }
+                            </label>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideAssignRolesModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Create/Edit Role Modal -->
+@if (showRoleModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(editingRole == null ? "Create Role" : "Edit Role")</h5>
+                    <button type="button" class="btn-close" @onclick="HideRoleModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="roleForm" OnValidSubmit="SaveRole">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <InputText @bind-Value="roleForm!.Name" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <InputText @bind-Value="roleForm!.Description" class="form-control" />
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="HideRoleModal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Delete Confirmation Modal -->
+@if (showDeleteConfirmation)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" @onclick="HideDeleteConfirmation"></button>
+                </div>
+                <div class="modal-body">
+                    <p>@deleteConfirmationMessage</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideDeleteConfirmation">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Toast Notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11000;">
+    @foreach (var toast in toasts)
+    {
+        <div class="toast show" role="alert">
+            <div class="toast-header bg-@toast.Type">
+                <strong class="me-auto text-white">@toast.Title</strong>
+                <button type="button" class="btn-close btn-close-white" @onclick="() => RemoveToast(toast)"></button>
+            </div>
+            <div class="toast-body">
+                @toast.Message
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private string activeTab = "users";
+    private bool loading = true;
+    private bool isAdmin = false;
+    private bool showInactiveUsers = false;
+
+    // Users
+    private List<UserDto> users = new();
+    private UserDto? editingUser;
+    private bool showUserModal = false;
+    private UserFormModel? userForm;
+
+    // Roles
+    private List<RoleDto> roles = new();
+    private RoleDto? editingRole;
+    private bool showRoleModal = false;
+    private RoleFormModel? roleForm;
+
+    // Assign Roles
+    private UserDto? assigningUser;
+    private bool showAssignRolesModal = false;
+
+    // Delete confirmation
+    private bool showDeleteConfirmation = false;
+    private string deleteConfirmationMessage = "";
+    private Action? deleteAction;
+
+    // Toast notifications
+    private List<ToastMessage> toasts = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CheckAdminPermission();
+        await LoadData();
+    }
+
+    private async Task CheckAdminPermission()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        
+        // Check if user has Admin role
+        isAdmin = user.Identity?.IsAuthenticated == true && 
+                  user.IsInRole("Admin");
+    }
+
+    private async Task LoadData()
+    {
+        loading = true;
+        StateHasChanged();
+
+        if (activeTab == "users")
+        {
+            await LoadUsers();
+        }
+        else
+        {
+            await LoadRoles();
+        }
+
+        loading = false;
+        StateHasChanged();
+    }
+
+    private async Task LoadUsers()
+    {
+        var result = await AdminApi.GetUsersAsync();
+        users = result.ToList();
+    }
+
+    private async Task LoadRoles()
+    {
+        var result = await AdminApi.GetRolesAsync();
+        roles = result.ToList();
+    }
+
+    private IEnumerable<UserDto> GetFilteredUsers()
+    {
+        if (showInactiveUsers)
+            return users;
+        return users.Where(u => u.IsActive);
+    }
+
+    private async Task SwitchTab(string tab)
+    {
+        activeTab = tab;
+        await LoadData();
+    }
+
+    // User CRUD
+    private void ShowCreateUserForm()
+    {
+        editingUser = null;
+        userForm = new UserFormModel { IsActive = true };
+        showUserModal = true;
+    }
+
+    private void ShowEditUserForm(UserDto user)
+    {
+        editingUser = user;
+        userForm = new UserFormModel
+        {
+            WindowsUsername = user.WindowsUsername,
+            DisplayName = user.DisplayName,
+            Email = user.Email,
+            IsActive = user.IsActive
+        };
+        showUserModal = true;
+    }
+
+    private void HideUserModal()
+    {
+        showUserModal = false;
+        editingUser = null;
+        userForm = null;
+    }
+
+    private async Task SaveUser()
+    {
+        if (userForm == null) return;
+
+        try
+        {
+            if (editingUser == null)
+            {
+                // Create new user
+                var createDto = new UserCreateDto(
+                    userForm.WindowsUsername!,
+                    userForm.DisplayName!,
+                    userForm.Email,
+                    userForm.IsActive
+                );
+                var result = await AdminApi.CreateUserAsync(createDto);
+                
+                if (result != null)
+                {
+                    ShowToast("Success", "User created successfully", "success", 3000);
+                    await LoadUsers();
+                    HideUserModal();
+                }
+                else
+                {
+                    ShowToast("Error", "Failed to create user", "danger", 5000);
+                }
+            }
+            else
+            {
+                // Update existing user
+                var updateDto = new UserDto(
+                    editingUser.Id,
+                    userForm.WindowsUsername!,
+                    userForm.DisplayName!,
+                    userForm.Email,
+                    userForm.IsActive,
+                    editingUser.Roles
+                );
+                var success = await AdminApi.UpdateUserAsync(editingUser.Id, updateDto);
+                
+                if (success)
+                {
+                    ShowToast("Success", "User updated successfully", "success", 3000);
+                    await LoadUsers();
+                    HideUserModal();
+                }
+                else
+                {
+                    ShowToast("Error", "Failed to update user", "danger", 5000);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast("Error", $"An error occurred: {ex.Message}", "danger", 5000);
+        }
+    }
+
+    private void ShowDeleteUserConfirmation(UserDto user)
+    {
+        deleteConfirmationMessage = $"Are you sure you want to delete user '{user.DisplayName}' ({user.WindowsUsername})?";
+        deleteAction = async () => await DeleteUser(user);
+        showDeleteConfirmation = true;
+    }
+
+    private async Task DeleteUser(UserDto user)
+    {
+        var success = await AdminApi.DeleteUserAsync(user.Id);
+        
+        if (success)
+        {
+            ShowToast("Success", "User deleted successfully", "success", 3000);
+            await LoadUsers();
+        }
+        else
+        {
+            ShowToast("Error", "Failed to delete user", "danger", 5000);
+        }
+    }
+
+    // Role Assignment
+    private async Task ShowAssignRolesModal(UserDto user)
+    {
+        assigningUser = user;
+        await LoadRoles();
+        showAssignRolesModal = true;
+    }
+
+    private void HideAssignRolesModal()
+    {
+        showAssignRolesModal = false;
+        assigningUser = null;
+    }
+
+    private async Task ToggleRole(int userId, int roleId, bool isAssigned)
+    {
+        bool success;
+        
+        if (isAssigned)
+        {
+            success = await AdminApi.AssignRoleAsync(userId, roleId);
+            if (success)
+            {
+                ShowToast("Success", "Role assigned successfully", "success", 3000);
+            }
+            else
+            {
+                ShowToast("Error", "Failed to assign role", "danger", 5000);
+            }
+        }
+        else
+        {
+            success = await AdminApi.RemoveRoleAsync(userId, roleId);
+            if (success)
+            {
+                ShowToast("Success", "Role removed successfully", "success", 3000);
+            }
+            else
+            {
+                ShowToast("Error", "Failed to remove role", "danger", 5000);
+            }
+        }
+
+        if (success)
+        {
+            await LoadUsers();
+            // Update assigningUser to reflect changes
+            assigningUser = users.FirstOrDefault(u => u.Id == userId);
+        }
+    }
+
+    // Role CRUD
+    private void ShowCreateRoleForm()
+    {
+        editingRole = null;
+        roleForm = new RoleFormModel();
+        showRoleModal = true;
+    }
+
+    private void ShowEditRoleForm(RoleDto role)
+    {
+        editingRole = role;
+        roleForm = new RoleFormModel
+        {
+            Name = role.Name,
+            Description = role.Description
+        };
+        showRoleModal = true;
+    }
+
+    private void HideRoleModal()
+    {
+        showRoleModal = false;
+        editingRole = null;
+        roleForm = null;
+    }
+
+    private async Task SaveRole()
+    {
+        if (roleForm == null) return;
+
+        try
+        {
+            if (editingRole == null)
+            {
+                // Create new role
+                var createDto = new RoleCreateDto(
+                    roleForm.Name!,
+                    roleForm.Description,
+                    "" // PagePermissions hidden as implementation detail
+                );
+                var result = await AdminApi.CreateRoleAsync(createDto);
+                
+                if (result != null)
+                {
+                    ShowToast("Success", "Role created successfully", "success", 3000);
+                    await LoadRoles();
+                    HideRoleModal();
+                }
+                else
+                {
+                    ShowToast("Error", "Failed to create role", "danger", 5000);
+                }
+            }
+            else
+            {
+                // Update existing role
+                var updateDto = new RoleDto(
+                    editingRole.Id,
+                    roleForm.Name!,
+                    roleForm.Description,
+                    editingRole.PagePermissions // Preserve existing permissions
+                );
+                var success = await AdminApi.UpdateRoleAsync(editingRole.Id, updateDto);
+                
+                if (success)
+                {
+                    ShowToast("Success", "Role updated successfully", "success", 3000);
+                    await LoadRoles();
+                    HideRoleModal();
+                }
+                else
+                {
+                    ShowToast("Error", "Failed to update role", "danger", 5000);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast("Error", $"An error occurred: {ex.Message}", "danger", 5000);
+        }
+    }
+
+    private void ShowDeleteRoleConfirmation(RoleDto role)
+    {
+        deleteConfirmationMessage = $"Are you sure you want to delete role '{role.Name}'?";
+        deleteAction = async () => await DeleteRole(role);
+        showDeleteConfirmation = true;
+    }
+
+    private async Task DeleteRole(RoleDto role)
+    {
+        var success = await AdminApi.DeleteRoleAsync(role.Id);
+        
+        if (success)
+        {
+            ShowToast("Success", "Role deleted successfully", "success", 3000);
+            await LoadRoles();
+        }
+        else
+        {
+            ShowToast("Error", "Failed to delete role", "danger", 5000);
+        }
+    }
+
+    // Delete confirmation
+    private void HideDeleteConfirmation()
+    {
+        showDeleteConfirmation = false;
+        deleteConfirmationMessage = "";
+        deleteAction = null;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (deleteAction != null)
+        {
+            deleteAction.Invoke();
+            await Task.CompletedTask;
+        }
+        HideDeleteConfirmation();
+    }
+
+    // Toast notifications
+    private void ShowToast(string title, string message, string type, int duration)
+    {
+        var toast = new ToastMessage
+        {
+            Id = Guid.NewGuid(),
+            Title = title,
+            Message = message,
+            Type = type
+        };
+        
+        toasts.Add(toast);
+        StateHasChanged();
+
+        // Auto-dismiss after duration
+        _ = Task.Delay(duration).ContinueWith(_ =>
+        {
+            RemoveToast(toast);
+        });
+    }
+
+    private void RemoveToast(ToastMessage toast)
+    {
+        toasts.Remove(toast);
+        InvokeAsync(StateHasChanged);
+    }
+
+    // Form models
+    private class UserFormModel
+    {
+        [Required]
+        public string? WindowsUsername { get; set; }
+        
+        [Required]
+        public string? DisplayName { get; set; }
+        
+        [EmailAddress]
+        public string? Email { get; set; }
+        
+        public bool IsActive { get; set; }
+    }
+
+    private class RoleFormModel
+    {
+        [Required]
+        public string? Name { get; set; }
+        
+        public string? Description { get; set; }
+    }
+
+    private class ToastMessage
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = "";
+        public string Message { get; set; } = "";
+        public string Type { get; set; } = "info"; // success, danger, warning, info
+    }
+}

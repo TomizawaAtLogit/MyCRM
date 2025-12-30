@@ -8,11 +8,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireApp1.ServiceDefaults"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireApp1.ApiService", "AspireApp1.ApiService\AspireApp1.ApiService.csproj", "{2047DFA8-A1E7-E01D-D2A2-7F4257468FF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireApp1.Web", "AspireApp1.Web\AspireApp1.Web.csproj", "{47748777-477E-4F3C-F7DC-60AD998A5426}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireApp1.FrontEnd", "AspireApp1.Web\AspireApp1.FrontEnd.csproj", "{47748777-477E-4F3C-F7DC-60AD998A5426}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireApp1.Tests", "AspireApp1.Tests\AspireApp1.Tests.csproj", "{19FA03DF-AB14-2919-E314-109F5A08035A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireApp1.DbApi", "AspireApp1.DbApi\AspireApp1.DbApi.csproj", "{08961EED-51DB-AA9B-2BA7-58A7A0FC98CB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireApp1.BackEnd", "AspireApp1.DbApi\AspireApp1.BackEnd.csproj", "{08961EED-51DB-AA9B-2BA7-58A7A0FC98CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
