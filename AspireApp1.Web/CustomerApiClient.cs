@@ -24,9 +24,18 @@ public record CustomerWithChildrenDto(
     List<CustomerDatabaseDto> Databases,
     List<CustomerSiteDto> Sites,
     List<CustomerSystemDto> Systems,
-    List<CustomerOrderDto> Orders);
+    List<CustomerOrderDto> Orders,
+    List<CustomerProjectActivityDto> ProjectActivities);
 
 public record CustomerCreateDto(
+    [Required] string Name,
+    string? ContactPerson,
+    string? Email,
+    string? Phone,
+    string? Address);
+
+public record CustomerUpdateDto(
+    int Id,
     [Required] string Name,
     string? ContactPerson,
     string? Email,
@@ -56,9 +65,7 @@ public record CustomerSiteDto(
     int CustomerId,
     string SiteName,
     string? Address,
-    string? City,
-    string? State,
-    string? ZipCode,
+    string? PostCode,
     string? Country,
     string? ContactPerson,
     string? Phone,
@@ -67,9 +74,7 @@ public record CustomerSiteDto(
 public record CustomerSiteCreateDto(
     [Required] string SiteName,
     string? Address,
-    string? City,
-    string? State,
-    string? ZipCode,
+    string? PostCode,
     string? Country,
     string? ContactPerson,
     string? Phone,
@@ -120,6 +125,27 @@ public record CustomerOrderCreateDto(
     string? BillingFrequency,
     string? Status,
     string? Description);
+
+public record CustomerProjectActivityDto(
+    int Id,
+    int ProjectId,
+    int? CustomerId,
+    DateTime ActivityDate,
+    string Summary,
+    string? Description,
+    string? NextAction,
+    string? ActivityType,
+    string? PerformedBy,
+    string ProjectName);
+
+public record CustomerProjectActivityCreateDto(
+    int ProjectId,
+    DateTime ActivityDate,
+    [Required] string Summary,
+    string? Description,
+    string? NextAction,
+    string? ActivityType,
+    string? PerformedBy);
 
 public class CustomerApiClient
 {
@@ -176,9 +202,9 @@ public class CustomerApiClient
         return null;
     }
 
-    public async Task<bool> UpdateCustomerAsync(int id, CustomerDto dto, CancellationToken ct = default)
+    public async Task<bool> UpdateCustomerAsync(CustomerUpdateDto dto, CancellationToken ct = default)
     {
-        var res = await _http.PutAsJsonAsync($"/api/customers/{id}", dto, ct);
+        var res = await _http.PutAsJsonAsync($"/api/customers/{dto.Id}", dto, ct);
         return res.IsSuccessStatusCode;
     }
 
@@ -269,6 +295,27 @@ public class CustomerApiClient
     public async Task<bool> DeleteOrderAsync(int customerId, int id, CancellationToken ct = default)
     {
         var res = await _http.DeleteAsync($"/api/customers/{customerId}/orders/{id}", ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    // Project Activity operations
+    public async Task<CustomerProjectActivityDto?> AddProjectActivityAsync(int customerId, CustomerProjectActivityCreateDto dto, CancellationToken ct = default)
+    {
+        var res = await _http.PostAsJsonAsync($"/api/customers/{customerId}/project-activities", dto, ct);
+        if (res.IsSuccessStatusCode)
+            return await res.Content.ReadFromJsonAsync<CustomerProjectActivityDto>(ct);
+        return null;
+    }
+
+    public async Task<bool> UpdateProjectActivityAsync(int customerId, int id, CustomerProjectActivityDto dto, CancellationToken ct = default)
+    {
+        var res = await _http.PutAsJsonAsync($"/api/customers/{customerId}/project-activities/{id}", dto, ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteProjectActivityAsync(int customerId, int id, CancellationToken ct = default)
+    {
+        var res = await _http.DeleteAsync($"/api/customers/{customerId}/project-activities/{id}", ct);
         return res.IsSuccessStatusCode;
     }
 }

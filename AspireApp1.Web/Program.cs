@@ -91,6 +91,19 @@ builder.Services.AddHttpClient<AdminApiClient>(client =>
         }
     });
 
+builder.Services.AddHttpClient<OrderApiClient>(client =>
+    {
+        var dbApiBase = builder.Configuration["DbApiBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(dbApiBase))
+        {
+            client.BaseAddress = new(dbApiBase);
+        }
+        else
+        {
+            client.BaseAddress = new("https+http://dbapi");
+        }
+    });
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

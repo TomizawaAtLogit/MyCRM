@@ -1,4 +1,6 @@
+@rendermode InteractiveServer
 @inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
 
 <button @onclick="ToggleTheme" class="theme-toggle-btn" title="Toggle theme">
     <span class="bi @(isDarkMode ? "bi-sun-fill" : "bi-moon-stars-fill")" aria-hidden="true"></span>
@@ -6,22 +8,77 @@
 
 @code {
     private bool isDarkMode = false;
+    private IJSObjectReference? themeModule;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // Get current theme
-            var theme = await JSRuntime.InvokeAsync<string>("themeManager.getTheme");
-            isDarkMode = theme == "dark";
-            StateHasChanged();
+            try
+            {
+                // Import the theme module
+                themeModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/themeModule.js");
+                
+                // Get current theme
+                var theme = await themeModule.InvokeAsync<string>("getTheme");
+                isDarkMode = theme == "dark";
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing theme: {ex.Message}");
+                // Fallback: try using the window object
+                try
+                {
+                    var theme = await JSRuntime.InvokeAsync<string>("eval", "window.themeManager ? window.themeManager.getTheme() : 'light'");
+                    isDarkMode = theme == "dark";
+                    StateHasChanged();
+                }
+                catch
+                {
+                    isDarkMode = false;
+                }
+            }
         }
     }
 
     private async Task ToggleTheme()
     {
-        // Toggle theme and get the new value
-        var newTheme = await JSRuntime.InvokeAsync<string>("themeManager.toggleTheme");
-        isDarkMode = newTheme == "dark";
+        try
+        {
+            if (themeModule != null)
+            {
+                // Toggle theme using module
+                var newTheme = await themeModule.InvokeAsync<string>("toggleTheme");
+                isDarkMode = newTheme == "dark";
+            }
+            else
+            {
+                // Fallback: try using the window object
+                var newTheme = await JSRuntime.InvokeAsync<string>("eval", "window.themeManager.toggleTheme()");
+                isDarkMode = newTheme == "dark";
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error toggling theme: {ex.Message}");
+        }
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (themeModule is not null)
+        {
+            try
+            {
+                await themeModule.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // The circuit is already disconnected - this is expected when the browser closes or navigates away
+                // Silently ignore as the JavaScript resources are already cleaned up by the browser
+            }
+        }
     }
 }

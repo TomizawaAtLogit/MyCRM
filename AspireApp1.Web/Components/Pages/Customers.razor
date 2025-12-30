@@ -1,4 +1,5 @@
 @page "/customers"
+@rendermode InteractiveServer
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
@@ -7,116 +8,224 @@
 
 <PageTitle>Customers</PageTitle>
 
-<h1>Customers</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Customers</h1>
+    @if (selectedCustomerDetails != null)
+    {
+        <button class="btn btn-secondary" @onclick="ClearSelection">
+            <span class="bi bi-arrow-left"></span> Back to List
+        </button>
+    }
+</div>
 
-<div class="row mb-3">
-    <div class="col-md-8">
-        @if (customers == null)
-        {
-            <p><em>Loading customers...</em></p>
-        }
-        else if (customers.Length == 0)
-        {
-            <p class="text-muted">No customers found.</p>
-        }
-        else
-        {
-            <div class="list-group">
-                @foreach (var customer in customers)
-                {
-                    <a href="#" class="list-group-item list-group-item-action @(selectedCustomer?.Id == customer.Id ? "active" : "")"
-                       @onclick="() => SelectCustomer(customer.Id)" @onclick:preventDefault>
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">@customer.Name</h5>
-                            <small>@customer.CreatedAt.ToShortDateString()</small>
+@if (selectedCustomerDetails == null)
+{
+    <div class="row mb-3">
+        <div class="col-md-8">
+            @if (customers == null)
+            {
+                <p><em>Loading customers...</em></p>
+            }
+            else if (customers.Length == 0)
+            {
+                <p class="text-muted">No customers found.</p>
+            }
+            else
+            {
+                <div class="list-group">
+                    @foreach (var customer in customers)
+                    {
+                        <button type="button" class="list-group-item list-group-item-action text-start @(selectedCustomer?.Id == customer.Id ? "active" : "")"
+                           @onclick="() => SelectCustomer(customer.Id)">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">@customer.Name</h5>
+                                <small>@customer.CreatedAt.ToShortDateString()</small>
+                            </div>
+                            @if (!string.IsNullOrEmpty(customer.ContactPerson))
+                            {
+                                <p class="mb-1"><small>Contact: @customer.ContactPerson</small></p>
+                            }
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Add New Customer</h5>
+                </div>
+                <div class="card-body">
+                    <EditForm EditContext="createEditContext" OnValidSubmit="CreateCustomerAsync">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <InputText @bind-Value="newCustomer.Name" class="form-control" />
                         </div>
-                        @if (!string.IsNullOrEmpty(customer.ContactPerson))
-                        {
-                            <p class="mb-1"><small>Contact: @customer.ContactPerson</small></p>
-                        }
-                    </a>
-                }
-            </div>
-        }
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5>Add New Customer</h5>
-            </div>
-            <div class="card-body">
-                <EditForm EditContext="createEditContext" OnValidSubmit="CreateCustomerAsync" FormName="createCustomer">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Name</label>
-                        <InputText @bind-Value="newCustomer.Name" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Contact Person</label>
-                        <InputText @bind-Value="newCustomer.ContactPerson" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <InputText @bind-Value="newCustomer.Email" class="form-control" type="email" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Phone</label>
-                        <InputText @bind-Value="newCustomer.Phone" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Address</label>
-                        <InputTextArea @bind-Value="newCustomer.Address" class="form-control" rows="2" />
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary w-100">Create Customer</button>
-                </EditForm>
+                        <div class="mb-3">
+                            <label class="form-label">Contact Person</label>
+                            <InputText @bind-Value="newCustomer.ContactPerson" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <InputText @bind-Value="newCustomer.Email" class="form-control" type="email" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <InputText @bind-Value="newCustomer.Phone" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <InputTextArea @bind-Value="newCustomer.Address" class="form-control" rows="2" />
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">Create Customer</button>
+                    </EditForm>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
 
 @if (selectedCustomerDetails != null)
 {
     <div class="card mt-4">
-        <div class="card-header">
-            <h4>@selectedCustomerDetails.Name</h4>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">@selectedCustomerDetails.Name</h4>
+            <div>
+                @if (!isEditing)
+                {
+                    <button class="btn btn-primary btn-sm me-2" @onclick="StartEdit">
+                        <span class="bi bi-pencil"></span> Edit
+                    </button>
+                }
+                <button class="btn btn-danger btn-sm" @onclick="() => DeleteCustomer(selectedCustomerDetails.Id)">
+                    <span class="bi bi-trash"></span> Delete
+                </button>
+            </div>
         </div>
         <div class="card-body">
+            @if (isEditing)
+            {
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <EditForm EditContext="editEditContext" OnValidSubmit="SaveEdit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="text-danger" />
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Name</label>
+                                    <InputText @bind-Value="editModel.Name" class="form-control" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Contact Person</label>
+                                    <InputText @bind-Value="editModel.ContactPerson" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Email</label>
+                                    <InputText @bind-Value="editModel.Email" class="form-control" type="email" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Phone</label>
+                                    <InputText @bind-Value="editModel.Phone" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Address</label>
+                                    <InputTextArea @bind-Value="editModel.Address" class="form-control" rows="2" />
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success">
+                                    <span class="bi bi-check-lg"></span> Save
+                                </button>
+                                <button type="button" class="btn btn-secondary" @onclick="CancelEdit">
+                                    <span class="bi bi-x-lg"></span> Cancel
+                                </button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Contact Person:</dt>
+                            <dd class="col-sm-8">@(selectedCustomerDetails.ContactPerson ?? "-")</dd>
+                            
+                            <dt class="col-sm-4">Email:</dt>
+                            <dd class="col-sm-8">
+                                @if (!string.IsNullOrEmpty(selectedCustomerDetails.Email))
+                                {
+                                    <a href="mailto:@selectedCustomerDetails.Email">@selectedCustomerDetails.Email</a>
+                                }
+                                else
+                                {
+                                    <text>-</text>
+                                }
+                            </dd>
+                            
+                            <dt class="col-sm-4">Phone:</dt>
+                            <dd class="col-sm-8">@(selectedCustomerDetails.Phone ?? "-")</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Address:</dt>
+                            <dd class="col-sm-8">@(selectedCustomerDetails.Address ?? "-")</dd>
+                            
+                            <dt class="col-sm-4">Created:</dt>
+                            <dd class="col-sm-8">@selectedCustomerDetails.CreatedAt.ToShortDateString()</dd>
+                        </dl>
+                    </div>
+                </div>
+            }
+            
             <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link @(activeTab == "databases" ? "active" : "")" 
-                       @onclick="@(() => SetActiveTab("databases"))" 
-                       @onclick:preventDefault
-                       href="#">Databases</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(activeTab == "sites" ? "active" : "")" 
+                            type="button"
+                            @onclick="@(() => SetActiveTab("sites"))"
+                            role="tab">
+                        <span class="bi bi-geo-alt"></span> Sites
+                    </button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link @(activeTab == "sites" ? "active" : "")" 
-                       @onclick="@(() => SetActiveTab("sites"))" 
-                       @onclick:preventDefault
-                       href="#">Sites</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(activeTab == "systems" ? "active" : "")" 
+                            type="button"
+                            @onclick="@(() => SetActiveTab("systems"))"
+                            role="tab">
+                        <span class="bi bi-diagram-3"></span> Systems
+                    </button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link @(activeTab == "systems" ? "active" : "")" 
-                       @onclick="@(() => SetActiveTab("systems"))" 
-                       @onclick:preventDefault
-                       href="#">Systems</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(activeTab == "orders" ? "active" : "")" 
+                            type="button"
+                            @onclick="@(() => SetActiveTab("orders"))"
+                            role="tab">
+                        <span class="bi bi-file-text"></span> Orders
+                    </button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link @(activeTab == "orders" ? "active" : "")" 
-                       @onclick="@(() => SetActiveTab("orders"))" 
-                       @onclick:preventDefault
-                       href="#">Orders</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(activeTab == "projects" ? "active" : "")" 
+                            type="button"
+                            @onclick="@(() => SetActiveTab("projects"))"
+                            role="tab">
+                        <span class="bi bi-kanban"></span> Projects
+                    </button>
                 </li>
             </ul>
 
             <div class="tab-content mt-3">
-                @if (activeTab == "databases")
-                {
-                    <DatabaseTab CustomerId="selectedCustomerDetails.Id" Databases="selectedCustomerDetails.Databases" OnRefresh="LoadCustomerDetails" />
-                }
-                else if (activeTab == "sites")
+                @if (activeTab == "sites")
                 {
                     <SiteTab CustomerId="selectedCustomerDetails.Id" Sites="selectedCustomerDetails.Sites" OnRefresh="LoadCustomerDetails" />
                 }
@@ -128,6 +237,10 @@
                 {
                     <OrderTab CustomerId="selectedCustomerDetails.Id" Orders="selectedCustomerDetails.Orders" OnRefresh="LoadCustomerDetails" />
                 }
+                else if (activeTab == "projects")
+                {
+                    <ProjectTab CustomerId="selectedCustomerDetails.Id" ProjectActivities="selectedCustomerDetails.ProjectActivities" OnRefresh="LoadCustomerDetails" />
+                }
             </div>
         </div>
     </div>
@@ -137,10 +250,14 @@
     private CustomerDto[]? customers;
     private CustomerDto? selectedCustomer;
     private CustomerWithChildrenDto? selectedCustomerDetails;
-    private string activeTab = "databases";
+    private string activeTab = "sites";
     
     private NewCustomerModel newCustomer = new();
     private EditContext? createEditContext;
+
+    private EditCustomerModel editModel = new();
+    private EditContext? editEditContext;
+    private bool isEditing = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -157,6 +274,14 @@
     {
         selectedCustomer = customers?.FirstOrDefault(c => c.Id == id);
         await LoadCustomerDetails();
+    }
+
+    private void ClearSelection()
+    {
+        selectedCustomer = null;
+        selectedCustomerDetails = null;
+        isEditing = false;
+        activeTab = "sites";
     }
 
     private async Task LoadCustomerDetails()
@@ -190,6 +315,58 @@
         }
     }
 
+    private void StartEdit()
+    {
+        if (selectedCustomerDetails != null)
+        {
+            isEditing = true;
+            editModel = new EditCustomerModel
+            {
+                Id = selectedCustomerDetails.Id,
+                Name = selectedCustomerDetails.Name,
+                ContactPerson = selectedCustomerDetails.ContactPerson,
+                Email = selectedCustomerDetails.Email,
+                Phone = selectedCustomerDetails.Phone,
+                Address = selectedCustomerDetails.Address
+            };
+            editEditContext = new EditContext(editModel);
+        }
+    }
+
+    private async Task SaveEdit()
+    {
+        if (editModel.Id != 0)
+        {
+            var dto = new CustomerUpdateDto(
+                editModel.Id,
+                editModel.Name!,
+                editModel.ContactPerson,
+                editModel.Email,
+                editModel.Phone,
+                editModel.Address);
+
+            await CustomerApi.UpdateCustomerAsync(dto);
+            isEditing = false;
+            await LoadCustomerDetails();
+        }
+    }
+
+    private void CancelEdit()
+    {
+        isEditing = false;
+    }
+
+    private async Task DeleteCustomer(int id)
+    {
+        if (id != 0)
+        {
+            await CustomerApi.DeleteCustomerAsync(id);
+            selectedCustomer = null;
+            selectedCustomerDetails = null;
+            await LoadCustomersAsync();
+        }
+    }
+
     class NewCustomerModel
     {
         [Required]
@@ -198,5 +375,10 @@
         public string? Email { get; set; }
         public string? Phone { get; set; }
         public string? Address { get; set; }
+    }
+
+    class EditCustomerModel : NewCustomerModel
+    {
+        public int Id { get; set; }
     }
 }

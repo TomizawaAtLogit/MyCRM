@@ -37,6 +37,7 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IProjectActivityRepository, ProjectActivityRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 var app = builder.Build();
 
@@ -65,11 +66,15 @@ try
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ProjectDbContext>();
     
-    // Ensure database is created
-    db.Database.EnsureCreated();
+    // Delete and recreate database to fix PostgreSQL column naming issues
+    if (app.Environment.IsDevelopment())
+    {
+        Console.WriteLine("Recreating database with correct schema...");
+        db.Database.EnsureDeleted();
+        db.Database.EnsureCreated();
+    }
     
     // Seed initial data if database is empty
-    // Use a safer check that won't fail if tables don't exist yet
     if (!db.Users.Any())
     {
         SeedData(db);

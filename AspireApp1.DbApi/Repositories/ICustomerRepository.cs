@@ -16,14 +16,17 @@ public interface ICustomerRepository
     Task<CustomerSite> AddSiteAsync(CustomerSite site);
     Task<CustomerSystem> AddSystemAsync(CustomerSystem system);
     Task<CustomerOrder> AddOrderAsync(CustomerOrder order);
+    Task<ProjectActivity> AddProjectActivityAsync(ProjectActivity projectActivity);
     
     Task UpdateDatabaseAsync(CustomerDatabase database);
     Task UpdateSiteAsync(CustomerSite site);
     Task UpdateSystemAsync(CustomerSystem system);
     Task UpdateOrderAsync(CustomerOrder order);
+    Task UpdateProjectActivityAsync(ProjectActivity projectActivity);
     
     Task DeleteDatabaseAsync(int id);
     Task DeleteSiteAsync(int id);
     Task DeleteSystemAsync(int id);
     Task DeleteOrderAsync(int id);
+    Task DeleteProjectActivityAsync(int id);
 }

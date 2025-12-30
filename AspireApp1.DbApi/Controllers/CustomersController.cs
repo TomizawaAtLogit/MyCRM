@@ -51,7 +51,20 @@ public class CustomersController : ControllerBase
     {
         if (id != customer.Id)
             return BadRequest();
-        await _repo.UpdateAsync(customer);
+        
+        // Get existing customer to preserve navigation properties
+        var existing = await _repo.GetAsync(id);
+        if (existing == null)
+            return NotFound();
+        
+        // Update only the editable fields
+        existing.Name = customer.Name;
+        existing.ContactPerson = customer.ContactPerson;
+        existing.Email = customer.Email;
+        existing.Phone = customer.Phone;
+        existing.Address = customer.Address;
+        
+        await _repo.UpdateAsync(existing);
         return NoContent();
     }
 
@@ -159,6 +172,31 @@ public class CustomersController : ControllerBase
     public async Task<IActionResult> DeleteOrder(int customerId, int id)
     {
         await _repo.DeleteOrderAsync(id);
+        return NoContent();
+    }
+
+    // Project Activity endpoints
+    [HttpPost("{customerId}/project-activities")]
+    public async Task<ActionResult<ProjectActivity>> PostProjectActivity(int customerId, ProjectActivity projectActivity)
+    {
+        projectActivity.CustomerId = customerId;
+        var created = await _repo.AddProjectActivityAsync(projectActivity);
+        return Ok(created);
+    }
+
+    [HttpPut("{customerId}/project-activities/{id}")]
+    public async Task<IActionResult> PutProjectActivity(int customerId, int id, ProjectActivity projectActivity)
+    {
+        if (id != projectActivity.Id || customerId != projectActivity.CustomerId)
+            return BadRequest();
+        await _repo.UpdateProjectActivityAsync(projectActivity);
+        return NoContent();
+    }
+
+    [HttpDelete("{customerId}/project-activities/{id}")]
+    public async Task<IActionResult> DeleteProjectActivity(int customerId, int id)
+    {
+        await _repo.DeleteProjectActivityAsync(id);
         return NoContent();
     }
 }

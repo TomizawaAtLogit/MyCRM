@@ -1,0 +1,174 @@
+@using System.ComponentModel.DataAnnotations
+@inject CustomerApiClient CustomerApi
+@inject ProjectsApiClient ProjectsApi
+
+<div class="row">
+    <div class="col-md-8">
+        <h5>Project Activities</h5>
+        @if (ProjectActivities == null || !ProjectActivities.Any())
+        {
+            <p class="text-muted">No project activities recorded.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Project</th>
+                            <th>Summary</th>
+                            <th>Activity Type</th>
+                            <th>Performed By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var activity in ProjectActivities.OrderByDescending(a => a.ActivityDate))
+                        {
+                            <tr>
+                                <td>@activity.ActivityDate.ToShortDateString()</td>
+                                <td>@activity.ProjectName</td>
+                                <td>
+                                    <div class="text-truncate" style="max-width: 300px;" title="@activity.Summary">
+                                        @activity.Summary
+                                    </div>
+                                </td>
+                                <td>@activity.ActivityType</td>
+                                <td>@activity.PerformedBy</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(activity.Id)">Delete</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Add Project Activity</div>
+            <div class="card-body">
+                <EditForm Model="newActivity" OnValidSubmit="CreateAsync">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" />
+                    
+                    <div class="mb-2">
+                        <label class="form-label">Project</label>
+                        <InputSelect @bind-Value="newActivity.ProjectId" class="form-control form-control-sm">
+                            <option value="0">-- Select Project --</option>
+                            @if (availableProjects != null)
+                            {
+                                @foreach (var project in availableProjects)
+                                {
+                                    <option value="@project.Id">@project.Name</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label">Activity Date</label>
+                        <InputDate @bind-Value="newActivity.ActivityDate" class="form-control form-control-sm" />
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label">Summary</label>
+                        <InputText @bind-Value="newActivity.Summary" class="form-control form-control-sm" />
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label">Activity Type</label>
+                        <InputSelect @bind-Value="newActivity.ActivityType" class="form-control form-control-sm">
+                            <option value="">-- Select Type --</option>
+                            <option value="Meeting">Meeting</option>
+                            <option value="Support">Support</option>
+                            <option value="Development">Development</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Training">Training</option>
+                            <option value="Other">Other</option>
+                        </InputSelect>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label">Description</label>
+                        <InputTextArea @bind-Value="newActivity.Description" class="form-control form-control-sm" rows="3" />
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label">Next Action</label>
+                        <InputTextArea @bind-Value="newActivity.NextAction" class="form-control form-control-sm" rows="2" />
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label">Performed By</label>
+                        <InputText @bind-Value="newActivity.PerformedBy" class="form-control form-control-sm" />
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-sm w-100">Add Activity</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public int CustomerId { get; set; }
+
+    [Parameter]
+    public List<CustomerProjectActivityDto> ProjectActivities { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    private ProjectDto[]? availableProjects;
+    private NewProjectActivityModel newActivity = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        availableProjects = await ProjectsApi.GetProjectsAsync();
+    }
+
+    private async Task CreateAsync()
+    {
+        if (newActivity.ProjectId == 0)
+        {
+            return;
+        }
+
+        var dto = new CustomerProjectActivityCreateDto(
+            newActivity.ProjectId,
+            newActivity.ActivityDate,
+            newActivity.Summary!,
+            newActivity.Description,
+            newActivity.NextAction,
+            newActivity.ActivityType,
+            newActivity.PerformedBy);
+
+        await CustomerApi.AddProjectActivityAsync(CustomerId, dto);
+        newActivity = new();
+        await OnRefresh.InvokeAsync();
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        await CustomerApi.DeleteProjectActivityAsync(CustomerId, id);
+        await OnRefresh.InvokeAsync();
+    }
+
+    class NewProjectActivityModel
+    {
+        public int ProjectId { get; set; }
+        public DateTime ActivityDate { get; set; } = DateTime.Today;
+        
+        [Required]
+        public string? Summary { get; set; }
+        
+        public string? Description { get; set; }
+        public string? NextAction { get; set; }
+        public string? ActivityType { get; set; }
+        public string? PerformedBy { get; set; }
+    }
+}

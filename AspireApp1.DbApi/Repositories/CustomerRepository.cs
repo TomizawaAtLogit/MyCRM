@@ -30,6 +30,8 @@ public class CustomerRepository : ICustomerRepository
             .Include(c => c.Sites)
             .Include(c => c.Systems)
             .Include(c => c.Orders)
+            .Include(c => c.ProjectActivities)
+                .ThenInclude(pa => pa.Project)
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == id);
     }
@@ -154,6 +156,31 @@ public class CustomerRepository : ICustomerRepository
         if (order != null)
         {
             _db.CustomerOrders.Remove(order);
+            await _db.SaveChangesAsync();
+        }
+    }
+
+    // Project Activity operations
+    public async Task<ProjectActivity> AddProjectActivityAsync(ProjectActivity projectActivity)
+    {
+        _db.ProjectActivities.Add(projectActivity);
+        await _db.SaveChangesAsync();
+        return projectActivity;
+    }
+
+    public async Task UpdateProjectActivityAsync(ProjectActivity projectActivity)
+    {
+        projectActivity.UpdatedAt = DateTime.UtcNow;
+        _db.ProjectActivities.Update(projectActivity);
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task DeleteProjectActivityAsync(int id)
+    {
+        var projectActivity = await _db.ProjectActivities.FindAsync(id);
+        if (projectActivity != null)
+        {
+            _db.ProjectActivities.Remove(projectActivity);
             await _db.SaveChangesAsync();
         }
     }
