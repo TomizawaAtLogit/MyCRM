@@ -40,6 +40,7 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.Phone).HasMaxLength(50);
                 b.Property(x => x.Address).HasMaxLength(500);
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()");
+                b.Property(x => x.UpdatedAt);
                 
                 b.HasMany(x => x.Databases).WithOne(x => x.Customer).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
                 b.HasMany(x => x.Sites).WithOne(x => x.Customer).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
@@ -58,6 +59,7 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.Port).HasMaxLength(10);
                 b.Property(x => x.Version).HasMaxLength(50);
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()");
+                b.Property(x => x.UpdatedAt);
                 b.HasIndex(x => x.CustomerId);
             });
 
@@ -74,6 +76,7 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.ContactPerson).HasMaxLength(200);
                 b.Property(x => x.Phone).HasMaxLength(50);
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()");
+                b.Property(x => x.UpdatedAt);
                 b.HasIndex(x => x.CustomerId);
             });
 
@@ -88,6 +91,7 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.SerialNumber).HasMaxLength(200);
                 b.Property(x => x.Location).HasMaxLength(200);
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()");
+                b.Property(x => x.UpdatedAt);
                 b.HasIndex(x => x.CustomerId);
             });
 
@@ -101,6 +105,7 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.Status).HasMaxLength(50);
                 b.Property(x => x.ContractValue).HasPrecision(18, 2);
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()");
+                b.Property(x => x.UpdatedAt);
                 b.HasIndex(x => x.CustomerId);
                 b.HasIndex(x => x.OrderNumber);
             });

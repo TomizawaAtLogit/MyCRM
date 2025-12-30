@@ -65,11 +65,10 @@ try
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ProjectDbContext>();
     
-    // Ensure database is created
-    db.Database.EnsureCreated();
+    // Apply migrations
+    db.Database.Migrate();
     
     // Seed initial data if database is empty
-    // Use a safer check that won't fail if tables don't exist yet
     if (!db.Users.Any())
     {
         SeedData(db);
