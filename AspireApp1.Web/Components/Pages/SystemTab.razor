@@ -47,10 +47,7 @@
                                 @if (componentCount == 0)
                                 {
                                     <div class="text-center py-3">
-                                        <p class="text-muted mb-2">No components yet</p>
-                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => SelectSystemForComponent(system.Id)">
-                                            <span class="bi bi-plus-circle"></span> Add Component
-                                        </button>
+                                        <p class="text-muted mb-2">No components yet. Use the form on the right to add components.</p>
                                     </div>
                                 }
                                 else
@@ -132,8 +129,10 @@
     </div>
     <div class="col-md-4">
         <!-- Add System Form -->
-        <div class="card mb-3">
-            <div class="card-header">Add System</div>
+        @if (Systems == null || !Systems.Any() || showAddSystemForm)
+        {
+            <div class="card mb-3" @ref="addSystemCardRef">
+                <div class="card-header">Add System</div>
             <div class="card-body">
                 <EditForm Model="newSystem" OnValidSubmit="CreateSystemAsync">
                     <DataAnnotationsValidator />
@@ -160,6 +159,7 @@
                 </EditForm>
             </div>
         </div>
+        }
 
         <!-- Add Component Form -->
         <div class="card">
@@ -225,6 +225,17 @@
         </div>
     </div>
 </div>
+
+<!-- Floating Action Button for Add System -->
+@if (Systems != null && Systems.Any())
+{
+    <button class="btn btn-primary rounded-circle position-fixed" 
+            style="bottom: 20px; right: 20px; width: 56px; height: 56px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1040;"
+            @onclick="ToggleAddSystemForm"
+            title="@(showAddSystemForm ? "Cancel" : "Add System")">
+        <span class="bi @(showAddSystemForm ? "bi-x-lg" : "bi-plus-lg")" style="font-size: 24px;"></span>
+    </button>
+}
 
 <!-- Edit System Modal -->
 <div class="modal fade" id="editSystemModal" tabindex="-1" aria-labelledby="editSystemModalLabel" aria-hidden="true">
@@ -345,6 +356,10 @@
     private bool isDeletingSystem;
     private bool isDeletingComponent;
 
+    // Form visibility and scroll reference
+    private bool showAddSystemForm = false;
+    private ElementReference addSystemCardRef;
+
     // Form models
     private NewSystemModel newSystem = new();
     private NewComponentModel newComponent = new();
@@ -377,6 +392,7 @@
             if (result != null)
             {
                 newSystem = new();
+                showAddSystemForm = false;
                 await OnRefresh.InvokeAsync();
                 ShowToast("System added successfully");
             }
@@ -396,6 +412,29 @@
         finally
         {
             isAddingSystem = false;
+        }
+    }
+
+    private async Task ToggleAddSystemForm()
+    {
+        showAddSystemForm = !showAddSystemForm;
+        
+        if (showAddSystemForm)
+        {
+            // Wait for the UI to update and render the form
+            await Task.Delay(100);
+            
+            // Scroll to the Add System card
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval", 
+                    "arguments[0].scrollIntoView({ behavior: 'smooth', block: 'start' })",
+                    addSystemCardRef);
+            }
+            catch
+            {
+                // Silently fail if scroll doesn't work
+            }
         }
     }
 
