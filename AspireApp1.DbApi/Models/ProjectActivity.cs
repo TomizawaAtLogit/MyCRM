@@ -4,7 +4,6 @@ public class ProjectActivity
 {
     public int Id { get; set; }
     public int ProjectId { get; set; }
-    public int? CustomerId { get; set; }
     public DateTime ActivityDate { get; set; } = DateTime.UtcNow;
     public string Summary { get; set; } = string.Empty;
     public string? Description { get; set; } // Wide text area for detailed activity
@@ -16,5 +15,4 @@ public class ProjectActivity
 
     // Navigation properties
     public Project Project { get; set; } = null!;
-    public Customer? Customer { get; set; }
 }

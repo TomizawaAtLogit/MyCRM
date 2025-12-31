@@ -26,18 +26,20 @@
                         <label class="form-label">Contract Type</label>
                         <select class="form-select" @bind="filterContractType" @bind:after="ApplyFilters">
                             <option value="">All Types</option>
-                            <option value="Maintenance">Maintenance</option>
-                            <option value="Support">Support</option>
-                            <option value="License">License</option>
+                            @foreach (var type in availableContractTypes)
+                            {
+                                <option value="@type">@type</option>
+                            }
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Status</label>
                         <select class="form-select" @bind="filterStatus" @bind:after="ApplyFilters">
                             <option value="">All Status</option>
-                            <option value="Active">Active</option>
-                            <option value="Expired">Expired</option>
-                            <option value="Pending">Pending</option>
+                            @foreach (var status in availableStatuses)
+                            {
+                                <option value="@status">@status</option>
+                            }
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -122,7 +124,7 @@ else
                                 <td class="text-end">
                                     @if (order.ContractValue.HasValue)
                                     {
-                                        <text>$@order.ContractValue.Value.ToString("N2")</text>
+                                        <text>¬•@order.ContractValue.Value.ToString("N0")</text>
                                     }
                                     else
                                     {
@@ -133,9 +135,9 @@ else
                                     <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => ViewOrderDetails(order)">
                                         <span class="bi bi-eye"></span>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteOrder(order.Id)">
-                                        <span class="bi bi-trash"></span>
-                                    </button>
+                                    <a href="/customers?customerId=@order.CustomerId&tab=orders" class="btn btn-sm btn-outline-secondary">
+                                        <span class="bi bi-person"></span> Customer
+                                    </a>
                                 </td>
                             </tr>
                         }
@@ -196,7 +198,7 @@ else
                         <div class="col-md-6">
                             <p><strong>Start Date:</strong> @selectedOrder.StartDate.ToLongDateString()</p>
                             <p><strong>End Date:</strong> @(selectedOrder.EndDate?.ToLongDateString() ?? "N/A")</p>
-                            <p><strong>Contract Value:</strong> @(selectedOrder.ContractValue.HasValue ? "$" + selectedOrder.ContractValue.Value.ToString("N2") : "N/A")</p>
+                            <p><strong>Contract Value:</strong> @(selectedOrder.ContractValue.HasValue ? "¬•" + selectedOrder.ContractValue.Value.ToString("N0") : "N/A")</p>
                             <p><strong>Billing Frequency:</strong> @(selectedOrder.BillingFrequency ?? "N/A")</p>
                         </div>
                     </div>
@@ -220,6 +222,10 @@ else
     private OrderWithCustomerDto[] filteredOrders = Array.Empty<OrderWithCustomerDto>();
     private OrderWithCustomerDto[] pagedOrders = Array.Empty<OrderWithCustomerDto>();
     private OrderWithCustomerDto? selectedOrder;
+
+    // Dynamic filter options
+    private List<string> availableContractTypes = new();
+    private List<string> availableStatuses = new();
 
     // Filter properties
     private string searchText = "";
@@ -245,6 +251,25 @@ else
     private async Task LoadOrdersAsync()
     {
         orders = await OrderApi.GetOrdersAsync();
+        
+        // Populate dynamic filter options from actual data
+        if (orders != null)
+        {
+            availableContractTypes = orders
+                .Select(o => o.ContractType)
+                .Where(ct => !string.IsNullOrWhiteSpace(ct))
+                .Distinct()
+                .OrderBy(ct => ct)
+                .ToList()!;
+            
+            availableStatuses = orders
+                .Select(o => o.Status)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Distinct()
+                .OrderBy(s => s)
+                .ToList()!;
+        }
+        
         ApplyFilters();
     }
 
@@ -349,7 +374,7 @@ else
     private string GetSortIcon(string column)
     {
         if (sortColumn != column) return "";
-        return sortAscending ? "Å£" : "Å•";
+        return sortAscending ? "ÔøΩÔøΩ" : "ÔøΩÔøΩ";
     }
 
     private void UpdatePagination()
@@ -388,13 +413,5 @@ else
     private void CloseDetails()
     {
         selectedOrder = null;
-    }
-
-    private async Task DeleteOrder(int id)
-    {
-        if (await OrderApi.DeleteOrderAsync(id))
-        {
-            await LoadOrdersAsync();
-        }
     }
 }

@@ -263,6 +263,23 @@
     {
         createEditContext = new EditContext(newCustomer);
         await LoadCustomersAsync();
+        
+        // Check for query parameters to auto-select customer and tab
+        var uri = new Uri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        
+        var customerIdParam = query["customerId"];
+        var tabParam = query["tab"];
+        
+        if (!string.IsNullOrEmpty(customerIdParam) && int.TryParse(customerIdParam, out int customerId))
+        {
+            await SelectCustomer(customerId);
+            
+            if (!string.IsNullOrEmpty(tabParam))
+            {
+                activeTab = tabParam;
+            }
+        }
     }
 
     private async Task LoadCustomersAsync()

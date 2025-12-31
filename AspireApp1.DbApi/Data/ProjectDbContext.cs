@@ -30,7 +30,12 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.Id).HasColumnName("id");
                 b.Property(x => x.Name).IsRequired().HasColumnName("name");
                 b.Property(x => x.Description).HasColumnName("description");
+                b.Property(x => x.CustomerId).HasColumnName("customer_id");
+                b.Property(x => x.Status).HasConversion<string>().HasMaxLength(50).HasColumnName("status");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
+                
+                b.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
+                b.HasIndex(x => x.CustomerId);
             });
 
             modelBuilder.Entity<Customer>(b =>
@@ -51,7 +56,6 @@ namespace AspireApp1.DbApi.Data
                 b.HasMany(x => x.CustomerSystems).WithOne(x => x.Customer).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
                 b.HasMany(x => x.Systems).WithOne(x => x.Customer).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
                 b.HasMany(x => x.Orders).WithOne(x => x.Customer).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
-                b.HasMany(x => x.ProjectActivities).WithOne(x => x.Customer).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.SetNull);
             });
 
             modelBuilder.Entity<CustomerDatabase>(b =>
@@ -171,7 +175,6 @@ namespace AspireApp1.DbApi.Data
                 b.HasKey(x => x.Id);
                 b.Property(x => x.Id).HasColumnName("id");
                 b.Property(x => x.ProjectId).HasColumnName("project_id");
-                b.Property(x => x.CustomerId).HasColumnName("customer_id");
                 b.Property(x => x.ActivityDate).HasColumnName("activity_date");
                 b.Property(x => x.Summary).IsRequired().HasMaxLength(500).HasColumnName("summary");
                 b.Property(x => x.Description).HasMaxLength(5000).HasColumnName("description");
@@ -183,7 +186,6 @@ namespace AspireApp1.DbApi.Data
                 
                 b.HasOne(x => x.Project).WithMany().HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.Cascade);
                 b.HasIndex(x => x.ProjectId);
-                b.HasIndex(x => x.CustomerId);
                 b.HasIndex(x => x.ActivityDate);
             });
 

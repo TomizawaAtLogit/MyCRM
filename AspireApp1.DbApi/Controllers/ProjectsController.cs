@@ -1,5 +1,6 @@
 using AspireApp1.DbApi.Models;
 using AspireApp1.DbApi.Repositories;
+using AspireApp1.DbApi.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspireApp1.DbApi.Controllers
@@ -12,21 +13,79 @@ namespace AspireApp1.DbApi.Controllers
         public ProjectsController(IProjectRepository repo) => _repo = repo;
 
         [HttpGet]
-        public async Task<IEnumerable<Project>> Get() => await _repo.GetAllAsync();
+        public async Task<IEnumerable<ProjectDto>> Get([FromQuery] int? customerId, [FromQuery] ProjectStatus? status)
+        {
+            IEnumerable<Project> projects;
+            
+            if (customerId.HasValue)
+            {
+                projects = await _repo.GetByCustomerIdAsync(customerId.Value);
+            }
+            else
+            {
+                projects = await _repo.GetAllAsync();
+            }
+
+            // Apply status filter if provided
+            if (status.HasValue)
+            {
+                projects = projects.Where(p => p.Status == status.Value);
+            }
+
+            return projects.Select(p => new ProjectDto(
+                p.Id,
+                p.Name,
+                p.Description,
+                p.CustomerId,
+                p.Customer?.Name,
+                p.Status,
+                p.CreatedAt
+            ));
+        }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Project>> Get(int id)
+        public async Task<ActionResult<ProjectDto>> Get(int id)
         {
             var p = await _repo.GetAsync(id);
             if (p == null) return NotFound();
-            return p;
+            
+            return new ProjectDto(
+                p.Id,
+                p.Name,
+                p.Description,
+                p.CustomerId,
+                p.Customer?.Name,
+                p.Status,
+                p.CreatedAt
+            );
         }
 
         [HttpPost]
-        public async Task<ActionResult<Project>> Post(Project project)
+        public async Task<ActionResult<ProjectDto>> Post(CreateProjectDto dto)
         {
+            var project = new Project
+            {
+                Name = dto.Name,
+                Description = dto.Description,
+                CustomerId = dto.CustomerId,
+                Status = dto.Status
+            };
+            
             var created = await _repo.AddAsync(project);
-            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+            
+            // Fetch with customer info
+            var result = await _repo.GetAsync(created.Id);
+            if (result == null) return NotFound();
+            
+            return CreatedAtAction(nameof(Get), new { id = created.Id }, new ProjectDto(
+                result.Id,
+                result.Name,
+                result.Description,
+                result.CustomerId,
+                result.Customer?.Name,
+                result.Status,
+                result.CreatedAt
+            ));
         }
 
         [HttpPut("{id}")]

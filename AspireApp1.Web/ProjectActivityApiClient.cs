@@ -7,19 +7,16 @@ namespace AspireApp1.Web;
 public record ProjectActivityDto(
     int Id,
     int ProjectId,
-    int? CustomerId,
     DateTime ActivityDate,
     string Summary,
     string? Description,
     string? NextAction,
     string? ActivityType,
     string? PerformedBy,
-    string? ProjectName,
-    string? CustomerName);
+    string? ProjectName);
 
 public record ProjectActivityCreateDto(
     int ProjectId,
-    int? CustomerId,
     [Required] DateTime ActivityDate,
     [Required, MaxLength(500)] string Summary,
     [MaxLength(5000)] string? Description,

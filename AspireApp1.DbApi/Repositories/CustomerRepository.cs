@@ -32,8 +32,6 @@ public class CustomerRepository : ICustomerRepository
             .Include(c => c.Systems)
                 .ThenInclude(s => s.Components)
             .Include(c => c.Orders)
-            .Include(c => c.ProjectActivities)
-                .ThenInclude(pa => pa.Project)
             .AsSplitQuery() // Use split queries to avoid cartesian explosion
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == id);

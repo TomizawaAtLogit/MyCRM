@@ -10,10 +10,13 @@ namespace AspireApp1.DbApi.Repositories
         public ProjectRepository(ProjectDbContext db) => _db = db;
 
         public async Task<IEnumerable<Project>> GetAllAsync() =>
-            await _db.Projects.AsNoTracking().ToListAsync();
+            await _db.Projects.Include(p => p.Customer).AsNoTracking().ToListAsync();
+
+        public async Task<IEnumerable<Project>> GetByCustomerIdAsync(int customerId) =>
+            await _db.Projects.Include(p => p.Customer).Where(p => p.CustomerId == customerId).AsNoTracking().ToListAsync();
 
         public async Task<Project?> GetAsync(int id) =>
-            await _db.Projects.FindAsync(id);
+            await _db.Projects.Include(p => p.Customer).FirstOrDefaultAsync(p => p.Id == id);
 
         public async Task<Project> AddAsync(Project project)
         {

@@ -30,9 +30,12 @@ public record CustomerSystemCreateDto(
 
 public record CustomerOrderCreateDto(
     [Required] string OrderNumber,
-    DateTime? OrderDate,
+    [Required] string ContractType,
+    DateTime StartDate,
+    DateTime? EndDate,
+    decimal? ContractValue,
+    string? BillingFrequency,
     string? Status,
-    decimal? Amount,
     string? Description);
 
 public record SystemCreateDto(

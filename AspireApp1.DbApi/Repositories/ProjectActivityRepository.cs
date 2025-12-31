@@ -17,7 +17,6 @@ public class ProjectActivityRepository : IProjectActivityRepository
     {
         return await _db.ProjectActivities
             .Include(a => a.Project)
-            .Include(a => a.Customer)
             .AsNoTracking()
             .OrderByDescending(a => a.ActivityDate)
             .ToListAsync();
@@ -27,14 +26,12 @@ public class ProjectActivityRepository : IProjectActivityRepository
     {
         return await _db.ProjectActivities
             .Include(a => a.Project)
-            .Include(a => a.Customer)
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 
     public async Task<IEnumerable<ProjectActivity>> GetByProjectIdAsync(int projectId)
     {
         return await _db.ProjectActivities
-            .Include(a => a.Customer)
             .Where(a => a.ProjectId == projectId)
             .AsNoTracking()
             .OrderByDescending(a => a.ActivityDate)
@@ -44,12 +41,10 @@ public class ProjectActivityRepository : IProjectActivityRepository
     public async Task<IEnumerable<ProjectActivity>> SearchAsync(
         DateTime? startDate, 
         DateTime? endDate, 
-        int? customerId, 
         string? activityType)
     {
         var query = _db.ProjectActivities
             .Include(a => a.Project)
-            .Include(a => a.Customer)
             .AsNoTracking()
             .AsQueryable();
 
@@ -61,11 +56,6 @@ public class ProjectActivityRepository : IProjectActivityRepository
         if (endDate.HasValue)
         {
             query = query.Where(a => a.ActivityDate <= endDate.Value);
-        }
-
-        if (customerId.HasValue)
-        {
-            query = query.Where(a => a.CustomerId == customerId.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(activityType))

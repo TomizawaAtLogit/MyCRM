@@ -19,13 +19,12 @@ public class ProjectActivitiesController : ControllerBase
     public async Task<IEnumerable<ProjectActivity>> Get(
         [FromQuery] DateTime? startDate,
         [FromQuery] DateTime? endDate,
-        [FromQuery] int? customerId,
         [FromQuery] string? activityType)
     {
         // If any filter is provided, use search; otherwise return all
-        if (startDate.HasValue || endDate.HasValue || customerId.HasValue || !string.IsNullOrWhiteSpace(activityType))
+        if (startDate.HasValue || endDate.HasValue || !string.IsNullOrWhiteSpace(activityType))
         {
-            return await _repo.SearchAsync(startDate, endDate, customerId, activityType);
+            return await _repo.SearchAsync(startDate, endDate, activityType);
         }
         
         return await _repo.GetAllAsync();

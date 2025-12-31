@@ -192,9 +192,20 @@ public class CustomersController : ControllerBase
 
     // Order endpoints
     [HttpPost("{customerId}/orders")]
-    public async Task<ActionResult<CustomerOrder>> PostOrder(int customerId, CustomerOrder order)
+    public async Task<ActionResult<CustomerOrder>> PostOrder(int customerId, CustomerOrderCreateDto dto)
     {
-        order.CustomerId = customerId;
+        var order = new CustomerOrder
+        {
+            CustomerId = customerId,
+            OrderNumber = dto.OrderNumber,
+            ContractType = dto.ContractType,
+            StartDate = DateTime.SpecifyKind(dto.StartDate, DateTimeKind.Utc),
+            EndDate = dto.EndDate.HasValue ? DateTime.SpecifyKind(dto.EndDate.Value, DateTimeKind.Utc) : null,
+            ContractValue = dto.ContractValue,
+            BillingFrequency = dto.BillingFrequency,
+            Status = dto.Status,
+            Description = dto.Description
+        };
         var created = await _repo.AddOrderAsync(order);
         return Ok(created);
     }
@@ -369,7 +380,6 @@ public class CustomersController : ControllerBase
     [HttpPost("{customerId}/project-activities")]
     public async Task<ActionResult<ProjectActivity>> PostProjectActivity(int customerId, ProjectActivity projectActivity)
     {
-        projectActivity.CustomerId = customerId;
         var created = await _repo.AddProjectActivityAsync(projectActivity);
         return Ok(created);
     }
@@ -377,7 +387,7 @@ public class CustomersController : ControllerBase
     [HttpPut("{customerId}/project-activities/{id}")]
     public async Task<IActionResult> PutProjectActivity(int customerId, int id, ProjectActivity projectActivity)
     {
-        if (id != projectActivity.Id || customerId != projectActivity.CustomerId)
+        if (id != projectActivity.Id)
             return BadRequest();
         await _repo.UpdateProjectActivityAsync(projectActivity);
         return NoContent();
