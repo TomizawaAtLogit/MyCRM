@@ -14,8 +14,8 @@ public class Customer
     // Navigation properties
     public ICollection<CustomerDatabase> Databases { get; set; } = new List<CustomerDatabase>();
     public ICollection<CustomerSite> Sites { get; set; } = new List<CustomerSite>();
-    public ICollection<CustomerSystem> Systems { get; set; } = new List<CustomerSystem>();
-    public ICollection<System> NewSystems { get; set; } = new List<System>();
+    public ICollection<CustomerSystem> CustomerSystems { get; set; } = new List<CustomerSystem>();
+    public ICollection<System> Systems { get; set; } = new List<System>();
     public ICollection<CustomerOrder> Orders { get; set; } = new List<CustomerOrder>();
     public ICollection<ProjectActivity> ProjectActivities { get; set; } = new List<ProjectActivity>();
 }

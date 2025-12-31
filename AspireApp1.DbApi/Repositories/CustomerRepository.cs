@@ -28,12 +28,13 @@ public class CustomerRepository : ICustomerRepository
         return await _db.Customers
             .Include(c => c.Databases)
             .Include(c => c.Sites)
+            .Include(c => c.CustomerSystems)
             .Include(c => c.Systems)
-            .Include(c => c.NewSystems)
                 .ThenInclude(s => s.Components)
             .Include(c => c.Orders)
             .Include(c => c.ProjectActivities)
                 .ThenInclude(pa => pa.Project)
+            .AsSplitQuery() // Use split queries to avoid cartesian explosion
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == id);
     }
@@ -190,6 +191,7 @@ public class CustomerRepository : ICustomerRepository
     // New System operations
     public async Task<Models.System> AddNewSystemAsync(Models.System system)
     {
+        system.CreatedAt = DateTime.UtcNow;
         _db.Systems.Add(system);
         await _db.SaveChangesAsync();
         return system;
@@ -223,6 +225,7 @@ public class CustomerRepository : ICustomerRepository
     // SystemComponent operations
     public async Task<SystemComponent> AddSystemComponentAsync(SystemComponent component)
     {
+        component.CreatedAt = DateTime.UtcNow;
         _db.SystemComponents.Add(component);
         await _db.SaveChangesAsync();
         return component;

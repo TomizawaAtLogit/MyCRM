@@ -23,8 +23,7 @@ public record CustomerWithChildrenDto(
     DateTime CreatedAt,
     List<CustomerDatabaseDto> Databases,
     List<CustomerSiteDto> Sites,
-    List<CustomerSystemDto> Systems,
-    List<SystemDto> NewSystems,
+    List<SystemDto> Systems,
     List<CustomerOrderDto> Orders,
     List<CustomerProjectActivityDto> ProjectActivities);
 
@@ -152,14 +151,12 @@ public record SystemDto(
     int Id,
     int CustomerId,
     string SystemName,
-    string? Location,
     DateTime? InstallationDate,
     string? Description,
     List<SystemComponentDto> Components);
 
 public record SystemCreateDto(
     [Required] string SystemName,
-    string? Location,
     DateTime? InstallationDate,
     string? Description);
 
@@ -170,6 +167,7 @@ public record SystemComponentDto(
     string? Manufacturer,
     string? Model,
     string? SerialNumber,
+    string? Location,
     DateTime? WarrantyExpiration,
     string? Description);
 
@@ -178,6 +176,7 @@ public record SystemComponentCreateDto(
     string? Manufacturer,
     string? Model,
     string? SerialNumber,
+    string? Location,
     DateTime? WarrantyExpiration,
     string? Description);
 
@@ -220,10 +219,25 @@ public class CustomerApiClient
     {
         try
         {
-            return await _http.GetFromJsonAsync<CustomerWithChildrenDto>($"/api/customers/{id}/with-children", ct);
+            var response = await _http.GetAsync($"/api/customers/{id}/with-children", ct);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync(ct);
+                Console.WriteLine($"API Error: Status {response.StatusCode}, Content: {errorContent}");
+                return null;
+            }
+            
+            return await response.Content.ReadFromJsonAsync<CustomerWithChildrenDto>(ct);
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException ex)
         {
+            Console.WriteLine($"HTTP Request Exception: {ex.Message}");
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected error: {ex.Message}");
             return null;
         }
     }
@@ -314,10 +328,33 @@ public class CustomerApiClient
     // New System operations (parent entity)
     public async Task<SystemDto?> AddNewSystemAsync(int customerId, SystemCreateDto dto, CancellationToken ct = default)
     {
-        var res = await _http.PostAsJsonAsync($"/api/customers/{customerId}/new-systems", dto, ct);
-        if (res.IsSuccessStatusCode)
-            return await res.Content.ReadFromJsonAsync<SystemDto>(ct);
-        return null;
+        try
+        {
+            Console.WriteLine($"Attempting to add system: {dto.SystemName} for customer {customerId}");
+            var res = await _http.PostAsJsonAsync($"/api/customers/{customerId}/new-systems", dto, ct);
+            Console.WriteLine($"Response status: {res.StatusCode}");
+            
+            if (res.IsSuccessStatusCode)
+            {
+                var result = await res.Content.ReadFromJsonAsync<SystemDto>(ct);
+                Console.WriteLine($"Successfully added system with ID: {result?.Id}");
+                return result;
+            }
+            
+            var errorContent = await res.Content.ReadAsStringAsync(ct);
+            Console.WriteLine($"API Error adding system: Status {res.StatusCode}, Content: {errorContent}");
+            throw new HttpRequestException($"Failed to add system: {res.StatusCode} - {errorContent}");
+        }
+        catch (HttpRequestException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception adding system: {ex.GetType().Name} - {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            throw new Exception($"Unexpected error adding system: {ex.Message}", ex);
+        }
     }
 
     public async Task<SystemDto?> GetSystemWithComponentsAsync(int customerId, int systemId, CancellationToken ct = default)

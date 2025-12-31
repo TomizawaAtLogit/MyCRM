@@ -34,10 +34,20 @@ public class CustomersController : ControllerBase
     [HttpGet("{id}/with-children")]
     public async Task<ActionResult<Customer>> GetWithChildren(int id)
     {
-        var customer = await _repo.GetWithChildrenAsync(id);
-        if (customer == null)
-            return NotFound();
-        return customer;
+        try
+        {
+            var customer = await _repo.GetWithChildrenAsync(id);
+            if (customer == null)
+                return NotFound();
+            return customer;
+        }
+        catch (Exception ex)
+        {
+            // Log the error (you can inject ILogger<CustomersController> if needed)
+            Console.WriteLine($"Error getting customer with children: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            return StatusCode(500, new { error = ex.Message });
+        }
     }
 
     [HttpPost]
@@ -209,16 +219,30 @@ public class CustomersController : ControllerBase
     [HttpPost("{customerId}/new-systems")]
     public async Task<ActionResult<Models.System>> PostNewSystem(int customerId, SystemCreateDto dto)
     {
-        var system = new Models.System
+        try
         {
-            CustomerId = customerId,
-            SystemName = dto.SystemName,
-            Location = dto.Location,
-            InstallationDate = dto.InstallationDate,
-            Description = dto.Description
-        };
-        var created = await _repo.AddNewSystemAsync(system);
-        return Ok(created);
+            var system = new Models.System
+            {
+                CustomerId = customerId,
+                SystemName = dto.SystemName,
+                InstallationDate = dto.InstallationDate.HasValue 
+                    ? DateTime.SpecifyKind(dto.InstallationDate.Value, DateTimeKind.Utc)
+                    : null,
+                Description = dto.Description
+            };
+            var created = await _repo.AddNewSystemAsync(system);
+            return Ok(created);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding new system: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+            }
+            return StatusCode(500, new { error = ex.Message, details = ex.InnerException?.Message });
+        }
     }
 
     [HttpGet("{customerId}/new-systems/{systemId}")]
@@ -231,12 +255,33 @@ public class CustomersController : ControllerBase
     }
 
     [HttpPut("{customerId}/new-systems/{id}")]
-    public async Task<IActionResult> PutNewSystem(int customerId, int id, Models.System system)
+    public async Task<IActionResult> PutNewSystem(int customerId, int id, SystemDto dto)
     {
-        if (id != system.Id || customerId != system.CustomerId)
-            return BadRequest();
-        await _repo.UpdateNewSystemAsync(system);
-        return NoContent();
+        try
+        {
+            if (id != dto.Id || customerId != dto.CustomerId)
+                return BadRequest("ID mismatch");
+            
+            var system = new Models.System
+            {
+                Id = dto.Id,
+                CustomerId = dto.CustomerId,
+                SystemName = dto.SystemName,
+                InstallationDate = dto.InstallationDate.HasValue 
+                    ? DateTime.SpecifyKind(dto.InstallationDate.Value, DateTimeKind.Utc)
+                    : null,
+                Description = dto.Description
+            };
+            
+            await _repo.UpdateNewSystemAsync(system);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating system: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            return StatusCode(500, new { error = ex.Message, details = ex.InnerException?.Message });
+        }
     }
 
     [HttpDelete("{customerId}/new-systems/{id}")]
@@ -261,7 +306,10 @@ public class CustomersController : ControllerBase
             Manufacturer = dto.Manufacturer,
             Model = dto.Model,
             SerialNumber = dto.SerialNumber,
-            WarrantyExpiration = dto.WarrantyExpiration,
+            Location = dto.Location,
+            WarrantyExpiration = dto.WarrantyExpiration.HasValue 
+                ? DateTime.SpecifyKind(dto.WarrantyExpiration.Value, DateTimeKind.Utc)
+                : null,
             Description = dto.Description
         };
         var created = await _repo.AddSystemComponentAsync(component);
@@ -269,17 +317,41 @@ public class CustomersController : ControllerBase
     }
 
     [HttpPut("{customerId}/new-systems/{systemId}/components/{id}")]
-    public async Task<IActionResult> PutSystemComponent(int customerId, int systemId, int id, SystemComponent component)
+    public async Task<IActionResult> PutSystemComponent(int customerId, int systemId, int id, SystemComponentDto dto)
     {
-        if (id != component.Id || systemId != component.SystemId)
-            return BadRequest();
-        
-        var system = await _repo.GetSystemWithComponentsAsync(systemId);
-        if (system == null || system.CustomerId != customerId)
-            return NotFound("System not found or doesn't belong to customer");
+        try
+        {
+            if (id != dto.Id || systemId != dto.SystemId)
+                return BadRequest("ID mismatch");
+            
+            var system = await _repo.GetSystemWithComponentsAsync(systemId);
+            if (system == null || system.CustomerId != customerId)
+                return NotFound("System not found or doesn't belong to customer");
 
-        await _repo.UpdateSystemComponentAsync(component);
-        return NoContent();
+            var component = new SystemComponent
+            {
+                Id = dto.Id,
+                SystemId = dto.SystemId,
+                ComponentType = dto.ComponentType,
+                Manufacturer = dto.Manufacturer,
+                Model = dto.Model,
+                SerialNumber = dto.SerialNumber,
+                Location = dto.Location,
+                WarrantyExpiration = dto.WarrantyExpiration.HasValue 
+                    ? DateTime.SpecifyKind(dto.WarrantyExpiration.Value, DateTimeKind.Utc)
+                    : null,
+                Description = dto.Description
+            };
+
+            await _repo.UpdateSystemComponentAsync(component);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating component: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            return StatusCode(500, new { error = ex.Message, details = ex.InnerException?.Message });
+        }
     }
 
     [HttpDelete("{customerId}/new-systems/{systemId}/components/{id}")]

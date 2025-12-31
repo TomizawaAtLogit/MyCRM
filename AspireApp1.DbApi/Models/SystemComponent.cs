@@ -8,9 +8,10 @@ public class SystemComponent
     public string? Manufacturer { get; set; }
     public string? Model { get; set; }
     public string? SerialNumber { get; set; }
+    public string? Location { get; set; }
     public DateTime? WarrantyExpiration { get; set; }
     public string? Description { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 
     // Navigation property

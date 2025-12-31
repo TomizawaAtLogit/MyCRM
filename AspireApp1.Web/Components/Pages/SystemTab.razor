@@ -1,5 +1,17 @@
 @using System.ComponentModel.DataAnnotations
 @inject CustomerApiClient CustomerApi
+@inject IJSRuntime JSRuntime
+
+<!-- Toast Notification Container -->
+@if (!string.IsNullOrEmpty(toastMessage))
+{
+    <div class="position-sticky top-0 mb-3" style="z-index: 1050;">
+        <div class="alert @(toastIsError ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+            @toastMessage
+            <button type="button" class="btn-close" @onclick="DismissToast"></button>
+        </div>
+    </div>
+}
 
 <div class="row">
     <div class="col-md-8">
@@ -10,66 +22,300 @@
         }
         else
         {
-            <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>System Name</th>
-                            <th>Component Type</th>
-                            <th>Manufacturer</th>
-                            <th>Model</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var system in Systems)
-                        {
-                            <tr>
-                                <td>@system.SystemName</td>
-                                <td>@system.ComponentType</td>
-                                <td>@system.Manufacturer</td>
-                                <td>@system.Model</td>
-                                <td>
-                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(system.Id)">Delete</button>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+            <div class="accordion" id="systemsAccordion">
+                @foreach (var system in Systems)
+                {
+                    var accordionId = $"system-{system.Id}";
+                    var componentCount = system.Components?.Count ?? 0;
+                    var badgeClass = componentCount > 0 ? "bg-primary" : "bg-warning";
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-@system.Id">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#@accordionId" aria-expanded="true" aria-controls="@accordionId">
+                                <span class="me-2">@system.SystemName</span>
+                                <span class="badge @badgeClass me-2">@componentCount component@(componentCount != 1 ? "s" : "")</span>
+                                @if (system.InstallationDate.HasValue)
+                                {
+                                    <small class="text-muted ms-2">Installed: @system.InstallationDate.Value.ToShortDateString()</small>
+                                }
+                            </button>
+                        </h2>
+                        <div id="@accordionId" class="accordion-collapse collapse show" 
+                             aria-labelledby="heading-@system.Id" data-bs-parent="#systemsAccordion">
+                            <div class="accordion-body">
+                                @if (componentCount == 0)
+                                {
+                                    <div class="text-center py-3">
+                                        <p class="text-muted mb-2">No components yet</p>
+                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => SelectSystemForComponent(system.Id)">
+                                            <span class="bi bi-plus-circle"></span> Add Component
+                                        </button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Component Type</th>
+                                                    <th>Manufacturer</th>
+                                                    <th>Model</th>
+                                                    <th>Serial Number</th>
+                                                    <th>Location</th>
+                                                    <th>Warranty Expiration</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var component in system.Components!)
+                                                {
+                                                    <tr>
+                                                        <td>@component.ComponentType</td>
+                                                        <td>@component.Manufacturer</td>
+                                                        <td>@component.Model</td>
+                                                        <td>@component.SerialNumber</td>
+                                                        <td>@component.Location</td>
+                                                        <td>@(component.WarrantyExpiration?.ToShortDateString() ?? "-")</td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-outline-primary me-1" 
+                                                                    @onclick="() => StartEditComponent(system.Id, component)"
+                                                                    disabled="@isDeletingComponent">
+                                                                <span class="bi bi-pencil"></span>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-outline-danger" 
+                                                                    @onclick="() => DeleteComponentAsync(system.Id, component.Id)"
+                                                                    disabled="@isDeletingComponent">
+                                                                @if (isDeletingComponent)
+                                                                {
+                                                                    <span class="spinner-border spinner-border-sm"></span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="bi bi-trash"></span>
+                                                                }
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-secondary me-2" 
+                                            @onclick="() => StartEditSystem(system)"
+                                            disabled="@isDeletingSystem">
+                                        <span class="bi bi-pencil"></span> Edit System
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                            @onclick="() => DeleteSystemAsync(system.Id, system.SystemName, componentCount)"
+                                            disabled="@isDeletingSystem">
+                                        @if (isDeletingSystem)
+                                        {
+                                            <span class="spinner-border spinner-border-sm"></span>
+                                        }
+                                        else
+                                        {
+                                            <span class="bi bi-trash"></span>
+                                        }
+                                        Delete System
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         }
     </div>
     <div class="col-md-4">
-        <div class="card">
+        <!-- Add System Form -->
+        <div class="card mb-3">
             <div class="card-header">Add System</div>
             <div class="card-body">
-                <EditForm Model="newSystem" OnValidSubmit="CreateAsync">
+                <EditForm Model="newSystem" OnValidSubmit="CreateSystemAsync">
                     <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" />
                     <div class="mb-2">
                         <label class="form-label">System Name</label>
                         <InputText @bind-Value="newSystem.SystemName" class="form-control form-control-sm" />
                     </div>
                     <div class="mb-2">
+                        <label class="form-label">Installation Date</label>
+                        <InputDate @bind-Value="newSystem.InstallationDate" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Description</label>
+                        <InputTextArea @bind-Value="newSystem.Description" class="form-control form-control-sm" rows="2" />
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100" disabled="@isAddingSystem">
+                        @if (isAddingSystem)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        Add System
+                    </button>
+                </EditForm>
+            </div>
+        </div>
+
+        <!-- Add Component Form -->
+        <div class="card">
+            <div class="card-header">Add Component</div>
+            <div class="card-body">
+                @if (Systems == null || !Systems.Any())
+                {
+                    <p class="text-muted small">Add a system first</p>
+                }
+                else
+                {
+                    <EditForm Model="newComponent" OnValidSubmit="CreateComponentAsync">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger" />
+                        <div class="mb-2">
+                            <label class="form-label">Select System</label>
+                            <InputSelect @bind-Value="selectedSystemId" class="form-control form-control-sm">
+                                <option value="0">Select a system...</option>
+                                @foreach (var system in Systems)
+                                {
+                                    <option value="@system.Id">@system.SystemName</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Component Type</label>
+                            <InputText @bind-Value="newComponent.ComponentType" class="form-control form-control-sm" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Manufacturer</label>
+                            <InputText @bind-Value="newComponent.Manufacturer" class="form-control form-control-sm" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Model</label>
+                            <InputText @bind-Value="newComponent.Model" class="form-control form-control-sm" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Serial Number</label>
+                            <InputText @bind-Value="newComponent.SerialNumber" class="form-control form-control-sm" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Location</label>
+                            <InputText @bind-Value="newComponent.Location" class="form-control form-control-sm" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Warranty Expiration</label>
+                            <InputDate @bind-Value="newComponent.WarrantyExpiration" class="form-control form-control-sm" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Description</label>
+                            <InputTextArea @bind-Value="newComponent.Description" class="form-control form-control-sm" rows="2" />
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm w-100" disabled="@(isAddingComponent || selectedSystemId == 0)">
+                            @if (isAddingComponent)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                            }
+                            Add Component
+                        </button>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit System Modal -->
+<div class="modal fade" id="editSystemModal" tabindex="-1" aria-labelledby="editSystemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editSystemModalLabel">Edit System</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="editSystem" OnValidSubmit="UpdateSystemAsync">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" />
+                    <div class="mb-3">
+                        <label class="form-label">System Name</label>
+                        <InputText @bind-Value="editSystem.SystemName" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Installation Date</label>
+                        <InputDate @bind-Value="editSystem.InstallationDate" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <InputTextArea @bind-Value="editSystem.Description" class="form-control" rows="3" />
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary" disabled="@isEditingSystem">
+                            @if (isEditingSystem)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                            }
+                            Save Changes
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Component Modal -->
+<div class="modal fade" id="editComponentModal" tabindex="-1" aria-labelledby="editComponentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editComponentModalLabel">Edit Component</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="editComponent" OnValidSubmit="UpdateComponentAsync">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" />
+                    <div class="mb-3">
                         <label class="form-label">Component Type</label>
-                        <InputText @bind-Value="newSystem.ComponentType" class="form-control form-control-sm" />
+                        <InputText @bind-Value="editComponent.ComponentType" class="form-control" />
                     </div>
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label class="form-label">Manufacturer</label>
-                        <InputText @bind-Value="newSystem.Manufacturer" class="form-control form-control-sm" />
+                        <InputText @bind-Value="editComponent.Manufacturer" class="form-control" />
                     </div>
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label class="form-label">Model</label>
-                        <InputText @bind-Value="newSystem.Model" class="form-control form-control-sm" />
+                        <InputText @bind-Value="editComponent.Model" class="form-control" />
                     </div>
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label class="form-label">Serial Number</label>
-                        <InputText @bind-Value="newSystem.SerialNumber" class="form-control form-control-sm" />
+                        <InputText @bind-Value="editComponent.SerialNumber" class="form-control" />
                     </div>
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label class="form-label">Location</label>
-                        <InputText @bind-Value="newSystem.Location" class="form-control form-control-sm" />
+                        <InputText @bind-Value="editComponent.Location" class="form-control" />
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm w-100">Add</button>
+                    <div class="mb-3">
+                        <label class="form-label">Warranty Expiration</label>
+                        <InputDate @bind-Value="editComponent.WarrantyExpiration" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <InputTextArea @bind-Value="editComponent.Description" class="form-control" rows="3" />
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary" disabled="@isEditingComponent">
+                            @if (isEditingComponent)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                            }
+                            Save Changes
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
                 </EditForm>
             </div>
         </div>
@@ -81,43 +327,350 @@
     public int CustomerId { get; set; }
 
     [Parameter]
-    public List<CustomerSystemDto> Systems { get; set; } = new();
+    public List<SystemDto> Systems { get; set; } = new();
 
     [Parameter]
     public EventCallback OnRefresh { get; set; }
 
+    // Toast notification
+    private string? toastMessage;
+    private bool toastIsError;
+    private System.Threading.Timer? toastTimer;
+
+    // Loading states
+    private bool isAddingSystem;
+    private bool isAddingComponent;
+    private bool isEditingSystem;
+    private bool isEditingComponent;
+    private bool isDeletingSystem;
+    private bool isDeletingComponent;
+
+    // Form models
     private NewSystemModel newSystem = new();
+    private NewComponentModel newComponent = new();
+    private EditSystemModel editSystem = new();
+    private EditComponentModel editComponent = new();
+    
+    private int selectedSystemId = 0;
+    private int editingSystemId = 0;
+    private int editingComponentSystemId = 0;
+    private int editingComponentId = 0;
 
-    private async Task CreateAsync()
+    private async Task CreateSystemAsync()
     {
-        var dto = new CustomerSystemCreateDto(
-            newSystem.SystemName!,
-            newSystem.ComponentType,
-            newSystem.Manufacturer,
-            newSystem.Model,
-            newSystem.SerialNumber,
-            newSystem.Location,
-            null, null, null);
+        // Validate uniqueness
+        if (Systems.Any(s => s.SystemName.Equals(newSystem.SystemName, StringComparison.OrdinalIgnoreCase)))
+        {
+            ShowToast("A system with this name already exists for this customer.", true);
+            return;
+        }
 
-        await CustomerApi.AddSystemAsync(CustomerId, dto);
-        newSystem = new();
-        await OnRefresh.InvokeAsync();
+        isAddingSystem = true;
+        try
+        {
+            var dto = new SystemCreateDto(
+                newSystem.SystemName!,
+                newSystem.InstallationDate,
+                newSystem.Description);
+
+            var result = await CustomerApi.AddNewSystemAsync(CustomerId, dto);
+            if (result != null)
+            {
+                newSystem = new();
+                await OnRefresh.InvokeAsync();
+                ShowToast("System added successfully");
+            }
+            else
+            {
+                ShowToast("Failed to add system: No response from server", true);
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            ShowToast($"Network error: {ex.Message}", true);
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"Error: {ex.Message}", true);
+        }
+        finally
+        {
+            isAddingSystem = false;
+        }
     }
 
-    private async Task DeleteAsync(int id)
+    private async Task CreateComponentAsync()
     {
-        await CustomerApi.DeleteSystemAsync(CustomerId, id);
-        await OnRefresh.InvokeAsync();
+        if (selectedSystemId == 0)
+        {
+            ShowToast("Please select a system first", true);
+            return;
+        }
+
+        isAddingComponent = true;
+        try
+        {
+            var dto = new SystemComponentCreateDto(
+                newComponent.ComponentType!,
+                newComponent.Manufacturer,
+                newComponent.Model,
+                newComponent.SerialNumber,
+                newComponent.Location,
+                newComponent.WarrantyExpiration,
+                newComponent.Description);
+
+            var result = await CustomerApi.AddSystemComponentAsync(CustomerId, selectedSystemId, dto);
+            if (result != null)
+            {
+                newComponent = new();
+                selectedSystemId = 0;
+                await OnRefresh.InvokeAsync();
+                ShowToast("Component added successfully");
+            }
+            else
+            {
+                ShowToast("Failed to add component", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"Error: {ex.Message}", true);
+        }
+        finally
+        {
+            isAddingComponent = false;
+        }
+    }
+
+    private void SelectSystemForComponent(int systemId)
+    {
+        selectedSystemId = systemId;
+    }
+
+    private async Task StartEditSystem(SystemDto system)
+    {
+        editingSystemId = system.Id;
+        editSystem = new EditSystemModel
+        {
+            SystemName = system.SystemName,
+            InstallationDate = system.InstallationDate,
+            Description = system.Description
+        };
+        await JSRuntime.InvokeVoidAsync("modalHelper.show", "editSystemModal");
+    }
+
+    private async Task UpdateSystemAsync()
+    {
+        isEditingSystem = true;
+        try
+        {
+            var dto = new SystemDto(
+                editingSystemId,
+                CustomerId,
+                editSystem.SystemName!,
+                editSystem.InstallationDate,
+                editSystem.Description,
+                new List<SystemComponentDto>());
+
+            var success = await CustomerApi.UpdateNewSystemAsync(CustomerId, editingSystemId, dto);
+            if (success)
+            {
+                await JSRuntime.InvokeVoidAsync("modalHelper.hide", "editSystemModal");
+                await OnRefresh.InvokeAsync();
+                ShowToast("System updated successfully");
+            }
+            else
+            {
+                ShowToast("Failed to update system", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"Error: {ex.Message}", true);
+        }
+        finally
+        {
+            isEditingSystem = false;
+        }
+    }
+
+    private async Task DeleteSystemAsync(int systemId, string systemName, int componentCount)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+            $"Are you sure? This will delete '{systemName}' and all its {componentCount} component{(componentCount != 1 ? "s" : "")}.");
+        
+        if (!confirmed) return;
+
+        isDeletingSystem = true;
+        try
+        {
+            var success = await CustomerApi.DeleteNewSystemAsync(CustomerId, systemId);
+            if (success)
+            {
+                await OnRefresh.InvokeAsync();
+                ShowToast("System deleted successfully");
+            }
+            else
+            {
+                ShowToast("Failed to delete system", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"Error: {ex.Message}", true);
+        }
+        finally
+        {
+            isDeletingSystem = false;
+        }
+    }
+
+    private async Task StartEditComponent(int systemId, SystemComponentDto component)
+    {
+        editingComponentSystemId = systemId;
+        editingComponentId = component.Id;
+        editComponent = new EditComponentModel
+        {
+            ComponentType = component.ComponentType,
+            Manufacturer = component.Manufacturer,
+            Model = component.Model,
+            SerialNumber = component.SerialNumber,
+            Location = component.Location,
+            WarrantyExpiration = component.WarrantyExpiration,
+            Description = component.Description
+        };
+        await JSRuntime.InvokeVoidAsync("modalHelper.show", "editComponentModal");
+    }
+
+    private async Task UpdateComponentAsync()
+    {
+        isEditingComponent = true;
+        try
+        {
+            var dto = new SystemComponentDto(
+                editingComponentId,
+                editingComponentSystemId,
+                editComponent.ComponentType!,
+                editComponent.Manufacturer,
+                editComponent.Model,
+                editComponent.SerialNumber,
+                editComponent.Location,
+                editComponent.WarrantyExpiration,
+                editComponent.Description);
+
+            var success = await CustomerApi.UpdateSystemComponentAsync(CustomerId, editingComponentSystemId, editingComponentId, dto);
+            if (success)
+            {
+                await JSRuntime.InvokeVoidAsync("modalHelper.hide", "editComponentModal");
+                await OnRefresh.InvokeAsync();
+                ShowToast("Component updated successfully");
+            }
+            else
+            {
+                ShowToast("Failed to update component", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"Error: {ex.Message}", true);
+        }
+        finally
+        {
+            isEditingComponent = false;
+        }
+    }
+
+    private async Task DeleteComponentAsync(int systemId, int componentId)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Delete this component?");
+        if (!confirmed) return;
+
+        isDeletingComponent = true;
+        try
+        {
+            var success = await CustomerApi.DeleteSystemComponentAsync(CustomerId, systemId, componentId);
+            if (success)
+            {
+                await OnRefresh.InvokeAsync();
+                ShowToast("Component deleted successfully");
+            }
+            else
+            {
+                ShowToast("Failed to delete component", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"Error: {ex.Message}", true);
+        }
+        finally
+        {
+            isDeletingComponent = false;
+        }
+    }
+
+    private void ShowToast(string message, bool isError = false)
+    {
+        toastMessage = message;
+        toastIsError = isError;
+        
+        // Auto-dismiss after 3 seconds
+        toastTimer?.Dispose();
+        toastTimer = new System.Threading.Timer(_ =>
+        {
+            toastMessage = null;
+            InvokeAsync(StateHasChanged);
+        }, null, 3000, Timeout.Infinite);
+    }
+
+    private void DismissToast()
+    {
+        toastMessage = null;
+        toastTimer?.Dispose();
+    }
+
+    public void Dispose()
+    {
+        toastTimer?.Dispose();
     }
 
     class NewSystemModel
     {
-        [Required]
+        [Required(ErrorMessage = "System name is required")]
         public string? SystemName { get; set; }
+        public DateTime? InstallationDate { get; set; }
+        public string? Description { get; set; }
+    }
+
+    class NewComponentModel
+    {
+        [Required(ErrorMessage = "Component type is required")]
         public string? ComponentType { get; set; }
         public string? Manufacturer { get; set; }
         public string? Model { get; set; }
         public string? SerialNumber { get; set; }
         public string? Location { get; set; }
+        public DateTime? WarrantyExpiration { get; set; }
+        public string? Description { get; set; }
+    }
+
+    class EditSystemModel
+    {
+        [Required(ErrorMessage = "System name is required")]
+        public string? SystemName { get; set; }
+        public DateTime? InstallationDate { get; set; }
+        public string? Description { get; set; }
+    }
+
+    class EditComponentModel
+    {
+        [Required(ErrorMessage = "Component type is required")]
+        public string? ComponentType { get; set; }
+        public string? Manufacturer { get; set; }
+        public string? Model { get; set; }
+        public string? SerialNumber { get; set; }
+        public string? Location { get; set; }
+        public DateTime? WarrantyExpiration { get; set; }
+        public string? Description { get; set; }
     }
 }

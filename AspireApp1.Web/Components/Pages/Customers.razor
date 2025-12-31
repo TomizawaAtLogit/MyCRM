@@ -231,7 +231,7 @@
                 }
                 else if (activeTab == "systems")
                 {
-                    <SystemTab CustomerId="selectedCustomerDetails.Id" Systems="selectedCustomerDetails.Systems" OnRefresh="LoadCustomerDetails" />
+                    <SystemTab CustomerId="selectedCustomerDetails.Id" Systems="selectedCustomerDetails.Systems.OrderBy(s => s.SystemName).ToList()" OnRefresh="LoadCustomerDetails" />
                 }
                 else if (activeTab == "orders")
                 {
@@ -288,7 +288,16 @@
     {
         if (selectedCustomer != null)
         {
-            selectedCustomerDetails = await CustomerApi.GetCustomerWithChildrenAsync(selectedCustomer.Id);
+            try
+            {
+                selectedCustomerDetails = await CustomerApi.GetCustomerWithChildrenAsync(selectedCustomer.Id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading customer details: {ex.Message}");
+                selectedCustomerDetails = null;
+                // Optionally show error message to user
+            }
         }
     }
 

@@ -37,7 +37,6 @@ public record CustomerOrderCreateDto(
 
 public record SystemCreateDto(
     [Required] string SystemName,
-    string? Location,
     DateTime? InstallationDate,
     string? Description);
 
@@ -46,5 +45,25 @@ public record SystemComponentCreateDto(
     string? Manufacturer,
     string? Model,
     string? SerialNumber,
+    string? Location,
+    DateTime? WarrantyExpiration,
+    string? Description);
+
+public record SystemDto(
+    int Id,
+    int CustomerId,
+    [Required] string SystemName,
+    DateTime? InstallationDate,
+    string? Description,
+    List<SystemComponentDto> Components);
+
+public record SystemComponentDto(
+    int Id,
+    int SystemId,
+    [Required] string ComponentType,
+    string? Manufacturer,
+    string? Model,
+    string? SerialNumber,
+    string? Location,
     DateTime? WarrantyExpiration,
     string? Description);
