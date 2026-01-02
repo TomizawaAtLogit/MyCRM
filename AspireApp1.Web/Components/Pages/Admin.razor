@@ -1,4 +1,5 @@
 @page "/admin"
+@rendermode InteractiveServer
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.ComponentModel.DataAnnotations
@@ -35,7 +36,7 @@
     {
         <div class="row mb-3">
             <div class="col">
-                <button class="btn btn-primary" @onclick="ShowCreateUserForm">
+                <button type="button" class="btn btn-primary" @onclick="ShowCreateUserForm">
                     <span class="bi bi-plus-square-fill me-2"></span>Create User
                 </button>
                 <div class="form-check form-switch d-inline-block ms-3">
@@ -129,7 +130,7 @@
     {
         <div class="row mb-3">
             <div class="col">
-                <button class="btn btn-primary" @onclick="ShowCreateRoleForm">
+                <button type="button" class="btn btn-primary" @onclick="ShowCreateRoleForm">
                     <span class="bi bi-plus-square-fill me-2"></span>Create Role
                 </button>
             </div>
@@ -432,15 +433,23 @@
     }
 
     // User CRUD
-    private async Task ShowCreateUserForm()
+    private void ShowCreateUserForm()
     {
-        editingUser = null;
-        userForm = new UserFormModel { IsActive = true };
-        showUserModal = true;
-        await InvokeAsync(StateHasChanged);
+        try
+        {
+            Console.WriteLine("ShowCreateUserForm called");
+            editingUser = null;
+            userForm = new UserFormModel { IsActive = true };
+            showUserModal = true;
+            Console.WriteLine($"showUserModal = {showUserModal}, userForm = {userForm != null}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error showing create user form: {ex.Message}");
+        }
     }
 
-    private async Task ShowEditUserForm(UserDto user)
+    private void ShowEditUserForm(UserDto user)
     {
         editingUser = user;
         userForm = new UserFormModel
@@ -451,15 +460,13 @@
             IsActive = user.IsActive
         };
         showUserModal = true;
-        await InvokeAsync(StateHasChanged);
     }
 
-    private async Task HideUserModal()
+    private void HideUserModal()
     {
         showUserModal = false;
         editingUser = null;
         userForm = null;
-        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SaveUser()
@@ -479,16 +486,9 @@
                 );
                 var result = await AdminApi.CreateUserAsync(createDto);
                 
-                if (result != null)
-                {
-                    ShowToast("Success", "User created successfully", "success", 3000);
-                    await LoadUsers();
-                    HideUserModal();
-                }
-                else
-                {
-                    ShowToast("Error", "Failed to create user", "danger", 5000);
-                }
+                ShowToast("Success", "User created successfully", "success", 3000);
+                await LoadUsers();
+                HideUserModal();
             }
             else
             {
@@ -521,12 +521,11 @@
         }
     }
 
-    private async Task ShowDeleteUserConfirmation(UserDto user)
+    private void ShowDeleteUserConfirmation(UserDto user)
     {
         deleteConfirmationMessage = $"Are you sure you want to delete user '{user.DisplayName}' ({user.WindowsUsername})?";
         deleteAction = async () => await DeleteUser(user);
         showDeleteConfirmation = true;
-        await InvokeAsync(StateHasChanged);
     }
 
     private async Task DeleteUser(UserDto user)
@@ -596,15 +595,16 @@
     }
 
     // Role CRUD
-    private async Task ShowCreateRoleForm()
+    private void ShowCreateRoleForm()
     {
+        Console.WriteLine("ShowCreateRoleForm called");
         editingRole = null;
         roleForm = new RoleFormModel();
         showRoleModal = true;
-        await InvokeAsync(StateHasChanged);
+        Console.WriteLine($"showRoleModal = {showRoleModal}, roleForm = {roleForm != null}");
     }
 
-    private async Task ShowEditRoleForm(RoleDto role)
+    private void ShowEditRoleForm(RoleDto role)
     {
         editingRole = role;
         roleForm = new RoleFormModel
@@ -613,15 +613,13 @@
             Description = role.Description
         };
         showRoleModal = true;
-        await InvokeAsync(StateHasChanged);
     }
 
-    private async Task HideRoleModal()
+    private void HideRoleModal()
     {
         showRoleModal = false;
         editingRole = null;
         roleForm = null;
-        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SaveRole()
@@ -640,16 +638,9 @@
                 );
                 var result = await AdminApi.CreateRoleAsync(createDto);
                 
-                if (result != null)
-                {
-                    ShowToast("Success", "Role created successfully", "success", 3000);
-                    await LoadRoles();
-                    HideRoleModal();
-                }
-                else
-                {
-                    ShowToast("Error", "Failed to create role", "danger", 5000);
-                }
+                ShowToast("Success", "Role created successfully", "success", 3000);
+                await LoadRoles();
+                HideRoleModal();
             }
             else
             {
@@ -680,12 +671,11 @@
         }
     }
 
-    private async Task ShowDeleteRoleConfirmation(RoleDto role)
+    private void ShowDeleteRoleConfirmation(RoleDto role)
     {
         deleteConfirmationMessage = $"Are you sure you want to delete role '{role.Name}'?";
         deleteAction = async () => await DeleteRole(role);
         showDeleteConfirmation = true;
-        await InvokeAsync(StateHasChanged);
     }
 
     private async Task DeleteRole(RoleDto role)
@@ -704,12 +694,11 @@
     }
 
     // Delete confirmation
-    private async Task HideDeleteConfirmation()
+    private void HideDeleteConfirmation()
     {
         showDeleteConfirmation = false;
         deleteConfirmationMessage = "";
         deleteAction = null;
-        await InvokeAsync(StateHasChanged);
     }
 
     private async Task ConfirmDelete()

@@ -38,6 +38,10 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddCascadingAuthenticationState();
 
+// Add HttpContextAccessor for cookie forwarding
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<CookieForwardingHandler>();
+
 builder.Services.AddHttpClient<ProjectsApiClient>(client =>
     {
         // Allow overriding the DB API base URL in configuration for local development.
@@ -50,7 +54,13 @@ builder.Services.AddHttpClient<ProjectsApiClient>(client =>
         {
             client.BaseAddress = new("https+http://dbapi");
         }
-    });
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        UseDefaultCredentials = true,
+        Credentials = System.Net.CredentialCache.DefaultNetworkCredentials
+    })
+    .AddHttpMessageHandler<CookieForwardingHandler>();
 
 builder.Services.AddHttpClient<CustomerApiClient>(client =>
     {
@@ -63,7 +73,13 @@ builder.Services.AddHttpClient<CustomerApiClient>(client =>
         {
             client.BaseAddress = new("https+http://dbapi");
         }
-    });
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        UseDefaultCredentials = true,
+        Credentials = System.Net.CredentialCache.DefaultNetworkCredentials
+    })
+    .AddHttpMessageHandler<CookieForwardingHandler>();
 
 builder.Services.AddHttpClient<ProjectActivityApiClient>(client =>
     {
@@ -76,7 +92,13 @@ builder.Services.AddHttpClient<ProjectActivityApiClient>(client =>
         {
             client.BaseAddress = new("https+http://dbapi");
         }
-    });
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        UseDefaultCredentials = true,
+        Credentials = System.Net.CredentialCache.DefaultNetworkCredentials
+    })
+    .AddHttpMessageHandler<CookieForwardingHandler>();
 
 builder.Services.AddHttpClient<AdminApiClient>(client =>
     {
@@ -89,7 +111,13 @@ builder.Services.AddHttpClient<AdminApiClient>(client =>
         {
             client.BaseAddress = new("https+http://dbapi");
         }
-    });
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        UseDefaultCredentials = true,
+        Credentials = System.Net.CredentialCache.DefaultNetworkCredentials
+    })
+    .AddHttpMessageHandler<CookieForwardingHandler>();
 
 builder.Services.AddHttpClient<OrderApiClient>(client =>
     {
@@ -102,7 +130,13 @@ builder.Services.AddHttpClient<OrderApiClient>(client =>
         {
             client.BaseAddress = new("https+http://dbapi");
         }
-    });
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        UseDefaultCredentials = true,
+        Credentials = System.Net.CredentialCache.DefaultNetworkCredentials
+    })
+    .AddHttpMessageHandler<CookieForwardingHandler>();
 
 var app = builder.Build();
 

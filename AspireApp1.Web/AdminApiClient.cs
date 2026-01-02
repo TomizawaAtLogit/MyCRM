@@ -81,7 +81,10 @@ public class AdminApiClient
         var res = await _http.PostAsJsonAsync("/api/admin/users", dto, ct);
         if (res.IsSuccessStatusCode)
             return await res.Content.ReadFromJsonAsync<UserDto>(ct);
-        return null;
+        
+        // Read error details
+        var errorContent = await res.Content.ReadAsStringAsync(ct);
+        throw new HttpRequestException($"Failed to create user: {res.StatusCode} - {errorContent}");
     }
 
     public async Task<bool> UpdateUserAsync(int id, UserDto dto, CancellationToken ct = default)
@@ -140,7 +143,10 @@ public class AdminApiClient
         var res = await _http.PostAsJsonAsync("/api/admin/roles", dto, ct);
         if (res.IsSuccessStatusCode)
             return await res.Content.ReadFromJsonAsync<RoleDto>(ct);
-        return null;
+        
+        // Read error details
+        var errorContent = await res.Content.ReadAsStringAsync(ct);
+        throw new HttpRequestException($"Failed to create role: {res.StatusCode} - {errorContent}");
     }
 
     public async Task<bool> UpdateRoleAsync(int id, RoleDto dto, CancellationToken ct = default)
