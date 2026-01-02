@@ -11,7 +11,7 @@ namespace AspireApp1.Web
             _http = httpClient;
         }
 
-        public async Task<ProjectDto[]> GetProjectsAsync(int? customerId = null, string? status = null, CancellationToken cancellationToken = default)
+        public async Task<ProjectDto[]> GetProjectsAsync(int? customerId = null, ProjectStatus? status = null, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -21,8 +21,8 @@ namespace AspireApp1.Web
                 if (customerId.HasValue)
                     queryParams.Add($"customerId={customerId.Value}");
                 
-                if (!string.IsNullOrEmpty(status))
-                    queryParams.Add($"status={status}");
+                if (status.HasValue)
+                    queryParams.Add($"status={status.Value}");
                 
                 if (queryParams.Count > 0)
                     queryString = "?" + string.Join("&", queryParams);
@@ -87,6 +87,13 @@ namespace AspireApp1.Web
         }
     }
 
-    public record ProjectDto(int Id, string Name, string? Description, int CustomerId, string? CustomerName, string Status, DateTime CreatedAt);
-    public record ProjectCreateDto(string Name, string? Description, int CustomerId, string Status = "Wip");
+    public record ProjectDto(int Id, string Name, string? Description, int CustomerId, string? CustomerName, ProjectStatus Status, DateTime CreatedAt);
+    public record ProjectCreateDto(string Name, string? Description, int CustomerId, ProjectStatus Status = ProjectStatus.Wip);
+
+    public enum ProjectStatus
+    {
+        Wip,
+        Pending,
+        Closed
+    }
 }

@@ -105,6 +105,10 @@ public class ProjectActivityApiClient
         var res = await _http.PostAsJsonAsync("/api/projectactivities", dto, ct);
         if (res.IsSuccessStatusCode)
             return await res.Content.ReadFromJsonAsync<ProjectActivityDto>(ct);
+        
+        // Log the error for debugging
+        var errorContent = await res.Content.ReadAsStringAsync(ct);
+        Console.WriteLine($"API Error ({res.StatusCode}): {errorContent}");
         return null;
     }
 

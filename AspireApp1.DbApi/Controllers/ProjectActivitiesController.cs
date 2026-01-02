@@ -1,5 +1,6 @@
 using AspireApp1.DbApi.Models;
 using AspireApp1.DbApi.Repositories;
+using AspireApp1.DbApi.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspireApp1.DbApi.Controllers;
@@ -46,8 +47,19 @@ public class ProjectActivitiesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ProjectActivity>> Post(ProjectActivity activity)
+    public async Task<ActionResult<ProjectActivity>> Post(ProjectActivityCreateDto dto)
     {
+        var activity = new ProjectActivity
+        {
+            ProjectId = dto.ProjectId,
+            ActivityDate = dto.ActivityDate.Kind == DateTimeKind.Utc ? dto.ActivityDate : dto.ActivityDate.ToUniversalTime(),
+            Summary = dto.Summary,
+            Description = dto.Description,
+            NextAction = dto.NextAction,
+            ActivityType = dto.ActivityType,
+            PerformedBy = dto.PerformedBy
+        };
+        
         var created = await _repo.AddAsync(activity);
         return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
     }
