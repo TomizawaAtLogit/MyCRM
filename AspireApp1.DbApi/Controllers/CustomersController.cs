@@ -140,10 +140,21 @@ public class CustomersController : ControllerBase
     }
 
     [HttpPut("{customerId}/sites/{id}")]
-    public async Task<IActionResult> PutSite(int customerId, int id, CustomerSite site)
+    public async Task<IActionResult> PutSite(int customerId, int id, CustomerSiteUpdateDto dto)
     {
-        if (id != site.Id || customerId != site.CustomerId)
-            return BadRequest();
+        var site = await _repo.GetSiteByIdAsync(id);
+        if (site == null || site.CustomerId != customerId)
+            return NotFound();
+        
+        site.SiteName = dto.SiteName;
+        site.Address = dto.Address;
+        site.PostCode = dto.PostCode;
+        site.Country = dto.Country;
+        site.ContactPerson = dto.ContactPerson;
+        site.Phone = dto.Phone;
+        site.Description = dto.Description;
+        site.UpdatedAt = DateTime.UtcNow;
+        
         await _repo.UpdateSiteAsync(site);
         return NoContent();
     }
@@ -211,10 +222,22 @@ public class CustomersController : ControllerBase
     }
 
     [HttpPut("{customerId}/orders/{id}")]
-    public async Task<IActionResult> PutOrder(int customerId, int id, CustomerOrder order)
+    public async Task<IActionResult> PutOrder(int customerId, int id, CustomerOrderUpdateDto dto)
     {
-        if (id != order.Id || customerId != order.CustomerId)
-            return BadRequest();
+        var order = await _repo.GetOrderByIdAsync(id);
+        if (order == null || order.CustomerId != customerId)
+            return NotFound();
+        
+        order.OrderNumber = dto.OrderNumber;
+        order.ContractType = dto.ContractType;
+        order.StartDate = DateTime.SpecifyKind(dto.StartDate, DateTimeKind.Utc);
+        order.EndDate = dto.EndDate.HasValue ? DateTime.SpecifyKind(dto.EndDate.Value, DateTimeKind.Utc) : null;
+        order.ContractValue = dto.ContractValue;
+        order.BillingFrequency = dto.BillingFrequency;
+        order.Status = dto.Status;
+        order.Description = dto.Description;
+        order.UpdatedAt = DateTime.UtcNow;
+        
         await _repo.UpdateOrderAsync(order);
         return NoContent();
     }

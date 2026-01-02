@@ -432,14 +432,15 @@
     }
 
     // User CRUD
-    private void ShowCreateUserForm()
+    private async Task ShowCreateUserForm()
     {
         editingUser = null;
         userForm = new UserFormModel { IsActive = true };
         showUserModal = true;
+        await InvokeAsync(StateHasChanged);
     }
 
-    private void ShowEditUserForm(UserDto user)
+    private async Task ShowEditUserForm(UserDto user)
     {
         editingUser = user;
         userForm = new UserFormModel
@@ -450,13 +451,15 @@
             IsActive = user.IsActive
         };
         showUserModal = true;
+        await InvokeAsync(StateHasChanged);
     }
 
-    private void HideUserModal()
+    private async Task HideUserModal()
     {
         showUserModal = false;
         editingUser = null;
         userForm = null;
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SaveUser()
@@ -518,11 +521,12 @@
         }
     }
 
-    private void ShowDeleteUserConfirmation(UserDto user)
+    private async Task ShowDeleteUserConfirmation(UserDto user)
     {
         deleteConfirmationMessage = $"Are you sure you want to delete user '{user.DisplayName}' ({user.WindowsUsername})?";
         deleteAction = async () => await DeleteUser(user);
         showDeleteConfirmation = true;
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task DeleteUser(UserDto user)
@@ -592,14 +596,15 @@
     }
 
     // Role CRUD
-    private void ShowCreateRoleForm()
+    private async Task ShowCreateRoleForm()
     {
         editingRole = null;
         roleForm = new RoleFormModel();
         showRoleModal = true;
+        await InvokeAsync(StateHasChanged);
     }
 
-    private void ShowEditRoleForm(RoleDto role)
+    private async Task ShowEditRoleForm(RoleDto role)
     {
         editingRole = role;
         roleForm = new RoleFormModel
@@ -608,13 +613,15 @@
             Description = role.Description
         };
         showRoleModal = true;
+        await InvokeAsync(StateHasChanged);
     }
 
-    private void HideRoleModal()
+    private async Task HideRoleModal()
     {
         showRoleModal = false;
         editingRole = null;
         roleForm = null;
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SaveRole()
@@ -673,11 +680,12 @@
         }
     }
 
-    private void ShowDeleteRoleConfirmation(RoleDto role)
+    private async Task ShowDeleteRoleConfirmation(RoleDto role)
     {
         deleteConfirmationMessage = $"Are you sure you want to delete role '{role.Name}'?";
         deleteAction = async () => await DeleteRole(role);
         showDeleteConfirmation = true;
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task DeleteRole(RoleDto role)
@@ -696,11 +704,12 @@
     }
 
     // Delete confirmation
-    private void HideDeleteConfirmation()
+    private async Task HideDeleteConfirmation()
     {
         showDeleteConfirmation = false;
         deleteConfirmationMessage = "";
         deleteAction = null;
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task ConfirmDelete()

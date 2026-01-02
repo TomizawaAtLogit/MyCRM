@@ -11,6 +11,15 @@ public record CustomerSiteCreateDto(
     string? Phone,
     string? Description);
 
+public record CustomerSiteUpdateDto(
+    [Required] string SiteName,
+    string? Address,
+    string? PostCode,
+    string? Country,
+    string? ContactPerson,
+    string? Phone,
+    string? Description);
+
 public record CustomerDatabaseCreateDto(
     [Required] string DatabaseName,
     string? DatabaseType,
@@ -29,6 +38,16 @@ public record CustomerSystemCreateDto(
     string? Description);
 
 public record CustomerOrderCreateDto(
+    [Required] string OrderNumber,
+    [Required] string ContractType,
+    DateTime StartDate,
+    DateTime? EndDate,
+    decimal? ContractValue,
+    string? BillingFrequency,
+    string? Status,
+    string? Description);
+
+public record CustomerOrderUpdateDto(
     [Required] string OrderNumber,
     [Required] string ContractType,
     DateTime StartDate,

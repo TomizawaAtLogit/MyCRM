@@ -94,6 +94,11 @@ public class CustomerRepository : ICustomerRepository
         return site;
     }
 
+    public async Task<CustomerSite?> GetSiteByIdAsync(int id)
+    {
+        return await _db.CustomerSites.FindAsync(id);
+    }
+
     public async Task UpdateSiteAsync(CustomerSite site)
     {
         site.UpdatedAt = DateTime.UtcNow;
@@ -142,6 +147,11 @@ public class CustomerRepository : ICustomerRepository
         _db.CustomerOrders.Add(order);
         await _db.SaveChangesAsync();
         return order;
+    }
+
+    public async Task<CustomerOrder?> GetOrderByIdAsync(int id)
+    {
+        return await _db.CustomerOrders.FindAsync(id);
     }
 
     public async Task UpdateOrderAsync(CustomerOrder order)

@@ -21,7 +21,7 @@
 @if (selectedCustomerDetails == null)
 {
     <div class="row mb-3">
-        <div class="col-md-8">
+        <div class="col-md-12">
             @if (customers == null)
             {
                 <p><em>Loading customers...</em></p>
@@ -50,40 +50,53 @@
                 </div>
             }
         </div>
-        <div class="col-md-4">
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col-md-12">
             <div class="card">
-                <div class="card-header">
-                    <h5>Add New Customer</h5>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Add New Customer</h5>
+                    <button class="btn btn-sm btn-outline-primary" @onclick="() => showCreateForm = !showCreateForm">
+                        <i class="bi @(showCreateForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
+                    </button>
                 </div>
-                <div class="card-body">
+                @if (showCreateForm)
+                {
+                    <div class="card-body">
                     <EditForm EditContext="createEditContext" OnValidSubmit="CreateCustomerAsync">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
                         
-                        <div class="mb-3">
-                            <label class="form-label">Name</label>
-                            <InputText @bind-Value="newCustomer.Name" class="form-control" />
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Name *</label>
+                                <InputText @bind-Value="newCustomer.Name" class="form-control" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Contact Person</label>
+                                <InputText @bind-Value="newCustomer.ContactPerson" class="form-control" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Email</label>
+                                <InputText @bind-Value="newCustomer.Email" class="form-control" type="email" />
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Contact Person</label>
-                            <InputText @bind-Value="newCustomer.ContactPerson" class="form-control" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <InputText @bind-Value="newCustomer.Email" class="form-control" type="email" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Phone</label>
-                            <InputText @bind-Value="newCustomer.Phone" class="form-control" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Address</label>
-                            <InputTextArea @bind-Value="newCustomer.Address" class="form-control" rows="2" />
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Phone</label>
+                                <InputText @bind-Value="newCustomer.Phone" class="form-control" />
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label">Address</label>
+                                <InputTextArea @bind-Value="newCustomer.Address" class="form-control" rows="2" />
+                            </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary w-100">Create Customer</button>
+                        <button type="submit" class="btn btn-primary">Create Customer</button>
                     </EditForm>
-                </div>
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -97,12 +110,12 @@
             <div>
                 @if (!isEditing)
                 {
-                    <button class="btn btn-primary btn-sm me-2" @onclick="StartEdit">
-                        <span class="bi bi-pencil"></span> Edit
+                    <button class="btn btn-outline-primary btn-sm me-2" @onclick="StartEdit">
+                        <i class="bi bi-pencil"></i>
                     </button>
                 }
-                <button class="btn btn-danger btn-sm" @onclick="() => DeleteCustomer(selectedCustomerDetails.Id)">
-                    <span class="bi bi-trash"></span> Delete
+                <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteCustomer(selectedCustomerDetails.Id)">
+                    <i class="bi bi-trash"></i>
                 </button>
             </div>
         </div>
@@ -143,10 +156,10 @@
                             </div>
                             <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-success">
-                                    <span class="bi bi-check-lg"></span> Save
+                                    <i class="bi bi-check-lg"></i> Save
                                 </button>
                                 <button type="button" class="btn btn-secondary" @onclick="CancelEdit">
-                                    <span class="bi bi-x-lg"></span> Cancel
+                                    <i class="bi bi-x-lg"></i> Cancel
                                 </button>
                             </div>
                         </EditForm>
@@ -258,6 +271,9 @@
     private EditCustomerModel editModel = new();
     private EditContext? editEditContext;
     private bool isEditing = false;
+    
+    // Create form visibility
+    private bool showCreateForm = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -337,6 +353,7 @@
         {
             newCustomer = new();
             createEditContext = new EditContext(newCustomer);
+            showCreateForm = false;
             await LoadCustomersAsync();
         }
     }

@@ -1,8 +1,9 @@
 @using System.ComponentModel.DataAnnotations
 @inject CustomerApiClient CustomerApi
+@inject IJSRuntime JSRuntime
 
 <div class="row">
-    <div class="col-md-8">
+    <div class="col-md-12">
         <h5>Orders / Contracts</h5>
         @if (Orders == null || !Orders.Any())
         {
@@ -32,7 +33,12 @@
                                 <td>@(order.EndDate?.ToShortDateString() ?? "-")</td>
                                 <td>@order.Status</td>
                                 <td>
-                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(order.Id)">Delete</button>
+                                    <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEdit(order)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(order.Id)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                         }
@@ -41,37 +47,104 @@
             </div>
         }
     </div>
-    <div class="col-md-4">
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-12">
         <div class="card">
-            <div class="card-header">Add Order</div>
-            <div class="card-body">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Add Order</h5>
+                <button class="btn btn-sm btn-outline-primary" @onclick="() => showCreateForm = !showCreateForm">
+                    <i class="bi @(showCreateForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
+                </button>
+            </div>
+            @if (showCreateForm)
+            {
+                <div class="card-body">
                 <EditForm Model="newOrder" OnValidSubmit="CreateAsync">
                     <DataAnnotationsValidator />
-                    <div class="mb-2">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">Order Number</label>
+                            <InputText @bind-Value="newOrder.OrderNumber" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">Contract Type</label>
+                            <InputText @bind-Value="newOrder.ContractType" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">Status</label>
+                            <InputText @bind-Value="newOrder.Status" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">Contract Value</label>
+                            <InputNumber @bind-Value="newOrder.ContractValue" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">Start Date</label>
+                            <InputDate @bind-Value="newOrder.StartDate" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">End Date</label>
+                            <InputDate @bind-Value="newOrder.EndDate" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">Add Order</button>
+                </EditForm>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Edit Order Modal -->
+<div class="modal fade" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editOrderModalLabel">Edit Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="editOrder" OnValidSubmit="UpdateOrderAsync">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" />
+                    <div class="mb-3">
                         <label class="form-label">Order Number</label>
-                        <InputText @bind-Value="newOrder.OrderNumber" class="form-control form-control-sm" />
+                        <InputText @bind-Value="editOrder.OrderNumber" class="form-control" />
                     </div>
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label class="form-label">Contract Type</label>
-                        <InputText @bind-Value="newOrder.ContractType" class="form-control form-control-sm" />
+                        <InputText @bind-Value="editOrder.ContractType" class="form-control" />
                     </div>
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label class="form-label">Start Date</label>
-                        <InputDate @bind-Value="newOrder.StartDate" class="form-control form-control-sm" />
+                        <InputDate @bind-Value="editOrder.StartDate" class="form-control" />
                     </div>
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label class="form-label">End Date</label>
-                        <InputDate @bind-Value="newOrder.EndDate" class="form-control form-control-sm" />
+                        <InputDate @bind-Value="editOrder.EndDate" class="form-control" />
                     </div>
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label class="form-label">Status</label>
-                        <InputText @bind-Value="newOrder.Status" class="form-control form-control-sm" />
+                        <InputText @bind-Value="editOrder.Status" class="form-control" />
                     </div>
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label class="form-label">Contract Value</label>
-                        <InputNumber @bind-Value="newOrder.ContractValue" class="form-control form-control-sm" />
+                        <InputNumber @bind-Value="editOrder.ContractValue" class="form-control" />
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm w-100">Add</button>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary" disabled="@isEditingOrder">
+                            @if (isEditingOrder)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                            }
+                            Save Changes
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
                 </EditForm>
             </div>
         </div>
@@ -89,6 +162,10 @@
     public EventCallback OnRefresh { get; set; }
 
     private NewOrderModel newOrder = new();
+    private EditOrderModel editOrder = new();
+    private int editingOrderId = 0;
+    private bool showCreateForm = false;
+    private bool isEditingOrder = false;
 
     private async Task CreateAsync()
     {
@@ -104,16 +181,82 @@
 
         await CustomerApi.AddOrderAsync(CustomerId, dto);
         newOrder = new();
+        showCreateForm = false;
         await OnRefresh.InvokeAsync();
     }
 
     private async Task DeleteAsync(int id)
     {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this order?");
+        if (!confirmed) return;
+        
         await CustomerApi.DeleteOrderAsync(CustomerId, id);
         await OnRefresh.InvokeAsync();
     }
 
+    private async Task StartEdit(CustomerOrderDto order)
+    {
+        editingOrderId = order.Id;
+        editOrder = new EditOrderModel
+        {
+            OrderNumber = order.OrderNumber,
+            ContractType = order.ContractType,
+            StartDate = order.StartDate,
+            EndDate = order.EndDate,
+            ContractValue = order.ContractValue,
+            Status = order.Status
+        };
+        await JSRuntime.InvokeVoidAsync("modalHelper.show", "editOrderModal");
+    }
+
+    private async Task UpdateOrderAsync()
+    {
+        isEditingOrder = true;
+        try
+        {
+            var dto = new CustomerOrderDto(
+                editingOrderId,
+                CustomerId,
+                editOrder.OrderNumber!,
+                editOrder.ContractType!,
+                editOrder.StartDate,
+                editOrder.EndDate,
+                editOrder.ContractValue,
+                null, // BillingFrequency
+                editOrder.Status,
+                null); // Description
+
+            var success = await CustomerApi.UpdateOrderAsync(CustomerId, editingOrderId, dto);
+            if (success)
+            {
+                await JSRuntime.InvokeVoidAsync("modalHelper.hide", "editOrderModal");
+                await OnRefresh.InvokeAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Could add toast notification here
+            Console.WriteLine($"Error updating order: {ex.Message}");
+        }
+        finally
+        {
+            isEditingOrder = false;
+        }
+    }
+
     class NewOrderModel
+    {
+        [Required]
+        public string? OrderNumber { get; set; }
+        [Required]
+        public string? ContractType { get; set; }
+        public DateTime StartDate { get; set; } = DateTime.Today;
+        public DateTime? EndDate { get; set; }
+        public decimal? ContractValue { get; set; }
+        public string? Status { get; set; }
+    }
+
+    class EditOrderModel
     {
         [Required]
         public string? OrderNumber { get; set; }

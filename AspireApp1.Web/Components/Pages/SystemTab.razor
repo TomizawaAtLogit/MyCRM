@@ -14,7 +14,7 @@
 }
 
 <div class="row">
-    <div class="col-md-8">
+    <div class="col-md-12">
         <h5>Systems</h5>
         @if (Systems == null || !Systems.Any())
         {
@@ -30,8 +30,8 @@
                     var badgeClass = componentCount > 0 ? "bg-primary" : "bg-warning";
                     
                     <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading-@system.Id">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                        <h2 class="accordion-header d-flex align-items-center position-relative" id="heading-@system.Id" style="padding-right: 110px;">
+                            <button class="accordion-button flex-grow-1" type="button" data-bs-toggle="collapse" 
                                     data-bs-target="#@accordionId" aria-expanded="true" aria-controls="@accordionId">
                                 <span class="me-2">@system.SystemName</span>
                                 <span class="badge @badgeClass me-2">@componentCount component@(componentCount != 1 ? "s" : "")</span>
@@ -40,6 +40,27 @@
                                     <small class="text-muted ms-2">Installed: @system.InstallationDate.Value.ToShortDateString()</small>
                                 }
                             </button>
+                            <div class="position-absolute end-0 top-50 translate-middle-y me-2" style="z-index: 1050;">
+                                <button class="btn btn-sm btn-outline-primary me-1" 
+                                        @onclick="() => StartEditSystem(system)"
+                                        @onclick:stopPropagation="true"
+                                        disabled="@isDeletingSystem">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" 
+                                        @onclick="() => DeleteSystemAsync(system.Id, system.SystemName, componentCount)"
+                                        @onclick:stopPropagation="true"
+                                        disabled="@isDeletingSystem">
+                                    @if (isDeletingSystem)
+                                    {
+                                        <span class="spinner-border spinner-border-sm"></span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-trash"></i>
+                                    }
+                                </button>
+                            </div>
                         </h2>
                         <div id="@accordionId" class="accordion-collapse collapse show" 
                              aria-labelledby="heading-@system.Id" data-bs-parent="#systemsAccordion">
@@ -100,26 +121,6 @@
                                         </table>
                                     </div>
                                 }
-                                <div class="mt-2">
-                                    <button class="btn btn-sm btn-outline-secondary me-2" 
-                                            @onclick="() => StartEditSystem(system)"
-                                            disabled="@isDeletingSystem">
-                                        <span class="bi bi-pencil"></span> Edit System
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" 
-                                            @onclick="() => DeleteSystemAsync(system.Id, system.SystemName, componentCount)"
-                                            disabled="@isDeletingSystem">
-                                        @if (isDeletingSystem)
-                                        {
-                                            <span class="spinner-border spinner-border-sm"></span>
-                                        }
-                                        else
-                                        {
-                                            <span class="bi bi-trash"></span>
-                                        }
-                                        Delete System
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -127,12 +128,20 @@
             </div>
         }
     </div>
-    <div class="col-md-4">
-        <!-- Add System Form -->
-        @if (Systems == null || !Systems.Any() || showAddSystemForm)
-        {
-            <div class="card mb-3" @ref="addSystemCardRef">
-                <div class="card-header">Add System</div>
+</div>
+
+<!-- Add System and Component Forms -->
+<div class="row mt-3">
+    <div class="col-md-12">
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Add System</h5>
+                <button class="btn btn-sm btn-outline-primary" @onclick="() => showAddSystemForm = !showAddSystemForm">
+                    <i class="bi @(showAddSystemForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
+                </button>
+            </div>
+            @if (showAddSystemForm)
+            {
             <div class="card-body">
                 <EditForm Model="newSystem" OnValidSubmit="CreateSystemAsync">
                     <DataAnnotationsValidator />
@@ -157,14 +166,20 @@
                         Add System
                     </button>
                 </EditForm>
-            </div>
+                </div>
+            }
         </div>
-        }
-
-        <!-- Add Component Form -->
+        
         <div class="card">
-            <div class="card-header">Add Component</div>
-            <div class="card-body">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Add Component</h5>
+                <button class="btn btn-sm btn-outline-primary" @onclick="() => showAddComponentForm = !showAddComponentForm">
+                    <i class="bi @(showAddComponentForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
+                </button>
+            </div>
+            @if (showAddComponentForm)
+            {
+                <div class="card-body">
                 @if (Systems == null || !Systems.Any())
                 {
                     <p class="text-muted small">Add a system first</p>
@@ -221,21 +236,11 @@
                         </button>
                     </EditForm>
                 }
-            </div>
+                </div>
+            }
         </div>
     </div>
 </div>
-
-<!-- Floating Action Button for Add System -->
-@if (Systems != null && Systems.Any())
-{
-    <button class="btn btn-primary rounded-circle position-fixed" 
-            style="bottom: 20px; right: 20px; width: 56px; height: 56px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1040;"
-            @onclick="ToggleAddSystemForm"
-            title="@(showAddSystemForm ? "Cancel" : "Add System")">
-        <span class="bi @(showAddSystemForm ? "bi-x-lg" : "bi-plus-lg")" style="font-size: 24px;"></span>
-    </button>
-}
 
 <!-- Edit System Modal -->
 <div class="modal fade" id="editSystemModal" tabindex="-1" aria-labelledby="editSystemModalLabel" aria-hidden="true">
@@ -356,9 +361,9 @@
     private bool isDeletingSystem;
     private bool isDeletingComponent;
 
-    // Form visibility and scroll reference
+    // Form visibility
     private bool showAddSystemForm = false;
-    private ElementReference addSystemCardRef;
+    private bool showAddComponentForm = false;
 
     // Form models
     private NewSystemModel newSystem = new();
@@ -392,9 +397,9 @@
             if (result != null)
             {
                 newSystem = new();
-                showAddSystemForm = false;
                 await OnRefresh.InvokeAsync();
                 ShowToast("System added successfully");
+                showAddSystemForm = false;
             }
             else
             {
@@ -412,29 +417,6 @@
         finally
         {
             isAddingSystem = false;
-        }
-    }
-
-    private async Task ToggleAddSystemForm()
-    {
-        showAddSystemForm = !showAddSystemForm;
-        
-        if (showAddSystemForm)
-        {
-            // Wait for the UI to update and render the form
-            await Task.Delay(100);
-            
-            // Scroll to the Add System card
-            try
-            {
-                await JSRuntime.InvokeVoidAsync("eval", 
-                    "arguments[0].scrollIntoView({ behavior: 'smooth', block: 'start' })",
-                    addSystemCardRef);
-            }
-            catch
-            {
-                // Silently fail if scroll doesn't work
-            }
         }
     }
 
@@ -465,6 +447,7 @@
                 selectedSystemId = 0;
                 await OnRefresh.InvokeAsync();
                 ShowToast("Component added successfully");
+                showAddComponentForm = false;
             }
             else
             {

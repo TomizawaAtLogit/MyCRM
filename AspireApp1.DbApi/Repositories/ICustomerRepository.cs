@@ -14,8 +14,10 @@ public interface ICustomerRepository
     // Child entity operations
     Task<CustomerDatabase> AddDatabaseAsync(CustomerDatabase database);
     Task<CustomerSite> AddSiteAsync(CustomerSite site);
+    Task<CustomerSite?> GetSiteByIdAsync(int id);
     Task<CustomerSystem> AddSystemAsync(CustomerSystem system);
     Task<CustomerOrder> AddOrderAsync(CustomerOrder order);
+    Task<CustomerOrder?> GetOrderByIdAsync(int id);
     Task<ProjectActivity> AddProjectActivityAsync(ProjectActivity projectActivity);
     
     Task UpdateDatabaseAsync(CustomerDatabase database);
