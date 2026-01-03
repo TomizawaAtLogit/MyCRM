@@ -349,7 +349,7 @@ else
         filterAction = "";
         filterFromDate = null;
         filterToDate = null;
-        _ = LoadAuditLogsAsync();
+        InvokeAsync(LoadAuditLogsAsync);
     }
 
     private void SortBy(string column)
@@ -460,9 +460,13 @@ else
                 WriteIndented = true 
             });
         }
-        catch
+        catch (System.Text.Json.JsonException ex)
         {
+            // Log the error for debugging
+            Console.WriteLine($"Error formatting JSON: {ex.Message}");
             return json;
+        }
+    }
         }
     }
 }

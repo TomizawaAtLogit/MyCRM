@@ -8,13 +8,14 @@ namespace AspireApp1.DbApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize] // All authenticated users can access
-public class AuditsController : ControllerBase
+public class AuditsController : AuditableControllerBase
 {
     private readonly IAuditRepository _auditRepo;
     private readonly IUserRepository _userRepo;
     private readonly ILogger<AuditsController> _logger;
 
     public AuditsController(IAuditRepository auditRepo, IUserRepository userRepo, ILogger<AuditsController> logger)
+        : base(userRepo)
     {
         _auditRepo = auditRepo;
         _userRepo = userRepo;
@@ -36,7 +37,7 @@ public class AuditsController : ControllerBase
         }
 
         // Extract username without domain if present
-        var usernameOnly = username.Contains('\\') ? username.Split('\\')[1] : username;
+        var usernameOnly = ExtractUsernameWithoutDomain(username);
         
         // Get current user
         var currentUser = await _userRepo.GetWithRolesByUsernameAsync(usernameOnly);
@@ -83,7 +84,7 @@ public class AuditsController : ControllerBase
             return Unauthorized();
         }
 
-        var usernameOnly = username.Contains('\\') ? username.Split('\\')[1] : username;
+        var usernameOnly = ExtractUsernameWithoutDomain(username);
         var currentUser = await _userRepo.GetWithRolesByUsernameAsync(usernameOnly);
         
         if (currentUser == null)
@@ -113,7 +114,7 @@ public class AuditsController : ControllerBase
             return Unauthorized();
         }
 
-        var usernameOnly = username.Contains('\\') ? username.Split('\\')[1] : username;
+        var usernameOnly = ExtractUsernameWithoutDomain(username);
         var currentUser = await _userRepo.GetWithRolesByUsernameAsync(usernameOnly);
         
         if (currentUser == null)

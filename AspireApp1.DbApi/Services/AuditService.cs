@@ -9,6 +9,13 @@ public class AuditService : IAuditService
     private readonly IAuditRepository _auditRepo;
     private readonly ILogger<AuditService> _logger;
     private const int DefaultRetentionDays = 365;
+    
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = false,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+    };
 
     public AuditService(IAuditRepository auditRepo, ILogger<AuditService> logger)
     {
@@ -27,7 +34,7 @@ public class AuditService : IAuditService
                 Action = action,
                 EntityType = entityType,
                 EntityId = entityId,
-                EntitySnapshot = entitySnapshot != null ? JsonSerializer.Serialize(entitySnapshot) : null,
+                EntitySnapshot = entitySnapshot != null ? JsonSerializer.Serialize(entitySnapshot, JsonOptions) : null,
                 Timestamp = DateTime.UtcNow,
                 RetentionUntil = DateTime.UtcNow.AddDays(DefaultRetentionDays)
             };
