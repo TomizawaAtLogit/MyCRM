@@ -45,9 +45,7 @@ public class AuditCleanupService : BackgroundService
 
         if (deletedCount > 0)
         {
-            // Log to console as per requirements
-            Console.WriteLine($"[Audit Cleanup] Deleted {deletedCount} expired audit logs at {now:yyyy-MM-dd HH:mm:ss} UTC");
-            _logger.LogInformation("Deleted {Count} expired audit logs", deletedCount);
+            _logger.LogInformation("Deleted {Count} expired audit logs at {Timestamp} UTC", deletedCount, now);
         }
     }
 }

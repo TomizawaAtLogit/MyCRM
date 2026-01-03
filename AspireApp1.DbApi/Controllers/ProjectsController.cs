@@ -8,16 +8,15 @@ namespace AspireApp1.DbApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ProjectsController : ControllerBase
+    public class ProjectsController : AuditableControllerBase
     {
         private readonly IProjectRepository _repo;
-        private readonly IUserRepository _userRepo;
         private readonly IAuditService _auditService;
         
         public ProjectsController(IProjectRepository repo, IUserRepository userRepo, IAuditService auditService)
+            : base(userRepo)
         {
             _repo = repo;
-            _userRepo = userRepo;
             _auditService = auditService;
         }
 
@@ -131,15 +130,6 @@ namespace AspireApp1.DbApi.Controllers
             await _auditService.LogActionAsync(username, userId, "Delete", "Project", id, project);
             
             return NoContent();
-        }
-
-        private async Task<(string username, int? userId)> GetCurrentUserInfoAsync()
-        {
-            var username = User.Identity?.Name ?? "Unknown";
-            var usernameOnly = username.Contains('\\') ? username.Split('\\')[1] : username;
-            
-            var user = await _userRepo.GetWithRolesByUsernameAsync(usernameOnly);
-            return (usernameOnly, user?.Id);
         }
     }
 }

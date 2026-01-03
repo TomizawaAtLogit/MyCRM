@@ -126,7 +126,7 @@ else
                                 <td>
                                     @if (log.EntityId.HasValue)
                                     {
-                                        <a href="@GetEntityNavigationUrl(log.EntityType, log.EntityId.Value)" class="text-decoration-none" @onclick="() => CheckEntityExists(log)">
+                                        <a href="@GetEntityNavigationUrl(log.EntityType, log.EntityId.Value)" class="text-decoration-none">
                                             @log.EntityId.Value
                                         </a>
                                     }
@@ -438,13 +438,6 @@ else
             "Project" => $"/projects?projectId={entityId}",
             _ => "#"
         };
-    }
-
-    private void CheckEntityExists(AuditLogDto log)
-    {
-        // This is called when clicking an entity ID link
-        // If the entity doesn't exist, the navigation will fail gracefully
-        // We could add additional logic here to check entity existence
     }
 
     private void ViewSnapshot(AuditLogDto log)
