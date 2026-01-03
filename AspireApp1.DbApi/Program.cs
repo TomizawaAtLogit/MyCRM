@@ -2,6 +2,7 @@ using AspireApp1.DbApi.Authorization;
 using AspireApp1.DbApi.Data;
 using AspireApp1.DbApi.Models;
 using AspireApp1.DbApi.Repositories;
+using AspireApp1.DbApi.Services;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +44,11 @@ builder.Services.AddScoped<IProjectActivityRepository, ProjectActivityRepository
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IAuditRepository, AuditRepository>();
+builder.Services.AddScoped<IAuditService, AuditService>();
+
+// Add background service for audit log cleanup
+builder.Services.AddHostedService<AuditCleanupService>();
 
 var app = builder.Build();
 

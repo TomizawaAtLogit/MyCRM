@@ -19,6 +19,7 @@ namespace AspireApp1.DbApi.Data
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Role> Roles { get; set; } = null!;
         public DbSet<UserRole> UserRoles { get; set; } = null!;
+        public DbSet<AuditLog> AuditLogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -225,6 +226,28 @@ namespace AspireApp1.DbApi.Data
                 b.HasOne(x => x.User).WithMany(x => x.UserRoles).HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
                 b.HasOne(x => x.Role).WithMany(x => x.UserRoles).HasForeignKey(x => x.RoleId).OnDelete(DeleteBehavior.Cascade);
                 b.HasIndex(x => new { x.UserId, x.RoleId }).IsUnique();
+            });
+
+            modelBuilder.Entity<AuditLog>(b =>
+            {
+                b.ToTable("audit_logs");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.Timestamp).HasDefaultValueSql("now()").HasColumnName("timestamp");
+                b.Property(x => x.UserId).HasColumnName("user_id");
+                b.Property(x => x.Username).IsRequired().HasMaxLength(200).HasColumnName("username");
+                b.Property(x => x.Action).IsRequired().HasMaxLength(50).HasColumnName("action");
+                b.Property(x => x.EntityType).IsRequired().HasMaxLength(100).HasColumnName("entity_type");
+                b.Property(x => x.EntityId).HasColumnName("entity_id");
+                b.Property(x => x.EntitySnapshot).HasColumnName("entity_snapshot");
+                b.Property(x => x.RetentionUntil).HasColumnName("retention_until");
+                
+                b.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.SetNull);
+                b.HasIndex(x => x.Timestamp);
+                b.HasIndex(x => x.UserId);
+                b.HasIndex(x => x.EntityType);
+                b.HasIndex(x => x.EntityId);
+                b.HasIndex(x => x.RetentionUntil);
             });
         }
     }
