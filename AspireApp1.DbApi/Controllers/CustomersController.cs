@@ -1,19 +1,23 @@
 using AspireApp1.DbApi.DTOs;
 using AspireApp1.DbApi.Models;
 using AspireApp1.DbApi.Repositories;
+using AspireApp1.DbApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspireApp1.DbApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CustomersController : ControllerBase
+public class CustomersController : AuditableControllerBase
 {
     private readonly ICustomerRepository _repo;
+    private readonly IAuditService _auditService;
 
-    public CustomersController(ICustomerRepository repo)
+    public CustomersController(ICustomerRepository repo, IUserRepository userRepo, IAuditService auditService)
+        : base(userRepo)
     {
         _repo = repo;
+        _auditService = auditService;
     }
 
     [HttpGet]
@@ -28,6 +32,11 @@ public class CustomersController : ControllerBase
         var customer = await _repo.GetAsync(id);
         if (customer == null)
             return NotFound();
+        
+        // Log read action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Read", "Customer", id, customer);
+        
         return customer;
     }
 
@@ -39,6 +48,11 @@ public class CustomersController : ControllerBase
             var customer = await _repo.GetWithChildrenAsync(id);
             if (customer == null)
                 return NotFound();
+            
+            // Log read action
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            await _auditService.LogActionAsync(username, userId, "Read", "Customer", id, customer);
+            
             return customer;
         }
         catch (Exception ex)
@@ -54,6 +68,11 @@ public class CustomersController : ControllerBase
     public async Task<ActionResult<Customer>> Post(Customer customer)
     {
         var created = await _repo.AddAsync(customer);
+        
+        // Log create action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Create", "Customer", created.Id, created);
+        
         return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
     }
 
@@ -76,13 +95,26 @@ public class CustomersController : ControllerBase
         existing.Address = customer.Address;
         
         await _repo.UpdateAsync(existing);
+        
+        // Log update action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Update", "Customer", id, existing);
+        
         return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        // Get customer before deletion for audit
+        var customer = await _repo.GetAsync(id);
+        
         await _repo.DeleteAsync(id);
+        
+        // Log delete action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Delete", "Customer", id, customer);
+        
         return NoContent();
     }
 

@@ -1,16 +1,24 @@
 using AspireApp1.DbApi.Models;
 using AspireApp1.DbApi.Repositories;
 using AspireApp1.DbApi.DTOs;
+using AspireApp1.DbApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspireApp1.DbApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ProjectsController : ControllerBase
+    public class ProjectsController : AuditableControllerBase
     {
         private readonly IProjectRepository _repo;
-        public ProjectsController(IProjectRepository repo) => _repo = repo;
+        private readonly IAuditService _auditService;
+        
+        public ProjectsController(IProjectRepository repo, IUserRepository userRepo, IAuditService auditService)
+            : base(userRepo)
+        {
+            _repo = repo;
+            _auditService = auditService;
+        }
 
         [HttpGet]
         public async Task<IEnumerable<ProjectDto>> Get([FromQuery] int? customerId, [FromQuery] ProjectStatus? status)
@@ -49,6 +57,10 @@ namespace AspireApp1.DbApi.Controllers
             var p = await _repo.GetAsync(id);
             if (p == null) return NotFound();
             
+            // Log read action
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            await _auditService.LogActionAsync(username, userId, "Read", "Project", id, p);
+            
             return new ProjectDto(
                 p.Id,
                 p.Name,
@@ -73,6 +85,10 @@ namespace AspireApp1.DbApi.Controllers
             
             var created = await _repo.AddAsync(project);
             
+            // Log create action
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            await _auditService.LogActionAsync(username, userId, "Create", "Project", created.Id, created);
+            
             // Fetch with customer info
             var result = await _repo.GetAsync(created.Id);
             if (result == null) return NotFound();
@@ -93,13 +109,26 @@ namespace AspireApp1.DbApi.Controllers
         {
             if (id != project.Id) return BadRequest();
             await _repo.UpdateAsync(project);
+            
+            // Log update action
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            await _auditService.LogActionAsync(username, userId, "Update", "Project", id, project);
+            
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
+            // Get project before deletion for audit
+            var project = await _repo.GetAsync(id);
+            
             await _repo.DeleteAsync(id);
+            
+            // Log delete action
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            await _auditService.LogActionAsync(username, userId, "Delete", "Project", id, project);
+            
             return NoContent();
         }
     }
