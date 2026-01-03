@@ -22,7 +22,15 @@ public record RoleDto(
     int Id,
     string Name,
     string? Description,
-    string PagePermissions);
+    string PagePermissions,
+    int UserCount = 0);
+
+public record UsersByRoleDto(
+    int Id,
+    string WindowsUsername,
+    string DisplayName,
+    string? Email,
+    bool IsActive);
 
 public record RoleCreateDto(
     [Required] string Name,
@@ -159,5 +167,19 @@ public class AdminApiClient
     {
         var res = await _http.DeleteAsync($"/api/admin/roles/{id}", ct);
         return res.IsSuccessStatusCode;
+    }
+
+    // Get users by role
+    public async Task<UsersByRoleDto[]> GetUsersByRoleAsync(int roleId, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _http.GetFromJsonAsync<UsersByRoleDto[]>($"/api/admin/roles/{roleId}/users", ct)
+                   ?? Array.Empty<UsersByRoleDto>();
+        }
+        catch (HttpRequestException)
+        {
+            return Array.Empty<UsersByRoleDto>();
+        }
     }
 }
