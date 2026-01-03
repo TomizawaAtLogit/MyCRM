@@ -157,6 +157,25 @@ builder.Services.AddHttpClient<AuditApiClient>(client =>
     })
     .AddHttpMessageHandler<CookieForwardingHandler>();
 
+builder.Services.AddHttpClient<EntityFilesApiClient>(client =>
+    {
+        var dbApiBase = builder.Configuration["DbApiBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(dbApiBase))
+        {
+            client.BaseAddress = new(dbApiBase);
+        }
+        else
+        {
+            client.BaseAddress = new("https+http://dbapi");
+        }
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        UseDefaultCredentials = true,
+        Credentials = System.Net.CredentialCache.DefaultNetworkCredentials
+    })
+    .AddHttpMessageHandler<CookieForwardingHandler>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
