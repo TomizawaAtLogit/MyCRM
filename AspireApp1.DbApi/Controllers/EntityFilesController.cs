@@ -74,9 +74,9 @@ public class EntityFilesController : ControllerBase
             return BadRequest($"File size exceeds maximum allowed size of {MaxFileSizeBytes / (1024 * 1024)}MB");
         }
 
-        if (!LocalFileStorageService.IsContentTypeAllowed(file.ContentType))
+        if (!LocalFileStorageService.IsContentTypeAllowed(file.ContentType ?? ""))
         {
-            return BadRequest($"File type '{file.ContentType}' is not allowed");
+            return BadRequest($"File type '{file.ContentType ?? "unknown"}' is not allowed");
         }
 
         // Check quota
@@ -111,7 +111,7 @@ public class EntityFilesController : ControllerBase
 
         // Generate thumbnail for images
         string? thumbnailPath = null;
-        if (file.ContentType.StartsWith("image/"))
+        if (file.ContentType != null && file.ContentType.StartsWith("image/"))
         {
             thumbnailPath = await _fileStorage.GenerateThumbnailAsync(storagePath, file.ContentType);
         }
@@ -139,7 +139,7 @@ public class EntityFilesController : ControllerBase
             OriginalFileName = file.FileName,
             StoragePath = storagePath,
             FileSizeBytes = file.Length,
-            ContentType = file.ContentType,
+            ContentType = file.ContentType ?? "application/octet-stream",
             Description = description,
             Tags = tagsArray != null ? JsonSerializer.Serialize(tagsArray) : null,
             ThumbnailPath = thumbnailPath,
@@ -192,10 +192,10 @@ public class EntityFilesController : ControllerBase
 
         foreach (var file in files)
         {
-            if (!LocalFileStorageService.IsContentTypeAllowed(file.ContentType))
+            if (!LocalFileStorageService.IsContentTypeAllowed(file.ContentType ?? ""))
             {
                 _logger.LogWarning("Skipping file with disallowed content type: {FileName} - {ContentType}", 
-                    file.FileName, file.ContentType);
+                    file.FileName, file.ContentType ?? "unknown");
                 continue;
             }
 
@@ -205,7 +205,7 @@ public class EntityFilesController : ControllerBase
                 var storagePath = await _fileStorage.SaveFileAsync(fileStream, file.FileName, entityType, entityId);
 
                 string? thumbnailPath = null;
-                if (file.ContentType.StartsWith("image/"))
+                if (file.ContentType != null && file.ContentType.StartsWith("image/"))
                 {
                     thumbnailPath = await _fileStorage.GenerateThumbnailAsync(storagePath, file.ContentType);
                 }
@@ -218,7 +218,7 @@ public class EntityFilesController : ControllerBase
                     OriginalFileName = file.FileName,
                     StoragePath = storagePath,
                     FileSizeBytes = file.Length,
-                    ContentType = file.ContentType,
+                    ContentType = file.ContentType ?? "application/octet-stream",
                     Description = description,
                     ThumbnailPath = thumbnailPath,
                     UploadedBy = username,

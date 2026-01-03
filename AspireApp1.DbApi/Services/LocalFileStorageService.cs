@@ -228,8 +228,12 @@ public class LocalFileStorageService : IFileStorageService
         };
     }
 
-    public static bool IsContentTypeAllowed(string contentType)
+    public static bool IsContentTypeAllowed(string? contentType)
     {
+        if (string.IsNullOrEmpty(contentType))
+        {
+            return false;
+        }
         return AllowedContentTypes.Contains(contentType.ToLower());
     }
 }
