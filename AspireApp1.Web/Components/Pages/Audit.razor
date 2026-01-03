@@ -1,9 +1,11 @@
 @page "/audit"
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Logging
 @attribute [Authorize]
 @inject AuditApiClient AuditApi
 @inject NavigationManager Navigation
+@inject ILogger<Audit> Logger
 
 <PageTitle>Audit Logs</PageTitle>
 
@@ -463,7 +465,7 @@ else
         catch (System.Text.Json.JsonException ex)
         {
             // Log the error for debugging
-            Console.WriteLine($"Error formatting JSON: {ex.Message}");
+            Logger.LogWarning(ex, "Error formatting JSON audit snapshot");
             return json;
         }
     }
