@@ -20,6 +20,7 @@ namespace AspireApp1.DbApi.Data
         public DbSet<Role> Roles { get; set; } = null!;
         public DbSet<UserRole> UserRoles { get; set; } = null!;
         public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+        public DbSet<EntityFile> EntityFiles { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -247,6 +248,34 @@ namespace AspireApp1.DbApi.Data
                 b.HasIndex(x => x.UserId);
                 b.HasIndex(x => x.EntityType);
                 b.HasIndex(x => x.EntityId);
+                b.HasIndex(x => x.RetentionUntil);
+            });
+
+            modelBuilder.Entity<EntityFile>(b =>
+            {
+                b.ToTable("entity_files");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.EntityType).IsRequired().HasMaxLength(50).HasColumnName("entity_type");
+                b.Property(x => x.EntityId).HasColumnName("entity_id");
+                b.Property(x => x.FileName).IsRequired().HasMaxLength(500).HasColumnName("file_name");
+                b.Property(x => x.OriginalFileName).IsRequired().HasMaxLength(500).HasColumnName("original_file_name");
+                b.Property(x => x.StoragePath).IsRequired().HasMaxLength(1000).HasColumnName("storage_path");
+                b.Property(x => x.FileSizeBytes).HasColumnName("file_size_bytes");
+                b.Property(x => x.ContentType).IsRequired().HasMaxLength(200).HasColumnName("content_type");
+                b.Property(x => x.Description).HasMaxLength(2000).HasColumnName("description");
+                b.Property(x => x.Tags).HasMaxLength(2000).HasColumnName("tags");
+                b.Property(x => x.ThumbnailPath).HasMaxLength(1000).HasColumnName("thumbnail_path");
+                b.Property(x => x.UploadedAt).HasDefaultValueSql("now()").HasColumnName("uploaded_at");
+                b.Property(x => x.UploadedBy).IsRequired().HasMaxLength(200).HasColumnName("uploaded_by");
+                b.Property(x => x.LastAccessedAt).HasColumnName("last_accessed_at");
+                b.Property(x => x.AccessCount).HasDefaultValue(0).HasColumnName("access_count");
+                b.Property(x => x.RetentionUntil).HasColumnName("retention_until");
+                b.Property(x => x.IsCompressed).HasDefaultValue(false).HasColumnName("is_compressed");
+                b.Property(x => x.OriginalSizeBytes).HasColumnName("original_size_bytes");
+                
+                b.HasIndex(x => new { x.EntityType, x.EntityId });
+                b.HasIndex(x => x.UploadedAt);
                 b.HasIndex(x => x.RetentionUntil);
             });
         }
