@@ -73,6 +73,18 @@
 {
     <p><em>Loading audit logs...</em></p>
 }
+else if (accessDenied)
+{
+    <div class="alert alert-warning">
+        <h4 class="alert-heading">Access Restricted</h4>
+        <p>You do not have access to view audit logs. This could be because:</p>
+        <ul>
+            <li>Your user account is not registered in the system</li>
+            <li>You don't have the necessary permissions</li>
+        </ul>
+        <p class="mb-0">Please contact your system administrator for access.</p>
+    </div>
+}
 else if (filteredLogs.Length == 0)
 {
     <p class="text-muted">No audit logs found matching the filters.</p>
@@ -230,6 +242,7 @@ else
     private bool isLoading = true;
     private bool isAdmin = false;
     private bool viewAll = false;
+    private bool accessDenied = false;
 
     // Dynamic filter options
     private List<string> availableEntityTypes = new();
@@ -281,6 +294,7 @@ else
     private async Task LoadAuditLogsAsync()
     {
         isLoading = true;
+        accessDenied = false;
         
         logs = await AuditApi.GetAuditLogsAsync(
             viewAll: viewAll,
@@ -467,8 +481,6 @@ else
             // Log the error for debugging
             Logger.LogWarning(ex, "Error formatting JSON audit snapshot");
             return json;
-        }
-    }
         }
     }
 }

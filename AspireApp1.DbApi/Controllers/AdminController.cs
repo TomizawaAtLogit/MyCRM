@@ -88,9 +88,17 @@ public class AdminController : ControllerBase
 
     // Role management
     [HttpGet("roles")]
-    public async Task<IEnumerable<Role>> GetRoles()
+    public async Task<IEnumerable<object>> GetRoles()
     {
-        return await _roleRepo.GetAllAsync();
+        var roles = await _roleRepo.GetAllWithUserCountAsync();
+        return roles.Select(r => new
+        {
+            r.Id,
+            r.Name,
+            r.Description,
+            r.PagePermissions,
+            UserCount = r.UserRoles?.Count ?? 0
+        });
     }
 
     [HttpGet("roles/{id}")]
@@ -123,5 +131,20 @@ public class AdminController : ControllerBase
     {
         await _roleRepo.DeleteAsync(id);
         return NoContent();
+    }
+
+    // Get users by role
+    [HttpGet("roles/{id}/users")]
+    public async Task<ActionResult<IEnumerable<object>>> GetUsersByRole(int id)
+    {
+        var users = await _roleRepo.GetUsersByRoleAsync(id);
+        return Ok(users.Select(u => new
+        {
+            u.Id,
+            u.WindowsUsername,
+            u.DisplayName,
+            u.Email,
+            u.IsActive
+        }));
     }
 }

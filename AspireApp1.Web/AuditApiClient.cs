@@ -60,12 +60,42 @@ public class AuditApiClient
                 queryParams.Add($"toDate={toDate.Value:yyyy-MM-dd}");
 
             var query = queryParams.Count > 0 ? "?" + string.Join("&", queryParams) : "";
-            var logs = await _http.GetFromJsonAsync<AuditLogDto[]>($"/api/audits{query}", ct);
+            
+            var response = await _http.GetAsync($"/api/audits{query}", ct);
+            
+            _logger.LogInformation("Audit logs API response: {StatusCode}", response.StatusCode);
+            
+            // Handle 400 BadRequest or 403 Forbidden - user not in database or no permissions
+            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest ||
+                response.StatusCode == System.Net.HttpStatusCode.Forbidden ||
+                response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                var content = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogWarning("Access denied when fetching audit logs: {StatusCode} - Response: {Content}. User may not be registered in the system.",
+                    response.StatusCode, content);
+                return Array.Empty<AuditLogDto>();
+            }
+            
+            // Handle other non-success status codes
+            if (!response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogError("Error fetching audit logs: {StatusCode} - {Content}", 
+                    response.StatusCode, content);
+                return Array.Empty<AuditLogDto>();
+            }
+            
+            var logs = await response.Content.ReadFromJsonAsync<AuditLogDto[]>(ct);
             return logs ?? Array.Empty<AuditLogDto>();
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Error fetching audit logs");
+            _logger.LogError(ex, "HTTP error fetching audit logs: {Message}", ex.Message);
+            return Array.Empty<AuditLogDto>();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error fetching audit logs: {Message}", ex.Message);
             return Array.Empty<AuditLogDto>();
         }
     }
@@ -87,12 +117,40 @@ public class AuditApiClient
     {
         try
         {
-            var result = await _http.GetFromJsonAsync<bool>($"/api/audits/is-admin", ct);
+            var response = await _http.GetAsync($"/api/audits/is-admin", ct);
+            
+            _logger.LogInformation("IsAdmin API response: {StatusCode}", response.StatusCode);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync(ct);
+                // Log as warning for expected auth failures, not errors
+                if (response.StatusCode == System.Net.HttpStatusCode.BadRequest ||
+                    response.StatusCode == System.Net.HttpStatusCode.Forbidden ||
+                    response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _logger.LogWarning("Access denied checking admin status: {StatusCode} - Response: {Content}. User may not be registered.", 
+                        response.StatusCode, content);
+                }
+                else
+                {
+                    _logger.LogError("Error checking admin status: {StatusCode} - Response: {Content}", 
+                        response.StatusCode, content);
+                }
+                return false;
+            }
+            
+            var result = await response.Content.ReadFromJsonAsync<bool>(ct);
             return result;
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Error checking admin status");
+            _logger.LogError(ex, "HTTP error checking admin status: {Message}", ex.Message);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error checking admin status: {Message}", ex.Message);
             return false;
         }
     }

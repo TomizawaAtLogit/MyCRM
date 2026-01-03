@@ -21,6 +21,24 @@ public class RoleRepository : IRoleRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Role>> GetAllWithUserCountAsync()
+    {
+        return await _db.Roles
+            .Include(r => r.UserRoles)
+            .AsNoTracking()
+            .OrderBy(r => r.Name)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<User>> GetUsersByRoleAsync(int roleId)
+    {
+        return await _db.Users
+            .Where(u => u.UserRoles!.Any(ur => ur.RoleId == roleId))
+            .AsNoTracking()
+            .OrderBy(u => u.DisplayName)
+            .ToListAsync();
+    }
+
     public async Task<Role?> GetAsync(int id)
     {
         return await _db.Roles.FindAsync(id);
