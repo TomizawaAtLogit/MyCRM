@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using Microsoft.Extensions.Logging;
 
 namespace AspireApp1.Web;
 
@@ -23,10 +24,12 @@ public record UserDtoSimple(
 public class AuditApiClient
 {
     private readonly HttpClient _http;
+    private readonly ILogger<AuditApiClient> _logger;
 
-    public AuditApiClient(HttpClient http)
+    public AuditApiClient(HttpClient http, ILogger<AuditApiClient> logger)
     {
         _http = http;
+        _logger = logger;
     }
 
     public async Task<AuditLogDto[]> GetAuditLogsAsync(
@@ -62,7 +65,7 @@ public class AuditApiClient
         }
         catch (HttpRequestException ex)
         {
-            Console.WriteLine($"Error fetching audit logs: {ex.Message}");
+            _logger.LogError(ex, "Error fetching audit logs");
             return Array.Empty<AuditLogDto>();
         }
     }
@@ -73,8 +76,9 @@ public class AuditApiClient
         {
             return await _http.GetFromJsonAsync<AuditLogDto>($"/api/audits/{id}", ct);
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException ex)
         {
+            _logger.LogError(ex, "Error fetching audit log {Id}", id);
             return null;
         }
     }
@@ -86,8 +90,9 @@ public class AuditApiClient
             var result = await _http.GetFromJsonAsync<bool>($"/api/audits/is-admin", ct);
             return result;
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException ex)
         {
+            _logger.LogError(ex, "Error checking admin status");
             return false;
         }
     }
