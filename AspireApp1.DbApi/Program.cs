@@ -12,6 +12,9 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
+// Configure Npgsql to handle DateTime correctly with PostgreSQL
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

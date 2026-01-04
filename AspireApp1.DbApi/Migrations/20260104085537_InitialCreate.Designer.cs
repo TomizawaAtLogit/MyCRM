@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AspireApp1.BackEnd.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    [Migration("20251231075641_MoveCustomerIdToProjects")]
-    partial class MoveCustomerIdToProjects
+    [Migration("20260104085537_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,70 @@ namespace AspireApp1.BackEnd.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("AspireApp1.DbApi.Models.AuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("action");
+
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("entity_id");
+
+                    b.Property<string>("EntitySnapshot")
+                        .HasColumnType("text")
+                        .HasColumnName("entity_snapshot");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("entity_type");
+
+                    b.Property<DateTime>("RetentionUntil")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("retention_until");
+
+                    b.Property<DateTime>("Timestamp")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("timestamp")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("username");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EntityId");
+
+                    b.HasIndex("EntityType");
+
+                    b.HasIndex("RetentionUntil");
+
+                    b.HasIndex("Timestamp");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("audit_logs", (string)null);
+                });
 
             modelBuilder.Entity("AspireApp1.DbApi.Models.Customer", b =>
                 {
@@ -344,6 +408,115 @@ namespace AspireApp1.BackEnd.Migrations
                     b.ToTable("customer_systems", (string)null);
                 });
 
+            modelBuilder.Entity("AspireApp1.DbApi.Models.EntityFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccessCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("access_count");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("content_type");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("entity_id");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("entity_type");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("file_name");
+
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("file_size_bytes");
+
+                    b.Property<bool>("IsCompressed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_compressed");
+
+                    b.Property<DateTime?>("LastAccessedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_accessed_at");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("original_file_name");
+
+                    b.Property<long?>("OriginalSizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("original_size_bytes");
+
+                    b.Property<DateTime?>("RetentionUntil")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("retention_until");
+
+                    b.Property<string>("StoragePath")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("storage_path");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("tags");
+
+                    b.Property<string>("ThumbnailPath")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("thumbnail_path");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("uploaded_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("UploadedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("uploaded_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RetentionUntil");
+
+                    b.HasIndex("UploadedAt");
+
+                    b.HasIndex("EntityType", "EntityId");
+
+                    b.ToTable("entity_files", (string)null);
+                });
+
             modelBuilder.Entity("AspireApp1.DbApi.Models.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -480,7 +653,8 @@ namespace AspireApp1.BackEnd.Migrations
                         .HasColumnName("page_permissions");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id");
 
@@ -627,10 +801,12 @@ namespace AspireApp1.BackEnd.Migrations
                         .HasColumnName("email");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
                     b.Property<string>("WindowsUsername")
                         .IsRequired()
@@ -677,6 +853,16 @@ namespace AspireApp1.BackEnd.Migrations
                         .IsUnique();
 
                     b.ToTable("user_roles", (string)null);
+                });
+
+            modelBuilder.Entity("AspireApp1.DbApi.Models.AuditLog", b =>
+                {
+                    b.HasOne("AspireApp1.DbApi.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("AspireApp1.DbApi.Models.CustomerDatabase", b =>
