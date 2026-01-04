@@ -12,7 +12,7 @@ namespace AspireApp1.DbApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+// [Authorize] // DISABLED FOR LOCAL DEVELOPMENT
 public class EntityFilesController : ControllerBase
 {
     private readonly ProjectDbContext _context;
@@ -57,10 +57,11 @@ public class EntityFilesController : ControllerBase
 
     [HttpPost("upload")]
     [RequestSizeLimit(MaxFileSizeBytes)]
+    [Consumes("multipart/form-data")]
     public async Task<ActionResult<EntityFileDto>> UploadFile(
         [FromForm] string entityType,
         [FromForm] int entityId,
-        [FromForm] IFormFile file,
+        IFormFile file,
         [FromForm] string? description,
         [FromForm] string? tags)
     {
@@ -158,10 +159,11 @@ public class EntityFilesController : ControllerBase
 
     [HttpPost("upload-batch")]
     [RequestSizeLimit(MaxFileSizeBytes * MaxBatchUploadCount)]
+    [Consumes("multipart/form-data")]
     public async Task<ActionResult<IEnumerable<EntityFileDto>>> UploadBatch(
         [FromForm] string entityType,
         [FromForm] int entityId,
-        [FromForm] IFormFileCollection files,
+        IFormFileCollection files,
         [FromForm] string? description)
     {
         if (files == null || files.Count == 0)

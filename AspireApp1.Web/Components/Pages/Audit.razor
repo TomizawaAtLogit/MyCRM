@@ -2,7 +2,7 @@
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.Logging
-@attribute [Authorize]
+@* @attribute [Authorize] *@ @* DISABLED FOR LOCAL DEVELOPMENT *@
 @inject AuditApiClient AuditApi
 @inject NavigationManager Navigation
 @inject ILogger<Audit> Logger

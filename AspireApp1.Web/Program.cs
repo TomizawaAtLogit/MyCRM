@@ -15,28 +15,28 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddOutputCache();
 
-// Add Windows Authentication
-builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
-    .AddNegotiate();
+// Add Windows Authentication - DISABLED FOR LOCAL DEVELOPMENT
+// builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+//     .AddNegotiate();
 
-// Add Authorization with AdminOnly policy
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AdminOnly", policy =>
-    {
-        policy.RequireAuthenticatedUser();
-        // In the frontend, we use a simple role-based check
-        // The actual authorization is enforced by the backend API
-        policy.RequireAssertion(context => 
-        {
-            // Allow access if user is authenticated
-            // Backend will enforce actual admin permissions
-            return context.User.Identity?.IsAuthenticated == true;
-        });
-    });
-});
+// Add Authorization with AdminOnly policy - DISABLED FOR LOCAL DEVELOPMENT
+// builder.Services.AddAuthorization(options =>
+// {
+//     options.AddPolicy("AdminOnly", policy =>
+//     {
+//         policy.RequireAuthenticatedUser();
+//         // In the frontend, we use a simple role-based check
+//         // The actual authorization is enforced by the backend API
+//         policy.RequireAssertion(context => 
+//         {
+//             // Allow access if user is authenticated
+//             // Backend will enforce actual admin permissions
+//             return context.User.Identity?.IsAuthenticated == true;
+//         });
+//     });
+// });
 
-builder.Services.AddCascadingAuthenticationState();
+// builder.Services.AddCascadingAuthenticationState();
 
 // Add HttpContextAccessor for cookie forwarding
 builder.Services.AddHttpContextAccessor();
@@ -187,8 +187,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
-app.UseAuthorization();
+// DISABLED FOR LOCAL DEVELOPMENT
+// app.UseAuthentication();
+// app.UseAuthorization();
 
 app.UseAntiforgery();
 

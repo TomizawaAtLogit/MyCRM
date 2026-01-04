@@ -3,6 +3,7 @@
 @inject ProjectsApiClient ProjectsApi
 @inject CustomerApiClient CustomersApi
 @inject ProjectActivityApiClient ProjectActivityApi
+@inject EntityFilesApiClient EntityFilesApi
 @inject IJSRuntime JSRuntime
 @using System.ComponentModel.DataAnnotations
 @using AspireApp1.Web
@@ -129,19 +130,42 @@
                         {
                             <tr>
                                 <td colspan="6" class="bg-light ps-5">
-                                    @if (loadingActivities.ContainsKey(p.Id) && loadingActivities[p.Id])
-                                    {
-                                        <div class="text-center py-3">
-                                            <div class="spinner-border spinner-border-sm" role="status">
-                                                <span class="visually-hidden">Loading...</span>
-                                            </div>
-                                            <span class="ms-2">Loading activities...</span>
-                                        </div>
-                                    }
-                                    else if (!projectActivities.ContainsKey(p.Id) || projectActivities[p.Id] == null || !projectActivities[p.Id]!.Any())
-                                    {
-                                        <div class="py-3">
-                                            <p class="text-muted mb-2">No activities yet.</p>
+                                    @* Project detail tabs *@
+                                    <div class="py-3">
+                                        <ul class="nav nav-tabs mb-3" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link @(GetProjectTab(p.Id) == "activities" ? "active" : "")" 
+                                                        type="button"
+                                                        @onclick="@(() => SetProjectTab(p.Id, "activities"))"
+                                                        role="tab">
+                                                    <span class="bi bi-calendar-event"></span> Activities
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link @(GetProjectTab(p.Id) == "files" ? "active" : "")" 
+                                                        type="button"
+                                                        @onclick="@(() => SetProjectTab(p.Id, "files"))"
+                                                        role="tab">
+                                                    <span class="bi bi-file-earmark-arrow-up"></span> Files
+                                                </button>
+                                            </li>
+                                        </ul>
+
+                                        @if (GetProjectTab(p.Id) == "activities")
+                                        {
+                                            @if (loadingActivities.ContainsKey(p.Id) && loadingActivities[p.Id])
+                                            {
+                                                <div class="text-center py-3">
+                                                    <div class="spinner-border spinner-border-sm" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                    <span class="ms-2">Loading activities...</span>
+                                                </div>
+                                            }
+                                            else if (!projectActivities.ContainsKey(p.Id) || projectActivities[p.Id] == null || !projectActivities[p.Id]!.Any())
+                                            {
+                                                <div class="py-3">
+                                                    <p class="text-muted mb-2">No activities yet.</p>
                                             
                                             @if (!showAddActivity.ContainsKey(p.Id) || !showAddActivity[p.Id])
                                             {
@@ -363,7 +387,13 @@
                                                 </tbody>
                                             </table>
                                         </div>
-                                    }
+                                            }
+                                        }
+                                        else if (GetProjectTab(p.Id) == "files")
+                                        {
+                                            <FileManager EntityType="Project" EntityId="p.Id" />
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -508,6 +538,7 @@
     private Dictionary<int, List<ProjectActivityDto>?> projectActivities = new();
     private Dictionary<int, bool> loadingActivities = new();
     private Dictionary<int, bool> showAddActivity = new();
+    private Dictionary<int, string> projectActiveTabs = new();  // Track active tab per project
     
     // Single edit tracking
     private int? currentEditingProjectId;
@@ -659,6 +690,22 @@
         {
             await LoadActivitiesAsync(projectId);
         }
+        
+        // Initialize default tab for project if not set
+        if (!projectActiveTabs.ContainsKey(projectId))
+        {
+            projectActiveTabs[projectId] = "activities";
+        }
+    }
+    
+    private string GetProjectTab(int projectId)
+    {
+        return projectActiveTabs.ContainsKey(projectId) ? projectActiveTabs[projectId] : "activities";
+    }
+    
+    private void SetProjectTab(int projectId, string tab)
+    {
+        projectActiveTabs[projectId] = tab;
     }
     
     private async Task LoadActivitiesAsync(int projectId)

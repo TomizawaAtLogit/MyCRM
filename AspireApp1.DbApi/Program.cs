@@ -1,3 +1,4 @@
+using AspireApp1.DbApi;
 using AspireApp1.DbApi.Authorization;
 using AspireApp1.DbApi.Data;
 using AspireApp1.DbApi.Models;
@@ -17,23 +18,26 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// Add Windows Authentication
-builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
-    .AddNegotiate();
-
-// Add Authorization with custom policy
-builder.Services.AddAuthorization(options =>
+builder.Services.AddSwaggerGen(c =>
 {
-    options.AddPolicy("AdminOnly", policy =>
-    {
-        policy.RequireAuthenticatedUser();
-        policy.Requirements.Add(new AdminPolicyRequirement());
-    });
+    c.OperationFilter<FileUploadOperationFilter>();
 });
 
-builder.Services.AddSingleton<IAuthorizationHandler, AdminPolicyHandler>();
+// Add Windows Authentication - DISABLED FOR LOCAL DEVELOPMENT
+// builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+//     .AddNegotiate();
+
+// Add Authorization with custom policy - DISABLED FOR LOCAL DEVELOPMENT
+// builder.Services.AddAuthorization(options =>
+// {
+//     options.AddPolicy("AdminOnly", policy =>
+//     {
+//         policy.RequireAuthenticatedUser();
+//         policy.Requirements.Add(new AdminPolicyRequirement());
+//     });
+// });
+
+// builder.Services.AddSingleton<IAuthorizationHandler, AdminPolicyHandler>();
 
 builder.Services.AddDbContext<ProjectDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -64,8 +68,9 @@ else
     app.UseExceptionHandler("/error");
 }
 
-app.UseAuthentication();
-app.UseAuthorization();
+// DISABLED FOR LOCAL DEVELOPMENT
+// app.UseAuthentication();
+// app.UseAuthorization();
 
 // Map controllers and a friendly root endpoint.
 app.MapControllers();

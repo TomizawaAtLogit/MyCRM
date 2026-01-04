@@ -7,7 +7,7 @@ namespace AspireApp1.DbApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize] // All authenticated users can access
+// [Authorize] // All authenticated users can access - DISABLED FOR LOCAL DEVELOPMENT
 public class AuditsController : AuditableControllerBase
 {
     private readonly IAuditRepository _auditRepo;

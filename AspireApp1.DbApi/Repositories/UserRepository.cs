@@ -16,6 +16,8 @@ public class UserRepository : IUserRepository
     public async Task<IEnumerable<User>> GetAllAsync()
     {
         return await _db.Users
+            .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
             .AsNoTracking()
             .OrderBy(u => u.DisplayName)
             .ToListAsync();
@@ -91,8 +93,19 @@ public class UserRepository : IUserRepository
         };
 
         _db.UserRoles.Add(userRole);
-        await _db.SaveChangesAsync();
-        return true;
+        
+        try
+        {
+            await _db.SaveChangesAsync();
+            return true;
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is Npgsql.PostgresException pgEx && pgEx.SqlState == "23505")
+        {
+            // Duplicate key error - role already assigned (race condition)
+            // Detach the entity that couldn't be saved
+            _db.Entry(userRole).State = EntityState.Detached;
+            return false;
+        }
     }
 
     public async Task<bool> RemoveRoleAsync(int userId, int roleId)
