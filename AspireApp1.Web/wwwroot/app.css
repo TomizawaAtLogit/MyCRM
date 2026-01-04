@@ -54,3 +54,142 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/* Calendar Styles */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: #dee2e6;
+    border: 1px solid #dee2e6;
+}
+
+.calendar-header {
+    background-color: #f8f9fa;
+    padding: 0.75rem;
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.calendar-cell {
+    background-color: white;
+    min-height: 120px;
+    padding: 0.5rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-cell.other-month {
+    background-color: #f8f9fa;
+    opacity: 0.6;
+}
+
+.calendar-cell.today {
+    background-color: #fff3cd;
+}
+
+.calendar-day-number {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.calendar-cell.today .calendar-day-number {
+    color: #856404;
+}
+
+.calendar-activities {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+}
+
+.calendar-activities.empty {
+    justify-content: center;
+    align-items: center;
+}
+
+.calendar-activity {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.calendar-activity:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.calendar-activity-more {
+    font-size: 0.7rem;
+    color: #6c757d;
+    font-style: italic;
+    margin-top: 2px;
+}
+
+.activity-primary {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.activity-info {
+    background-color: #0dcaf0;
+    color: #000;
+}
+
+.activity-warning {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.activity-success {
+    background-color: #198754;
+    color: white;
+}
+
+.activity-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.activity-default {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.activity-summary {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .calendar-grid {
+        font-size: 0.875rem;
+    }
+    
+    .calendar-cell {
+        min-height: 80px;
+        padding: 0.25rem;
+    }
+    
+    .calendar-day-number {
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .calendar-activity {
+        font-size: 0.65rem;
+        padding: 1px 4px;
+    }
+}
