@@ -225,7 +225,6 @@ else
     
     protected override async Task OnInitializedAsync()
     {
-        await LoadViewModeFromStorage();
         await LoadActivitiesForMonth();
     }
     
@@ -302,20 +301,17 @@ else
         await LoadActivitiesForMonth();
     }
     
+    private const int CALENDAR_WEEKS = 6;
+    private const int DAYS_PER_WEEK = 7;
+    
     private List<CalendarDay> GetCalendarDays()
     {
         var days = new List<CalendarDay>();
         var firstDayOfMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
+        var startDate = GetMondayOfWeek(firstDayOfMonth);
         
-        // Get the Monday of the week containing the first day of month
-        var startDate = firstDayOfMonth;
-        var dayOfWeek = (int)startDate.DayOfWeek;
-        // Convert Sunday (0) to 7 for Monday-based week
-        if (dayOfWeek == 0) dayOfWeek = 7;
-        startDate = startDate.AddDays(-(dayOfWeek - 1));
-        
-        // Generate 6 weeks (42 days) to cover all possible month layouts
-        for (int i = 0; i < 42; i++)
+        // Generate weeks to cover all possible month layouts
+        for (int i = 0; i < CALENDAR_WEEKS * DAYS_PER_WEEK; i++)
         {
             var date = startDate.AddDays(i);
             var dayActivities = activities
@@ -333,6 +329,14 @@ else
         }
         
         return days;
+    }
+    
+    private DateTime GetMondayOfWeek(DateTime date)
+    {
+        var dayOfWeek = (int)date.DayOfWeek;
+        // Convert Sunday (0) to 7 for Monday-based week
+        if (dayOfWeek == 0) dayOfWeek = 7;
+        return date.AddDays(-(dayOfWeek - 1));
     }
     
     private string GetActivityClass(string? activityType)
