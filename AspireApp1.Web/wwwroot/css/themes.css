@@ -45,6 +45,10 @@
     --warning-color: #F57C00;
     --info-color: #1976D2;
     
+    /* Calendar colors */
+    --calendar-today-bg: #fff3cd;
+    --calendar-today-text: #856404;
+    
     /* Shadow */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
     --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -95,6 +99,10 @@ html[data-theme="dark"] {
     --error-color: #EF5350;
     --warning-color: #FFA726;
     --info-color: #42A5F5;
+    
+    /* Calendar colors */
+    --calendar-today-bg: #4A3800;
+    --calendar-today-text: #FFD54F;
     
     /* Shadow */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -170,9 +178,38 @@ a:hover {
     transition: color 0.3s ease;
 }
 
+.table thead th {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.table-light thead th,
+.table-light tbody td {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.table tbody td {
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.table-hover tbody tr:hover td {
+    background-color: var(--bg-tertiary);
+    transition: background-color 0.15s ease;
+}
+
 .table-striped tbody tr:nth-of-type(odd) {
     background-color: var(--bg-tertiary);
     transition: background-color 0.3s ease;
+}
+
+.table-striped tbody tr:nth-of-type(odd) td {
+    background-color: var(--bg-tertiary);
 }
 
 .form-control, .form-select {

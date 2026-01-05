@@ -160,17 +160,20 @@ public class EntityFilesApiClient
 
     public string GetDownloadUrl(int fileId)
     {
-        return $"{_httpClient.BaseAddress}api/EntityFiles/download/{fileId}";
+        // Use relative URL for browser navigation
+        return $"/api/EntityFiles/download/{fileId}";
     }
 
     public string GetDownloadAllUrl(string entityType, int entityId)
     {
-        return $"{_httpClient.BaseAddress}api/EntityFiles/download-all/{entityType}/{entityId}";
+        // Use relative URL for browser navigation
+        return $"/api/EntityFiles/download-all/{entityType}/{entityId}";
     }
 
     public string GetThumbnailUrl(int fileId)
     {
-        return $"{_httpClient.BaseAddress}api/EntityFiles/thumbnail/{fileId}";
+        // Use relative URL for browser navigation
+        return $"/api/EntityFiles/thumbnail/{fileId}";
     }
 
     public async Task<bool> UpdateFileMetadataAsync(int id, EntityFileUpdateDto dto)

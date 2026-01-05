@@ -52,22 +52,27 @@ public class LocalFileStorageService : IFileStorageService
         // Remove any path components
         fileName = Path.GetFileName(fileName);
         
-        // Replace invalid characters with underscore
+        // Replace invalid file system characters with underscore
         var invalidChars = Path.GetInvalidFileNameChars();
-        var sanitized = string.Join("_", fileName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries));
-        
-        // Remove any characters that are not alphanumeric, dash, underscore, or dot
-        sanitized = Regex.Replace(sanitized, @"[^a-zA-Z0-9\-_\.]", "_");
-        
-        // Limit length to 255 characters
-        if (sanitized.Length > 255)
+        foreach (var c in invalidChars)
         {
-            var extension = Path.GetExtension(sanitized);
-            var nameWithoutExtension = Path.GetFileNameWithoutExtension(sanitized);
-            sanitized = nameWithoutExtension.Substring(0, 255 - extension.Length) + extension;
+            fileName = fileName.Replace(c, '_');
         }
         
-        return sanitized;
+        // Also replace some potentially problematic characters
+        fileName = fileName.Replace(':', '_').Replace('*', '_').Replace('?', '_')
+                          .Replace('"', '_').Replace('<', '_').Replace('>', '_')
+                          .Replace('|', '_');
+        
+        // Limit length to 255 characters
+        if (fileName.Length > 255)
+        {
+            var extension = Path.GetExtension(fileName);
+            var nameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+            fileName = nameWithoutExtension.Substring(0, 255 - extension.Length) + extension;
+        }
+        
+        return fileName;
     }
 
     public async Task<string> SaveFileAsync(Stream fileStream, string fileName, string entityType, int entityId)
@@ -93,12 +98,15 @@ public class LocalFileStorageService : IFileStorageService
             await fileStream.CopyToAsync(fileStreamOutput);
         }
         
-        // Return relative path
-        return Path.Combine(entityType, entityId.ToString(), uniqueFileName);
+        // Return relative path with forward slashes for cross-platform compatibility
+        var relativePath = Path.Combine(entityType, entityId.ToString(), uniqueFileName);
+        return relativePath.Replace('\\', '/');
     }
 
     public async Task<(Stream stream, string contentType)> GetFileAsync(string storagePath)
     {
+        // Normalize path separators for the current platform
+        storagePath = storagePath.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
         var fullPath = Path.Combine(_baseStoragePath, storagePath);
         
         if (!File.Exists(fullPath))
@@ -114,6 +122,8 @@ public class LocalFileStorageService : IFileStorageService
 
     public Task DeleteFileAsync(string storagePath)
     {
+        // Normalize path separators for the current platform
+        storagePath = storagePath.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
         var fullPath = Path.Combine(_baseStoragePath, storagePath);
         
         if (File.Exists(fullPath))
@@ -132,6 +142,8 @@ public class LocalFileStorageService : IFileStorageService
             return null;
         }
         
+        // Normalize path separators for the current platform
+        storagePath = storagePath.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
         var fullPath = Path.Combine(_baseStoragePath, storagePath);
         if (!File.Exists(fullPath))
         {
@@ -161,14 +173,14 @@ public class LocalFileStorageService : IFileStorageService
                 await image.SaveAsJpegAsync(thumbnailPath, new JpegEncoder { Quality = 75 });
             }
             
-            // Return relative path
+            // Return relative path with forward slashes for cross-platform compatibility
             var relativeThumbnailPath = Path.Combine(
                 Path.GetDirectoryName(storagePath)!,
                 "thumbnails",
                 thumbnailFileName
             );
             
-            return relativeThumbnailPath;
+            return relativeThumbnailPath.Replace('\\', '/');
         }
         catch (Exception ex)
         {

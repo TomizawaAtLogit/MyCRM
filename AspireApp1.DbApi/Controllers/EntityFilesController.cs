@@ -32,6 +32,24 @@ public class EntityFilesController : ControllerBase
         _logger = logger;
     }
 
+    private string GetCurrentUsername()
+    {
+        // Try to get authenticated user first
+        if (!string.IsNullOrEmpty(User.Identity?.Name))
+        {
+            return User.Identity.Name;
+        }
+
+        // For local development without authentication, try to get Windows username from environment
+        var username = Environment.UserName;
+        if (!string.IsNullOrEmpty(username))
+        {
+            return username;
+        }
+
+        return "Unknown";
+    }
+
     [HttpGet("{entityType}/{entityId}")]
     public async Task<ActionResult<IEnumerable<EntityFileDto>>> GetFiles(string entityType, int entityId)
     {
@@ -104,7 +122,7 @@ public class EntityFilesController : ControllerBase
             _context.EntityFiles.Remove(existingFile);
         }
 
-        var username = User.Identity?.Name ?? "Unknown";
+        var username = GetCurrentUsername();
         
         // Save file
         using var fileStream = file.OpenReadStream();
@@ -190,7 +208,7 @@ public class EntityFilesController : ControllerBase
         }
 
         var uploadedFiles = new List<EntityFile>();
-        var username = User.Identity?.Name ?? "Unknown";
+        var username = GetCurrentUsername();
 
         foreach (var file in files)
         {

@@ -1,6 +1,8 @@
 @using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
 @inject EntityFilesApiClient FilesApi
 @inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
 
 <div class="file-manager">
     <div class="card">
@@ -15,7 +17,7 @@
                         <i class="bi bi-download"></i> Download All
                     </button>
                 }
-                <button class="btn btn-sm btn-primary" @onclick="() => showUploadForm = !showUploadForm">
+                <button class="btn btn-sm btn-primary" @onclick="ToggleUploadForm">
                     <i class="bi @(showUploadForm ? "bi-chevron-up" : "bi-plus-circle")"></i>
                     @(showUploadForm ? "Hide" : "Upload")
                 </button>
@@ -29,11 +31,13 @@
                     <h6>Upload Files</h6>
                     
                     <div class="drop-zone @(isDragging ? "dragging" : "")" 
+                         id="@($"dropZone-{Id}")"
                          @ondragenter="HandleDragEnter"
                          @ondragleave="HandleDragLeave"
                          @ondragover:preventDefault="true"
-                         @ondrop="HandleDrop">
-                        <InputFile OnChange="HandleFileSelection" multiple class="d-none" id="@($"fileInput-{Id}")" />
+                         @ondrop="HandleDrop"
+                         @ondrop:preventDefault="true">
+                        <InputFile OnChange="HandleFileSelection" multiple class="d-none" id="@($"fileInput-{Id}")" @ref="inputFileElement" />
                         <label for="@($"fileInput-{Id}")" class="drop-zone-label">
                             <i class="bi bi-cloud-upload fs-1"></i>
                             <p class="mb-0">Drag & drop files here or click to browse</p>
@@ -107,9 +111,9 @@
 
             @if (successMessage != null)
             {
-                <div class="alert alert-success alert-dismissible">
+                <div class="alert alert-success alert-dismissible text-white">
                     @successMessage
-                    <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+                    <button type="button" class="btn-close btn-close-white" @onclick="() => successMessage = null"></button>
                 </div>
             }
 
@@ -282,9 +286,9 @@
                                         </td>
                                         <td>
                                             <div class="btn-group btn-group-sm">
-                                                <a href="@FilesApi.GetDownloadUrl(file.Id)" class="btn btn-outline-primary" target="_blank">
+                                                <button class="btn btn-outline-primary" @onclick="() => DownloadFile(file.Id, file.OriginalFileName)">
                                                     <i class="bi bi-download"></i>
-                                                </a>
+                                                </button>
                                                 <button class="btn btn-outline-secondary" @onclick="() => StartEditFile(file)">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
@@ -339,9 +343,9 @@
                                         </div>
                                     }
                                     <div class="d-flex gap-1">
-                                        <a href="@FilesApi.GetDownloadUrl(file.Id)" class="btn btn-sm btn-outline-primary">
+                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => DownloadFile(file.Id, file.OriginalFileName)">
                                             <i class="bi bi-download"></i> Download
-                                        </a>
+                                        </button>
                                         <button class="btn btn-sm btn-outline-secondary" @onclick="() => StartEditFile(file)">
                                             <i class="bi bi-pencil"></i>
                                         </button>
@@ -442,6 +446,7 @@
     private string? uploadDescription;
     private string? uploadTags;
     private bool isDragging = false;
+    private InputFile? inputFileElement;
     
     private string? searchQuery;
     private string? filterTag;
@@ -458,12 +463,77 @@
     
     private string? errorMessage;
     private string? successMessage;
+    private System.Threading.Timer? successMessageTimer;
+    
+    private IJSObjectReference? module;
+    private DotNetObjectReference<FileManager>? dotNetHelper;
+    private bool dropZoneInitialized = false;
 
     protected override async Task OnParametersSetAsync()
     {
         await LoadFiles();
         await LoadQuota();
         await LoadTags();
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/fileUpload.js");
+                dotNetHelper = DotNetObjectReference.Create(this);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading file upload module: {ex.Message}");
+            }
+        }
+        
+        // Initialize drop zone when upload form is shown and not yet initialized
+        if (showUploadForm && !dropZoneInitialized && module != null)
+        {
+            try
+            {
+                await InitializeDropZone();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing file drop zone: {ex.Message}");
+            }
+        }
+    }
+    
+    private async Task InitializeDropZone()
+    {
+        if (module != null && !dropZoneInitialized)
+        {
+            var result = await module.InvokeAsync<bool>("initializeFileDropZone", $"dropZone-{Id}", $"fileInput-{Id}", dotNetHelper);
+            if (result)
+            {
+                dropZoneInitialized = true;
+                Console.WriteLine("Drop zone initialized successfully");
+            }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            successMessageTimer?.Dispose();
+            if (module != null)
+            {
+                await module.InvokeVoidAsync("cleanupFileDropZone", $"dropZone-{Id}");
+                await module.DisposeAsync();
+            }
+            dotNetHelper?.Dispose();
+        }
+        catch (Exception)
+        {
+            // Ignore disposal errors
+        }
     }
 
     private async Task LoadFiles()
@@ -481,19 +551,31 @@
         allTags = await FilesApi.GetAllTagsAsync(EntityType, EntityId);
     }
 
-    private void HandleDragEnter()
+    private void HandleDragEnter(DragEventArgs e)
     {
         isDragging = true;
     }
 
-    private void HandleDragLeave()
+    private void HandleDragLeave(DragEventArgs e)
     {
         isDragging = false;
     }
 
-    private async Task HandleDrop()
+    private async Task HandleDrop(DragEventArgs e)
     {
         isDragging = false;
+        
+        // In Blazor, we need to use JavaScript interop to handle dropped files
+        // The InputFile component will handle the files when we trigger it programmatically
+        // For now, we'll use a workaround by using the module to handle drop events
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("console.log", "Drop event detected");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error handling drop: {ex.Message}";
+        }
     }
 
     private void HandleFileSelection(InputFileChangeEventArgs e)
@@ -521,7 +603,35 @@
         uploadDescription = null;
         uploadTags = null;
         showUploadForm = false;
+        dropZoneInitialized = false;
         selectedFileIds.Clear();
+    }
+    
+    private void ToggleUploadForm()
+    {
+        showUploadForm = !showUploadForm;
+        if (!showUploadForm)
+        {
+            dropZoneInitialized = false;
+        }
+    }
+    
+    private void SetSuccessMessage(string message)
+    {
+        successMessage = message;
+        
+        // Dispose existing timer if any
+        successMessageTimer?.Dispose();
+        
+        // Create new timer to clear message after 3 seconds
+        successMessageTimer = new System.Threading.Timer(_ =>
+        {
+            InvokeAsync(() =>
+            {
+                successMessage = null;
+                StateHasChanged();
+            });
+        }, null, TimeSpan.FromSeconds(3), Timeout.InfiniteTimeSpan);
     }
 
     private async Task UploadFiles()
@@ -553,7 +663,7 @@
 
                 if (result != null)
                 {
-                    successMessage = "File uploaded successfully!";
+                    SetSuccessMessage("File uploaded successfully!");
                 }
                 else
                 {
@@ -571,7 +681,7 @@
 
                 if (results != null && results.Length > 0)
                 {
-                    successMessage = $"{results.Length} file(s) uploaded successfully!";
+                    SetSuccessMessage($"{results.Length} file(s) uploaded successfully!");
                 }
                 else
                 {
@@ -666,7 +776,7 @@
 
         if (success)
         {
-            successMessage = "Metadata updated successfully!";
+            SetSuccessMessage("Metadata updated successfully!");
             await LoadFiles();
             await LoadTags();
             showBulkEdit = false;
@@ -707,7 +817,7 @@
 
         if (success)
         {
-            successMessage = "File metadata updated!";
+            SetSuccessMessage("File metadata updated!");
             await LoadFiles();
             await LoadTags();
             CancelEdit();
@@ -726,7 +836,7 @@
         var success = await FilesApi.DeleteFileAsync(fileId);
         if (success)
         {
-            successMessage = "File deleted successfully!";
+            SetSuccessMessage("File deleted successfully!");
             await LoadFiles();
             await LoadQuota();
         }
@@ -752,7 +862,7 @@
 
         if (deletedCount > 0)
         {
-            successMessage = $"{deletedCount} file(s) deleted successfully!";
+            SetSuccessMessage($"{deletedCount} file(s) deleted successfully!");
             await LoadFiles();
             await LoadQuota();
             selectedFileIds.Clear();
@@ -763,10 +873,61 @@
         }
     }
 
-    private void DownloadAll()
+    private async Task DownloadFile(int fileId, string fileName)
     {
-        var url = FilesApi.GetDownloadAllUrl(EntityType, EntityId);
-        JSRuntime.InvokeVoidAsync("open", url, "_blank");
+        try
+        {
+            var url = FilesApi.GetDownloadUrl(fileId);
+            // Use fetch API to download the file
+            await JSRuntime.InvokeVoidAsync("eval", $@"
+                fetch('{url}')
+                    .then(response => response.blob())
+                    .then(blob => {{
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = '{fileName.Replace("'", "\\'")}';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                    }})
+                    .catch(err => console.error('Download failed:', err));
+            ");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to download file: {ex.Message}";
+        }
+    }
+
+    private async Task DownloadAll()
+    {
+        try
+        {
+            var url = FilesApi.GetDownloadAllUrl(EntityType, EntityId);
+            var fileName = $"{EntityType}_{EntityId}_files.zip";
+            // Use fetch API to download the file
+            await JSRuntime.InvokeVoidAsync("eval", $@"
+                fetch('{url}')
+                    .then(response => response.blob())
+                    .then(blob => {{
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = '{fileName}';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                    }})
+                    .catch(err => console.error('Download failed:', err));
+            ");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to download files: {ex.Message}";
+        }
     }
 
     private string FormatFileSize(long bytes)
