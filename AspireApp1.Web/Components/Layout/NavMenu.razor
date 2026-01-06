@@ -1,4 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using AspireApp1.Web.Services
+@inject LocalizationService Localizer
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -15,31 +17,31 @@
     <nav class="nav flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill me-2" aria-hidden="true"></span><span class="nav-text">Home</span>
+                <span class="bi bi-house-door-fill me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Home")</span>
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="projects">
-                <span class="bi bi-kanban-fill me-2" aria-hidden="true"></span><span class="nav-text">Projects</span>
+                <span class="bi bi-kanban-fill me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Projects")</span>
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="customers">
-                <span class="bi bi-people-fill me-2" aria-hidden="true"></span><span class="nav-text">Customers</span>
+                <span class="bi bi-people-fill me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Customers")</span>
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="orders">
-                <span class="bi bi-file-earmark-text-fill me-2" aria-hidden="true"></span><span class="nav-text">Orders</span>
+                <span class="bi bi-file-earmark-text-fill me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Orders")</span>
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="audit">
-                <span class="bi bi-clock-history me-2" aria-hidden="true"></span><span class="nav-text">Audit</span>
+                <span class="bi bi-clock-history me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Audit")</span>
             </NavLink>
         </div>
 
@@ -49,7 +51,7 @@
         *@
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="admin">
-                        <span class="bi bi-shield-lock-fill me-2" aria-hidden="true"></span><span class="nav-text">Admin</span>
+                        <span class="bi bi-shield-lock-fill me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Admin")</span>
                     </NavLink>
                 </div>
         @*

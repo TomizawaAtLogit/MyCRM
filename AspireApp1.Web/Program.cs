@@ -1,7 +1,9 @@
 using AspireApp1.FrontEnd;
 using AspireApp1.FrontEnd.Components;
 using AspireApp1.Web;
+using AspireApp1.Web.Services;
 using Microsoft.AspNetCore.Authentication.Negotiate;
+using System.Globalization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +14,19 @@ builder.AddServiceDefaults();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Add localization services
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.AddScoped<LocalizationService>();
+
+// Configure supported cultures
+var supportedCultures = new[] { "en", "ja" };
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("en"),
+    SupportedCultures = supportedCultures.Select(c => new CultureInfo(c)).ToList(),
+    SupportedUICultures = supportedCultures.Select(c => new CultureInfo(c)).ToList()
+};
 
 builder.Services.AddOutputCache();
 
@@ -176,7 +191,29 @@ builder.Services.AddHttpClient<EntityFilesApiClient>(client =>
     })
     .AddHttpMessageHandler<CookieForwardingHandler>();
 
+builder.Services.AddHttpClient<UserPreferencesApiClient>(client =>
+    {
+        var dbApiBase = builder.Configuration["DbApiBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(dbApiBase))
+        {
+            client.BaseAddress = new(dbApiBase);
+        }
+        else
+        {
+            client.BaseAddress = new("https+http://dbapi");
+        }
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        UseDefaultCredentials = true,
+        Credentials = System.Net.CredentialCache.DefaultNetworkCredentials
+    })
+    .AddHttpMessageHandler<CookieForwardingHandler>();
+
 var app = builder.Build();
+
+// Use request localization
+app.UseRequestLocalization(localizationOptions);
 
 if (!app.Environment.IsDevelopment())
 {
