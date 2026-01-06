@@ -25,7 +25,8 @@
     
     /* Navigation colors */
     --nav-top-bg: rgba(255, 255, 255, 0.9);
-    --nav-link-color: rgba(33, 33, 33, 0.7);
+    --nav-link-color: rgba(33, 33, 33, 0.8);
+    --nav-icon-color: rgba(33, 33, 33, 0.8);
     --nav-link-active-bg: #1976D2;
     --nav-link-active-color: #FFFFFF;
     --nav-link-hover-bg: rgba(25, 118, 210, 0.1);
@@ -81,6 +82,7 @@ html[data-theme="dark"] {
     /* Navigation colors */
     --nav-top-bg: rgba(42, 42, 42, 0.95);
     --nav-link-color: #B0B0B0;
+    --nav-icon-color: #E0E0E0;
     --nav-link-active-bg: #FF9800;
     --nav-link-active-color: #212121;
     --nav-link-hover-bg: rgba(255, 152, 0, 0.2);

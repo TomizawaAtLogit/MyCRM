@@ -1,3 +1,8 @@
+/* Hidden checkbox for sidebar collapse */
+.sidebar-collapse-checkbox {
+    display: none;
+}
+
 .page {
     position: relative;
     display: flex;
@@ -62,6 +67,12 @@ main {
         height: 100vh;
         position: sticky;
         top: 0;
+        transition: width 0.3s ease;
+    }
+
+    /* Collapse sidebar when checkbox is checked */
+    .sidebar-collapse-checkbox:checked ~ .page .sidebar {
+        width: 4rem;
     }
 
     .top-row {
