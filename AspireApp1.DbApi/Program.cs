@@ -48,6 +48,8 @@ builder.Services.AddDbContext<ProjectDbContext>(options =>
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IProjectActivityRepository, ProjectActivityRepository>();
+builder.Services.AddScoped<ICaseRepository, CaseRepository>();
+builder.Services.AddScoped<ICaseActivityRepository, CaseActivityRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();

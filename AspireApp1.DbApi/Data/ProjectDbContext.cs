@@ -16,6 +16,11 @@ namespace AspireApp1.DbApi.Data
         public DbSet<SystemComponent> SystemComponents { get; set; } = null!;
         public DbSet<CustomerOrder> CustomerOrders { get; set; } = null!;
         public DbSet<ProjectActivity> ProjectActivities { get; set; } = null!;
+        public DbSet<Case> Cases { get; set; } = null!;
+        public DbSet<CaseActivity> CaseActivities { get; set; } = null!;
+        public DbSet<CaseRelationship> CaseRelationships { get; set; } = null!;
+        public DbSet<CaseTemplate> CaseTemplates { get; set; } = null!;
+        public DbSet<SlaThreshold> SlaThresholds { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Role> Roles { get; set; } = null!;
         public DbSet<UserRole> UserRoles { get; set; } = null!;
@@ -281,6 +286,108 @@ namespace AspireApp1.DbApi.Data
                 b.HasIndex(x => new { x.EntityType, x.EntityId });
                 b.HasIndex(x => x.UploadedAt);
                 b.HasIndex(x => x.RetentionUntil);
+            });
+
+            modelBuilder.Entity<Case>(b =>
+            {
+                b.ToTable("cases");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.Title).IsRequired().HasMaxLength(500).HasColumnName("title");
+                b.Property(x => x.Description).HasColumnName("description");
+                b.Property(x => x.CustomerId).HasColumnName("customer_id");
+                b.Property(x => x.Status).HasConversion<string>().HasMaxLength(50).HasColumnName("status");
+                b.Property(x => x.Priority).HasConversion<string>().HasMaxLength(50).HasColumnName("priority");
+                b.Property(x => x.IssueType).HasConversion<string>().HasMaxLength(50).HasColumnName("issue_type");
+                b.Property(x => x.AssignedToUserId).HasColumnName("assigned_to_user_id");
+                b.Property(x => x.ResolutionNotes).HasColumnName("resolution_notes");
+                b.Property(x => x.DueDate).HasColumnName("due_date");
+                b.Property(x => x.ResolvedAt).HasColumnName("resolved_at");
+                b.Property(x => x.ClosedAt).HasColumnName("closed_at");
+                b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
+                b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                b.Property(x => x.FirstResponseAt).HasColumnName("first_response_at");
+                b.Property(x => x.SlaDeadline).HasColumnName("sla_deadline");
+                
+                b.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
+                b.HasOne(x => x.AssignedToUser).WithMany().HasForeignKey(x => x.AssignedToUserId).OnDelete(DeleteBehavior.SetNull);
+                b.HasIndex(x => x.CustomerId);
+                b.HasIndex(x => x.AssignedToUserId);
+                b.HasIndex(x => x.Status);
+                b.HasIndex(x => x.Priority);
+                b.HasIndex(x => x.DueDate);
+            });
+
+            modelBuilder.Entity<CaseActivity>(b =>
+            {
+                b.ToTable("case_activities");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.CaseId).HasColumnName("case_id");
+                b.Property(x => x.ActivityDate).HasColumnName("activity_date");
+                b.Property(x => x.Summary).IsRequired().HasMaxLength(500).HasColumnName("summary");
+                b.Property(x => x.Description).HasMaxLength(5000).HasColumnName("description");
+                b.Property(x => x.NextAction).HasMaxLength(1000).HasColumnName("next_action");
+                b.Property(x => x.ActivityType).HasMaxLength(100).HasColumnName("activity_type");
+                b.Property(x => x.PerformedBy).HasMaxLength(200).HasColumnName("performed_by");
+                b.Property(x => x.PreviousAssignedToUserId).HasColumnName("previous_assigned_to_user_id");
+                b.Property(x => x.NewAssignedToUserId).HasColumnName("new_assigned_to_user_id");
+                b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
+                b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                
+                b.HasOne(x => x.Case).WithMany().HasForeignKey(x => x.CaseId).OnDelete(DeleteBehavior.Cascade);
+                b.HasIndex(x => x.CaseId);
+                b.HasIndex(x => x.ActivityDate);
+            });
+
+            modelBuilder.Entity<CaseRelationship>(b =>
+            {
+                b.ToTable("case_relationships");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.SourceCaseId).HasColumnName("source_case_id");
+                b.Property(x => x.RelatedCaseId).HasColumnName("related_case_id");
+                b.Property(x => x.RelationshipType).IsRequired().HasMaxLength(50).HasColumnName("relationship_type");
+                b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
+                
+                b.HasOne(x => x.SourceCase).WithMany().HasForeignKey(x => x.SourceCaseId).OnDelete(DeleteBehavior.Cascade);
+                b.HasOne(x => x.RelatedCase).WithMany().HasForeignKey(x => x.RelatedCaseId).OnDelete(DeleteBehavior.Restrict);
+                b.HasIndex(x => x.SourceCaseId);
+                b.HasIndex(x => x.RelatedCaseId);
+            });
+
+            modelBuilder.Entity<CaseTemplate>(b =>
+            {
+                b.ToTable("case_templates");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.Name).IsRequired().HasMaxLength(200).HasColumnName("name");
+                b.Property(x => x.IssueType).HasConversion<string>().HasMaxLength(50).HasColumnName("issue_type");
+                b.Property(x => x.DefaultPriority).HasConversion<string>().HasMaxLength(50).HasColumnName("default_priority");
+                b.Property(x => x.TitleTemplate).IsRequired().HasMaxLength(500).HasColumnName("title_template");
+                b.Property(x => x.DescriptionTemplate).HasColumnName("description_template");
+                b.Property(x => x.IsActive).HasColumnName("is_active");
+                b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
+                b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                
+                b.HasIndex(x => x.IssueType);
+                b.HasIndex(x => x.IsActive);
+            });
+
+            modelBuilder.Entity<SlaThreshold>(b =>
+            {
+                b.ToTable("sla_thresholds");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.Priority).HasConversion<string>().HasMaxLength(50).HasColumnName("priority");
+                b.Property(x => x.ResponseTimeHours).HasColumnName("response_time_hours");
+                b.Property(x => x.ResolutionTimeHours).HasColumnName("resolution_time_hours");
+                b.Property(x => x.IsActive).HasColumnName("is_active");
+                b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
+                b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                
+                b.HasIndex(x => x.Priority);
+                b.HasIndex(x => x.IsActive);
             });
         }
     }
