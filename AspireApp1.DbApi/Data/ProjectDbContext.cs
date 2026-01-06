@@ -199,6 +199,7 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.WindowsUsername).IsRequired().HasMaxLength(200).HasColumnName("windows_username");
                 b.Property(x => x.DisplayName).IsRequired().HasMaxLength(200).HasColumnName("display_name");
                 b.Property(x => x.Email).HasMaxLength(200).HasColumnName("email");
+                b.Property(x => x.PreferredLanguage).HasMaxLength(10).HasColumnName("preferred_language");
                 b.Property(x => x.IsActive).HasColumnName("is_active");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");

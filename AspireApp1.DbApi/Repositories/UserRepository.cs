@@ -35,6 +35,12 @@ public class UserRepository : IUserRepository
             .FirstOrDefaultAsync(u => u.WindowsUsername == windowsUsername);
     }
 
+    public async Task<User?> GetByUsernameAsync(string username)
+    {
+        // Alias method for compatibility - delegates to GetByWindowsUsernameAsync
+        return await GetByWindowsUsernameAsync(username);
+    }
+
     public async Task<User?> GetWithRolesAsync(int id)
     {
         return await _db.Users

@@ -1,6 +1,7 @@
 using AspireApp1.FrontEnd;
 using AspireApp1.FrontEnd.Components;
 using AspireApp1.Web;
+using AspireApp1.Web.Services;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 
 
@@ -12,6 +13,9 @@ builder.AddServiceDefaults();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Add localization service
+builder.Services.AddScoped<LocalizationService>();
 
 builder.Services.AddOutputCache();
 
@@ -158,6 +162,25 @@ builder.Services.AddHttpClient<AuditApiClient>(client =>
     .AddHttpMessageHandler<CookieForwardingHandler>();
 
 builder.Services.AddHttpClient<EntityFilesApiClient>(client =>
+    {
+        var dbApiBase = builder.Configuration["DbApiBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(dbApiBase))
+        {
+            client.BaseAddress = new(dbApiBase);
+        }
+        else
+        {
+            client.BaseAddress = new("https+http://dbapi");
+        }
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        UseDefaultCredentials = true,
+        Credentials = System.Net.CredentialCache.DefaultNetworkCredentials
+    })
+    .AddHttpMessageHandler<CookieForwardingHandler>();
+
+builder.Services.AddHttpClient<UserPreferencesApiClient>(client =>
     {
         var dbApiBase = builder.Configuration["DbApiBaseUrl"];
         if (!string.IsNullOrWhiteSpace(dbApiBase))
