@@ -2,7 +2,8 @@
 @inject IJSRuntime JSRuntime
 @inject UserPreferencesApiClient UserPreferencesApi
 @inject NavigationManager Navigation
-@inject AspireApp1.Web.Services.LocalizationService LocalizationService
+@inject LocalizationService LocalizationService
+@inject ILogger<LanguageSelector> Logger
 @implements IAsyncDisposable
 
 <div class="dropdown">
@@ -52,7 +53,7 @@
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error initializing language: {ex.Message}");
+                Logger.LogError(ex, "Error initializing language");
                 currentLanguage = "en";
                 LocalizationService.SetCulture("en");
             }
@@ -80,7 +81,7 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error syncing language from database: {ex.Message}");
+            Logger.LogError(ex, "Error syncing language from database");
         }
     }
 
@@ -108,7 +109,7 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error changing language: {ex.Message}");
+            Logger.LogError(ex, "Error changing language");
         }
     }
 
