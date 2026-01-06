@@ -267,7 +267,7 @@
                                         }
                                         else if (GetCaseTab(c.Id) == "files")
                                         {
-                                            <FileManager EntityType="Case" EntityId="c.Id" />
+                                            <FileManager EntityType="Case" EntityId="@c.Id" />
                                         }
                                     </div>
                                 </td>
@@ -507,8 +507,10 @@
         {
             customers = await CustomersApi.GetCustomersAsync();
         }
-        catch
+        catch (Exception ex)
         {
+            // Log error and set empty array as fallback
+            Console.Error.WriteLine($"Failed to load customers: {ex.Message}");
             customers = Array.Empty<CustomerDto>();
         }
     }
@@ -697,7 +699,8 @@
         toastType = type;
         showToast = true;
         
-        Task.Delay(3000).ContinueWith(_ =>
+        // Auto-hide after 3 seconds
+        _ = Task.Delay(3000).ContinueWith(_ =>
         {
             showToast = false;
             InvokeAsync(StateHasChanged);

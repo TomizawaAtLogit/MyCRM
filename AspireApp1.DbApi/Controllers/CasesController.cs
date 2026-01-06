@@ -52,11 +52,7 @@ namespace AspireApp1.DbApi.Controllers
                 cases = await _repo.GetAllAsync();
             }
 
-            // Apply additional filters
-            if (status.HasValue && !customerId.HasValue && !assignedToUserId.HasValue)
-            {
-                cases = cases.Where(c => c.Status == status.Value);
-            }
+            // Apply additional filter for priority if specified
             if (priority.HasValue)
             {
                 cases = cases.Where(c => c.Priority == priority.Value);
@@ -199,6 +195,9 @@ namespace AspireApp1.DbApi.Controllers
             
             var oldAssignedToUserId = existing.AssignedToUserId;
             
+            // Get user info once for both activity and audit
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            
             existing.Title = dto.Title;
             existing.Description = dto.Description;
             existing.CustomerId = dto.CustomerId;
@@ -225,7 +224,6 @@ namespace AspireApp1.DbApi.Controllers
             // If assignment changed, create activity entry
             if (oldAssignedToUserId != dto.AssignedToUserId)
             {
-                var (username, userId) = await GetCurrentUserInfoAsync();
                 var activity = new CaseActivity
                 {
                     CaseId = id,
@@ -240,8 +238,7 @@ namespace AspireApp1.DbApi.Controllers
             }
             
             // Log update action
-            var (auditUsername, auditUserId) = await GetCurrentUserInfoAsync();
-            await _auditService.LogActionAsync(auditUsername, auditUserId, "Update", "Case", id, existing);
+            await _auditService.LogActionAsync(username, userId, "Update", "Case", id, existing);
             
             return NoContent();
         }
