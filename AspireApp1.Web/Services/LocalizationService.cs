@@ -1,38 +1,63 @@
 using System.Globalization;
-using Microsoft.Extensions.Localization;
 
 namespace AspireApp1.Web.Services;
 
 public class LocalizationService
 {
-    private readonly IStringLocalizerFactory _localizerFactory;
     private readonly ILogger<LocalizationService> _logger;
-    private IStringLocalizer? _localizer;
-
-    public LocalizationService(IStringLocalizerFactory localizerFactory, ILogger<LocalizationService> logger)
+    private string _currentLanguage = "en";
+    
+    private readonly Dictionary<string, Dictionary<string, string>> _translations = new()
     {
-        _localizerFactory = localizerFactory;
+        ["en"] = new Dictionary<string, string>
+        {
+            ["Home"] = "Home",
+            ["Projects"] = "Projects",
+            ["Customers"] = "Customers",
+            ["Orders"] = "Orders",
+            ["Audit"] = "Audit",
+            ["Admin"] = "Admin",
+            ["Language"] = "Language",
+            ["English"] = "English",
+            ["Japanese"] = "Japanese"
+        },
+        ["ja"] = new Dictionary<string, string>
+        {
+            ["Home"] = "ホーム",
+            ["Projects"] = "プロジェクト",
+            ["Customers"] = "顧客",
+            ["Orders"] = "注文",
+            ["Audit"] = "監査",
+            ["Admin"] = "管理者",
+            ["Language"] = "言語",
+            ["English"] = "英語",
+            ["Japanese"] = "日本語"
+        }
+    };
+
+    public LocalizationService(ILogger<LocalizationService> logger)
+    {
         _logger = logger;
-        InitializeLocalizer();
-    }
-
-    private void InitializeLocalizer()
-    {
-        try
-        {
-            _localizer = _localizerFactory.Create("Localization", "AspireApp1.FrontEnd");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to initialize localizer");
-        }
     }
 
     public string GetString(string key)
     {
         try
         {
-            return _localizer?[key] ?? key;
+            if (_translations.TryGetValue(_currentLanguage, out var languageDict) &&
+                languageDict.TryGetValue(key, out var translation))
+            {
+                return translation;
+            }
+            
+            // Fallback to English
+            if (_translations.TryGetValue("en", out var englishDict) &&
+                englishDict.TryGetValue(key, out var englishTranslation))
+            {
+                return englishTranslation;
+            }
+            
+            return key;
         }
         catch (Exception ex)
         {
@@ -45,10 +70,10 @@ public class LocalizationService
     {
         try
         {
+            _currentLanguage = cultureName;
             var culture = new CultureInfo(cultureName);
             CultureInfo.CurrentCulture = culture;
             CultureInfo.CurrentUICulture = culture;
-            InitializeLocalizer();
             _logger.LogInformation("Culture set to {Culture}", cultureName);
         }
         catch (Exception ex)
@@ -59,6 +84,6 @@ public class LocalizationService
 
     public string GetCurrentCulture()
     {
-        return CultureInfo.CurrentUICulture.Name;
+        return _currentLanguage;
     }
 }

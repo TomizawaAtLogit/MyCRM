@@ -3,7 +3,6 @@ using AspireApp1.FrontEnd.Components;
 using AspireApp1.Web;
 using AspireApp1.Web.Services;
 using Microsoft.AspNetCore.Authentication.Negotiate;
-using System.Globalization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,18 +14,8 @@ builder.AddServiceDefaults();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Add localization services
-builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+// Add localization service
 builder.Services.AddScoped<LocalizationService>();
-
-// Configure supported cultures
-var supportedCultures = new[] { "en", "ja" };
-var localizationOptions = new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("en"),
-    SupportedCultures = supportedCultures.Select(c => new CultureInfo(c)).ToList(),
-    SupportedUICultures = supportedCultures.Select(c => new CultureInfo(c)).ToList()
-};
 
 builder.Services.AddOutputCache();
 
@@ -211,9 +200,6 @@ builder.Services.AddHttpClient<UserPreferencesApiClient>(client =>
     .AddHttpMessageHandler<CookieForwardingHandler>();
 
 var app = builder.Build();
-
-// Use request localization
-app.UseRequestLocalization(localizationOptions);
 
 if (!app.Environment.IsDevelopment())
 {

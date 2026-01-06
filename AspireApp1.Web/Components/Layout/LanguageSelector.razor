@@ -2,6 +2,7 @@
 @inject IJSRuntime JSRuntime
 @inject UserPreferencesApiClient UserPreferencesApi
 @inject NavigationManager Navigation
+@inject AspireApp1.Web.Services.LocalizationService LocalizationService
 @implements IAsyncDisposable
 
 <div class="dropdown">
@@ -41,6 +42,9 @@
                 // Get current language from localStorage or browser
                 currentLanguage = await languageModule.InvokeAsync<string>("getLanguage");
                 
+                // Update LocalizationService with the current language
+                LocalizationService.SetCulture(currentLanguage);
+                
                 // Try to sync with database
                 await SyncLanguageFromDatabase();
                 
@@ -50,6 +54,7 @@
             {
                 Console.WriteLine($"Error initializing language: {ex.Message}");
                 currentLanguage = "en";
+                LocalizationService.SetCulture("en");
             }
         }
     }
@@ -61,14 +66,16 @@
             var username = Environment.UserName;
             var preferences = await UserPreferencesApi.GetUserPreferencesAsync(username);
             
-            if (preferences?.PreferredLanguage != null)
+            if (preferences?.PreferredLanguage != null && preferences.PreferredLanguage != currentLanguage)
             {
-                // Use database preference
+                // Use database preference if different from localStorage
                 currentLanguage = preferences.PreferredLanguage;
+                LocalizationService.SetCulture(currentLanguage);
                 if (languageModule != null)
                 {
                     await languageModule.InvokeVoidAsync("setLanguage", currentLanguage);
                 }
+                StateHasChanged();
             }
         }
         catch (Exception ex)
@@ -89,11 +96,14 @@
                 await languageModule.InvokeVoidAsync("setLanguage", language);
             }
             
+            // Update LocalizationService
+            LocalizationService.SetCulture(language);
+            
             // Save to database for cross-device persistence
             var username = Environment.UserName;
             await UserPreferencesApi.UpdateUserPreferencesAsync(username, new UserPreferenceDto(language));
             
-            // Reload the page to apply the new language
+            // Reload the page to apply the new language across all components
             Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
         }
         catch (Exception ex)
