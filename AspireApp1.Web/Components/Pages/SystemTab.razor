@@ -217,7 +217,13 @@
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Location</label>
-                            <InputText @bind-Value="newComponent.Location" class="form-control form-control-sm" />
+                            <InputSelect @bind-Value="newComponent.Location" class="form-control form-control-sm">
+                                <option value="">Select a site...</option>
+                                @foreach (var site in Sites)
+                                {
+                                    <option value="@site.SiteName">@site.SiteName</option>
+                                }
+                            </InputSelect>
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Warranty Expiration</label>
@@ -312,7 +318,13 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Location</label>
-                        <InputText @bind-Value="editComponent.Location" class="form-control" />
+                        <InputSelect @bind-Value="editComponent.Location" class="form-control">
+                            <option value="">Select a site...</option>
+                            @foreach (var site in Sites)
+                            {
+                                <option value="@site.SiteName">@site.SiteName</option>
+                            }
+                        </InputSelect>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Warranty Expiration</label>
@@ -344,6 +356,9 @@
 
     [Parameter]
     public List<SystemDto> Systems { get; set; } = new();
+
+    [Parameter]
+    public List<CustomerSiteDto> Sites { get; set; } = new();
 
     [Parameter]
     public EventCallback OnRefresh { get; set; }

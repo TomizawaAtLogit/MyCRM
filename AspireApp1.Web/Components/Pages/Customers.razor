@@ -254,7 +254,7 @@
                 }
                 else if (activeTab == "systems")
                 {
-                    <SystemTab CustomerId="selectedCustomerDetails.Id" Systems="selectedCustomerDetails.Systems.OrderBy(s => s.SystemName).ToList()" OnRefresh="LoadCustomerDetails" />
+                    <SystemTab CustomerId="selectedCustomerDetails.Id" Systems="selectedCustomerDetails.Systems.OrderBy(s => s.SystemName).ToList()" Sites="selectedCustomerDetails.Sites" OnRefresh="LoadCustomerDetails" />
                 }
                 else if (activeTab == "orders")
                 {
