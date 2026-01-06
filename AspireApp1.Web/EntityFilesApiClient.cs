@@ -89,7 +89,8 @@ public class EntityFilesApiClient
             
             // Add file
             var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
-            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+            var contentType = string.IsNullOrEmpty(file.ContentType) ? "application/octet-stream" : file.ContentType;
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
             content.Add(fileContent, "file", file.Name);
             
             // Add metadata
@@ -158,16 +159,37 @@ public class EntityFilesApiClient
         }
     }
 
+    public async Task<(byte[] data, string contentType, string fileName)?> DownloadFileAsync(int fileId)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"api/EntityFiles/download/{fileId}");
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var data = await response.Content.ReadAsByteArrayAsync();
+            var contentType = response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream";
+            var fileName = response.Content.Headers.ContentDisposition?.FileName?.Trim('"') ?? $"file_{fileId}";
+
+            return (data, contentType, fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to download file {FileId}", fileId);
+            return null;
+        }
+    }
+
     public string GetDownloadUrl(int fileId)
     {
-        // Use relative URL for browser navigation
-        return $"/api/EntityFiles/download/{fileId}";
+        // Return the full API URL for the HttpClient base address
+        return $"{_httpClient.BaseAddress}api/EntityFiles/download/{fileId}";
     }
 
     public string GetDownloadAllUrl(string entityType, int entityId)
     {
-        // Use relative URL for browser navigation
-        return $"/api/EntityFiles/download-all/{entityType}/{entityId}";
+        // Return the full API URL for the HttpClient base address
+        return $"{_httpClient.BaseAddress}api/EntityFiles/download-all/{entityType}/{entityId}";
     }
 
     public string GetThumbnailUrl(int fileId)

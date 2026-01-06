@@ -2,6 +2,7 @@ using AspireApp1.DbApi.Data;
 using AspireApp1.DbApi.DTOs;
 using AspireApp1.DbApi.Models;
 using AspireApp1.DbApi.Services;
+using AspireApp1.DbApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,11 @@ namespace AspireApp1.DbApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 // [Authorize] // DISABLED FOR LOCAL DEVELOPMENT
-public class EntityFilesController : ControllerBase
+public class EntityFilesController : AuditableControllerBase
 {
     private readonly ProjectDbContext _context;
     private readonly IFileStorageService _fileStorage;
+    private readonly IAuditService _auditService;
     private readonly ILogger<EntityFilesController> _logger;
     private const long MaxFileSizeBytes = 100 * 1024 * 1024; // 100MB
     private const int MaxBatchUploadCount = 20;
@@ -25,10 +27,14 @@ public class EntityFilesController : ControllerBase
     public EntityFilesController(
         ProjectDbContext context,
         IFileStorageService fileStorage,
+        IAuditService auditService,
+        IUserRepository userRepo,
         ILogger<EntityFilesController> logger)
+        : base(userRepo)
     {
         _context = context;
         _fileStorage = fileStorage;
+        _auditService = auditService;
         _logger = logger;
     }
 
@@ -172,6 +178,10 @@ public class EntityFilesController : ControllerBase
         _logger.LogInformation("File uploaded: {FileName} for {EntityType} {EntityId} by {User}", 
             file.FileName, entityType, entityId, username);
 
+        // Log create action for audit
+        var (auditUsername, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(auditUsername, userId, "Create", "EntityFile", entityFile.Id, entityFile);
+
         return CreatedAtAction(nameof(GetFile), new { id = entityFile.Id }, MapToDto(entityFile));
     }
 
@@ -265,28 +275,84 @@ public class EntityFilesController : ControllerBase
     [HttpGet("download/{id:int}")]
     public async Task<IActionResult> DownloadFile(int id)
     {
+        _logger.LogInformation("Download request for file ID: {FileId}", id);
+        
         var file = await _context.EntityFiles.FindAsync(id);
         if (file == null)
         {
+            _logger.LogWarning("File not found in database: {FileId}", id);
             return NotFound();
         }
 
+        _logger.LogInformation("Found file: {FileName}, StoragePath: {StoragePath}, Size: {Size} bytes", 
+            file.OriginalFileName, file.StoragePath, file.FileSizeBytes);
+
         try
         {
-            var (fileStream, contentType) = await _fileStorage.GetFileAsync(file.StoragePath);
+            // Read file into memory to avoid stream disposal issues
+            _logger.LogInformation("Calling GetFileAsync for: {StoragePath}", file.StoragePath);
+            var fileData = await _fileStorage.GetFileAsync(file.StoragePath);
+            _logger.LogInformation("GetFileAsync returned stream, ContentType: {ContentType}", fileData.contentType);
+            
+            byte[] fileBytes;
+            using (var fileStream = fileData.stream)
+            {
+                _logger.LogInformation("FileStream CanRead: {CanRead}, Length: {Length}", 
+                    fileStream.CanRead, fileStream.Length);
+                    
+                using var memoryStream = new MemoryStream();
+                await fileStream.CopyToAsync(memoryStream);
+                fileBytes = memoryStream.ToArray();
+                
+                _logger.LogInformation("Copied {ByteCount} bytes to memory", fileBytes.Length);
+            }
 
-            // Update access tracking
-            file.LastAccessedAt = DateTime.UtcNow;
-            file.AccessCount++;
-            await _context.SaveChangesAsync();
+            _logger.LogInformation("File downloaded: {FileName} ({Size} bytes) by {User}", 
+                file.OriginalFileName, fileBytes.Length, User.Identity?.Name);
 
-            _logger.LogInformation("File downloaded: {FileName} by {User}", file.OriginalFileName, User.Identity?.Name);
+            // Log download action for audit
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            await _auditService.LogActionAsync(username, userId, "Download", "EntityFile", id, new 
+            { 
+                file.OriginalFileName, 
+                file.FileSizeBytes, 
+                file.ContentType 
+            });
 
-            return File(fileStream, contentType, file.OriginalFileName);
+            // Update access tracking asynchronously without waiting (fire and forget)
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var scope = HttpContext.RequestServices.CreateScope();
+                    var context = scope.ServiceProvider.GetRequiredService<ProjectDbContext>();
+                    var fileEntity = await context.EntityFiles.FindAsync(id);
+                    if (fileEntity != null)
+                    {
+                        fileEntity.LastAccessedAt = DateTime.UtcNow;
+                        fileEntity.AccessCount++;
+                        await context.SaveChangesAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to update file access tracking for file {FileId}", id);
+                }
+            });
+
+            _logger.LogInformation("Returning file result with {ByteCount} bytes, ContentType: {ContentType}", 
+                fileBytes.Length, fileData.contentType);
+            return File(fileBytes, fileData.contentType, file.OriginalFileName);
         }
-        catch (FileNotFoundException)
+        catch (FileNotFoundException ex)
         {
+            _logger.LogWarning(ex, "File not found in storage: {StoragePath}", file.StoragePath);
             return NotFound("File not found in storage");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error downloading file {FileId}", id);
+            return StatusCode(500, "Error downloading file");
         }
     }
 
@@ -367,6 +433,10 @@ public class EntityFilesController : ControllerBase
 
         _logger.LogInformation("File metadata updated: {FileName} by {User}", file.OriginalFileName, User.Identity?.Name);
 
+        // Log update action for audit
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Update", "EntityFile", id, file);
+
         return Ok(MapToDto(file));
     }
 
@@ -426,6 +496,10 @@ public class EntityFilesController : ControllerBase
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("File deleted: {FileName} by {User}", file.OriginalFileName, User.Identity?.Name);
+
+        // Log delete action for audit
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Delete", "EntityFile", id, file);
 
         return NoContent();
     }

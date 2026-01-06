@@ -877,22 +877,36 @@
     {
         try
         {
-            var url = FilesApi.GetDownloadUrl(fileId);
-            // Use fetch API to download the file
+            var result = await FilesApi.DownloadFileAsync(fileId);
+            if (result == null)
+            {
+                errorMessage = "Failed to download file";
+                return;
+            }
+
+            var (data, contentType, downloadFileName) = result.Value;
+            
+            // Use the original fileName if provided, otherwise use the one from the response
+            var finalFileName = !string.IsNullOrEmpty(fileName) ? fileName : downloadFileName;
+            
+            // Convert byte array to base64 and trigger download via JavaScript
+            var base64 = Convert.ToBase64String(data);
             await JSRuntime.InvokeVoidAsync("eval", $@"
-                fetch('{url}')
-                    .then(response => response.blob())
-                    .then(blob => {{
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = '{fileName.Replace("'", "\\'")}';
-                        document.body.appendChild(a);
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                        document.body.removeChild(a);
-                    }})
-                    .catch(err => console.error('Download failed:', err));
+                const byteCharacters = atob('{base64}');
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {{
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }}
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], {{ type: '{contentType}' }});
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = '{finalFileName.Replace("'", "\\'")}';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
             ");
         }
         catch (Exception ex)

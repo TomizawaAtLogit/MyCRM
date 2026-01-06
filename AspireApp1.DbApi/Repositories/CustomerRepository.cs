@@ -209,7 +209,6 @@ public class CustomerRepository : ICustomerRepository
     {
         return await _db.Systems
             .Include(s => s.Components)
-            .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == systemId);
     }
 
@@ -237,6 +236,11 @@ public class CustomerRepository : ICustomerRepository
         _db.SystemComponents.Add(component);
         await _db.SaveChangesAsync();
         return component;
+    }
+
+    public async Task<SystemComponent?> GetSystemComponentByIdAsync(int id)
+    {
+        return await _db.SystemComponents.FindAsync(id);
     }
 
     public async Task UpdateSystemComponentAsync(SystemComponent component)

@@ -40,6 +40,7 @@ public interface ICustomerRepository
 
     // SystemComponent operations
     Task<SystemComponent> AddSystemComponentAsync(SystemComponent component);
+    Task<SystemComponent?> GetSystemComponentByIdAsync(int id);
     Task UpdateSystemComponentAsync(SystemComponent component);
     Task DeleteSystemComponentAsync(int id);
 }

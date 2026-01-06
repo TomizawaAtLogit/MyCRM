@@ -168,6 +168,11 @@ public class CustomersController : AuditableControllerBase
             Description = dto.Description
         };
         var created = await _repo.AddSiteAsync(site);
+        
+        // Log create action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Create", "CustomerSite", created.Id, created);
+        
         return Ok(created);
     }
 
@@ -188,13 +193,26 @@ public class CustomersController : AuditableControllerBase
         site.UpdatedAt = DateTime.UtcNow;
         
         await _repo.UpdateSiteAsync(site);
+        
+        // Log update action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Update", "CustomerSite", id, site);
+        
         return NoContent();
     }
 
     [HttpDelete("{customerId}/sites/{id}")]
     public async Task<IActionResult> DeleteSite(int customerId, int id)
     {
+        // Get site before deletion for audit
+        var site = await _repo.GetSiteByIdAsync(id);
+        
         await _repo.DeleteSiteAsync(id);
+        
+        // Log delete action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Delete", "CustomerSite", id, site);
+        
         return NoContent();
     }
 
@@ -250,6 +268,11 @@ public class CustomersController : AuditableControllerBase
             Description = dto.Description
         };
         var created = await _repo.AddOrderAsync(order);
+        
+        // Log create action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Create", "CustomerOrder", created.Id, created);
+        
         return Ok(created);
     }
 
@@ -271,13 +294,26 @@ public class CustomersController : AuditableControllerBase
         order.UpdatedAt = DateTime.UtcNow;
         
         await _repo.UpdateOrderAsync(order);
+        
+        // Log update action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Update", "CustomerOrder", id, order);
+        
         return NoContent();
     }
 
     [HttpDelete("{customerId}/orders/{id}")]
     public async Task<IActionResult> DeleteOrder(int customerId, int id)
     {
+        // Get order before deletion for audit
+        var order = await _repo.GetOrderByIdAsync(id);
+        
         await _repo.DeleteOrderAsync(id);
+        
+        // Log delete action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Delete", "CustomerOrder", id, order);
+        
         return NoContent();
     }
 
@@ -297,6 +333,11 @@ public class CustomersController : AuditableControllerBase
                 Description = dto.Description
             };
             var created = await _repo.AddNewSystemAsync(system);
+            
+            // Log create action
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            await _auditService.LogActionAsync(username, userId, "Create", "System", created.Id, created);
+            
             return Ok(created);
         }
         catch (Exception ex)
@@ -340,6 +381,11 @@ public class CustomersController : AuditableControllerBase
             };
             
             await _repo.UpdateNewSystemAsync(system);
+            
+            // Log update action
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            await _auditService.LogActionAsync(username, userId, "Update", "System", id, system);
+            
             return NoContent();
         }
         catch (Exception ex)
@@ -353,7 +399,28 @@ public class CustomersController : AuditableControllerBase
     [HttpDelete("{customerId}/new-systems/{id}")]
     public async Task<IActionResult> DeleteNewSystem(int customerId, int id)
     {
+        // Get system before deletion for audit
+        var system = await _repo.GetSystemWithComponentsAsync(id);
+        if (system == null || system.CustomerId != customerId)
+            return NotFound();
+        
+        // Get user info for audit
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        
+        // Log deletion of each component (cascade delete will remove them)
+        if (system.Components != null && system.Components.Any())
+        {
+            foreach (var component in system.Components)
+            {
+                await _auditService.LogActionAsync(username, userId, "Delete", "SystemComponent", component.Id, component);
+            }
+        }
+        
         await _repo.DeleteNewSystemAsync(id);
+        
+        // Log delete action for the system
+        await _auditService.LogActionAsync(username, userId, "Delete", "System", id, system);
+        
         return NoContent();
     }
 
@@ -379,6 +446,11 @@ public class CustomersController : AuditableControllerBase
             Description = dto.Description
         };
         var created = await _repo.AddSystemComponentAsync(component);
+        
+        // Log create action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Create", "SystemComponent", created.Id, created);
+        
         return Ok(created);
     }
 
@@ -410,6 +482,11 @@ public class CustomersController : AuditableControllerBase
             };
 
             await _repo.UpdateSystemComponentAsync(component);
+            
+            // Log update action
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            await _auditService.LogActionAsync(username, userId, "Update", "SystemComponent", id, component);
+            
             return NoContent();
         }
         catch (Exception ex)
@@ -427,7 +504,15 @@ public class CustomersController : AuditableControllerBase
         if (system == null || system.CustomerId != customerId)
             return NotFound("System not found or doesn't belong to customer");
 
+        // Get component before deletion for audit
+        var component = await _repo.GetSystemComponentByIdAsync(id);
+        
         await _repo.DeleteSystemComponentAsync(id);
+        
+        // Log delete action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Delete", "SystemComponent", id, component);
+        
         return NoContent();
     }
 
