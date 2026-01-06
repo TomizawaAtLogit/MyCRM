@@ -64,7 +64,18 @@
     {
         try
         {
+            // Get username from Environment
+            // Note: In production with Windows Auth, this should come from authenticated user context
+            // For local development without auth, this returns the web app process identity
             var username = Environment.UserName;
+            
+            // Skip database sync if we don't have a valid username
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                Logger.LogWarning("Cannot sync language from database: no valid username");
+                return;
+            }
+            
             var preferences = await UserPreferencesApi.GetUserPreferencesAsync(username);
             
             if (preferences?.PreferredLanguage != null && preferences.PreferredLanguage != currentLanguage)
@@ -82,6 +93,7 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error syncing language from database");
+            // Continue with localStorage value - don't break the UI
         }
     }
 
@@ -97,15 +109,18 @@
                 await languageModule.InvokeVoidAsync("setLanguage", language);
             }
             
-            // Update LocalizationService
+            // Update LocalizationService (this will trigger OnLanguageChanged event)
             LocalizationService.SetCulture(language);
             
-            // Save to database for cross-device persistence
+            // Save to database for cross-device persistence (if we have a valid username)
             var username = Environment.UserName;
-            await UserPreferencesApi.UpdateUserPreferencesAsync(username, new UserPreferenceDto(language));
+            if (!string.IsNullOrWhiteSpace(username))
+            {
+                await UserPreferencesApi.UpdateUserPreferencesAsync(username, new UserPreferenceDto(language));
+            }
             
-            // Reload the page to apply the new language across all components
-            Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            // Trigger local UI update
+            StateHasChanged();
         }
         catch (Exception ex)
         {

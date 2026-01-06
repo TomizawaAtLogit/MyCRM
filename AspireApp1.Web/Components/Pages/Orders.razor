@@ -5,27 +5,29 @@
 @* @attribute [Authorize] *@ @* DISABLED FOR LOCAL DEVELOPMENT *@
 @inject OrderApiClient OrderApi
 @inject NavigationManager Navigation
+@inject LocalizationService Localizer
+@implements IDisposable
 
-<PageTitle>Orders</PageTitle>
+<PageTitle>@Localizer.GetString("Orders")</PageTitle>
 
-<h1>Orders / Contracts</h1>
+<h1>@Localizer.GetString("Orders / Contracts")</h1>
 
 <div class="row mb-3">
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Filter Orders</h5>
+                <h5 class="mb-0">@Localizer.GetString("Filter Orders")</h5>
             </div>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-3">
-                        <label class="form-label">Search</label>
-                        <input type="text" class="form-control" @bind="searchText" @bind:event="oninput" @onkeyup="ApplyFilters" placeholder="Order number, customer..." />
+                        <label class="form-label">@Localizer.GetString("Search")</label>
+                        <input type="text" class="form-control" @bind="searchText" @bind:event="oninput" @onkeyup="ApplyFilters" placeholder="@Localizer.GetString("Order number, customer...")" />
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Contract Type</label>
+                        <label class="form-label">@Localizer.GetString("Contract Type")</label>
                         <select class="form-select" @bind="filterContractType" @bind:after="ApplyFilters">
-                            <option value="">All Types</option>
+                            <option value="">@Localizer.GetString("All Types")</option>
                             @foreach (var type in availableContractTypes)
                             {
                                 <option value="@type">@type</option>
@@ -33,9 +35,9 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Status</label>
+                        <label class="form-label">@Localizer.GetString("Status")</label>
                         <select class="form-select" @bind="filterStatus" @bind:after="ApplyFilters">
-                            <option value="">All Status</option>
+                            <option value="">@Localizer.GetString("All Status")</option>
                             @foreach (var status in availableStatuses)
                             {
                                 <option value="@status">@status</option>
@@ -43,15 +45,15 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Start Date From</label>
+                        <label class="form-label">@Localizer.GetString("Start Date From")</label>
                         <input type="date" class="form-control" @bind="filterStartDateFrom" @bind:after="ApplyFilters" />
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Start Date To</label>
+                        <label class="form-label">@Localizer.GetString("Start Date To")</label>
                         <input type="date" class="form-control" @bind="filterStartDateTo" @bind:after="ApplyFilters" />
                     </div>
                     <div class="col-md-1 d-flex align-items-end">
-                        <button class="btn btn-secondary w-100" @onclick="ClearFilters">Clear</button>
+                        <button class="btn btn-secondary w-100" @onclick="ClearFilters">@Localizer.GetString("Clear")</button>
                     </div>
                 </div>
             </div>
@@ -61,19 +63,19 @@
 
 @if (orders == null)
 {
-    <p><em>Loading orders...</em></p>
+    <p><em>@Localizer.GetString("Loading orders...")</em></p>
 }
 else if (filteredOrders.Length == 0)
 {
-    <p class="text-muted">No orders found matching the filters.</p>
+    <p class="text-muted">@Localizer.GetString("No orders found matching the filters.")</p>
 }
 else
 {
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Orders List (@filteredOrders.Length total)</h5>
+            <h5 class="mb-0">@Localizer.GetString("Orders List") (@filteredOrders.Length @Localizer.GetString("total"))</h5>
             <div>
-                <span class="me-2">Items per page:</span>
+                <span class="me-2">@Localizer.GetString("Items per page:")</span>
                 <select class="form-select form-select-sm d-inline-block" style="width: auto;" @bind="pageSize" @bind:after="UpdatePagination">
                     <option value="10">10</option>
                     <option value="25">25</option>
@@ -245,6 +247,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        Localizer.OnLanguageChanged += OnLanguageChanged;
         await LoadOrdersAsync();
     }
 
@@ -413,5 +416,15 @@ else
     private void CloseDetails()
     {
         selectedOrder = null;
+    }
+
+    public void Dispose()
+    {
+        Localizer.OnLanguageChanged -= OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 }

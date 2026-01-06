@@ -5,13 +5,15 @@
 @inject ProjectActivityApiClient ProjectActivityApi
 @inject EntityFilesApiClient EntityFilesApi
 @inject IJSRuntime JSRuntime
+@inject LocalizationService Localizer
 @using System.ComponentModel.DataAnnotations
 @using AspireApp1.Web
 @using Microsoft.AspNetCore.Components.Forms
+@implements IDisposable
 
-<PageTitle>Projects</PageTitle>
+<PageTitle>@Localizer.GetString("Projects")</PageTitle>
 
-<h1>Projects</h1>
+<h1>@Localizer.GetString("Projects")</h1>
 
 @if (showToast && !string.IsNullOrEmpty(toastMessage))
 {
@@ -23,12 +25,12 @@
 
 <div class="row mb-3">
     <div class="col-md-12">
-        <h5>Filters</h5>
+        <h5>@Localizer.GetString("Filters")</h5>
         <div class="row g-2">
             <div class="col-md-4">
-                <label class="form-label">Customer</label>
+                <label class="form-label">@Localizer.GetString("Customer")</label>
                 <select class="form-select" value="@filterCustomerId" @onchange="OnCustomerFilterChanged">
-                    <option value="">All Customers</option>
+                    <option value="">@Localizer.GetString("All Customers")</option>
                     @if (customers != null)
                     {
                         @foreach (var c in customers)
@@ -39,9 +41,9 @@
                 </select>
             </div>
             <div class="col-md-4">
-                <label class="form-label">Status</label>
+                <label class="form-label">@Localizer.GetString("Status")</label>
                 <select class="form-select" value="@filterStatus" @onchange="OnStatusFilterChanged">
-                    <option value="">All Statuses</option>
+                    <option value="">@Localizer.GetString("All Statuses")</option>
                     <option value="Wip">WIP</option>
                     <option value="Pending">Pending</option>
                     <option value="Closed">Closed</option>
@@ -53,18 +55,18 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h4>Existing Projects</h4>
+        <h4>@Localizer.GetString("Existing Projects")</h4>
         @if (!string.IsNullOrEmpty(loadError))
         {
             <div class="alert alert-warning">Unable to load projects: @loadError</div>
         }
         else if (projects is null)
         {
-            <p><em>Loading...</em></p>
+            <p><em>@Localizer.GetString("Loading...")</em></p>
         }
         else if (projects.Length == 0)
         {
-            <p class="text-muted">No projects.</p>
+            <p class="text-muted">@Localizer.GetString("No projects.")</p>
         }
         else
         {
@@ -72,11 +74,11 @@
                 <thead>
                     <tr>
                         <th style="width: 50px;"></th>
-                        <th>Name</th>
-                        <th>Customer</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                        <th>Actions</th>
+                        <th>@Localizer.GetString("Name")</th>
+                        <th>@Localizer.GetString("Customer")</th>
+                        <th>@Localizer.GetString("Status")</th>
+                        <th>@Localizer.GetString("Created")</th>
+                        <th>@Localizer.GetString("Actions")</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -408,7 +410,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Create Project</h5>
+                <h5 class="mb-0">@Localizer.GetString("Create Project")</h5>
                 <button class="btn btn-sm btn-outline-primary" @onclick="() => showCreateForm = !showCreateForm">
                     <i class="bi @(showCreateForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
                 </button>
@@ -452,7 +454,7 @@
                         <label class="form-label">Description</label>
                         <InputTextArea @bind-Value="newProject.Description" class="form-control" placeholder="Description" rows="4" />
                     </div>
-                    <button class="btn btn-primary" type="submit">Create Project</button>
+                    <button class="btn btn-primary" type="submit">@Localizer.GetString("Create Project")</button>
                 </EditForm>
                 </div>
             }
@@ -559,6 +561,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Localizer.OnLanguageChanged += OnLanguageChanged;
         newProject ??= new();
         editModel ??= new();
         createEditContext = new EditContext(newProject);
@@ -943,6 +946,16 @@
         [MaxLength(1000)] public string? NextAction { get; set; }
         [MaxLength(100)] public string? ActivityType { get; set; }
         [MaxLength(200)] public string? PerformedBy { get; set; }
+    }
+
+    public void Dispose()
+    {
+        Localizer.OnLanguageChanged -= OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 }
 

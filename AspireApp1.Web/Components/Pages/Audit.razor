@@ -6,16 +6,18 @@
 @inject AuditApiClient AuditApi
 @inject NavigationManager Navigation
 @inject ILogger<Audit> Logger
+@inject LocalizationService Localizer
+@implements IDisposable
 
-<PageTitle>Audit Logs</PageTitle>
+<PageTitle>@Localizer.GetString("Audit Logs")</PageTitle>
 
-<h1>Audit Logs</h1>
+<h1>@Localizer.GetString("Audit Logs")</h1>
 
 <div class="row mb-3">
     <div class="col-md-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Filter Audit Logs</h5>
+                <h5 class="mb-0">@Localizer.GetString("Filter Audit Logs")</h5>
                 @if (isAdmin)
                 {
                     <div class="form-check form-switch">
@@ -29,9 +31,9 @@
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-3">
-                        <label class="form-label">Entity Type</label>
+                        <label class="form-label">@Localizer.GetString("Entity Type")</label>
                         <select class="form-select" @bind="filterEntityType" @bind:after="ApplyFilters">
-                            <option value="">All Types</option>
+                            <option value="">@Localizer.GetString("All Types")</option>
                             @foreach (var type in availableEntityTypes)
                             {
                                 <option value="@type">@GetEntityDisplayName(type)</option>
@@ -39,9 +41,9 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Action</label>
+                        <label class="form-label">@Localizer.GetString("Action")</label>
                         <select class="form-select" @bind="filterAction" @bind:after="ApplyFilters">
-                            <option value="">All Actions</option>
+                            <option value="">@Localizer.GetString("All Actions")</option>
                             @foreach (var action in availableActions)
                             {
                                 <option value="@action">@action</option>
@@ -49,19 +51,19 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">From Date</label>
+                        <label class="form-label">@Localizer.GetString("From Date")</label>
                         <input type="date" class="form-control" @bind="filterFromDate" @bind:after="ApplyFilters" />
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">To Date</label>
+                        <label class="form-label">@Localizer.GetString("To Date")</label>
                         <input type="date" class="form-control" @bind="filterToDate" @bind:after="ApplyFilters" />
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Search</label>
-                        <input type="text" class="form-control" @bind="searchText" @bind:event="oninput" @onkeyup="ApplyLocalFilters" placeholder="Username, entity..." />
+                        <label class="form-label">@Localizer.GetString("Search")</label>
+                        <input type="text" class="form-control" @bind="searchText" @bind:event="oninput" @onkeyup="ApplyLocalFilters" placeholder="@Localizer.GetString("Username, entity name, etc.")" />
                     </div>
                     <div class="col-md-1 d-flex align-items-end">
-                        <button class="btn btn-secondary w-100" @onclick="ClearFilters">Clear</button>
+                        <button class="btn btn-secondary w-100" @onclick="ClearFilters">@Localizer.GetString("Clear")</button>
                     </div>
                 </div>
             </div>
@@ -71,7 +73,7 @@
 
 @if (isLoading)
 {
-    <p><em>Loading audit logs...</em></p>
+    <p><em>@Localizer.GetString("Loading audit logs...")</em></p>
 }
 else if (accessDenied)
 {
@@ -87,13 +89,13 @@ else if (accessDenied)
 }
 else if (filteredLogs.Length == 0)
 {
-    <p class="text-muted">No audit logs found matching the filters.</p>
+    <p class="text-muted">@Localizer.GetString("No audit logs found matching the filters.")</p>
 }
 else
 {
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Audit Logs (@filteredLogs.Length total)</h5>
+            <h5 class="mb-0">@Localizer.GetString("Audit Logs") (@filteredLogs.Length total)</h5>
             <div>
                 <span class="me-2">Items per page:</span>
                 <select class="form-select form-select-sm d-inline-block" style="width: auto;" @bind="pageSize" @bind:after="UpdatePagination">
@@ -218,7 +220,7 @@ else
                     {
                         <hr />
                         <h6>Entity Data at Time of Action:</h6>
-                        <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">@FormatJson(selectedLog.EntitySnapshot)</pre>
+                        <pre class="bg-body-secondary p-3 rounded" style="max-height: 400px; overflow-y: auto;">@FormatJson(selectedLog.EntitySnapshot)</pre>
                     }
                     else
                     {
@@ -282,6 +284,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        Localizer.OnLanguageChanged += OnLanguageChanged;
         await CheckAdminStatusAsync();
         await LoadAuditLogsAsync();
     }
@@ -482,5 +485,15 @@ else
             Logger.LogWarning(ex, "Error formatting JSON audit snapshot");
             return json;
         }
+    }
+
+    public void Dispose()
+    {
+        Localizer.OnLanguageChanged -= OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 }

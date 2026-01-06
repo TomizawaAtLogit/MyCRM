@@ -14,8 +14,8 @@ builder.AddServiceDefaults();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Add localization service
-builder.Services.AddScoped<LocalizationService>();
+// Add localization service as singleton so language persists across circuits
+builder.Services.AddSingleton<LocalizationService>();
 
 builder.Services.AddOutputCache();
 

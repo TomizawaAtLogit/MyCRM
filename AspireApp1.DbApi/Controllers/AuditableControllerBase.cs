@@ -14,8 +14,21 @@ public abstract class AuditableControllerBase : ControllerBase
 
     protected async Task<(string username, int? userId)> GetCurrentUserInfoAsync()
     {
-        var username = User.Identity?.Name ?? "Unknown";
+        var username = User.Identity?.Name;
+        
+        // If authentication is disabled (username is null), use environment username for local dev
+        if (string.IsNullOrEmpty(username))
+        {
+            username = Environment.UserName;
+        }
+        
         var usernameOnly = ExtractUsernameWithoutDomain(username);
+        
+        // Only attempt to look up the user if we have a valid username
+        if (string.IsNullOrEmpty(usernameOnly))
+        {
+            return ("Unknown", null);
+        }
         
         var user = await _userRepo.GetWithRolesByUsernameAsync(usernameOnly);
         return (usernameOnly, user?.Id);

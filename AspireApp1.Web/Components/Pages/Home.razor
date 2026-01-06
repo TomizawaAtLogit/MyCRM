@@ -2,17 +2,19 @@
 @rendermode InteractiveServer
 @inject ProjectActivityApiClient ProjectActivityApi
 @inject IJSRuntime JSRuntime
+@inject LocalizationService Localizer
+@implements IDisposable
 
-<PageTitle>Home</PageTitle>
+<PageTitle>@Localizer.GetString("Home")</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Activity Calendar</h1>
+    <h1>@Localizer.GetString("Activity Calendar")</h1>
     <div class="btn-group" role="group">
         <button type="button" class="btn @(viewMode == "grid" ? "btn-primary" : "btn-outline-primary")" @onclick="@(() => SetViewMode("grid"))">
-            <i class="bi bi-calendar3"></i> Calendar
+            <i class="bi bi-calendar3"></i> @Localizer.GetString("Calendar")
         </button>
         <button type="button" class="btn @(viewMode == "list" ? "btn-primary" : "btn-outline-primary")" @onclick="@(() => SetViewMode("list"))">
-            <i class="bi bi-list-ul"></i> List
+            <i class="bi bi-list-ul"></i> @Localizer.GetString("List")
         </button>
     </div>
 </div>
@@ -100,7 +102,7 @@ else
     <div class="card">
         <div class="card-body">
             <div class="mb-3">
-                <h4>Activities for @currentDate.ToString("MMMM yyyy")</h4>
+                <h4>@Localizer.GetString("Activities for") @currentDate.ToString("MMMM yyyy")</h4>
             </div>
             
             @if (isLoading)
@@ -225,6 +227,7 @@ else
     
     protected override async Task OnInitializedAsync()
     {
+        Localizer.OnLanguageChanged += OnLanguageChanged;
         await LoadActivitiesForMonth();
     }
     
@@ -398,5 +401,15 @@ else
         public bool IsCurrentMonth { get; set; }
         public bool IsToday { get; set; }
         public List<ProjectActivityDto> Activities { get; set; } = new();
+    }
+
+    public void Dispose()
+    {
+        Localizer.OnLanguageChanged -= OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 }

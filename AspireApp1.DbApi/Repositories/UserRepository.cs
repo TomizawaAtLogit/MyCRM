@@ -30,6 +30,11 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByWindowsUsernameAsync(string windowsUsername)
     {
+        if (string.IsNullOrWhiteSpace(windowsUsername))
+        {
+            return null;
+        }
+        
         return await _db.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.WindowsUsername == windowsUsername);
@@ -52,6 +57,11 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetWithRolesByUsernameAsync(string windowsUsername)
     {
+        if (string.IsNullOrWhiteSpace(windowsUsername))
+        {
+            return null;
+        }
+        
         return await _db.Users
             .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)

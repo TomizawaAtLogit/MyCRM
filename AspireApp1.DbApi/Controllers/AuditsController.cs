@@ -31,9 +31,11 @@ public class AuditsController : AuditableControllerBase
         [FromQuery] DateTime? toDate = null)
     {
         var username = User.Identity?.Name;
+        
+        // If authentication is disabled (username is null), use environment username for local dev
         if (string.IsNullOrEmpty(username))
         {
-            return Unauthorized();
+            username = Environment.UserName;
         }
 
         // Extract username without domain if present
@@ -79,9 +81,11 @@ public class AuditsController : AuditableControllerBase
         }
 
         var username = User.Identity?.Name;
+        
+        // If authentication is disabled (username is null), use environment username for local dev
         if (string.IsNullOrEmpty(username))
         {
-            return Unauthorized();
+            username = Environment.UserName;
         }
 
         var usernameOnly = ExtractUsernameWithoutDomain(username);
@@ -109,9 +113,11 @@ public class AuditsController : AuditableControllerBase
     public async Task<ActionResult<bool>> IsAdmin()
     {
         var username = User.Identity?.Name;
+        
+        // If authentication is disabled (username is null), use environment username for local dev
         if (string.IsNullOrEmpty(username))
         {
-            return Unauthorized();
+            username = Environment.UserName;
         }
 
         var usernameOnly = ExtractUsernameWithoutDomain(username);

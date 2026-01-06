@@ -21,10 +21,11 @@ public class AdminPolicyHandler : AuthorizationHandler<AdminPolicyRequirement>
         var username = context.User.Identity?.Name;
         _logger.LogInformation("AdminPolicyHandler: Username from context: {Username}", username);
         
+        // If authentication is disabled (username is null), use environment username for local dev
         if (string.IsNullOrEmpty(username))
         {
-            _logger.LogWarning("AdminPolicyHandler: No username found in context");
-            return;
+            username = Environment.UserName;
+            _logger.LogInformation("AdminPolicyHandler: Using environment username: {Username}", username);
         }
 
         // Try to extract just the username without domain
