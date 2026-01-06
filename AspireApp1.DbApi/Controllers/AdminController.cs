@@ -1,5 +1,6 @@
 using AspireApp1.DbApi.Models;
 using AspireApp1.DbApi.Repositories;
+using AspireApp1.DbApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,15 +9,18 @@ namespace AspireApp1.DbApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 // [Authorize(Policy = "AdminOnly")] // DISABLED FOR LOCAL DEVELOPMENT
-public class AdminController : ControllerBase
+public class AdminController : AuditableControllerBase
 {
     private readonly IUserRepository _userRepo;
     private readonly IRoleRepository _roleRepo;
+    private readonly IAuditService _auditService;
 
-    public AdminController(IUserRepository userRepo, IRoleRepository roleRepo)
+    public AdminController(IUserRepository userRepo, IRoleRepository roleRepo, IAuditService auditService)
+        : base(userRepo)
     {
         _userRepo = userRepo;
         _roleRepo = roleRepo;
+        _auditService = auditService;
     }
 
     // User management
@@ -47,6 +51,11 @@ public class AdminController : ControllerBase
         var user = await _userRepo.GetWithRolesAsync(id);
         if (user == null)
             return NotFound();
+        
+        // Log read action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Read", "User", id, user);
+        
         return user;
     }
 
@@ -63,6 +72,11 @@ public class AdminController : ControllerBase
     public async Task<ActionResult<User>> PostUser(User user)
     {
         var created = await _userRepo.AddAsync(user);
+        
+        // Log create action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Create", "User", created.Id, created);
+        
         return CreatedAtAction(nameof(GetUser), new { id = created.Id }, created);
     }
 
@@ -72,6 +86,11 @@ public class AdminController : ControllerBase
         if (id != user.Id)
             return BadRequest();
         await _userRepo.UpdateAsync(user);
+        
+        // Log update action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Update", "User", id, user);
+        
         return NoContent();
     }
 
@@ -79,6 +98,11 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> DeleteUser(int id)
     {
         await _userRepo.DeleteAsync(id);
+        
+        // Log delete action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Delete", "User", id, null);
+        
         return NoContent();
     }
 
@@ -89,6 +113,11 @@ public class AdminController : ControllerBase
         var success = await _userRepo.AssignRoleAsync(userId, roleId);
         if (!success)
             return Conflict("Role already assigned to user");
+        
+        // Log assign role action
+        var (username, currentUserId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, currentUserId, "AssignRole", "UserRole", 0, new { UserId = userId, RoleId = roleId });
+        
         return NoContent();
     }
 
@@ -98,6 +127,11 @@ public class AdminController : ControllerBase
         var success = await _userRepo.RemoveRoleAsync(userId, roleId);
         if (!success)
             return NotFound();
+        
+        // Log remove role action
+        var (username, currentUserId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, currentUserId, "RemoveRole", "UserRole", 0, new { UserId = userId, RoleId = roleId });
+        
         return NoContent();
     }
 
@@ -122,6 +156,11 @@ public class AdminController : ControllerBase
         var role = await _roleRepo.GetAsync(id);
         if (role == null)
             return NotFound();
+        
+        // Log read action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Read", "Role", id, role);
+        
         return role;
     }
 
@@ -129,6 +168,11 @@ public class AdminController : ControllerBase
     public async Task<ActionResult<Role>> PostRole(Role role)
     {
         var created = await _roleRepo.AddAsync(role);
+        
+        // Log create action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Create", "Role", created.Id, created);
+        
         return CreatedAtAction(nameof(GetRole), new { id = created.Id }, created);
     }
 
@@ -138,6 +182,11 @@ public class AdminController : ControllerBase
         if (id != role.Id)
             return BadRequest();
         await _roleRepo.UpdateAsync(role);
+        
+        // Log update action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Update", "Role", id, role);
+        
         return NoContent();
     }
 
@@ -145,6 +194,11 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> DeleteRole(int id)
     {
         await _roleRepo.DeleteAsync(id);
+        
+        // Log delete action
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, userId, "Delete", "Role", id, null);
+        
         return NoContent();
     }
 
