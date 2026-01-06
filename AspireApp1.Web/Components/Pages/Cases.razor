@@ -1,0 +1,766 @@
+@page "/cases"
+@rendermode InteractiveServer
+@inject CasesApiClient CasesApi
+@inject CustomerApiClient CustomersApi
+@inject CaseActivityApiClient CaseActivityApi
+@inject EntityFilesApiClient EntityFilesApi
+@inject IJSRuntime JSRuntime
+@inject LocalizationService Localizer
+@using System.ComponentModel.DataAnnotations
+@using AspireApp1.Web
+@using Microsoft.AspNetCore.Components.Forms
+@implements IDisposable
+
+<PageTitle>@Localizer.GetString("Cases")</PageTitle>
+
+<h1>@Localizer.GetString("Cases")</h1>
+
+@if (showToast && !string.IsNullOrEmpty(toastMessage))
+{
+    <div class="alert @(toastType == "success" ? "alert-success" : "alert-danger") alert-dismissible fade show" role="alert">
+        @toastMessage
+        <button type="button" class="btn-close" @onclick="() => showToast = false"></button>
+    </div>
+}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h5>@Localizer.GetString("Filters")</h5>
+        <div class="row g-2">
+            <div class="col-md-3">
+                <label class="form-label">@Localizer.GetString("Customer")</label>
+                <select class="form-select" value="@filterCustomerId" @onchange="OnCustomerFilterChanged">
+                    <option value="">@Localizer.GetString("All Customers")</option>
+                    @if (customers != null)
+                    {
+                        @foreach (var c in customers)
+                        {
+                            <option value="@c.Id">@c.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">@Localizer.GetString("Status")</label>
+                <select class="form-select" value="@filterStatus" @onchange="OnStatusFilterChanged">
+                    <option value="">@Localizer.GetString("All Statuses")</option>
+                    <option value="Open">@Localizer.GetString("Open")</option>
+                    <option value="InProgress">@Localizer.GetString("In Progress")</option>
+                    <option value="Pending">@Localizer.GetString("Pending")</option>
+                    <option value="Resolved">@Localizer.GetString("Resolved")</option>
+                    <option value="Closed">@Localizer.GetString("Closed")</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">@Localizer.GetString("Priority")</label>
+                <select class="form-select" value="@filterPriority" @onchange="OnPriorityFilterChanged">
+                    <option value="">@Localizer.GetString("All Priorities")</option>
+                    <option value="Low">@Localizer.GetString("Low")</option>
+                    <option value="Medium">@Localizer.GetString("Medium")</option>
+                    <option value="High">@Localizer.GetString("High")</option>
+                    <option value="Critical">@Localizer.GetString("Critical")</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h4>@Localizer.GetString("Existing Cases")</h4>
+        @if (!string.IsNullOrEmpty(loadError))
+        {
+            <div class="alert alert-warning">Unable to load cases: @loadError</div>
+        }
+        else if (cases is null)
+        {
+            <p><em>@Localizer.GetString("Loading...")</em></p>
+        }
+        else if (cases.Length == 0)
+        {
+            <p class="text-muted">@Localizer.GetString("No cases.")</p>
+        }
+        else
+        {
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;"></th>
+                        <th>@Localizer.GetString("Title")</th>
+                        <th>@Localizer.GetString("Customer")</th>
+                        <th>@Localizer.GetString("Status")</th>
+                        <th>@Localizer.GetString("Priority")</th>
+                        <th>@Localizer.GetString("Assigned To")</th>
+                        <th>@Localizer.GetString("Due Date")</th>
+                        <th>@Localizer.GetString("Created")</th>
+                        <th>@Localizer.GetString("Actions")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in cases)
+                    {
+                        var isOverdue = c.DueDate.HasValue && c.DueDate.Value < DateTime.UtcNow && 
+                                       (c.Status == CaseStatus.Open || c.Status == CaseStatus.InProgress);
+                        <tr class="@(isOverdue ? "table-danger" : "")">
+                            <td>
+                                <button class="btn btn-sm btn-link p-0" @onclick="() => ToggleCaseExpansionAsync(c.Id)">
+                                    <i class="bi @(expandedCases.ContainsKey(c.Id) && expandedCases[c.Id] ? "bi-chevron-down" : "bi-chevron-right")"></i>
+                                </button>
+                            </td>
+                            <td>
+                                <strong>@c.Title</strong>
+                                @if (isOverdue)
+                                {
+                                    <span class="badge bg-danger ms-1">@Localizer.GetString("Overdue")</span>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(c.Description))
+                                {
+                                    <div class="small text-muted">@c.Description</div>
+                                }
+                            </td>
+                            <td>@c.CustomerName</td>
+                            <td>
+                                @if (c.Status == CaseStatus.Open)
+                                {
+                                    <span class="badge bg-primary">@Localizer.GetString("Open")</span>
+                                }
+                                else if (c.Status == CaseStatus.InProgress)
+                                {
+                                    <span class="badge bg-info">@Localizer.GetString("In Progress")</span>
+                                }
+                                else if (c.Status == CaseStatus.Pending)
+                                {
+                                    <span class="badge bg-warning text-dark">@Localizer.GetString("Pending")</span>
+                                }
+                                else if (c.Status == CaseStatus.Resolved)
+                                {
+                                    <span class="badge bg-success">@Localizer.GetString("Resolved")</span>
+                                }
+                                else if (c.Status == CaseStatus.Closed)
+                                {
+                                    <span class="badge bg-secondary">@Localizer.GetString("Closed")</span>
+                                }
+                            </td>
+                            <td>
+                                @if (c.Priority == CasePriority.Critical)
+                                {
+                                    <span class="badge bg-danger">@Localizer.GetString("Critical")</span>
+                                }
+                                else if (c.Priority == CasePriority.High)
+                                {
+                                    <span class="badge bg-warning text-dark">@Localizer.GetString("High")</span>
+                                }
+                                else if (c.Priority == CasePriority.Medium)
+                                {
+                                    <span class="badge bg-info">@Localizer.GetString("Medium")</span>
+                                }
+                                else if (c.Priority == CasePriority.Low)
+                                {
+                                    <span class="badge bg-secondary">@Localizer.GetString("Low")</span>
+                                }
+                            </td>
+                            <td>@c.AssignedToUserName</td>
+                            <td class="small">@(c.DueDate.HasValue ? c.DueDate.Value.ToLocalTime().ToString("g") : "")</td>
+                            <td class="small">@c.CreatedAt.ToLocalTime().ToString("g")</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEdit(c)">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteCaseAsync(c.Id)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        @* Nested activities section *@
+                        @if (expandedCases.ContainsKey(c.Id) && expandedCases[c.Id])
+                        {
+                            <tr>
+                                <td colspan="9" class="ps-5" style="background-color: var(--bg-secondary);">
+                                    <div class="py-3">
+                                        <ul class="nav nav-tabs mb-3" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link @(GetCaseTab(c.Id) == "activities" ? "active" : "")" 
+                                                        type="button"
+                                                        @onclick="@(() => SetCaseTab(c.Id, "activities"))"
+                                                        role="tab">
+                                                    <span class="bi bi-calendar-event"></span> Activities
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link @(GetCaseTab(c.Id) == "files" ? "active" : "")" 
+                                                        type="button"
+                                                        @onclick="@(() => SetCaseTab(c.Id, "files"))"
+                                                        role="tab">
+                                                    <span class="bi bi-file-earmark-arrow-up"></span> Files
+                                                </button>
+                                            </li>
+                                        </ul>
+
+                                        @if (GetCaseTab(c.Id) == "activities")
+                                        {
+                                            @if (loadingActivities.ContainsKey(c.Id) && loadingActivities[c.Id])
+                                            {
+                                                <div class="text-center py-3">
+                                                    <div class="spinner-border spinner-border-sm" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                    <span class="ms-2">Loading activities...</span>
+                                                </div>
+                                            }
+                                            else if (!caseActivities.ContainsKey(c.Id) || caseActivities[c.Id] == null || !caseActivities[c.Id]!.Any())
+                                            {
+                                                <div class="py-3">
+                                                    <p class="text-muted mb-2">No activities yet.</p>
+                                                    @if (!showAddActivity.ContainsKey(c.Id) || !showAddActivity[c.Id])
+                                                    {
+                                                        <button class="btn btn-sm btn-primary" @onclick="async () => await ShowAddActivityFormAsync(c.Id)">
+                                                            <i class="bi bi-plus-circle me-1"></i> Add New Activity
+                                                        </button>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="py-3">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <h6 class="mb-0">Activities</h6>
+                                                        @if (!showAddActivity.ContainsKey(c.Id) || !showAddActivity[c.Id])
+                                                        {
+                                                            <button class="btn btn-sm btn-primary" @onclick="async () => await ShowAddActivityFormAsync(c.Id)">
+                                                                <i class="bi bi-plus-circle me-1"></i> Add New Activity
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                    
+                                                    <table class="table table-sm table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Date</th>
+                                                                <th>Summary</th>
+                                                                <th>Description</th>
+                                                                <th>Type</th>
+                                                                <th>Performed By</th>
+                                                                <th>Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var activity in caseActivities[c.Id]!)
+                                                            {
+                                                                <tr>
+                                                                    <td class="small">@activity.ActivityDate.ToLocalTime().ToString("g")</td>
+                                                                    <td>@activity.Summary</td>
+                                                                    <td class="small">@activity.Description</td>
+                                                                    <td class="small">@activity.ActivityType</td>
+                                                                    <td class="small">@activity.PerformedBy</td>
+                                                                    <td>
+                                                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteActivityAsync(c.Id, activity.Id)">
+                                                                            <i class="bi bi-trash"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+                                        }
+                                        else if (GetCaseTab(c.Id) == "files")
+                                        {
+                                            <FileManager EntityType="Case" EntityId="c.Id" />
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">@Localizer.GetString("Create Case")</h5>
+                <button class="btn btn-sm btn-outline-primary" @onclick="() => showCreateForm = !showCreateForm">
+                    <i class="bi @(showCreateForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
+                </button>
+            </div>
+            @if (showCreateForm)
+            {
+                <div class="card-body">
+                <EditForm EditContext="createEditContext" OnValidSubmit="CreateAsync" FormName="createForm">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@Localizer.GetString("Title") *</label>
+                            <InputText @bind-Value="newCase!.Title" class="form-control" placeholder="Case Title" />
+                            <ValidationMessage For="() => newCase!.Title" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">@Localizer.GetString("Customer") *</label>
+                            <InputSelect @bind-Value="newCase.CustomerId" class="form-select">
+                                <option value="">-- Select Customer --</option>
+                                @if (customers != null)
+                                {
+                                    @foreach (var c in customers)
+                                    {
+                                        <option value="@c.Id">@c.Name</option>
+                                    }
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="() => newCase!.CustomerId" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">@Localizer.GetString("Priority")</label>
+                            <InputSelect @bind-Value="newCase.Priority" class="form-select">
+                                <option value="@CasePriority.Low">@Localizer.GetString("Low")</option>
+                                <option value="@CasePriority.Medium">@Localizer.GetString("Medium")</option>
+                                <option value="@CasePriority.High">@Localizer.GetString("High")</option>
+                                <option value="@CasePriority.Critical">@Localizer.GetString("Critical")</option>
+                            </InputSelect>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">@Localizer.GetString("Issue Type")</label>
+                            <InputSelect @bind-Value="newCase.IssueType" class="form-select">
+                                <option value="@IssueType.Question">@Localizer.GetString("Question")</option>
+                                <option value="@IssueType.Bug">@Localizer.GetString("Bug")</option>
+                                <option value="@IssueType.Incident">@Localizer.GetString("Incident")</option>
+                                <option value="@IssueType.ServiceRequest">@Localizer.GetString("Service Request")</option>
+                                <option value="@IssueType.Maintenance">@Localizer.GetString("Maintenance")</option>
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">@Localizer.GetString("Status")</label>
+                            <InputSelect @bind-Value="newCase.Status" class="form-select">
+                                <option value="@CaseStatus.Open">@Localizer.GetString("Open")</option>
+                                <option value="@CaseStatus.InProgress">@Localizer.GetString("In Progress")</option>
+                                <option value="@CaseStatus.Pending">@Localizer.GetString("Pending")</option>
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">@Localizer.GetString("Due Date")</label>
+                            <InputDate @bind-Value="newCase.DueDate" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <InputTextArea @bind-Value="newCase.Description" class="form-control" placeholder="Description" rows="4" />
+                    </div>
+                    <button class="btn btn-primary" type="submit">@Localizer.GetString("Create Case")</button>
+                </EditForm>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@if (isEditing)
+{
+    <div class="row mt-4">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Edit Case</h5>
+                    <button class="btn btn-sm btn-secondary" @onclick="CancelEdit">Cancel</button>
+                </div>
+                <div class="card-body">
+                    <EditForm EditContext="editEditContext" OnValidSubmit="SaveEditAsync" FormName="editForm">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <input type="hidden" @bind="editModel!.Id" />
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Title") *</label>
+                            <InputText @bind-Value="editModel!.Title" class="form-control" />
+                            <ValidationMessage For="() => editModel!.Title" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <InputTextArea @bind-Value="editModel!.Description" class="form-control" rows="3" />
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Customer") *</label>
+                                <InputSelect @bind-Value="editModel.CustomerId" class="form-select">
+                                    <option value="">-- Select Customer --</option>
+                                    @if (customers != null)
+                                    {
+                                        @foreach (var c in customers)
+                                        {
+                                            <option value="@c.Id">@c.Name</option>
+                                        }
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="() => editModel!.CustomerId" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Status")</label>
+                                <InputSelect @bind-Value="editModel.Status" class="form-select">
+                                    <option value="@CaseStatus.Open">@Localizer.GetString("Open")</option>
+                                    <option value="@CaseStatus.InProgress">@Localizer.GetString("In Progress")</option>
+                                    <option value="@CaseStatus.Pending">@Localizer.GetString("Pending")</option>
+                                    <option value="@CaseStatus.Resolved">@Localizer.GetString("Resolved")</option>
+                                    <option value="@CaseStatus.Closed">@Localizer.GetString("Closed")</option>
+                                </InputSelect>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">@Localizer.GetString("Priority")</label>
+                                <InputSelect @bind-Value="editModel.Priority" class="form-select">
+                                    <option value="@CasePriority.Low">@Localizer.GetString("Low")</option>
+                                    <option value="@CasePriority.Medium">@Localizer.GetString("Medium")</option>
+                                    <option value="@CasePriority.High">@Localizer.GetString("High")</option>
+                                    <option value="@CasePriority.Critical">@Localizer.GetString("Critical")</option>
+                                </InputSelect>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">@Localizer.GetString("Issue Type")</label>
+                                <InputSelect @bind-Value="editModel.IssueType" class="form-select">
+                                    <option value="@IssueType.Question">@Localizer.GetString("Question")</option>
+                                    <option value="@IssueType.Bug">@Localizer.GetString("Bug")</option>
+                                    <option value="@IssueType.Incident">@Localizer.GetString("Incident")</option>
+                                    <option value="@IssueType.ServiceRequest">@Localizer.GetString("Service Request")</option>
+                                    <option value="@IssueType.Maintenance">@Localizer.GetString("Maintenance")</option>
+                                </InputSelect>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">@Localizer.GetString("Due Date")</label>
+                                <InputDate @bind-Value="editModel.DueDate" class="form-control" />
+                            </div>
+                        </div>
+                        @if (editModel.Status == CaseStatus.Resolved || editModel.Status == CaseStatus.Closed)
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">@Localizer.GetString("Resolution Notes") @(editModel.Status == CaseStatus.Resolved ? "*" : "")</label>
+                                <InputTextArea @bind-Value="editModel.ResolutionNotes" class="form-control" rows="3" />
+                                @if (editModel.Status == CaseStatus.Resolved && string.IsNullOrWhiteSpace(editModel.ResolutionNotes))
+                                {
+                                    <div class="text-danger small mt-1">Resolution notes are required when resolving a case.</div>
+                                }
+                            </div>
+                        }
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary" type="submit">Save Changes</button>
+                            <button class="btn btn-secondary" type="button" @onclick="CancelEdit">Cancel</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private Web.CaseDto[]? cases;
+    private Web.CustomerDto[]? customers;
+    private string? loadError;
+    private string filterCustomerId = "";
+    private string filterStatus = "";
+    private string filterPriority = "";
+    
+    [SupplyParameterFromForm]
+    private NewModel? newCase { get; set; }
+    
+    [SupplyParameterFromForm]
+    private EditModel? editModel { get; set; }
+    
+    private bool isEditing;
+    private EditContext? createEditContext;
+    private EditContext? editEditContext;
+    
+    // Activity state management
+    private Dictionary<int, bool> expandedCases = new();
+    private Dictionary<int, List<CaseActivityDto>?> caseActivities = new();
+    private Dictionary<int, bool> loadingActivities = new();
+    private Dictionary<int, bool> showAddActivity = new();
+    private Dictionary<int, string> caseActiveTabs = new();
+    
+    // Toast state
+    private string? toastMessage;
+    private string? toastType;
+    private bool showToast;
+    
+    // Create form visibility
+    private bool showCreateForm = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Localizer.OnLanguageChanged += OnLanguageChanged;
+        newCase ??= new();
+        editModel ??= new();
+        createEditContext = new EditContext(newCase);
+        editEditContext = new EditContext(editModel);
+        await LoadCustomersAsync();
+        await LoadAsync();
+    }
+
+    private async Task LoadCustomersAsync()
+    {
+        try
+        {
+            customers = await CustomersApi.GetCustomersAsync();
+        }
+        catch
+        {
+            customers = Array.Empty<CustomerDto>();
+        }
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            int? customerId = string.IsNullOrEmpty(filterCustomerId) ? null : int.Parse(filterCustomerId);
+            CaseStatus? status = string.IsNullOrEmpty(filterStatus) ? null : Enum.Parse<CaseStatus>(filterStatus);
+            CasePriority? priority = string.IsNullOrEmpty(filterPriority) ? null : Enum.Parse<CasePriority>(filterPriority);
+            cases = await CasesApi.GetCasesAsync(customerId, status, null, priority);
+            loadError = null;
+        }
+        catch (Exception ex)
+        {
+            cases = Array.Empty<CaseDto>();
+            loadError = ex.Message;
+        }
+    }
+
+    private async Task OnCustomerFilterChanged(ChangeEventArgs e)
+    {
+        filterCustomerId = e.Value?.ToString() ?? "";
+        await LoadAsync();
+    }
+
+    private async Task OnStatusFilterChanged(ChangeEventArgs e)
+    {
+        filterStatus = e.Value?.ToString() ?? "";
+        await LoadAsync();
+    }
+
+    private async Task OnPriorityFilterChanged(ChangeEventArgs e)
+    {
+        filterPriority = e.Value?.ToString() ?? "";
+        await LoadAsync();
+    }
+
+    private async Task CreateAsync()
+    {
+        if (createEditContext is not null && !createEditContext.Validate()) return;
+
+        var dto = new CaseCreateDto(
+            newCase!.Title, 
+            newCase.Description, 
+            newCase.CustomerId, 
+            newCase.Status, 
+            newCase.Priority, 
+            newCase.IssueType,
+            null,
+            null,
+            newCase.DueDate);
+        var created = await CasesApi.CreateCaseAsync(dto);
+        if (created is not null)
+        {
+            ShowToast("Case created successfully", "success");
+            await LoadAsync();
+            newCase = new();
+            createEditContext = new EditContext(newCase);
+            showCreateForm = false;
+        }
+    }
+
+    private void StartEdit(CaseDto c)
+    {
+        editModel = new EditModel 
+        { 
+            Id = c.Id, 
+            Title = c.Title, 
+            Description = c.Description,
+            CustomerId = c.CustomerId,
+            Status = c.Status,
+            Priority = c.Priority,
+            IssueType = c.IssueType,
+            ResolutionNotes = c.ResolutionNotes,
+            DueDate = c.DueDate
+        };
+        editEditContext = new EditContext(editModel);
+        isEditing = true;
+    }
+
+    private async Task SaveEditAsync()
+    {
+        // Enforce resolution notes for Resolved status
+        if (editModel!.Status == CaseStatus.Resolved && string.IsNullOrWhiteSpace(editModel.ResolutionNotes))
+        {
+            ShowToast("Resolution notes are required when resolving a case", "danger");
+            return;
+        }
+
+        var dto = new CaseUpdateDto(
+            editModel.Title, 
+            editModel.Description, 
+            editModel.CustomerId, 
+            editModel.Status,
+            editModel.Priority,
+            editModel.IssueType,
+            null,
+            editModel.ResolutionNotes,
+            editModel.DueDate);
+        var ok = await CasesApi.UpdateCaseAsync(editModel.Id, dto);
+        if (ok)
+        {
+            ShowToast("Case updated successfully", "success");
+            isEditing = false;
+            await LoadAsync();
+        }
+    }
+
+    private async Task DeleteCaseAsync(int id)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this case?");
+        if (!confirmed) return;
+        
+        var ok = await CasesApi.DeleteCaseAsync(id);
+        if (ok)
+        {
+            ShowToast("Case deleted successfully", "success");
+            await LoadAsync();
+        }
+        else
+        {
+            ShowToast("Failed to delete case", "danger");
+        }
+    }
+
+    private void CancelEdit()
+    {
+        isEditing = false;
+        editModel = new();
+    }
+    
+    private async Task ToggleCaseExpansionAsync(int caseId)
+    {
+        if (!expandedCases.ContainsKey(caseId))
+        {
+            expandedCases[caseId] = false;
+        }
+        
+        expandedCases[caseId] = !expandedCases[caseId];
+        
+        if (expandedCases[caseId] && !caseActivities.ContainsKey(caseId))
+        {
+            await LoadActivitiesAsync(caseId);
+        }
+        
+        if (!caseActiveTabs.ContainsKey(caseId))
+        {
+            caseActiveTabs[caseId] = "activities";
+        }
+    }
+    
+    private string GetCaseTab(int caseId)
+    {
+        return caseActiveTabs.ContainsKey(caseId) ? caseActiveTabs[caseId] : "activities";
+    }
+    
+    private void SetCaseTab(int caseId, string tab)
+    {
+        caseActiveTabs[caseId] = tab;
+    }
+    
+    private async Task LoadActivitiesAsync(int caseId)
+    {
+        try
+        {
+            loadingActivities[caseId] = true;
+            var activities = await CaseActivityApi.GetByCaseIdAsync(caseId);
+            caseActivities[caseId] = activities?.OrderByDescending(a => a.ActivityDate).ToList();
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"Failed to load activities: {ex.Message}", "danger");
+            caseActivities[caseId] = null;
+        }
+        finally
+        {
+            loadingActivities[caseId] = false;
+        }
+    }
+    
+    private void ShowToast(string message, string type)
+    {
+        toastMessage = message;
+        toastType = type;
+        showToast = true;
+        
+        Task.Delay(3000).ContinueWith(_ =>
+        {
+            showToast = false;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+    
+    private async Task ShowAddActivityFormAsync(int caseId)
+    {
+        showAddActivity[caseId] = true;
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    private async Task DeleteActivityAsync(int caseId, int activityId)
+    {
+        try
+        {
+            var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this activity?");
+            if (!confirmed) return;
+            
+            var success = await CaseActivityApi.DeleteAsync(activityId);
+            if (success)
+            {
+                ShowToast("Activity deleted successfully", "success");
+                await LoadActivitiesAsync(caseId);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"Failed to delete activity: {ex.Message}", "danger");
+        }
+    }
+
+    class NewModel 
+    { 
+        [Required] public string Title { get; set; } = string.Empty; 
+        public string? Description { get; set; }
+        [Required] public int CustomerId { get; set; }
+        public CaseStatus Status { get; set; } = CaseStatus.Open;
+        public CasePriority Priority { get; set; } = CasePriority.Medium;
+        public IssueType IssueType { get; set; } = IssueType.Question;
+        public DateTime? DueDate { get; set; }
+    }
+    
+    class EditModel 
+    { 
+        public int Id { get; set; } 
+        [Required] public string Title { get; set; } = string.Empty; 
+        public string? Description { get; set; }
+        [Required] public int CustomerId { get; set; }
+        public CaseStatus Status { get; set; } = CaseStatus.Open;
+        public CasePriority Priority { get; set; } = CasePriority.Medium;
+        public IssueType IssueType { get; set; } = IssueType.Question;
+        public string? ResolutionNotes { get; set; }
+        public DateTime? DueDate { get; set; }
+    }
+
+    public void Dispose()
+    {
+        Localizer.OnLanguageChanged -= OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+}
