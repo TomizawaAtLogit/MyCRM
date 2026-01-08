@@ -7,14 +7,21 @@
 @inject AdminApiClient AdminApi
 @inject IJSRuntime JSRuntime
 @inject LocalizationService Localizer
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @using System.ComponentModel.DataAnnotations
 @using AspireApp1.Web
 @using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Authorization
 @implements IDisposable
 
 <PageTitle>@Localizer.GetString("Cases")</PageTitle>
 
-<h1>@Localizer.GetString("Cases")</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">@Localizer.GetString("Cases")</h1>
+    <button class="btn btn-primary" @onclick="ShowCreateModal">
+        <i class="bi bi-plus-circle me-2"></i>@Localizer.GetString("Create Case")
+    </button>
+</div>
 
 @if (showToast && !string.IsNullOrEmpty(toastMessage))
 {
@@ -60,6 +67,19 @@
                     <option value="Medium">@Localizer.GetString("Medium")</option>
                     <option value="High">@Localizer.GetString("High")</option>
                     <option value="Critical">@Localizer.GetString("Critical")</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">@Localizer.GetString("Assigned To")</label>
+                <select class="form-select" value="@filterAssignedToUserId" @onchange="OnAssignedToFilterChanged">
+                    <option value="">@Localizer.GetString("All Users")</option>
+                    @if (users != null)
+                    {
+                        @foreach (var u in users.Where(u => u.IsActive))
+                        {
+                            <option value="@u.Id">@u.DisplayName</option>
+                        }
+                    }
                 </select>
             </div>
         </div>
@@ -258,7 +278,15 @@
                                                                         </div>
                                                                         <div class="col-md-6 mb-3">
                                                                             <label class="form-label">Performed By</label>
-                                                                            <InputText @bind-Value="model.PerformedBy" class="form-control" />
+                                                                            <InputSelect @bind-Value="model.PerformedBy" class="form-select">
+                                                                                @if (users != null)
+                                                                                {
+                                                                                    @foreach (var u in users.Where(u => u.IsActive))
+                                                                                    {
+                                                                                        <option value="@u.DisplayName">@u.DisplayName</option>
+                                                                                    }
+                                                                                }
+                                                                            </InputSelect>
                                                                             <ValidationMessage For="() => model.PerformedBy" />
                                                                         </div>
                                                                     </div>
@@ -320,7 +348,15 @@
                                                                         </div>
                                                                         <div class="col-md-6 mb-3">
                                                                             <label class="form-label">Performed By</label>
-                                                                            <InputText @bind-Value="model.PerformedBy" class="form-control" />
+                                                                            <InputSelect @bind-Value="model.PerformedBy" class="form-select">
+                                                                                @if (users != null)
+                                                                                {
+                                                                                    @foreach (var u in users.Where(u => u.IsActive))
+                                                                                    {
+                                                                                        <option value="@u.DisplayName">@u.DisplayName</option>
+                                                                                    }
+                                                                                }
+                                                                            </InputSelect>
                                                                             <ValidationMessage For="() => model.PerformedBy" />
                                                                         </div>
                                                                     </div>
@@ -399,7 +435,15 @@
                                                                                             </div>
                                                                                             <div class="col-md-6 mb-3">
                                                                                                 <label class="form-label">Performed By</label>
-                                                                                                <InputText @bind-Value="editActivityModel.PerformedBy" class="form-control" />
+                                                                                                <InputSelect @bind-Value="editActivityModel.PerformedBy" class="form-select">
+                                                                                                    @if (users != null)
+                                                                                                    {
+                                                                                                        @foreach (var u in users.Where(u => u.IsActive))
+                                                                                                        {
+                                                                                                            <option value="@u.DisplayName">@u.DisplayName</option>
+                                                                                                        }
+                                                                                                    }
+                                                                                                </InputSelect>
                                                                                                 <ValidationMessage For="() => editActivityModel.PerformedBy" />
                                                                                             </div>
                                                                                         </div>
@@ -434,112 +478,117 @@
     </div>
 </div>
 
-<div class="row mt-3">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">@Localizer.GetString("Create Case")</h5>
-                <button class="btn btn-sm btn-outline-primary" @onclick="() => showCreateForm = !showCreateForm">
-                    <i class="bi @(showCreateForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
-                </button>
-            </div>
-            @if (showCreateForm)
-            {
-                <div class="card-body">
-                <EditForm EditContext="createEditContext" OnValidSubmit="CreateAsync">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">@Localizer.GetString("Title") *</label>
-                            <InputText @bind-Value="newCase.Title" class="form-control" placeholder="Case Title" />
-                            <ValidationMessage For="() => newCase.Title" />
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label">@Localizer.GetString("Customer") *</label>
-                            <InputSelect @bind-Value="newCase.CustomerId" class="form-select">
-                                <option value="">-- Select Customer --</option>
-                                @if (customers != null)
-                                {
-                                    @foreach (var c in customers)
-                                    {
-                                        <option value="@c.Id">@c.Name</option>
-                                    }
-                                }
-                            </InputSelect>
-                            <ValidationMessage For="() => newCase.CustomerId" />
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label">@Localizer.GetString("Priority")</label>
-                            <InputSelect @bind-Value="newCase.Priority" class="form-select">
-                                <option value="@CasePriority.Low">@Localizer.GetString("Low")</option>
-                                <option value="@CasePriority.Medium">@Localizer.GetString("Medium")</option>
-                                <option value="@CasePriority.High">@Localizer.GetString("High")</option>
-                                <option value="@CasePriority.Critical">@Localizer.GetString("Critical")</option>
-                            </InputSelect>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">@Localizer.GetString("Issue Type")</label>
-                            <InputSelect @bind-Value="newCase.IssueType" class="form-select">
-                                <option value="@IssueType.Question">@Localizer.GetString("Question")</option>
-                                <option value="@IssueType.Bug">@Localizer.GetString("Bug")</option>
-                                <option value="@IssueType.Incident">@Localizer.GetString("Incident")</option>
-                                <option value="@IssueType.ServiceRequest">@Localizer.GetString("Service Request")</option>
-                                <option value="@IssueType.Maintenance">@Localizer.GetString("Maintenance")</option>
-                            </InputSelect>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">@Localizer.GetString("Status")</label>
-                            <InputSelect @bind-Value="newCase.Status" class="form-select">
-                                <option value="@CaseStatus.Open">@Localizer.GetString("Open")</option>
-                                <option value="@CaseStatus.InProgress">@Localizer.GetString("In Progress")</option>
-                                <option value="@CaseStatus.Pending">@Localizer.GetString("Pending")</option>
-                            </InputSelect>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">@Localizer.GetString("Due Date")</label>
-                            <InputDate @bind-Value="newCase.DueDate" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label">@Localizer.GetString("Assigned To")</label>
-                            <InputSelect @bind-Value="newCase.AssignedToUserId" class="form-select" TValue="int?">
-                                <option value="">-- Not Assigned --</option>
-                                @if (users != null)
-                                {
-                                    @foreach (var u in users.Where(u => u.IsActive))
-                                    {
-                                        <option value="@u.Id">@u.DisplayName</option>
-                                    }
-                                }
-                            </InputSelect>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <InputTextArea @bind-Value="newCase.Description" class="form-control" placeholder="Description" rows="4" />
-                    </div>
-                    <button class="btn btn-primary" type="submit">@Localizer.GetString("Create Case")</button>
-                </EditForm>
+@* Create Case Modal *@
+@if (showCreateModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Localizer.GetString("Create Case")</h5>
+                    <button type="button" class="btn-close" @onclick="HideCreateModal"></button>
                 </div>
-            }
+                <div class="modal-body">
+                    <EditForm EditContext="createEditContext" OnValidSubmit="CreateAsync">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Title") *</label>
+                                <InputText @bind-Value="newCase.Title" class="form-control" />
+                                <ValidationMessage For="() => newCase.Title" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Customer") *</label>
+                                <InputSelect @bind-Value="newCase.CustomerId" class="form-select">
+                                    <option value="0">-- Select Customer --</option>
+                                    @if (customers != null)
+                                    {
+                                        @foreach (var c in customers)
+                                        {
+                                            <option value="@c.Id">@c.Name</option>
+                                        }
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="() => newCase.CustomerId" />
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Description")</label>
+                            <InputTextArea @bind-Value="newCase.Description" class="form-control" rows="3" />
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">@Localizer.GetString("Status")</label>
+                                <InputSelect @bind-Value="newCase.Status" class="form-select">
+                                    <option value="@CaseStatus.Open">@Localizer.GetString("Open")</option>
+                                    <option value="@CaseStatus.InProgress">@Localizer.GetString("In Progress")</option>
+                                    <option value="@CaseStatus.Pending">@Localizer.GetString("Pending")</option>
+                                    <option value="@CaseStatus.Resolved">@Localizer.GetString("Resolved")</option>
+                                    <option value="@CaseStatus.Closed">@Localizer.GetString("Closed")</option>
+                                </InputSelect>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">@Localizer.GetString("Priority")</label>
+                                <InputSelect @bind-Value="newCase.Priority" class="form-select">
+                                    <option value="@CasePriority.Low">@Localizer.GetString("Low")</option>
+                                    <option value="@CasePriority.Medium">@Localizer.GetString("Medium")</option>
+                                    <option value="@CasePriority.High">@Localizer.GetString("High")</option>
+                                    <option value="@CasePriority.Critical">@Localizer.GetString("Critical")</option>
+                                </InputSelect>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">@Localizer.GetString("Issue Type")</label>
+                                <InputSelect @bind-Value="newCase.IssueType" class="form-select">
+                                    <option value="@IssueType.Question">@Localizer.GetString("Question")</option>
+                                    <option value="@IssueType.Bug">@Localizer.GetString("Bug")</option>
+                                    <option value="@IssueType.Incident">@Localizer.GetString("Incident")</option>
+                                    <option value="@IssueType.ServiceRequest">@Localizer.GetString("Service Request")</option>
+                                    <option value="@IssueType.Maintenance">@Localizer.GetString("Maintenance")</option>
+                                </InputSelect>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Assigned To")</label>
+                                <InputSelect @bind-Value="newCase.AssignedToUserId" class="form-select" TValue="int?">
+                                    <option value="">-- Not Assigned --</option>
+                                    @if (users != null)
+                                    {
+                                        @foreach (var u in users.Where(u => u.IsActive))
+                                        {
+                                            <option value="@u.Id">@u.DisplayName</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Due Date")</label>
+                                <InputDate @bind-Value="newCase.DueDate" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary" type="submit">@Localizer.GetString("Create Case")</button>
+                            <button class="btn btn-secondary" type="button" @onclick="HideCreateModal">Cancel</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+}
 
+@* Edit Case Modal *@
 @if (isEditing)
 {
-    <div class="row mt-4">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Edit Case</h5>
-                    <button class="btn btn-sm btn-secondary" @onclick="CancelEdit">Cancel</button>
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Case</h5>
+                    <button type="button" class="btn-close" @onclick="CancelEdit"></button>
                 </div>
-                <div class="card-body">
+                <div class="modal-body">
                     <EditForm EditContext="editEditContext" OnValidSubmit="SaveEditAsync">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
@@ -649,6 +698,7 @@
     private string filterCustomerId = "";
     private string filterStatus = "";
     private string filterPriority = "";
+    private string filterAssignedToUserId = "";
     
     private NewModel newCase = new();
     private EditModel editModel = new();
@@ -676,8 +726,8 @@
     private string? toastType;
     private bool showToast;
     
-    // Create form visibility
-    private bool showCreateForm = false;
+    // Modal visibility
+    private bool showCreateModal = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -709,8 +759,9 @@
         {
             int? customerId = string.IsNullOrEmpty(filterCustomerId) ? null : int.Parse(filterCustomerId);
             CaseStatus? status = string.IsNullOrEmpty(filterStatus) ? null : Enum.Parse<CaseStatus>(filterStatus);
+            int? assignedToUserId = string.IsNullOrEmpty(filterAssignedToUserId) ? null : int.Parse(filterAssignedToUserId);
             CasePriority? priority = string.IsNullOrEmpty(filterPriority) ? null : Enum.Parse<CasePriority>(filterPriority);
-            cases = await CasesApi.GetCasesAsync(customerId, status, null, priority);
+            cases = await CasesApi.GetCasesAsync(customerId, status, assignedToUserId, priority);
             loadError = null;
         }
         catch (Exception ex)
@@ -738,9 +789,22 @@
         await LoadAsync();
     }
 
+    private async Task OnAssignedToFilterChanged(ChangeEventArgs e)
+    {
+        filterAssignedToUserId = e.Value?.ToString() ?? "";
+        await LoadAsync();
+    }
+
     private async Task CreateAsync()
     {
         if (createEditContext is not null && !createEditContext.Validate()) return;
+        
+        // Validate customer selection
+        if (newCase.CustomerId == 0)
+        {
+            ShowToast("Please select a customer", "danger");
+            return;
+        }
 
         var dto = new CaseCreateDto(
             newCase.Title, 
@@ -759,7 +823,7 @@
             await LoadAsync();
             newCase = new();
             createEditContext = new EditContext(newCase);
-            showCreateForm = false;
+            showCreateModal = false;
         }
     }
 
@@ -914,7 +978,13 @@
         // Ensure model and context are initialized
         if (!newActivityModels.ContainsKey(caseId))
         {
-            newActivityModels[caseId] = new NewActivityModel();
+            // Get the current logged-in user's display name
+            var currentUserName = await GetCurrentUserDisplayNameAsync();
+            
+            newActivityModels[caseId] = new NewActivityModel
+            {
+                PerformedBy = currentUserName
+            };
             activityCreateContexts[caseId] = new EditContext(newActivityModels[caseId]);
         }
         
@@ -1109,6 +1179,18 @@
         public DateTime? DueDate { get; set; }
     }
 
+    private void ShowCreateModal()
+    {
+        showCreateModal = true;
+    }
+    
+    private void HideCreateModal()
+    {
+        showCreateModal = false;
+        newCase = new();
+        createEditContext = new EditContext(newCase);
+    }
+
     public void Dispose()
     {
         Localizer.OnLanguageChanged -= OnLanguageChanged;
@@ -1117,5 +1199,43 @@
     private void OnLanguageChanged()
     {
         InvokeAsync(StateHasChanged);
+    }
+    
+    private async Task<string?> GetCurrentUserDisplayNameAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            
+            if (user?.Identity?.IsAuthenticated == true)
+            {
+                // Try to get the name claim
+                var name = user.Identity.Name;
+                if (!string.IsNullOrEmpty(name))
+                {
+                    return name;
+                }
+                
+                // Fallback to finding user in the users list by email or username
+                var email = user.FindFirst(c => c.Type.Contains("email") || c.Type.Contains("emailaddress"))?.Value;
+                if (!string.IsNullOrEmpty(email) && users != null)
+                {
+                    var matchedUser = users.FirstOrDefault(u => u.Email?.Equals(email, StringComparison.OrdinalIgnoreCase) == true);
+                    if (matchedUser != null)
+                    {
+                        return matchedUser.DisplayName;
+                    }
+                }
+            }
+            
+            // Default fallback - use first active user if available
+            return users?.FirstOrDefault(u => u.IsActive)?.DisplayName;
+        }
+        catch
+        {
+            // If authentication fails, return the first active user as fallback
+            return users?.FirstOrDefault(u => u.IsActive)?.DisplayName;
+        }
     }
 }

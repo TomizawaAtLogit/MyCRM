@@ -107,14 +107,21 @@ namespace AspireApp1.DbApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Project project)
+        public async Task<IActionResult> Put(int id, CreateProjectDto dto)
         {
-            if (id != project.Id) return BadRequest();
-            await _repo.UpdateAsync(project);
+            var existing = await _repo.GetAsync(id);
+            if (existing == null) return NotFound();
+            
+            existing.Name = dto.Name;
+            existing.Description = dto.Description;
+            existing.CustomerId = dto.CustomerId;
+            existing.Status = dto.Status;
+            
+            await _repo.UpdateAsync(existing);
             
             // Log update action
             var (username, userId) = await GetCurrentUserInfoAsync();
-            await _auditService.LogActionAsync(username, userId, "Update", "Project", id, project);
+            await _auditService.LogActionAsync(username, userId, "Update", "Project", id, existing);
             
             return NoContent();
         }

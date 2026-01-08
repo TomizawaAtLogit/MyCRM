@@ -13,7 +13,12 @@
 
 <PageTitle>@Localizer.GetString("Projects")</PageTitle>
 
-<h1>@Localizer.GetString("Projects")</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">@Localizer.GetString("Projects")</h1>
+    <button class="btn btn-primary" @onclick="ShowCreateModal">
+        <i class="bi bi-plus-circle me-2"></i>@Localizer.GetString("Create Project")
+    </button>
+</div>
 
 @if (showToast && !string.IsNullOrEmpty(toastMessage))
 {
@@ -406,73 +411,76 @@
     </div>
 </div>
 
-<div class="row mt-3">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">@Localizer.GetString("Create Project")</h5>
-                <button class="btn btn-sm btn-outline-primary" @onclick="() => showCreateForm = !showCreateForm">
-                    <i class="bi @(showCreateForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
-                </button>
-            </div>
-            @if (showCreateForm)
-            {
-                <div class="card-body">
-                <EditForm EditContext="createEditContext" OnValidSubmit="CreateAsync" FormName="createForm">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Name *</label>
-                            <InputText @bind-Value="newProject!.Name" class="form-control" placeholder="Project Name" />
-                            <ValidationMessage For="() => newProject!.Name" />
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label">Customer *</label>
-                            <InputSelect @bind-Value="newProject.CustomerId" class="form-select">
-                                <option value="">-- Select Customer --</option>
-                                @if (customers != null)
-                                {
-                                    @foreach (var c in customers)
+@* Create Project Modal *@
+@if (showCreateModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Localizer.GetString("Create Project")</h5>
+                    <button type="button" class="btn-close" @onclick="HideCreateModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm EditContext="createEditContext" OnValidSubmit="CreateAsync" FormName="createForm">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Name") *</label>
+                                <InputText @bind-Value="newProject!.Name" class="form-control" />
+                                <ValidationMessage For="() => newProject!.Name" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Customer") *</label>
+                                <InputSelect @bind-Value="newProject.CustomerId" class="form-select">
+                                    <option value="0">-- Select Customer --</option>
+                                    @if (customers != null)
                                     {
-                                        <option value="@c.Id">@c.Name</option>
+                                        @foreach (var c in customers)
+                                        {
+                                            <option value="@c.Id">@c.Name</option>
+                                        }
                                     }
-                                }
-                            </InputSelect>
-                            <ValidationMessage For="() => newProject!.CustomerId" />
+                                </InputSelect>
+                                <ValidationMessage For="() => newProject.CustomerId" />
+                            </div>
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label">Status</label>
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Description")</label>
+                            <InputTextArea @bind-Value="newProject.Description" class="form-control" rows="3" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Status")</label>
                             <InputSelect @bind-Value="newProject.Status" class="form-select">
                                 <option value="@ProjectStatus.Wip">WIP</option>
                                 <option value="@ProjectStatus.Pending">Pending</option>
                                 <option value="@ProjectStatus.Closed">Closed</option>
                             </InputSelect>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <InputTextArea @bind-Value="newProject.Description" class="form-control" placeholder="Description" rows="4" />
-                    </div>
-                    <button class="btn btn-primary" type="submit">@Localizer.GetString("Create Project")</button>
-                </EditForm>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary" type="submit">@Localizer.GetString("Create Project")</button>
+                            <button class="btn btn-secondary" type="button" @onclick="HideCreateModal">Cancel</button>
+                        </div>
+                    </EditForm>
                 </div>
-            }
+            </div>
         </div>
     </div>
-</div>
+}
 
+@* Edit Project Modal *@
 @if (isEditing)
 {
-    <div class="row mt-4">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Edit Project</h5>
-                    <button class="btn btn-sm btn-secondary" @onclick="CancelEdit">Cancel</button>
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Project</h5>
+                    <button type="button" class="btn-close" @onclick="CancelEdit"></button>
                 </div>
-                <div class="card-body">
-                    <EditForm EditContext="editEditContext" OnValidSubmit="SaveEditAsync" FormName="editForm">
+                <div class="modal-body">
+                    <EditForm EditContext="editEditContext" OnValidSubmit="SaveEditAsync">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
                         <input type="hidden" @bind="editModel!.Id" />
@@ -488,7 +496,7 @@
                         <div class="mb-3">
                             <label class="form-label">Customer *</label>
                             <InputSelect @bind-Value="editModel.CustomerId" class="form-select">
-                                <option value="">-- Select Customer --</option>
+                                <option value="0">-- Select Customer --</option>
                                 @if (customers != null)
                                 {
                                     @foreach (var c in customers)
@@ -556,8 +564,8 @@
     private string? toastType;
     private bool showToast;
     
-    // Create form visibility
-    private bool showCreateForm = false;
+    // Modal visibility
+    private bool showCreateModal = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -619,6 +627,13 @@
     {
         // Ensure validation state is current
         if (createEditContext is not null && !createEditContext.Validate()) return;
+        
+        // Validate customer selection
+        if (newProject!.CustomerId == 0)
+        {
+            ShowToast("Please select a customer", "danger");
+            return;
+        }
 
         var dto = new ProjectCreateDto(newProject!.Name, newProject.Description, newProject.CustomerId, newProject.Status);
         var created = await ProjectsApi.CreateProjectAsync(dto);
@@ -628,7 +643,7 @@
             await LoadAsync();
             newProject = new();
             createEditContext = new EditContext(newProject);
-            showCreateForm = false;
+            showCreateModal = false;
         }
     }
 
@@ -648,12 +663,31 @@
 
     private async Task SaveEditAsync()
     {
+        // Validate the form
+        if (editEditContext != null && !editEditContext.Validate())
+        {
+            ShowToast("Please correct the validation errors", "danger");
+            return;
+        }
+        
+        // Validate customer selection
+        if (editModel!.CustomerId == 0)
+        {
+            ShowToast("Please select a customer", "danger");
+            return;
+        }
+        
         var dto = new ProjectCreateDto(editModel!.Name, editModel.Description, editModel.CustomerId, editModel.Status);
         var ok = await ProjectsApi.UpdateProjectAsync(editModel!.Id, dto);
         if (ok)
         {
+            ShowToast("Project updated successfully", "success");
             isEditing = false;
             await LoadAsync();
+        }
+        else
+        {
+            ShowToast("Failed to update project. Please try again.", "danger");
         }
     }
 
@@ -956,6 +990,18 @@
     private void OnLanguageChanged()
     {
         InvokeAsync(StateHasChanged);
+    }
+    
+    private void ShowCreateModal()
+    {
+        showCreateModal = true;
+    }
+    
+    private void HideCreateModal()
+    {
+        showCreateModal = false;
+        newProject = new();
+        createEditContext = new EditContext(newProject);
     }
 }
 
