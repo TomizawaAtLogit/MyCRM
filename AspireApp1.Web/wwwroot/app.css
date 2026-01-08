@@ -172,6 +172,24 @@ h1:focus {
     white-space: nowrap;
 }
 
+/* Chevron Button Styles */
+.btn-chevron {
+    font-size: 2rem;
+    line-height: 1;
+    color: #0056b3;
+    transition: all 0.2s;
+    padding: 0.25rem;
+}
+
+.btn-chevron:hover {
+    color: #003d82;
+    transform: scale(1.1);
+}
+
+.btn-chevron i {
+    font-weight: bold;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .calendar-grid {
