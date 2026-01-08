@@ -6,6 +6,10 @@ namespace AspireApp1.DbApi.Models
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
         public int CustomerId { get; set; }
+        public int? SystemId { get; set; }
+        public int? SystemComponentId { get; set; }
+        public int? CustomerSiteId { get; set; }
+        public int? CustomerOrderId { get; set; }
         public CaseStatus Status { get; set; } = CaseStatus.Open;
         public CasePriority Priority { get; set; } = CasePriority.Medium;
         public IssueType IssueType { get; set; } = IssueType.Question;
@@ -23,6 +27,10 @@ namespace AspireApp1.DbApi.Models
 
         // Navigation properties
         public Customer Customer { get; set; } = null!;
+        public Models.System? System { get; set; }
+        public SystemComponent? SystemComponent { get; set; }
+        public CustomerSite? CustomerSite { get; set; }
+        public CustomerOrder? CustomerOrder { get; set; }
         public User? AssignedToUser { get; set; }
     }
 }

@@ -13,15 +13,25 @@ public record CaseActivityDto(
     string? PerformedBy,
     int? PreviousAssignedToUserId,
     int? NewAssignedToUserId,
-    DateTime? CreatedAt);
+    DateTime CreatedAt,
+    DateTime? UpdatedAt);
 
 public record CreateCaseActivityDto(
     [Required] int CaseId,
-    [Required] DateTime ActivityDate,
+    DateTime? ActivityDate,
     [Required] string Summary,
     string? Description,
     string? NextAction,
     string? ActivityType,
-    string? PerformedBy,
-    int? PreviousAssignedToUserId = null,
-    int? NewAssignedToUserId = null);
+    string? PerformedBy);
+
+public record UpdateCaseActivityDto(
+    [Required] int Id,
+    [Required] int CaseId,
+    DateTime ActivityDate,
+    [Required] string Summary,
+    string? Description,
+    string? NextAction,
+    string? ActivityType,
+    string? PerformedBy);
+

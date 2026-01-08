@@ -11,7 +11,10 @@ namespace AspireApp1.DbApi.Repositories
         Task<IEnumerable<Case>> GetOverdueCasesAsync();
         Task<Case?> GetAsync(int id);
         Task<Case> AddAsync(Case caseEntity);
-        Task UpdateAsync(Case caseEntity);
+        Task<(int? previousAssignedToUserId, CaseStatus previousStatus)> UpdateAsync(Case caseEntity);
         Task DeleteAsync(int id);
+        Task<int> GetOpenRelatedCasesCountAsync(int caseId);
+        Task<int[]> BulkUpdateAssignmentAsync(int[] caseIds, int? assignedToUserId);
+        Task<int[]> BulkUpdateStatusAsync(int[] caseIds, CaseStatus status);
     }
 }
