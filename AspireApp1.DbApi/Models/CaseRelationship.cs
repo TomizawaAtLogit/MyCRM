@@ -5,7 +5,9 @@ public class CaseRelationship
     public int Id { get; set; }
     public int SourceCaseId { get; set; }
     public int RelatedCaseId { get; set; }
-    public string RelationshipType { get; set; } = "Related"; // Related, Blocks, Duplicate, etc.
+    public CaseRelationshipType RelationshipType { get; set; } = CaseRelationshipType.Related;
+    public string? Notes { get; set; }
+    public string? CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation properties

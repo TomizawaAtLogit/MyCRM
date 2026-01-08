@@ -3,11 +3,13 @@ using AspireApp1.DbApi.Repositories;
 using AspireApp1.DbApi.DTOs;
 using AspireApp1.DbApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AspireApp1.DbApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    // [Authorize(Policy = "SupportOnly")] // Commented for local development
     public class CaseActivitiesController : AuditableControllerBase
     {
         private readonly ICaseActivityRepository _repo;
@@ -38,7 +40,8 @@ namespace AspireApp1.DbApi.Controllers
                 a.PerformedBy,
                 a.PreviousAssignedToUserId,
                 a.NewAssignedToUserId,
-                a.CreatedAt
+                a.CreatedAt,
+                a.UpdatedAt
             ));
         }
 
@@ -59,7 +62,8 @@ namespace AspireApp1.DbApi.Controllers
                 a.PerformedBy,
                 a.PreviousAssignedToUserId,
                 a.NewAssignedToUserId,
-                a.CreatedAt
+                a.CreatedAt,
+                a.UpdatedAt
             );
         }
 
@@ -69,19 +73,16 @@ namespace AspireApp1.DbApi.Controllers
             var activity = new CaseActivity
             {
                 CaseId = dto.CaseId,
-                ActivityDate = dto.ActivityDate,
+                ActivityDate = dto.ActivityDate ?? DateTime.UtcNow,
                 Summary = dto.Summary,
                 Description = dto.Description,
                 NextAction = dto.NextAction,
                 ActivityType = dto.ActivityType,
-                PerformedBy = dto.PerformedBy,
-                PreviousAssignedToUserId = dto.PreviousAssignedToUserId,
-                NewAssignedToUserId = dto.NewAssignedToUserId
+                PerformedBy = dto.PerformedBy
             };
             
             var created = await _repo.AddAsync(activity);
             
-            // Log create action
             var (username, userId) = await GetCurrentUserInfoAsync();
             await _auditService.LogActionAsync(username, userId, "Create", "CaseActivity", created.Id, created);
             
@@ -96,18 +97,20 @@ namespace AspireApp1.DbApi.Controllers
                 created.PerformedBy,
                 created.PreviousAssignedToUserId,
                 created.NewAssignedToUserId,
-                created.CreatedAt
+                created.CreatedAt,
+                created.UpdatedAt
             ));
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, CaseActivityDto dto)
+        public async Task<IActionResult> Put(int id, UpdateCaseActivityDto dto)
         {
             if (id != dto.Id) return BadRequest();
             
             var existing = await _repo.GetAsync(id);
             if (existing == null) return NotFound();
             
+            existing.CaseId = dto.CaseId;
             existing.ActivityDate = dto.ActivityDate;
             existing.Summary = dto.Summary;
             existing.Description = dto.Description;
@@ -118,7 +121,6 @@ namespace AspireApp1.DbApi.Controllers
             
             await _repo.UpdateAsync(existing);
             
-            // Log update action
             var (username, userId) = await GetCurrentUserInfoAsync();
             await _auditService.LogActionAsync(username, userId, "Update", "CaseActivity", id, existing);
             
@@ -129,10 +131,8 @@ namespace AspireApp1.DbApi.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var activity = await _repo.GetAsync(id);
-            
             await _repo.DeleteAsync(id);
             
-            // Log delete action
             var (username, userId) = await GetCurrentUserInfoAsync();
             await _auditService.LogActionAsync(username, userId, "Delete", "CaseActivity", id, activity);
             

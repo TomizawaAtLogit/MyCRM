@@ -296,6 +296,10 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.Title).IsRequired().HasMaxLength(500).HasColumnName("title");
                 b.Property(x => x.Description).HasColumnName("description");
                 b.Property(x => x.CustomerId).HasColumnName("customer_id");
+                b.Property(x => x.SystemId).HasColumnName("system_id");
+                b.Property(x => x.SystemComponentId).HasColumnName("system_component_id");
+                b.Property(x => x.CustomerSiteId).HasColumnName("customer_site_id");
+                b.Property(x => x.CustomerOrderId).HasColumnName("customer_order_id");
                 b.Property(x => x.Status).HasConversion<string>().HasMaxLength(50).HasColumnName("status");
                 b.Property(x => x.Priority).HasConversion<string>().HasMaxLength(50).HasColumnName("priority");
                 b.Property(x => x.IssueType).HasConversion<string>().HasMaxLength(50).HasColumnName("issue_type");
@@ -310,12 +314,22 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.SlaDeadline).HasColumnName("sla_deadline");
                 
                 b.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
+                b.HasOne(x => x.System).WithMany().HasForeignKey(x => x.SystemId).OnDelete(DeleteBehavior.SetNull);
+                b.HasOne(x => x.SystemComponent).WithMany().HasForeignKey(x => x.SystemComponentId).OnDelete(DeleteBehavior.SetNull);
+                b.HasOne(x => x.CustomerSite).WithMany().HasForeignKey(x => x.CustomerSiteId).OnDelete(DeleteBehavior.SetNull);
+                b.HasOne(x => x.CustomerOrder).WithMany().HasForeignKey(x => x.CustomerOrderId).OnDelete(DeleteBehavior.SetNull);
                 b.HasOne(x => x.AssignedToUser).WithMany().HasForeignKey(x => x.AssignedToUserId).OnDelete(DeleteBehavior.SetNull);
                 b.HasIndex(x => x.CustomerId);
+                b.HasIndex(x => x.SystemId);
+                b.HasIndex(x => x.SystemComponentId);
+                b.HasIndex(x => x.CustomerSiteId);
+                b.HasIndex(x => x.CustomerOrderId);
                 b.HasIndex(x => x.AssignedToUserId);
                 b.HasIndex(x => x.Status);
                 b.HasIndex(x => x.Priority);
                 b.HasIndex(x => x.DueDate);
+                b.HasIndex(x => x.FirstResponseAt);
+                b.HasIndex(x => x.ResolvedAt);
             });
 
             modelBuilder.Entity<CaseActivity>(b =>
@@ -347,13 +361,16 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.Id).HasColumnName("id");
                 b.Property(x => x.SourceCaseId).HasColumnName("source_case_id");
                 b.Property(x => x.RelatedCaseId).HasColumnName("related_case_id");
-                b.Property(x => x.RelationshipType).IsRequired().HasMaxLength(50).HasColumnName("relationship_type");
+                b.Property(x => x.RelationshipType).HasConversion<string>().HasMaxLength(50).HasColumnName("relationship_type");
+                b.Property(x => x.Notes).HasMaxLength(2000).HasColumnName("notes");
+                b.Property(x => x.CreatedBy).HasMaxLength(200).HasColumnName("created_by");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 
                 b.HasOne(x => x.SourceCase).WithMany().HasForeignKey(x => x.SourceCaseId).OnDelete(DeleteBehavior.Cascade);
                 b.HasOne(x => x.RelatedCase).WithMany().HasForeignKey(x => x.RelatedCaseId).OnDelete(DeleteBehavior.Restrict);
                 b.HasIndex(x => x.SourceCaseId);
                 b.HasIndex(x => x.RelatedCaseId);
+                b.HasIndex(x => new { x.SourceCaseId, x.RelatedCaseId, x.RelationshipType }).IsUnique();
             });
 
             modelBuilder.Entity<CaseTemplate>(b =>
@@ -367,6 +384,7 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.TitleTemplate).IsRequired().HasMaxLength(500).HasColumnName("title_template");
                 b.Property(x => x.DescriptionTemplate).HasColumnName("description_template");
                 b.Property(x => x.IsActive).HasColumnName("is_active");
+                b.Property(x => x.DisplayOrder).HasColumnName("display_order");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
                 

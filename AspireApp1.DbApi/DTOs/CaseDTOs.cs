@@ -9,6 +9,14 @@ public record CaseDto(
     string? Description,
     int CustomerId,
     string? CustomerName,
+    int? SystemId,
+    string? SystemName,
+    int? SystemComponentId,
+    string? SystemComponentName,
+    int? CustomerSiteId,
+    string? CustomerSiteName,
+    int? CustomerOrderId,
+    string? CustomerOrderName,
     CaseStatus Status,
     CasePriority Priority,
     IssueType IssueType,
@@ -16,17 +24,26 @@ public record CaseDto(
     string? AssignedToUserName,
     string? ResolutionNotes,
     DateTime? DueDate,
+    DateTime? FirstResponseAt,
     DateTime? ResolvedAt,
     DateTime? ClosedAt,
     DateTime CreatedAt,
     DateTime? UpdatedAt,
-    DateTime? FirstResponseAt,
-    DateTime? SlaDeadline);
+    int? ResponseTimeSlaMinutes,
+    int? ResolutionTimeSlaMinutes,
+    bool IsResponseSlaBreached,
+    bool IsResolutionSlaBreached,
+    DateTime? SlaDeadline,
+    int OpenRelatedCasesCount);
 
 public record CreateCaseDto(
     [Required] string Title,
     string? Description,
     [Required] int CustomerId,
+    int? SystemId,
+    int? SystemComponentId,
+    int? CustomerSiteId,
+    int? CustomerOrderId,
     CaseStatus Status = CaseStatus.Open,
     CasePriority Priority = CasePriority.Medium,
     IssueType IssueType = IssueType.Question,
@@ -35,12 +52,29 @@ public record CreateCaseDto(
     DateTime? DueDate = null);
 
 public record UpdateCaseDto(
+    [Required] int Id,
     [Required] string Title,
     string? Description,
     [Required] int CustomerId,
+    int? SystemId,
+    int? SystemComponentId,
+    int? CustomerSiteId,
+    int? CustomerOrderId,
     CaseStatus Status,
     CasePriority Priority,
     IssueType IssueType,
     int? AssignedToUserId,
     string? ResolutionNotes,
     DateTime? DueDate);
+
+public record BulkUpdateCasesDto(
+    [Required] int[] CaseIds,
+    int? AssignedToUserId,
+    CaseStatus? Status);
+
+public record BulkUpdateCasesResponse(
+    int UpdatedCount,
+    int[] UpdatedCaseIds,
+    bool HasWarning,
+    string? WarningMessage);
+
