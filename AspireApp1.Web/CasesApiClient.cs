@@ -142,6 +142,7 @@ namespace AspireApp1.Web
         DateTime? DueDate = null);
 
     public record CaseUpdateDto(
+        int Id,
         string Title,
         string? Description,
         int CustomerId,

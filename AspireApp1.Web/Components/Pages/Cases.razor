@@ -4,6 +4,7 @@
 @inject CustomerApiClient CustomersApi
 @inject CaseActivityApiClient CaseActivityApi
 @inject EntityFilesApiClient EntityFilesApi
+@inject AdminApiClient AdminApi
 @inject IJSRuntime JSRuntime
 @inject LocalizationService Localizer
 @using System.ComponentModel.DataAnnotations
@@ -445,14 +446,14 @@
             @if (showCreateForm)
             {
                 <div class="card-body">
-                <EditForm EditContext="createEditContext" OnValidSubmit="CreateAsync" FormName="createForm">
+                <EditForm EditContext="createEditContext" OnValidSubmit="CreateAsync">
                     <DataAnnotationsValidator />
                     <ValidationSummary />
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">@Localizer.GetString("Title") *</label>
-                            <InputText @bind-Value="newCase!.Title" class="form-control" placeholder="Case Title" />
-                            <ValidationMessage For="() => newCase!.Title" />
+                            <InputText @bind-Value="newCase.Title" class="form-control" placeholder="Case Title" />
+                            <ValidationMessage For="() => newCase.Title" />
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">@Localizer.GetString("Customer") *</label>
@@ -466,7 +467,7 @@
                                     }
                                 }
                             </InputSelect>
-                            <ValidationMessage For="() => newCase!.CustomerId" />
+                            <ValidationMessage For="() => newCase.CustomerId" />
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">@Localizer.GetString("Priority")</label>
@@ -502,6 +503,21 @@
                             <InputDate @bind-Value="newCase.DueDate" class="form-control" />
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">@Localizer.GetString("Assigned To")</label>
+                            <InputSelect @bind-Value="newCase.AssignedToUserId" class="form-select" TValue="int?">
+                                <option value="">-- Not Assigned --</option>
+                                @if (users != null)
+                                {
+                                    @foreach (var u in users.Where(u => u.IsActive))
+                                    {
+                                        <option value="@u.Id">@u.DisplayName</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label">Description</label>
                         <InputTextArea @bind-Value="newCase.Description" class="form-control" placeholder="Description" rows="4" />
@@ -524,18 +540,18 @@
                     <button class="btn btn-sm btn-secondary" @onclick="CancelEdit">Cancel</button>
                 </div>
                 <div class="card-body">
-                    <EditForm EditContext="editEditContext" OnValidSubmit="SaveEditAsync" FormName="editForm">
+                    <EditForm EditContext="editEditContext" OnValidSubmit="SaveEditAsync">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
-                        <input type="hidden" @bind="editModel!.Id" />
+                        <input type="hidden" @bind="editModel.Id" />
                         <div class="mb-3">
                             <label class="form-label">@Localizer.GetString("Title") *</label>
-                            <InputText @bind-Value="editModel!.Title" class="form-control" />
-                            <ValidationMessage For="() => editModel!.Title" />
+                            <InputText @bind-Value="editModel.Title" class="form-control" />
+                            <ValidationMessage For="() => editModel.Title" />
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Description</label>
-                            <InputTextArea @bind-Value="editModel!.Description" class="form-control" rows="3" />
+                            <InputTextArea @bind-Value="editModel.Description" class="form-control" rows="3" />
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -550,7 +566,7 @@
                                         }
                                     }
                                 </InputSelect>
-                                <ValidationMessage For="() => editModel!.CustomerId" />
+                                <ValidationMessage For="() => editModel.CustomerId" />
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">@Localizer.GetString("Status")</label>
@@ -588,6 +604,21 @@
                                 <InputDate @bind-Value="editModel.DueDate" class="form-control" />
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">@Localizer.GetString("Assigned To")</label>
+                                <InputSelect @bind-Value="editModel.AssignedToUserId" class="form-select" TValue="int?">
+                                    <option value="">-- Not Assigned --</option>
+                                    @if (users != null)
+                                    {
+                                        @foreach (var u in users.Where(u => u.IsActive))
+                                        {
+                                            <option value="@u.Id">@u.DisplayName</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
                         @if (editModel.Status == CaseStatus.Resolved || editModel.Status == CaseStatus.Closed)
                         {
                             <div class="mb-3">
@@ -613,16 +644,14 @@
 @code {
     private Web.CaseDto[]? cases;
     private Web.CustomerDto[]? customers;
+    private Web.UserDto[]? users;
     private string? loadError;
     private string filterCustomerId = "";
     private string filterStatus = "";
     private string filterPriority = "";
     
-    [SupplyParameterFromForm]
-    private NewModel? newCase { get; set; }
-    
-    [SupplyParameterFromForm]
-    private EditModel? editModel { get; set; }
+    private NewModel newCase = new();
+    private EditModel editModel = new();
     
     private bool isEditing;
     private EditContext? createEditContext;
@@ -653,8 +682,6 @@
     protected override async Task OnInitializedAsync()
     {
         Localizer.OnLanguageChanged += OnLanguageChanged;
-        newCase ??= new();
-        editModel ??= new();
         createEditContext = new EditContext(newCase);
         editEditContext = new EditContext(editModel);
         await LoadCustomersAsync();
@@ -666,6 +693,7 @@
         try
         {
             customers = await CustomersApi.GetCustomersAsync();
+            users = await AdminApi.GetUsersAsync();
         }
         catch (Exception ex)
         {
@@ -715,13 +743,13 @@
         if (createEditContext is not null && !createEditContext.Validate()) return;
 
         var dto = new CaseCreateDto(
-            newCase!.Title, 
+            newCase.Title, 
             newCase.Description, 
             newCase.CustomerId, 
             newCase.Status, 
             newCase.Priority, 
             newCase.IssueType,
-            null,
+            newCase.AssignedToUserId,
             null,
             newCase.DueDate);
         var created = await CasesApi.CreateCaseAsync(dto);
@@ -747,7 +775,8 @@
             Priority = c.Priority,
             IssueType = c.IssueType,
             ResolutionNotes = c.ResolutionNotes,
-            DueDate = c.DueDate
+            DueDate = c.DueDate,
+            AssignedToUserId = c.AssignedToUserId
         };
         editEditContext = new EditContext(editModel);
         isEditing = true;
@@ -755,29 +784,42 @@
 
     private async Task SaveEditAsync()
     {
+        // Validate the form
+        if (editEditContext != null && !editEditContext.Validate())
+        {
+            ShowToast("Please correct the validation errors", "danger");
+            return;
+        }
+        
         // Enforce resolution notes for Resolved status
-        if (editModel!.Status == CaseStatus.Resolved && string.IsNullOrWhiteSpace(editModel.ResolutionNotes))
+        if (editModel.Status == CaseStatus.Resolved && string.IsNullOrWhiteSpace(editModel.ResolutionNotes))
         {
             ShowToast("Resolution notes are required when resolving a case", "danger");
             return;
         }
 
         var dto = new CaseUpdateDto(
+            editModel.Id,
             editModel.Title, 
             editModel.Description, 
             editModel.CustomerId, 
             editModel.Status,
             editModel.Priority,
             editModel.IssueType,
-            null,
+            editModel.AssignedToUserId,
             editModel.ResolutionNotes,
             editModel.DueDate);
+        
         var ok = await CasesApi.UpdateCaseAsync(editModel.Id, dto);
         if (ok)
         {
             ShowToast("Case updated successfully", "success");
             isEditing = false;
             await LoadAsync();
+        }
+        else
+        {
+            ShowToast("Failed to update case. Please try again.", "danger");
         }
     }
 
@@ -1049,6 +1091,7 @@
         public CaseStatus Status { get; set; } = CaseStatus.Open;
         public CasePriority Priority { get; set; } = CasePriority.Medium;
         public IssueType IssueType { get; set; } = IssueType.Question;
+        public int? AssignedToUserId { get; set; }
         public DateTime? DueDate { get; set; }
     }
     
@@ -1061,6 +1104,7 @@
         public CaseStatus Status { get; set; } = CaseStatus.Open;
         public CasePriority Priority { get; set; } = CasePriority.Medium;
         public IssueType IssueType { get; set; } = IssueType.Question;
+        public int? AssignedToUserId { get; set; }
         public string? ResolutionNotes { get; set; }
         public DateTime? DueDate { get; set; }
     }
