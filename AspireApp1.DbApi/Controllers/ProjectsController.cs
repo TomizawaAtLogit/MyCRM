@@ -3,11 +3,13 @@ using AspireApp1.DbApi.Repositories;
 using AspireApp1.DbApi.DTOs;
 using AspireApp1.DbApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AspireApp1.DbApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    // [Authorize(Policy = "PreSalesOnly")] // Commented for local development
     public class ProjectsController : AuditableControllerBase
     {
         private readonly IProjectRepository _repo;

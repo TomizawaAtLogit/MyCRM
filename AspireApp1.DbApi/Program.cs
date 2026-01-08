@@ -30,7 +30,7 @@ builder.Services.AddSwaggerGen(c =>
 // builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
 //     .AddNegotiate();
 
-// Add Authorization with custom policy - DISABLED FOR LOCAL DEVELOPMENT
+// Add Authorization with custom policies - DISABLED FOR LOCAL DEVELOPMENT
 // builder.Services.AddAuthorization(options =>
 // {
 //     options.AddPolicy("AdminOnly", policy =>
@@ -38,9 +38,23 @@ builder.Services.AddSwaggerGen(c =>
 //         policy.RequireAuthenticatedUser();
 //         policy.Requirements.Add(new AdminPolicyRequirement());
 //     });
+//     
+//     options.AddPolicy("SupportOnly", policy =>
+//     {
+//         policy.RequireAuthenticatedUser();
+//         policy.Requirements.Add(new SupportPolicyRequirement());
+//     });
+//     
+//     options.AddPolicy("PreSalesOnly", policy =>
+//     {
+//         policy.RequireAuthenticatedUser();
+//         policy.Requirements.Add(new PreSalesPolicyRequirement());
+//     });
 // });
 
 // builder.Services.AddSingleton<IAuthorizationHandler, AdminPolicyHandler>();
+// builder.Services.AddSingleton<IAuthorizationHandler, SupportPolicyHandler>();
+// builder.Services.AddSingleton<IAuthorizationHandler, PreSalesPolicyHandler>();
 
 builder.Services.AddDbContext<ProjectDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -50,6 +64,9 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IProjectActivityRepository, ProjectActivityRepository>();
 builder.Services.AddScoped<ICaseRepository, CaseRepository>();
 builder.Services.AddScoped<ICaseActivityRepository, CaseActivityRepository>();
+builder.Services.AddScoped<ICaseRelationshipRepository, CaseRelationshipRepository>();
+builder.Services.AddScoped<ISlaConfigurationRepository, SlaConfigurationRepository>();
+builder.Services.AddScoped<ICaseTemplateRepository, CaseTemplateRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
@@ -112,16 +129,28 @@ void SeedData(ProjectDbContext db)
     {
         Name = "Admin",
         Description = "Administrator role with full access",
-        PagePermissions = "Admin,Projects,Customers"
+        PagePermissions = "Admin,Support,PreSales,Cases,CaseTemplates,Projects,Customers,Audit,SlaConfiguration,Orders"
+    };
+    var supportRole = new Role
+    {
+        Name = "Support",
+        Description = "Support team role for case management",
+        PagePermissions = "Support,Cases,CaseTemplates,Customers,SlaConfiguration,Audit"
+    };
+    var preSalesRole = new Role
+    {
+        Name = "PreSales",
+        Description = "Pre-sales team role for project management",
+        PagePermissions = "PreSales,Projects,Customers"
     };
     var userRole = new Role
     {
         Name = "User",
         Description = "Standard user role",
-        PagePermissions = "Projects,Customers"
+        PagePermissions = "Customers"
     };
     
-    db.Roles.AddRange(adminRole, userRole);
+    db.Roles.AddRange(adminRole, supportRole, preSalesRole, userRole);
     db.SaveChanges();
 
     // Create a default admin user (you should change this in production!)
@@ -144,6 +173,18 @@ void SeedData(ProjectDbContext db)
     };
     
     db.UserRoles.Add(userRole1);
+    db.SaveChanges();
+    
+    // Seed default SLA configurations
+    var slaConfigs = new[]
+    {
+        new SlaThreshold { Priority = CasePriority.Critical, ResponseTimeHours = 1, ResolutionTimeHours = 4, IsActive = true },
+        new SlaThreshold { Priority = CasePriority.High, ResponseTimeHours = 2, ResolutionTimeHours = 8, IsActive = true },
+        new SlaThreshold { Priority = CasePriority.Medium, ResponseTimeHours = 4, ResolutionTimeHours = 24, IsActive = true },
+        new SlaThreshold { Priority = CasePriority.Low, ResponseTimeHours = 8, ResolutionTimeHours = 48, IsActive = true }
+    };
+    
+    db.SlaThresholds.AddRange(slaConfigs);
     db.SaveChanges();
 
     Console.WriteLine($"Seed data created. Default admin user: {adminUser.WindowsUsername}");
