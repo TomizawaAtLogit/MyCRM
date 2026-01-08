@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject AdminApiClient AdminApi
 
 <input type="checkbox" id="sidebar-collapse-toggle" class="sidebar-collapse-checkbox" />
 
@@ -9,7 +10,7 @@
 
     <main>
         <div class="top-row px-4">
-            <span class="text-muted">Hello, @Environment.UserName</span>
+            <span class="text-muted">Hello, @(currentDisplayName ?? Environment.UserName)</span>
             <div class="d-flex gap-2 align-items-center">
                 <LanguageSelector />
                 <ThemeToggle />
@@ -21,6 +22,27 @@
         </article>
     </main>
 </div>
+
+@code {
+    private string? currentDisplayName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var username = Environment.UserName;
+            var user = await AdminApi.GetUserByUsernameAsync(username);
+            if (user != null && !string.IsNullOrWhiteSpace(user.DisplayName))
+            {
+                currentDisplayName = user.DisplayName;
+            }
+        }
+        catch
+        {
+            // Ignore errors and fall back to Environment.UserName
+        }
+    }
+}
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.

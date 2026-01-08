@@ -132,7 +132,7 @@ else
                         {
                             <tr>
                                 <td>@log.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
-                                <td>@log.Username</td>
+                                <td>@GetUserDisplayName(log)</td>
                                 <td>
                                     <span class="badge @GetActionBadgeClass(log.Action)">
                                         @log.Action
@@ -208,7 +208,7 @@ else
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <p><strong>Timestamp:</strong> @selectedLog.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</p>
-                            <p><strong>User:</strong> @selectedLog.Username</p>
+                            <p><strong>User:</strong> @GetUserDisplayName(selectedLog)</p>
                             <p><strong>Action:</strong> <span class="badge @GetActionBadgeClass(selectedLog.Action)">@selectedLog.Action</span></p>
                         </div>
                         <div class="col-md-6">
@@ -343,12 +343,13 @@ else
 
         var result = logs.AsEnumerable();
 
-        // Search filter (local only)
+        // Search filter (local only) - search display name, windows username, entity type/name, and id
         if (!string.IsNullOrWhiteSpace(searchText))
         {
             var search = searchText.ToLower();
             result = result.Where(l =>
-                l.Username.ToLower().Contains(search) ||
+                GetUserDisplayName(l).ToLower().Contains(search) ||
+                (l.User?.WindowsUsername?.ToLower().Contains(search) ?? false) ||
                 l.EntityType.ToLower().Contains(search) ||
                 GetEntityDisplayName(l.EntityType).ToLower().Contains(search) ||
                 (l.EntityId?.ToString().Contains(search) ?? false)
@@ -394,8 +395,8 @@ else
                 ? filteredLogs.OrderBy(l => l.Timestamp).ToArray()
                 : filteredLogs.OrderByDescending(l => l.Timestamp).ToArray(),
             "Username" => sortAscending 
-                ? filteredLogs.OrderBy(l => l.Username).ToArray()
-                : filteredLogs.OrderByDescending(l => l.Username).ToArray(),
+                ? filteredLogs.OrderBy(l => GetUserDisplayName(l)).ToArray()
+                : filteredLogs.OrderByDescending(l => GetUserDisplayName(l)).ToArray(),
             "Action" => sortAscending 
                 ? filteredLogs.OrderBy(l => l.Action).ToArray()
                 : filteredLogs.OrderByDescending(l => l.Action).ToArray(),
@@ -446,6 +447,15 @@ else
         return entityDisplayNames.TryGetValue(entityType, out var displayName) 
             ? displayName 
             : entityType;
+    }
+
+    private string GetUserDisplayName(AuditLogDto? log)
+    {
+        if (log == null) return string.Empty;
+        // Prefer the explicit user object DisplayName, then WindowsUsername, then fallback to Username
+        if (!string.IsNullOrWhiteSpace(log.User?.DisplayName)) return log.User.DisplayName;
+        if (!string.IsNullOrWhiteSpace(log.User?.WindowsUsername)) return log.User.WindowsUsername;
+        return log.Username ?? string.Empty;
     }
 
     private string GetEntityNavigationUrl(string entityType, int entityId)
