@@ -103,7 +103,7 @@
                                        (c.Status == CaseStatus.Open || c.Status == CaseStatus.InProgress);
                         <tr class="@(isOverdue ? "table-danger" : "")">
                             <td style="vertical-align: middle;">
-                                <button class="btn btn-link p-1" style="font-size: 1.5rem; line-height: 1; color: var(--bs-primary);" @onclick="() => ToggleCaseExpansionAsync(c.Id)">
+                                <button class="btn btn-link p-1" style="font-size: 2rem; line-height: 1; color: #0056b3; transition: all 0.2s;" @onclick="() => ToggleCaseExpansionAsync(c.Id)" onmouseover="this.style.color='#003d82'; this.style.transform='scale(1.1)';" onmouseout="this.style.color='#0056b3'; this.style.transform='scale(1)';">
                                     <i class="bi @(expandedCases.ContainsKey(c.Id) && expandedCases[c.Id] ? "bi-chevron-down" : "bi-chevron-right")" style="font-weight: bold;"></i>
                                 </button>
                             </td>
