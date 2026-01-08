@@ -85,9 +85,9 @@
                     @foreach (var p in projects)
                     {
                         <tr>
-                            <td>
-                                <button class="btn btn-sm btn-link p-0" @onclick="() => ToggleProjectExpansionAsync(p.Id)">
-                                    <i class="bi @(expandedProjects.ContainsKey(p.Id) && expandedProjects[p.Id] ? "bi-chevron-down" : "bi-chevron-right")"></i>
+                            <td style="vertical-align: middle;">
+                                <button class="btn btn-link p-1" style="font-size: 1.5rem; line-height: 1; color: var(--bs-primary);" @onclick="() => ToggleProjectExpansionAsync(p.Id)">
+                                    <i class="bi @(expandedProjects.ContainsKey(p.Id) && expandedProjects[p.Id] ? "bi-chevron-down" : "bi-chevron-right")" style="font-weight: bold;"></i>
                                 </button>
                             </td>
                             <td>

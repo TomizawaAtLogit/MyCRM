@@ -102,9 +102,9 @@
                         var isOverdue = c.DueDate.HasValue && c.DueDate.Value < DateTime.UtcNow && 
                                        (c.Status == CaseStatus.Open || c.Status == CaseStatus.InProgress);
                         <tr class="@(isOverdue ? "table-danger" : "")">
-                            <td>
-                                <button class="btn btn-sm btn-link p-0" @onclick="() => ToggleCaseExpansionAsync(c.Id)">
-                                    <i class="bi @(expandedCases.ContainsKey(c.Id) && expandedCases[c.Id] ? "bi-chevron-down" : "bi-chevron-right")"></i>
+                            <td style="vertical-align: middle;">
+                                <button class="btn btn-link p-1" style="font-size: 1.5rem; line-height: 1; color: var(--bs-primary);" @onclick="() => ToggleCaseExpansionAsync(c.Id)">
+                                    <i class="bi @(expandedCases.ContainsKey(c.Id) && expandedCases[c.Id] ? "bi-chevron-down" : "bi-chevron-right")" style="font-weight: bold;"></i>
                                 </button>
                             </td>
                             <td>
@@ -218,6 +218,54 @@
                                                             <i class="bi bi-plus-circle me-1"></i> Add New Activity
                                                         </button>
                                                     }
+                                                    
+                                                    @if (showAddActivity.ContainsKey(c.Id) && showAddActivity[c.Id] && newActivityModels.ContainsKey(c.Id) && activityCreateContexts.ContainsKey(c.Id))
+                                                    {
+                                                        var model = newActivityModels[c.Id];
+                                                        var context = activityCreateContexts[c.Id];
+                                                        <div class="card mt-3">
+                                                            <div class="card-header d-flex justify-content-between align-items-center">
+                                                                <h6 class="mb-0">New Activity</h6>
+                                                                <button class="btn btn-sm btn-secondary" @onclick="() => HideAddActivityForm(c.Id)">Cancel</button>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <EditForm EditContext="@context" OnValidSubmit="() => CreateActivityAsync(c.Id)">
+                                                                    <DataAnnotationsValidator />
+                                                                    <ValidationSummary />
+                                                                    <div class="row">
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <label class="form-label">Activity Date *</label>
+                                                                            <InputDate @bind-Value="model.ActivityDate" class="form-control" />
+                                                                            <ValidationMessage For="() => model.ActivityDate" />
+                                                                        </div>
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <label class="form-label">Summary *</label>
+                                                                            <InputText @bind-Value="model.Summary" class="form-control" />
+                                                                            <ValidationMessage For="() => model.Summary" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Description</label>
+                                                                        <InputTextArea @bind-Value="model.Description" class="form-control" rows="3" />
+                                                                        <ValidationMessage For="() => model.Description" />
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <label class="form-label">Activity Type</label>
+                                                                            <InputText @bind-Value="model.ActivityType" class="form-control" />
+                                                                            <ValidationMessage For="() => model.ActivityType" />
+                                                                        </div>
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <label class="form-label">Performed By</label>
+                                                                            <InputText @bind-Value="model.PerformedBy" class="form-control" />
+                                                                            <ValidationMessage For="() => model.PerformedBy" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <button class="btn btn-primary w-100" type="submit">Create Activity</button>
+                                                                </EditForm>
+                                                            </div>
+                                                        </div>
+                                                    }
                                                 </div>
                                             }
                                             else
@@ -232,6 +280,54 @@
                                                             </button>
                                                         }
                                                     </div>
+                                                    
+                                                    @if (showAddActivity.ContainsKey(c.Id) && showAddActivity[c.Id] && newActivityModels.ContainsKey(c.Id) && activityCreateContexts.ContainsKey(c.Id))
+                                                    {
+                                                        var model = newActivityModels[c.Id];
+                                                        var context = activityCreateContexts[c.Id];
+                                                        <div class="card mb-3">
+                                                            <div class="card-header d-flex justify-content-between align-items-center">
+                                                                <h6 class="mb-0">New Activity</h6>
+                                                                <button class="btn btn-sm btn-secondary" @onclick="() => HideAddActivityForm(c.Id)">Cancel</button>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <EditForm EditContext="@context" OnValidSubmit="() => CreateActivityAsync(c.Id)">
+                                                                    <DataAnnotationsValidator />
+                                                                    <ValidationSummary />
+                                                                    <div class="row">
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <label class="form-label">Activity Date *</label>
+                                                                            <InputDate @bind-Value="model.ActivityDate" class="form-control" />
+                                                                            <ValidationMessage For="() => model.ActivityDate" />
+                                                                        </div>
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <label class="form-label">Summary *</label>
+                                                                            <InputText @bind-Value="model.Summary" class="form-control" />
+                                                                            <ValidationMessage For="() => model.Summary" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Description</label>
+                                                                        <InputTextArea @bind-Value="model.Description" class="form-control" rows="3" />
+                                                                        <ValidationMessage For="() => model.Description" />
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <label class="form-label">Activity Type</label>
+                                                                            <InputText @bind-Value="model.ActivityType" class="form-control" />
+                                                                            <ValidationMessage For="() => model.ActivityType" />
+                                                                        </div>
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <label class="form-label">Performed By</label>
+                                                                            <InputText @bind-Value="model.PerformedBy" class="form-control" />
+                                                                            <ValidationMessage For="() => model.PerformedBy" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <button class="btn btn-primary w-100" type="submit">Create Activity</button>
+                                                                </EditForm>
+                                                            </div>
+                                                        </div>
+                                                    }
                                                     
                                                     <table class="table table-sm table-hover">
                                                         <thead>
@@ -254,11 +350,68 @@
                                                                     <td class="small">@activity.ActivityType</td>
                                                                     <td class="small">@activity.PerformedBy</td>
                                                                     <td>
+                                                                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEditActivity(c.Id, activity)">
+                                                                            <i class="bi bi-pencil"></i>
+                                                                        </button>
                                                                         <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteActivityAsync(c.Id, activity.Id)">
                                                                             <i class="bi bi-trash"></i>
                                                                         </button>
                                                                     </td>
                                                                 </tr>
+                                                                
+                                                                @* Inline edit form for activity *@
+                                                                @if (currentEditingActivityId == activity.Id && currentEditingCaseId == c.Id && editActivityModel != null)
+                                                                {
+                                                                    <tr>
+                                                                        <td colspan="6" class="border-top-0">
+                                                                            <div class="card mt-2 mb-3">
+                                                                                <div class="card-header d-flex justify-content-between align-items-center">
+                                                                                    <h6 class="mb-0">Edit Activity</h6>
+                                                                                    <button class="btn btn-sm btn-secondary" @onclick="CancelEditActivity">Cancel</button>
+                                                                                </div>
+                                                                                <div class="card-body">
+                                                                                    <EditForm Model="editActivityModel" OnValidSubmit="SaveEditActivityAsync">
+                                                                                        <DataAnnotationsValidator />
+                                                                                        <ValidationSummary />
+                                                                                        <div class="row">
+                                                                                            <div class="col-md-6 mb-3">
+                                                                                                <label class="form-label">Activity Date *</label>
+                                                                                                <InputDate @bind-Value="editActivityModel.ActivityDate" class="form-control" />
+                                                                                                <ValidationMessage For="() => editActivityModel.ActivityDate" />
+                                                                                            </div>
+                                                                                            <div class="col-md-6 mb-3">
+                                                                                                <label class="form-label">Summary *</label>
+                                                                                                <InputText @bind-Value="editActivityModel.Summary" class="form-control" />
+                                                                                                <ValidationMessage For="() => editActivityModel.Summary" />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="mb-3">
+                                                                                            <label class="form-label">Description</label>
+                                                                                            <InputTextArea @bind-Value="editActivityModel.Description" class="form-control" rows="3" />
+                                                                                            <ValidationMessage For="() => editActivityModel.Description" />
+                                                                                        </div>
+                                                                                        <div class="row">
+                                                                                            <div class="col-md-6 mb-3">
+                                                                                                <label class="form-label">Activity Type</label>
+                                                                                                <InputText @bind-Value="editActivityModel.ActivityType" class="form-control" />
+                                                                                                <ValidationMessage For="() => editActivityModel.ActivityType" />
+                                                                                            </div>
+                                                                                            <div class="col-md-6 mb-3">
+                                                                                                <label class="form-label">Performed By</label>
+                                                                                                <InputText @bind-Value="editActivityModel.PerformedBy" class="form-control" />
+                                                                                                <ValidationMessage For="() => editActivityModel.PerformedBy" />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="d-flex gap-2">
+                                                                                            <button class="btn btn-primary" type="submit">Save Changes</button>
+                                                                                            <button class="btn btn-secondary" type="button" @onclick="CancelEditActivity">Cancel</button>
+                                                                                        </div>
+                                                                                    </EditForm>
+                                                                                </div>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
                                                             }
                                                         </tbody>
                                                     </table>
@@ -481,6 +634,13 @@
     private Dictionary<int, bool> loadingActivities = new();
     private Dictionary<int, bool> showAddActivity = new();
     private Dictionary<int, string> caseActiveTabs = new();
+    private Dictionary<int, NewActivityModel> newActivityModels = new();
+    private Dictionary<int, EditContext> activityCreateContexts = new();
+    
+    // Single edit tracking for activities
+    private int? currentEditingCaseId;
+    private int? currentEditingActivityId;
+    private EditActivityModel? editActivityModel;
     
     // Toast state
     private string? toastMessage;
@@ -709,8 +869,136 @@
     
     private async Task ShowAddActivityFormAsync(int caseId)
     {
+        // Ensure model and context are initialized
+        if (!newActivityModels.ContainsKey(caseId))
+        {
+            newActivityModels[caseId] = new NewActivityModel();
+            activityCreateContexts[caseId] = new EditContext(newActivityModels[caseId]);
+        }
+        
         showAddActivity[caseId] = true;
         await InvokeAsync(StateHasChanged);
+    }
+    
+    private void HideAddActivityForm(int caseId)
+    {
+        showAddActivity[caseId] = false;
+        StateHasChanged();
+    }
+    
+    private async Task CreateActivityAsync(int caseId)
+    {
+        if (!activityCreateContexts.ContainsKey(caseId))
+        {
+            ShowToast("Error: Activity form context not found", "danger");
+            return;
+        }
+        
+        if (!activityCreateContexts[caseId].Validate())
+        {
+            ShowToast("Please correct the validation errors", "danger");
+            return;
+        }
+        
+        try
+        {
+            var model = newActivityModels[caseId];
+            var dto = new CaseActivityCreateDto(
+                caseId,
+                model.ActivityDate,
+                model.Summary,
+                model.Description,
+                null, // NextAction
+                model.ActivityType,
+                model.PerformedBy
+            );
+            
+            var created = await CaseActivityApi.CreateAsync(dto);
+            if (created != null)
+            {
+                ShowToast("Activity created successfully", "success");
+                showAddActivity[caseId] = false;
+                newActivityModels[caseId] = new NewActivityModel();
+                activityCreateContexts[caseId] = new EditContext(newActivityModels[caseId]);
+                await LoadActivitiesAsync(caseId);
+            }
+            else
+            {
+                ShowToast("Failed to create activity", "danger");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"Failed to create activity: {ex.Message}", "danger");
+        }
+    }
+    
+    private void StartEditActivity(int caseId, CaseActivityDto activity)
+    {
+        if (currentEditingActivityId != null)
+        {
+            ShowToast("Please save or cancel the current edit first", "warning");
+            return;
+        }
+        
+        currentEditingCaseId = caseId;
+        currentEditingActivityId = activity.Id;
+        editActivityModel = new EditActivityModel
+        {
+            Id = activity.Id,
+            CaseId = activity.CaseId,
+            ActivityDate = activity.ActivityDate,
+            Summary = activity.Summary,
+            Description = activity.Description,
+            ActivityType = activity.ActivityType,
+            PerformedBy = activity.PerformedBy
+        };
+    }
+    
+    private async Task SaveEditActivityAsync()
+    {
+        if (editActivityModel == null || currentEditingActivityId == null || currentEditingCaseId == null) return;
+        
+        try
+        {
+            var dto = new CaseActivityDto(
+                editActivityModel.Id,
+                editActivityModel.CaseId,
+                editActivityModel.ActivityDate,
+                editActivityModel.Summary,
+                editActivityModel.Description,
+                null, // NextAction
+                editActivityModel.ActivityType,
+                editActivityModel.PerformedBy,
+                null, // PreviousAssignedToUserId
+                null, // NewAssignedToUserId
+                null  // CreatedAt
+            );
+            
+            var caseIdToRefresh = currentEditingCaseId.Value;
+            var success = await CaseActivityApi.UpdateAsync(currentEditingActivityId.Value, dto);
+            if (success)
+            {
+                ShowToast("Activity updated successfully", "success");
+                CancelEditActivity();
+                await LoadActivitiesAsync(caseIdToRefresh);
+            }
+            else
+            {
+                ShowToast("Failed to update activity", "danger");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"Failed to update activity: {ex.Message}", "danger");
+        }
+    }
+    
+    private void CancelEditActivity()
+    {
+        currentEditingCaseId = null;
+        currentEditingActivityId = null;
+        editActivityModel = null;
     }
     
     private async Task DeleteActivityAsync(int caseId, int activityId)
@@ -733,6 +1021,26 @@
         }
     }
 
+    class NewActivityModel
+    {
+        [Required] public DateTime ActivityDate { get; set; } = DateTime.UtcNow;
+        [Required, MaxLength(500)] public string Summary { get; set; } = string.Empty;
+        [MaxLength(5000)] public string? Description { get; set; }
+        [MaxLength(100)] public string? ActivityType { get; set; }
+        [MaxLength(200)] public string? PerformedBy { get; set; }
+    }
+    
+    class EditActivityModel
+    {
+        public int Id { get; set; }
+        public int CaseId { get; set; }
+        [Required] public DateTime ActivityDate { get; set; } = DateTime.UtcNow;
+        [Required, MaxLength(500)] public string Summary { get; set; } = string.Empty;
+        [MaxLength(5000)] public string? Description { get; set; }
+        [MaxLength(100)] public string? ActivityType { get; set; }
+        [MaxLength(200)] public string? PerformedBy { get; set; }
+    }
+    
     class NewModel 
     { 
         [Required] public string Title { get; set; } = string.Empty; 
