@@ -362,14 +362,23 @@ else
         UpdatePagination();
     }
 
-    private void ClearFilters()
+    private async Task ClearFilters()
     {
         searchText = "";
         filterEntityType = "";
         filterAction = "";
         filterFromDate = null;
         filterToDate = null;
-        InvokeAsync(LoadAuditLogsAsync);
+        try
+        {
+            await LoadAuditLogsAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading audit logs after clearing filters");
+            // Ensure loading state is reset so UI doesn't get stuck
+            isLoading = false;
+        }
     }
 
     private void SortBy(string column)

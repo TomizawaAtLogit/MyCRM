@@ -100,8 +100,31 @@ public class LocalizationService
             ["Activity Calendar"] = "Activity Calendar",
             ["Activities for"] = "Activities for",
             ["Calendar"] = "Calendar",
+            ["Previous"] = "Previous",
+            ["Next"] = "Next",
             ["List"] = "List",
-            ["View Project"] = "View Project"
+            ["View Project"] = "View Project",
+            // Activity
+            ["Add New Activity"] = "Add New Activity",
+            ["New Activity"] = "New Activity",
+            ["Activity Date"] = "Activity Date",
+            ["Summary"] = "Summary",
+            ["Description"] = "Description",
+            ["Next Action"] = "Next Action",
+            ["Performed By"] = "Performed By",
+            ["Create Activity"] = "Create Activity",
+            ["Activities"] = "Activities",
+            ["Files"] = "Files",
+            ["Loading activities..."] = "Loading activities...",
+            ["No activities yet."] = "No activities yet.",
+            ["Apply"] = "Apply",
+            ["Save Changes"] = "Save Changes",
+            ["Date"] = "Date",
+            ["All"] = "All",
+            ["From"] = "From",
+            ["To"] = "To",
+            ["Edit Activity"] = "Edit Activity",
+            ["Cancel"] = "Cancel"
         },
         ["ja"] = new Dictionary<string, string>
         {
@@ -192,8 +215,31 @@ public class LocalizationService
             ["Activity Calendar"] = "アクティビティカレンダー",
             ["Activities for"] = "アクティビティ：",
             ["Calendar"] = "カレンダー",
+            ["Previous"] = "前へ",
+            ["Next"] = "次へ",
             ["List"] = "リスト",
-            ["View Project"] = "プロジェクトを表示"
+            ["View Project"] = "プロジェクトを表示",
+            // Activity
+            ["Add New Activity"] = "アクティビティを追加",
+            ["New Activity"] = "新しいアクティビティ",
+            ["Activity Date"] = "活動日",
+            ["Summary"] = "サマリー",
+            ["Description"] = "説明",
+            ["Next Action"] = "次のアクション",
+            ["Performed By"] = "担当者",
+            ["Create Activity"] = "アクティビティを作成",
+            ["Activities"] = "アクティビティ",
+            ["Files"] = "ファイル",
+            ["Loading activities..."] = "アクティビティを読み込み中…",
+            ["No activities yet."] = "まだアクティビティはありません。",
+            ["Apply"] = "適用",
+            ["Save Changes"] = "変更を保存",
+            ["Date"] = "日付",
+            ["All"] = "すべて",
+            ["From"] = "開始",
+            ["To"] = "終了",
+            ["Edit Activity"] = "アクティビティを編集",
+            ["Cancel"] = "キャンセル"
         }
     };
 

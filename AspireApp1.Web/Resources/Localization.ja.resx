@@ -85,4 +85,73 @@
   <data name="Japanese" xml:space="preserve">
     <value>日本語</value>
   </data>
+  <data name="Add New Activity" xml:space="preserve">
+    <value>アクティビティを追加</value>
+  </data>
+  <data name="New Activity" xml:space="preserve">
+    <value>新しいアクティビティ</value>
+  </data>
+  <data name="Activity Date" xml:space="preserve">
+    <value>活動日</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>サマリー</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>説明</value>
+  </data>
+  <data name="Next Action" xml:space="preserve">
+    <value>次のアクション</value>
+  </data>
+  <data name="Performed By" xml:space="preserve">
+    <value>担当者</value>
+  </data>
+  <data name="Create Activity" xml:space="preserve">
+    <value>アクティビティを作成</value>
+  </data>
+  <data name="Activities" xml:space="preserve">
+    <value>アクティビティ</value>
+  </data>
+  <data name="Files" xml:space="preserve">
+    <value>ファイル</value>
+  </data>
+  <data name="Loading activities..." xml:space="preserve">
+    <value>アクティビティを読み込み中…</value>
+  </data>
+  <data name="No activities yet." xml:space="preserve">
+    <value>まだアクティビティはありません。</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>適用</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>クリア</value>
+  </data>
+  <data name="Save Changes" xml:space="preserve">
+    <value>変更を保存</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>日付</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>すべて</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>開始</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>終了</value>
+  </data>
+  <data name="Edit Activity" xml:space="preserve">
+    <value>アクティビティを編集</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="Filters" xml:space="preserve">
+    <value>フィルタ</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>アクション</value>
+  </data>
 </root>

@@ -1,6 +1,7 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 @inject ProjectActivityApiClient ProjectActivityApi
+@inject CasesApiClient CasesApi
 @inject IJSRuntime JSRuntime
 @inject LocalizationService Localizer
 @implements IDisposable
@@ -9,13 +10,24 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>@Localizer.GetString("Activity Calendar")</h1>
-    <div class="btn-group" role="group">
-        <button type="button" class="btn @(viewMode == "grid" ? "btn-primary" : "btn-outline-primary")" @onclick="@(() => SetViewMode("grid"))">
-            <i class="bi bi-calendar3"></i> @Localizer.GetString("Calendar")
-        </button>
-        <button type="button" class="btn @(viewMode == "list" ? "btn-primary" : "btn-outline-primary")" @onclick="@(() => SetViewMode("list"))">
-            <i class="bi bi-list-ul"></i> @Localizer.GetString("List")
-        </button>
+    <div class="d-flex">
+        <div class="btn-group me-2" role="group">
+            <button type="button" class="btn @(scheduleType == "project" ? "btn-primary" : "btn-outline-primary")" @onclick="@(() => SetScheduleType("project"))">
+                <i class="bi bi-folder"></i> @Localizer.GetString("Projects")
+            </button>
+            <button type="button" class="btn @(scheduleType == "case" ? "btn-primary" : "btn-outline-primary")" @onclick="@(() => SetScheduleType("case"))">
+                <i class="bi bi-briefcase"></i> @Localizer.GetString("Cases")
+            </button>
+        </div>
+
+        <div class="btn-group" role="group">
+            <button type="button" class="btn @(viewMode == "grid" ? "btn-primary" : "btn-outline-primary")" @onclick="@(() => SetViewMode("grid"))">
+                <i class="bi bi-calendar3"></i> @Localizer.GetString("Calendar")
+            </button>
+            <button type="button" class="btn @(viewMode == "list" ? "btn-primary" : "btn-outline-primary")" @onclick="@(() => SetViewMode("list"))">
+                <i class="bi bi-list-ul"></i> @Localizer.GetString("List")
+            </button>
+        </div>
     </div>
 </div>
 
@@ -31,13 +43,13 @@
 {
     <div class="card mb-4">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
                 <button class="btn btn-outline-secondary" @onclick="PreviousMonth">
-                    <i class="bi bi-chevron-left"></i> Previous
+                    <i class="bi bi-chevron-left"></i> @Localizer.GetString("Previous")
                 </button>
                 <h4 class="mb-0">@currentDate.ToString("MMMM yyyy")</h4>
                 <button class="btn btn-outline-secondary" @onclick="NextMonth">
-                    Next <i class="bi bi-chevron-right"></i>
+                    @Localizer.GetString("Next") <i class="bi bi-chevron-right"></i>
                 </button>
             </div>
             
@@ -101,8 +113,14 @@ else
 {
     <div class="card">
         <div class="card-body">
-            <div class="mb-3">
-                <h4>@Localizer.GetString("Activities for") @currentDate.ToString("MMMM yyyy")</h4>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <button class="btn btn-outline-secondary" @onclick="PreviousMonth">
+                    <i class="bi bi-chevron-left"></i> @Localizer.GetString("Previous")
+                </button>
+                <h4 class="mb-0">@Localizer.GetString("Activities for") @currentDate.ToString("MMMM yyyy")</h4>
+                <button class="btn btn-outline-secondary" @onclick="NextMonth">
+                    @Localizer.GetString("Next") <i class="bi bi-chevron-right"></i>
+                </button>
             </div>
             
             @if (isLoading)
@@ -145,7 +163,7 @@ else
                                     }
                                 </div>
                                 <a href="/projects" class="btn btn-sm btn-outline-primary ms-2">
-                                    View Project
+                                    @Localizer.GetString("View Project")
                                 </a>
                             </div>
                         </div>
@@ -219,6 +237,7 @@ else
 
 @code {
     private string viewMode = "grid";
+    private string scheduleType = "project"; // "project" or "case"
     private DateTime currentDate = DateTime.Today;
     private List<ProjectActivityDto> activities = new();
     private bool isLoading = false;
@@ -236,6 +255,7 @@ else
         if (firstRender)
         {
             await LoadViewModeFromStorage();
+            await LoadScheduleTypeFromStorage();
             StateHasChanged();
         }
     }
@@ -255,6 +275,20 @@ else
             // Ignore errors accessing localStorage
         }
     }
+
+    private async Task LoadScheduleTypeFromStorage()
+    {
+        try
+        {
+            var stored = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "calendarScheduleType");
+            if (!string.IsNullOrWhiteSpace(stored))
+                scheduleType = stored;
+        }
+        catch
+        {
+            // ignore
+        }
+    }
     
     private async Task SetViewMode(string mode)
     {
@@ -268,6 +302,21 @@ else
             // Ignore errors accessing localStorage
         }
     }
+
+    private async Task SetScheduleType(string type)
+    {
+        scheduleType = type;
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "calendarScheduleType", type);
+        }
+        catch
+        {
+            // ignore
+        }
+
+        await LoadActivitiesForMonth();
+    }
     
     private async Task LoadActivitiesForMonth()
     {
@@ -279,7 +328,52 @@ else
             var startDate = new DateTime(currentDate.Year, currentDate.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
             
-            activities = (await ProjectActivityApi.SearchAsync(startDate, endDate)).ToList();
+            if (scheduleType == "project")
+            {
+                activities = (await ProjectActivityApi.SearchAsync(startDate, endDate)).ToList();
+            }
+            else
+            {
+                // Case schedule: map cases' CreatedAt and DueDate into calendar activities
+                var cases = await CasesApi.GetCasesAsync(cancellationToken: CancellationToken.None);
+                var caseList = cases ?? Array.Empty<CaseDto>();
+
+                var list = new List<ProjectActivityDto>();
+                foreach (var c in caseList)
+                {
+                    if (c.CreatedAt.Date >= startDate.Date && c.CreatedAt.Date <= endDate.Date)
+                    {
+                        list.Add(new ProjectActivityDto(
+                            Id: c.Id,
+                            ProjectId: 0,
+                            ActivityDate: c.CreatedAt,
+                            Summary: $"Case: {c.Title} (Created)",
+                            Description: c.Description,
+                            NextAction: null,
+                            ActivityType: "case-created",
+                            PerformedBy: c.AssignedToUserName,
+                            ProjectName: c.CustomerName
+                        ));
+                    }
+
+                    if (c.DueDate.HasValue && c.DueDate.Value.Date >= startDate.Date && c.DueDate.Value.Date <= endDate.Date)
+                    {
+                        list.Add(new ProjectActivityDto(
+                            Id: c.Id,
+                            ProjectId: 0,
+                            ActivityDate: c.DueDate.Value,
+                            Summary: $"Case: {c.Title} (Due)",
+                            Description: c.Description,
+                            NextAction: null,
+                            ActivityType: "case-due",
+                            PerformedBy: c.AssignedToUserName,
+                            ProjectName: c.CustomerName
+                        ));
+                    }
+                }
+
+                activities = list.OrderBy(a => a.ActivityDate).ToList();
+            }
         }
         catch (Exception ex)
         {
@@ -354,6 +448,8 @@ else
             "email" => "activity-warning",
             "visit" => "activity-success",
             "task" => "activity-secondary",
+            "case-created" => "activity-info",
+            "case-due" => "activity-warning",
             _ => "activity-default"
         };
     }
@@ -370,6 +466,8 @@ else
             "email" => "bg-warning text-dark",
             "visit" => "bg-success",
             "task" => "bg-secondary",
+            "case-created" => "bg-info",
+            "case-due" => "bg-warning text-dark",
             _ => "bg-secondary"
         };
     }
@@ -402,12 +500,12 @@ else
         public bool IsToday { get; set; }
         public List<ProjectActivityDto> Activities { get; set; } = new();
     }
-
+    
     public void Dispose()
     {
         Localizer.OnLanguageChanged -= OnLanguageChanged;
     }
-
+    
     private void OnLanguageChanged()
     {
         InvokeAsync(StateHasChanged);

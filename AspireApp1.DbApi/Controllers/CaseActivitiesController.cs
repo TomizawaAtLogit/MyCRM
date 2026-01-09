@@ -29,7 +29,12 @@ namespace AspireApp1.DbApi.Controllers
         public async Task<IEnumerable<CaseActivityDto>> GetByCaseId(int caseId)
         {
             var activities = await _repo.GetByCaseIdAsync(caseId);
-            return activities.Select(a => new CaseActivityDto(
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            // Log a single Read entry for the case activity list (avoid per-activity noise)
+            var activityList = activities.ToArray();
+            await _auditService.LogActionAsync(username, userId, "Read", "CaseActivity", caseId, new { CaseId = caseId, Count = activityList.Length });
+
+            return activityList.Select(a => new CaseActivityDto(
                 a.Id,
                 a.CaseId,
                 a.ActivityDate,
@@ -50,7 +55,9 @@ namespace AspireApp1.DbApi.Controllers
         {
             var a = await _repo.GetAsync(id);
             if (a == null) return NotFound();
-            
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            await _auditService.LogActionAsync(username, userId, "Read", "CaseActivity", a.Id, a);
+
             return new CaseActivityDto(
                 a.Id,
                 a.CaseId,
