@@ -3,6 +3,7 @@
 @inject ProjectsApiClient ProjectsApi
 @inject CustomerApiClient CustomersApi
 @inject ProjectActivityApiClient ProjectActivityApi
+@inject ProjectTaskApiClient ProjectTaskApi
 @inject EntityFilesApiClient EntityFilesApi
 @inject IJSRuntime JSRuntime
 @inject LocalizationService Localizer
@@ -146,6 +147,14 @@
                                                         @onclick="@(() => SetProjectTab(p.Id, "activities"))"
                                                         role="tab">
                                                     <span class="bi bi-calendar-event"></span> Activities
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link @(GetProjectTab(p.Id) == "gantt" ? "active" : "")" 
+                                                        type="button"
+                                                        @onclick="@(() => SetProjectTabAsync(p.Id, "gantt"))"
+                                                        role="tab">
+                                                    <span class="bi bi-bar-chart-steps"></span> Gantt Chart
                                                 </button>
                                             </li>
                                             <li class="nav-item" role="presentation">
@@ -396,6 +405,218 @@
                                         </div>
                                             }
                                         }
+                                        else if (GetProjectTab(p.Id) == "gantt")
+                                        {
+                                            @if (loadingTasks.ContainsKey(p.Id) && loadingTasks[p.Id])
+                                            {
+                                                <div class="text-center py-3">
+                                                    <div class="spinner-border spinner-border-sm" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                    <span class="ms-2">Loading tasks...</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="py-3">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <h6 class="mb-0">Project Tasks</h6>
+                                                        @if (!showAddTask.ContainsKey(p.Id) || !showAddTask[p.Id])
+                                                        {
+                                                            <button class="btn btn-sm btn-primary" @onclick="() => ShowAddTaskForm(p.Id)">
+                                                                <i class="bi bi-plus-circle me-1"></i> Add Task
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                    
+                                                    @if (showAddTask.ContainsKey(p.Id) && showAddTask[p.Id])
+                                                    {
+                                                        <div class="card mb-3">
+                                                            <div class="card-header d-flex justify-content-between align-items-center">
+                                                                <h6 class="mb-0">New Task</h6>
+                                                                <button class="btn btn-sm btn-secondary" @onclick="() => HideAddTaskForm(p.Id)">Cancel</button>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <EditForm Model="newTaskModel" OnValidSubmit="() => CreateTaskAsync(p.Id)">
+                                                                    <DataAnnotationsValidator />
+                                                                    <ValidationSummary />
+                                                                    <div class="row">
+                                                                        <div class="col-md-12 mb-3">
+                                                                            <label class="form-label">Title *</label>
+                                                                            <InputText @bind-Value="newTaskModel.Title" class="form-control" />
+                                                                            <ValidationMessage For="() => newTaskModel.Title" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Description</label>
+                                                                        <InputTextArea @bind-Value="newTaskModel.Description" class="form-control" rows="2" />
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <label class="form-label">Start Date *</label>
+                                                                            <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="newTaskModel.StartDate" class="form-control" />
+                                                                            <ValidationMessage For="() => newTaskModel.StartDate" />
+                                                                        </div>
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <label class="form-label">End Date *</label>
+                                                                            <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="newTaskModel.EndDate" class="form-control" />
+                                                                            <ValidationMessage For="() => newTaskModel.EndDate" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Status</label>
+                                                                        <InputSelect @bind-Value="newTaskModel.Status" class="form-select">
+                                                                            <option value="@ProjectTaskStatus.NotStarted">Not Started</option>
+                                                                            <option value="@ProjectTaskStatus.InProgress">In Progress</option>
+                                                                            <option value="@ProjectTaskStatus.Completed">Completed</option>
+                                                                            <option value="@ProjectTaskStatus.Blocked">Blocked</option>
+                                                                        </InputSelect>
+                                                                    </div>
+                                                                    <button class="btn btn-primary w-100" type="submit">Create Task</button>
+                                                                </EditForm>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    
+                                                    @if (!projectTasks.ContainsKey(p.Id) || projectTasks[p.Id] == null || !projectTasks[p.Id]!.Any())
+                                                    {
+                                                        <p class="text-muted">No tasks yet.</p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="gantt-container mb-3">
+                                                            <div class="gantt-header">
+                                                                <div class="row">
+                                                                    <div class="col-md-3 fw-bold">Task</div>
+                                                                    <div class="col-md-2 fw-bold">Status</div>
+                                                                    <div class="col-md-5 fw-bold">Timeline</div>
+                                                                    <div class="col-md-2 fw-bold">Actions</div>
+                                                                </div>
+                                                            </div>
+                                                            @foreach (var task in projectTasks[p.Id]!)
+                                                            {
+                                                                <div class="gantt-row">
+                                                                    <div class="row align-items-center">
+                                                                        <div class="col-md-3">
+                                                                            <strong>@task.Title</strong>
+                                                                            @if (!string.IsNullOrWhiteSpace(task.Description))
+                                                                            {
+                                                                                <div class="small text-muted">@task.Description</div>
+                                                                            }
+                                                                        </div>
+                                                                        <div class="col-md-2">
+                                                                            @if (task.Status == ProjectTaskStatus.NotStarted)
+                                                                            {
+                                                                                <span class="badge bg-secondary">Not Started</span>
+                                                                            }
+                                                                            else if (task.Status == ProjectTaskStatus.InProgress)
+                                                                            {
+                                                                                <span class="badge bg-primary">In Progress</span>
+                                                                            }
+                                                                            else if (task.Status == ProjectTaskStatus.Completed)
+                                                                            {
+                                                                                <span class="badge bg-success">Completed</span>
+                                                                            }
+                                                                            else if (task.Status == ProjectTaskStatus.Blocked)
+                                                                            {
+                                                                                <span class="badge bg-danger">Blocked</span>
+                                                                            }
+                                                                        </div>
+                                                                        <div class="col-md-5">
+                                                                            <div class="small">
+                                                                                <strong>Start:</strong> @task.StartAtUtc.ToLocalTime().ToString("g")<br/>
+                                                                                <strong>End:</strong> @task.EndAtUtc.ToLocalTime().ToString("g")
+                                                                            </div>
+                                                                            <div class="progress mt-1" style="height: 20px;">
+                                                                                @{
+                                                                                    var startDate = task.StartAtUtc.ToLocalTime();
+                                                                                    var endDate = task.EndAtUtc.ToLocalTime();
+                                                                                    var duration = (endDate - startDate).TotalDays;
+                                                                                    var progressClass = task.Status switch
+                                                                                    {
+                                                                                        ProjectTaskStatus.NotStarted => "bg-secondary",
+                                                                                        ProjectTaskStatus.InProgress => "bg-primary",
+                                                                                        ProjectTaskStatus.Completed => "bg-success",
+                                                                                        ProjectTaskStatus.Blocked => "bg-danger",
+                                                                                        _ => "bg-secondary"
+                                                                                    };
+                                                                                }
+                                                                                <div class="progress-bar @progressClass" role="progressbar" style="width: 100%;">
+                                                                                    @(duration > 0 ? $"{duration:F1} days" : "< 1 day")
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2">
+                                                                            <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEditTask(p.Id, task)">
+                                                                                <i class="bi bi-pencil"></i>
+                                                                            </button>
+                                                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTaskAsync(p.Id, task.Id)">
+                                                                                <i class="bi bi-trash"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                    
+                                                                    @* Inline edit form for task *@
+                                                                    @if (currentEditingTaskId == task.Id && currentEditingProjectId == p.Id && editTaskModel != null)
+                                                                    {
+                                                                        <div class="card mt-2 mb-2">
+                                                                            <div class="card-header d-flex justify-content-between align-items-center">
+                                                                                <h6 class="mb-0">Edit Task</h6>
+                                                                                <button class="btn btn-sm btn-secondary" @onclick="CancelEditTask">Cancel</button>
+                                                                            </div>
+                                                                            <div class="card-body">
+                                                                                <EditForm Model="editTaskModel" OnValidSubmit="SaveEditTaskAsync">
+                                                                                    <DataAnnotationsValidator />
+                                                                                    <ValidationSummary />
+                                                                                    <div class="row">
+                                                                                        <div class="col-md-12 mb-3">
+                                                                                            <label class="form-label">Title *</label>
+                                                                                            <InputText @bind-Value="editTaskModel.Title" class="form-control" />
+                                                                                            <ValidationMessage For="() => editTaskModel.Title" />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="mb-3">
+                                                                                        <label class="form-label">Description</label>
+                                                                                        <InputTextArea @bind-Value="editTaskModel.Description" class="form-control" rows="2" />
+                                                                                    </div>
+                                                                                    <div class="row">
+                                                                                        <div class="col-md-6 mb-3">
+                                                                                            <label class="form-label">Start Date *</label>
+                                                                                            <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="editTaskModel.StartDate" class="form-control" />
+                                                                                            <ValidationMessage For="() => editTaskModel.StartDate" />
+                                                                                        </div>
+                                                                                        <div class="col-md-6 mb-3">
+                                                                                            <label class="form-label">End Date *</label>
+                                                                                            <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="editTaskModel.EndDate" class="form-control" />
+                                                                                            <ValidationMessage For="() => editTaskModel.EndDate" />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="mb-3">
+                                                                                        <label class="form-label">Status</label>
+                                                                                        <InputSelect @bind-Value="editTaskModel.Status" class="form-select">
+                                                                                            <option value="@ProjectTaskStatus.NotStarted">Not Started</option>
+                                                                                            <option value="@ProjectTaskStatus.InProgress">In Progress</option>
+                                                                                            <option value="@ProjectTaskStatus.Completed">Completed</option>
+                                                                                            <option value="@ProjectTaskStatus.Blocked">Blocked</option>
+                                                                                        </InputSelect>
+                                                                                    </div>
+                                                                                    <div class="d-flex gap-2">
+                                                                                        <button class="btn btn-primary" type="submit">Save Changes</button>
+                                                                                        <button class="btn btn-secondary" type="button" @onclick="CancelEditTask">Cancel</button>
+                                                                                    </div>
+                                                                                </EditForm>
+                                                                            </div>
+                                                                        </div>
+                                                                    }
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        }
+                                            }
+                                        }
                                         else if (GetProjectTab(p.Id) == "files")
                                         {
                                             <FileManager EntityType="Project" EntityId="p.Id" />
@@ -549,6 +770,14 @@
     private Dictionary<int, bool> loadingActivities = new();
     private Dictionary<int, bool> showAddActivity = new();
     private Dictionary<int, string> projectActiveTabs = new();  // Track active tab per project
+    
+    // Task state management
+    private Dictionary<int, List<ProjectTaskDto>?> projectTasks = new();
+    private Dictionary<int, bool> loadingTasks = new();
+    private Dictionary<int, bool> showAddTask = new();
+    private int? currentEditingTaskId;
+    private NewTaskModel newTaskModel = new();
+    private EditTaskModel? editTaskModel;
     
     // Single edit tracking
     private int? currentEditingProjectId;
@@ -743,6 +972,17 @@
     private void SetProjectTab(int projectId, string tab)
     {
         projectActiveTabs[projectId] = tab;
+    }
+    
+    private async Task SetProjectTabAsync(int projectId, string tab)
+    {
+        projectActiveTabs[projectId] = tab;
+        
+        // Load tasks if switching to Gantt tab and not loaded yet
+        if (tab == "gantt" && !projectTasks.ContainsKey(projectId))
+        {
+            await LoadTasksAsync(projectId);
+        }
     }
     
     private async Task LoadActivitiesAsync(int projectId)
@@ -942,6 +1182,145 @@
         currentEditingActivityId = null;
         editActivityModel = null;
     }
+    
+    // Task management methods
+    private async Task LoadTasksAsync(int projectId)
+    {
+        try
+        {
+            loadingTasks[projectId] = true;
+            var tasks = await ProjectTaskApi.GetTasksByProjectIdAsync(projectId);
+            projectTasks[projectId] = tasks?.OrderBy(t => t.DisplayOrder).ThenBy(t => t.StartAtUtc).ToList();
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"Failed to load tasks: {ex.Message}", "danger");
+            projectTasks[projectId] = null;
+        }
+        finally
+        {
+            loadingTasks[projectId] = false;
+        }
+    }
+    
+    private void ShowAddTaskForm(int projectId)
+    {
+        newTaskModel = new NewTaskModel { StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(1) };
+        showAddTask[projectId] = true;
+    }
+    
+    private void HideAddTaskForm(int projectId)
+    {
+        showAddTask[projectId] = false;
+        newTaskModel = new();
+    }
+    
+    private async Task CreateTaskAsync(int projectId)
+    {
+        try
+        {
+            var dto = new CreateProjectTaskDto(
+                newTaskModel.Title,
+                newTaskModel.Description,
+                newTaskModel.StartDate.ToUniversalTime(),
+                newTaskModel.EndDate.ToUniversalTime(),
+                newTaskModel.Status,
+                0
+            );
+            
+            var created = await ProjectTaskApi.CreateTaskAsync(projectId, dto);
+            if (created != null)
+            {
+                ShowToast("Task created successfully", "success");
+                showAddTask[projectId] = false;
+                newTaskModel = new();
+                await LoadTasksAsync(projectId);
+            }
+            else
+            {
+                ShowToast("Failed to create task", "danger");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"Failed to create task: {ex.Message}", "danger");
+        }
+    }
+    
+    private void StartEditTask(int projectId, ProjectTaskDto task)
+    {
+        currentEditingProjectId = projectId;
+        currentEditingTaskId = task.Id;
+        editTaskModel = new EditTaskModel
+        {
+            Id = task.Id,
+            Title = task.Title,
+            Description = task.Description,
+            StartDate = task.StartAtUtc.ToLocalTime(),
+            EndDate = task.EndAtUtc.ToLocalTime(),
+            Status = task.Status,
+            DisplayOrder = task.DisplayOrder
+        };
+    }
+    
+    private async Task SaveEditTaskAsync()
+    {
+        if (editTaskModel == null || currentEditingTaskId == null || currentEditingProjectId == null) return;
+        
+        try
+        {
+            var dto = new UpdateProjectTaskDto(
+                editTaskModel.Title,
+                editTaskModel.Description,
+                editTaskModel.StartDate.ToUniversalTime(),
+                editTaskModel.EndDate.ToUniversalTime(),
+                editTaskModel.Status,
+                editTaskModel.DisplayOrder
+            );
+            
+            var projectIdToRefresh = currentEditingProjectId.Value;
+            var success = await ProjectTaskApi.UpdateTaskAsync(currentEditingTaskId.Value, dto);
+            if (success)
+            {
+                ShowToast("Task updated successfully", "success");
+                currentEditingProjectId = null;
+                currentEditingTaskId = null;
+                editTaskModel = null;
+                await LoadTasksAsync(projectIdToRefresh);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"Failed to update task: {ex.Message}", "danger");
+        }
+    }
+    
+    private async Task DeleteTaskAsync(int projectId, int taskId)
+    {
+        try
+        {
+            var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this task?");
+            if (!confirmed) return;
+            
+            var success = await ProjectTaskApi.DeleteTaskAsync(taskId);
+            if (success)
+            {
+                ShowToast("Task deleted successfully", "success");
+                await LoadTasksAsync(projectId);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"Failed to delete task: {ex.Message}", "danger");
+        }
+    }
+    
+    private void CancelEditTask()
+    {
+        currentEditingProjectId = null;
+        currentEditingActivityId = null;
+        editActivityModel = null;
+    }
 
     class NewModel 
     { 
@@ -980,6 +1359,26 @@
         [MaxLength(1000)] public string? NextAction { get; set; }
         [MaxLength(100)] public string? ActivityType { get; set; }
         [MaxLength(200)] public string? PerformedBy { get; set; }
+    }
+    
+    class NewTaskModel
+    {
+        [Required, MaxLength(500)] public string Title { get; set; } = string.Empty;
+        [MaxLength(5000)] public string? Description { get; set; }
+        [Required] public DateTime StartDate { get; set; } = DateTime.Now;
+        [Required] public DateTime EndDate { get; set; } = DateTime.Now.AddDays(1);
+        public ProjectTaskStatus Status { get; set; } = ProjectTaskStatus.NotStarted;
+    }
+    
+    class EditTaskModel
+    {
+        public int Id { get; set; }
+        [Required, MaxLength(500)] public string Title { get; set; } = string.Empty;
+        [MaxLength(5000)] public string? Description { get; set; }
+        [Required] public DateTime StartDate { get; set; } = DateTime.Now;
+        [Required] public DateTime EndDate { get; set; } = DateTime.Now.AddDays(1);
+        public ProjectTaskStatus Status { get; set; } = ProjectTaskStatus.NotStarted;
+        public int DisplayOrder { get; set; }
     }
 
     public void Dispose()

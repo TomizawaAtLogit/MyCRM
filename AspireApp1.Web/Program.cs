@@ -104,6 +104,25 @@ builder.Services.AddHttpClient<ProjectActivityApiClient>(client =>
     })
     .AddHttpMessageHandler<CookieForwardingHandler>();
 
+builder.Services.AddHttpClient<ProjectTaskApiClient>(client =>
+    {
+        var dbApiBase = builder.Configuration["DbApiBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(dbApiBase))
+        {
+            client.BaseAddress = new(dbApiBase);
+        }
+        else
+        {
+            client.BaseAddress = new("https+http://dbapi");
+        }
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        UseDefaultCredentials = true,
+        Credentials = System.Net.CredentialCache.DefaultNetworkCredentials
+    })
+    .AddHttpMessageHandler<CookieForwardingHandler>();
+
 builder.Services.AddHttpClient<AdminApiClient>(client =>
     {
         var dbApiBase = builder.Configuration["DbApiBaseUrl"];
