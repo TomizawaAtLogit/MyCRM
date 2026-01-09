@@ -6,6 +6,7 @@
 @inject EntityFilesApiClient EntityFilesApi
 @inject IJSRuntime JSRuntime
 @inject LocalizationService Localizer
+@inject AdminApiClient AdminApi
 @using System.ComponentModel.DataAnnotations
 @using AspireApp1.Web
 @using Microsoft.AspNetCore.Components.Forms
@@ -177,7 +178,7 @@
                                             @if (!showAddActivity.ContainsKey(p.Id) || !showAddActivity[p.Id])
                                             {
                                                 <button class="btn btn-sm btn-primary" @onclick="async () => await ShowAddActivityFormAsync(p.Id)" disabled="@(currentEditingActivityId != null)">
-                                                    <i class="bi bi-plus-circle me-1"></i> Add New Activity
+                                                    <i class="bi bi-plus-circle me-1"></i> @Localizer.GetString("Add New Activity")
                                                 </button>
                                             }
                                             else if (newActivityModels.ContainsKey(p.Id) && activityCreateContexts.ContainsKey(p.Id))
@@ -186,8 +187,8 @@
                                                 var context = activityCreateContexts[p.Id];
                                                 <div class="card mt-2">
                                                     <div class="card-header d-flex justify-content-between align-items-center">
-                                                        <h6 class="mb-0">New Activity</h6>
-                                                        <button class="btn btn-sm btn-secondary" @onclick="() => HideAddActivityForm(p.Id)">Cancel</button>
+                                                        <h6 class="mb-0">@Localizer.GetString("New Activity")</h6>
+                                                        <button class="btn btn-sm btn-secondary" @onclick="() => HideAddActivityForm(p.Id)">@Localizer.GetString("Cancel")</button>
                                                     </div>
                                                     <div class="card-body">
                                                         <EditForm EditContext="@context" OnValidSubmit="() => CreateActivityAsync(p.Id)">
@@ -195,39 +196,48 @@
                                                             <ValidationSummary />
                                                             <div class="row">
                                                                 <div class="col-md-6 mb-3">
-                                                                    <label class="form-label">Activity Date *</label>
+                                                                    <label class="form-label">@Localizer.GetString("Activity Date") *</label>
                                                                     <InputDate @bind-Value="model.ActivityDate" class="form-control" />
                                                                     <ValidationMessage For="() => model.ActivityDate" />
                                                                 </div>
                                                                 <div class="col-md-6 mb-3">
-                                                                    <label class="form-label">Summary *</label>
+                                                                    <label class="form-label">@Localizer.GetString("Task") *</label>
                                                                     <InputText @bind-Value="model.Summary" class="form-control" />
                                                                     <ValidationMessage For="() => model.Summary" />
                                                                 </div>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <label class="form-label">Description</label>
+                                                                <label class="form-label">@Localizer.GetString("Description")</label>
                                                                 <InputTextArea @bind-Value="model.Description" class="form-control" rows="3" />
                                                                 <ValidationMessage For="() => model.Description" />
                                                             </div>
                                                             <div class="mb-3">
-                                                                <label class="form-label">Next Action</label>
+                                                                <label class="form-label">@Localizer.GetString("Next Action")</label>
                                                                 <InputTextArea @bind-Value="model.NextAction" class="form-control" rows="2" />
                                                                 <ValidationMessage For="() => model.NextAction" />
                                                             </div>
                                                             <div class="row">
                                                                 <div class="col-md-6 mb-3">
-                                                                    <label class="form-label">Activity Type</label>
+                                                                    <label class="form-label">@Localizer.GetString("Note")</label>
                                                                     <InputText @bind-Value="model.ActivityType" class="form-control" />
                                                                     <ValidationMessage For="() => model.ActivityType" />
                                                                 </div>
                                                                 <div class="col-md-6 mb-3">
-                                                                    <label class="form-label">Performed By</label>
-                                                                    <InputText @bind-Value="model.PerformedBy" class="form-control" />
+                                                                    <label class="form-label">@Localizer.GetString("Performed By")</label>
+                                                                    <InputSelect @bind-Value="model.PerformedBy" class="form-select">
+                                                                        <option value="">@Localizer.GetString("Select User")</option>
+                                                                        @if (users != null)
+                                                                        {
+                                                                            @foreach (var u in users.Where(u => u.IsActive))
+                                                                            {
+                                                                                <option value="@u.DisplayName">@u.DisplayName</option>
+                                                                            }
+                                                                        }
+                                                                    </InputSelect>
                                                                     <ValidationMessage For="() => model.PerformedBy" />
                                                                 </div>
                                                             </div>
-                                                            <button class="btn btn-primary w-100" type="submit">Create Activity</button>
+                                                            <button class="btn btn-primary w-100" type="submit">@Localizer.GetString("Create Activity")</button>
                                                         </EditForm>
                                                     </div>
                                                 </div>
@@ -238,11 +248,11 @@
                                     {
                                         <div class="py-3">
                                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <h6 class="mb-0">Activities</h6>
+                                                <h6 class="mb-0">@Localizer.GetString("Activities")</h6>
                                                 @if (!showAddActivity.ContainsKey(p.Id) || !showAddActivity[p.Id])
                                                 {
                                                     <button class="btn btn-sm btn-primary" @onclick="async () => await ShowAddActivityFormAsync(p.Id)" disabled="@(currentEditingActivityId != null)">
-                                                        <i class="bi bi-plus-circle me-1"></i> Add New Activity
+                                                        <i class="bi bi-plus-circle me-1"></i> @Localizer.GetString("Add New Activity")
                                                     </button>
                                                 }
                                             </div>
@@ -253,8 +263,8 @@
                                                 var context = activityCreateContexts[p.Id];
                                                 <div class="card mb-3">
                                                     <div class="card-header d-flex justify-content-between align-items-center">
-                                                        <h6 class="mb-0">New Activity</h6>
-                                                        <button class="btn btn-sm btn-secondary" @onclick="() => HideAddActivityForm(p.Id)">Cancel</button>
+                                                        <h6 class="mb-0">@Localizer.GetString("New Activity")</h6>
+                                                        <button class="btn btn-sm btn-secondary" @onclick="() => HideAddActivityForm(p.Id)">@Localizer.GetString("Cancel")</button>
                                                     </div>
                                                     <div class="card-body">
                                                         <EditForm EditContext="@context" OnValidSubmit="() => CreateActivityAsync(p.Id)">
@@ -262,39 +272,48 @@
                                                             <ValidationSummary />
                                                             <div class="row">
                                                                 <div class="col-md-6 mb-3">
-                                                                    <label class="form-label">Activity Date *</label>
+                                                                    <label class="form-label">@Localizer.GetString("Activity Date") *</label>
                                                                     <InputDate @bind-Value="model.ActivityDate" class="form-control" />
                                                                     <ValidationMessage For="() => model.ActivityDate" />
                                                                 </div>
                                                                 <div class="col-md-6 mb-3">
-                                                                    <label class="form-label">Summary *</label>
+                                                                    <label class="form-label">@Localizer.GetString("Task") *</label>
                                                                     <InputText @bind-Value="model.Summary" class="form-control" />
                                                                     <ValidationMessage For="() => model.Summary" />
                                                                 </div>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <label class="form-label">Description</label>
+                                                                <label class="form-label">@Localizer.GetString("Description")</label>
                                                                 <InputTextArea @bind-Value="model.Description" class="form-control" rows="3" />
                                                                 <ValidationMessage For="() => model.Description" />
                                                             </div>
                                                             <div class="mb-3">
-                                                                <label class="form-label">Next Action</label>
+                                                                <label class="form-label">@Localizer.GetString("Next Action")</label>
                                                                 <InputTextArea @bind-Value="model.NextAction" class="form-control" rows="2" />
                                                                 <ValidationMessage For="() => model.NextAction" />
                                                             </div>
                                                             <div class="row">
                                                                 <div class="col-md-6 mb-3">
-                                                                    <label class="form-label">Activity Type</label>
+                                                                    <label class="form-label">@Localizer.GetString("Note")</label>
                                                                     <InputText @bind-Value="model.ActivityType" class="form-control" />
                                                                     <ValidationMessage For="() => model.ActivityType" />
                                                                 </div>
                                                                 <div class="col-md-6 mb-3">
-                                                                    <label class="form-label">Performed By</label>
-                                                                    <InputText @bind-Value="model.PerformedBy" class="form-control" />
+                                                                    <label class="form-label">@Localizer.GetString("Performed By")</label>
+                                                                    <InputSelect @bind-Value="model.PerformedBy" class="form-select">
+                                                                        <option value="">@Localizer.GetString("Select User")</option>
+                                                                        @if (users != null)
+                                                                        {
+                                                                            @foreach (var u in users.Where(u => u.IsActive))
+                                                                            {
+                                                                                <option value="@u.DisplayName">@u.DisplayName</option>
+                                                                            }
+                                                                        }
+                                                                    </InputSelect>
                                                                     <ValidationMessage For="() => model.PerformedBy" />
                                                                 </div>
                                                             </div>
-                                                            <button class="btn btn-primary w-100" type="submit">Create Activity</button>
+                                                            <button class="btn btn-primary w-100" type="submit">@Localizer.GetString("Create Activity")</button>
                                                         </EditForm>
                                                     </div>
                                                 </div>
@@ -303,13 +322,13 @@
                                             <table class="table table-sm table-hover">
                                                 <thead>
                                                     <tr>
-                                                        <th>Date</th>
-                                                        <th>Summary</th>
-                                                        <th>Description</th>
-                                                        <th>Next Action</th>
-                                                        <th>Type</th>
-                                                        <th>Performed By</th>
-                                                        <th>Actions</th>
+                                                        <th>@Localizer.GetString("Date")</th>
+                                                        <th>@Localizer.GetString("Task")</th>
+                                                        <th>@Localizer.GetString("Description")</th>
+                                                        <th>@Localizer.GetString("Next Action")</th>
+                                                        <th>@Localizer.GetString("Note")</th>
+                                                        <th>@Localizer.GetString("Performed By")</th>
+                                                        <th>@Localizer.GetString("Actions")</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -339,8 +358,8 @@
                                                                 <td colspan="7" class="border-top-0">
                                                                     <div class="card mt-2 mb-3">
                                                                         <div class="card-header d-flex justify-content-between align-items-center">
-                                                                            <h6 class="mb-0">Edit Activity</h6>
-                                                                            <button class="btn btn-sm btn-secondary" @onclick="CancelEditActivity">Cancel</button>
+                                                                            <h6 class="mb-0">@Localizer.GetString("Edit Activity")</h6>
+                                                                            <button class="btn btn-sm btn-secondary" @onclick="CancelEditActivity">@Localizer.GetString("Cancel")</button>
                                                                         </div>
                                                                         <div class="card-body">
                                                                             <EditForm Model="editActivityModel" OnValidSubmit="SaveEditActivityAsync">
@@ -348,41 +367,55 @@
                                                                                 <ValidationSummary />
                                                                                 <div class="row">
                                                                                     <div class="col-md-6 mb-3">
-                                                                                        <label class="form-label">Activity Date *</label>
+                                                                                        <label class="form-label">@Localizer.GetString("Activity Date") *</label>
                                                                                         <InputDate @bind-Value="editActivityModel.ActivityDate" class="form-control" />
                                                                                         <ValidationMessage For="() => editActivityModel.ActivityDate" />
                                                                                     </div>
                                                                                     <div class="col-md-6 mb-3">
-                                                                                        <label class="form-label">Summary *</label>
+                                                                                        <label class="form-label">@Localizer.GetString("Task") *</label>
                                                                                         <InputText @bind-Value="editActivityModel.Summary" class="form-control" />
                                                                                         <ValidationMessage For="() => editActivityModel.Summary" />
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="mb-3">
-                                                                                    <label class="form-label">Description</label>
+                                                                                    <label class="form-label">@Localizer.GetString("Description")</label>
                                                                                     <InputTextArea @bind-Value="editActivityModel.Description" class="form-control" rows="3" />
                                                                                     <ValidationMessage For="() => editActivityModel.Description" />
                                                                                 </div>
                                                                                 <div class="mb-3">
-                                                                                    <label class="form-label">Next Action</label>
+                                                                                    <label class="form-label">@Localizer.GetString("Next Action")</label>
                                                                                     <InputTextArea @bind-Value="editActivityModel.NextAction" class="form-control" rows="2" />
                                                                                     <ValidationMessage For="() => editActivityModel.NextAction" />
                                                                                 </div>
                                                                                 <div class="row">
                                                                                     <div class="col-md-6 mb-3">
-                                                                                        <label class="form-label">Activity Type</label>
+                                                                                        <label class="form-label">@Localizer.GetString("Note")</label>
                                                                                         <InputText @bind-Value="editActivityModel.ActivityType" class="form-control" />
                                                                                         <ValidationMessage For="() => editActivityModel.ActivityType" />
                                                                                     </div>
-                                                                                    <div class="col-md-6 mb-3">
-                                                                                        <label class="form-label">Performed By</label>
-                                                                                        <InputText @bind-Value="editActivityModel.PerformedBy" class="form-control" />
-                                                                                        <ValidationMessage For="() => editActivityModel.PerformedBy" />
-                                                                                    </div>
+                                                                                        <div class="col-md-6 mb-3">
+                                                                                            <label class="form-label">@Localizer.GetString("Performed By")</label>
+                                                                                            <InputSelect @bind-Value="editActivityModel.PerformedBy" class="form-select">
+                                                                                                <option value="">@Localizer.GetString("Select User")</option>
+                                                                                                @if (users != null)
+                                                                                                {
+                                                                                                    @* Include current value even if user is inactive *@
+                                                                                                    @if (!string.IsNullOrEmpty(editActivityModel.PerformedBy) && !users.Any(u => u.IsActive && u.DisplayName == editActivityModel.PerformedBy))
+                                                                                                    {
+                                                                                                        <option value="@editActivityModel.PerformedBy">@editActivityModel.PerformedBy (Inactive)</option>
+                                                                                                    }
+                                                                                                    @foreach (var u in users.Where(u => u.IsActive))
+                                                                                                    {
+                                                                                                        <option value="@u.DisplayName">@u.DisplayName</option>
+                                                                                                    }
+                                                                                                }
+                                                                                            </InputSelect>
+                                                                                            <ValidationMessage For="() => editActivityModel.PerformedBy" />
+                                                                                        </div>
                                                                                 </div>
                                                                                 <div class="d-flex gap-2">
-                                                                                    <button class="btn btn-primary" type="submit">Save Changes</button>
-                                                                                    <button class="btn btn-secondary" type="button" @onclick="CancelEditActivity">Cancel</button>
+                                                                                    <button class="btn btn-primary" type="submit">@Localizer.GetString("Save Changes")</button>
+                                                                                    <button class="btn btn-secondary" type="button" @onclick="CancelEditActivity">@Localizer.GetString("Cancel")</button>
                                                                                 </div>
                                                                             </EditForm>
                                                                         </div>
@@ -529,6 +562,7 @@
 @code {
     private Web.ProjectDto[]? projects;
     private Web.CustomerDto[]? customers;
+    private Web.UserDto[]? users;
     private string? loadError;
     private string filterCustomerId = "";
     private string filterStatus = "";
@@ -583,10 +617,12 @@
         try
         {
             customers = await CustomersApi.GetCustomersAsync();
+            users = await AdminApi.GetUsersAsync();
         }
         catch
         {
             customers = Array.Empty<CustomerDto>();
+            users = Array.Empty<UserDto>();
         }
     }
 
@@ -909,6 +945,14 @@
                 editActivityModel = null;
                 await LoadActivitiesAsync(projectIdToRefresh);
             }
+            else
+            {
+                ShowToast("Failed to update activity", "danger");
+            }
+        }
+        catch (HttpRequestException httpEx)
+        {
+            ShowToast(httpEx.Message, "danger");
         }
         catch (Exception ex)
         {

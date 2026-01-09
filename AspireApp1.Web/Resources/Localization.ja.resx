@@ -94,6 +94,12 @@
   <data name="Activity Date" xml:space="preserve">
     <value>活動日</value>
   </data>
+  <data name="Task" xml:space="preserve">
+    <value>タスク</value>
+  </data>
+  <data name="Note" xml:space="preserve">
+    <value>メモ</value>
+  </data>
   <data name="Summary" xml:space="preserve">
     <value>サマリー</value>
   </data>

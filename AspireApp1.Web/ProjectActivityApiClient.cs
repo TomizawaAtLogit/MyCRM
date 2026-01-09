@@ -115,7 +115,11 @@ public class ProjectActivityApiClient
     public async Task<bool> UpdateAsync(int id, ProjectActivityDto dto, CancellationToken ct = default)
     {
         var res = await _http.PutAsJsonAsync($"/api/projectactivities/{id}", dto, ct);
-        return res.IsSuccessStatusCode;
+        if (res.IsSuccessStatusCode)
+            return true;
+
+        var errorContent = await res.Content.ReadAsStringAsync(ct);
+        throw new HttpRequestException($"Failed to update activity: {res.StatusCode} - {errorContent}");
     }
 
     public async Task<bool> DeleteAsync(int id, CancellationToken ct = default)

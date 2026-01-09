@@ -10,3 +10,13 @@ public record ProjectActivityCreateDto(
     [MaxLength(1000)] string? NextAction,
     [MaxLength(100)] string? ActivityType,
     [MaxLength(200)] string? PerformedBy);
+
+public record UpdateProjectActivityDto(
+    [Required] int Id,
+    [Required] int ProjectId,
+    DateTime ActivityDate,
+    [Required, MaxLength(500)] string Summary,
+    [MaxLength(5000)] string? Description,
+    [MaxLength(1000)] string? NextAction,
+    [MaxLength(100)] string? ActivityType,
+    [MaxLength(200)] string? PerformedBy);
