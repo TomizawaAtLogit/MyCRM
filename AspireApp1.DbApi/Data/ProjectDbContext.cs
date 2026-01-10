@@ -8,6 +8,7 @@ namespace AspireApp1.DbApi.Data
         public ProjectDbContext(DbContextOptions<ProjectDbContext> options) : base(options) { }
 
         public DbSet<Project> Projects { get; set; } = null!;
+        public DbSet<ProjectTask> ProjectTasks { get; set; } = null!;
         public DbSet<Customer> Customers { get; set; } = null!;
         public DbSet<CustomerDatabase> CustomerDatabases { get; set; } = null!;
         public DbSet<CustomerSite> CustomerSites { get; set; } = null!;
@@ -43,6 +44,26 @@ namespace AspireApp1.DbApi.Data
                 
                 b.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
                 b.HasIndex(x => x.CustomerId);
+            });
+
+            modelBuilder.Entity<ProjectTask>(b =>
+            {
+                b.ToTable("project_tasks");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.ProjectId).HasColumnName("project_id");
+                b.Property(x => x.Title).IsRequired().HasMaxLength(500).HasColumnName("title");
+                b.Property(x => x.Description).HasMaxLength(5000).HasColumnName("description");
+                b.Property(x => x.StartAtUtc).HasColumnName("start_at_utc");
+                b.Property(x => x.EndAtUtc).HasColumnName("end_at_utc");
+                b.Property(x => x.Status).HasConversion<string>().HasMaxLength(50).HasColumnName("status");
+                b.Property(x => x.DisplayOrder).HasColumnName("display_order");
+                b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
+                b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                
+                b.HasOne(x => x.Project).WithMany().HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.Cascade);
+                b.HasIndex(x => x.ProjectId);
+                b.HasIndex(x => x.StartAtUtc);
             });
 
             modelBuilder.Entity<Customer>(b =>
