@@ -147,7 +147,7 @@
                                                         type="button"
                                                         @onclick="@(() => SetProjectTab(p.Id, "activities"))"
                                                         role="tab">
-                                                    <span class="bi bi-calendar-event"></span> Activities
+                                                    <span class="bi bi-calendar-event"></span> @Localizer.GetString("Issue")
                                                 </button>
                                             </li>
                                             <li class="nav-item" role="presentation">
@@ -155,7 +155,7 @@
                                                         type="button"
                                                         @onclick="@(() => SetProjectTabAsync(p.Id, "gantt"))"
                                                         role="tab">
-                                                    <span class="bi bi-bar-chart-steps"></span> Gantt Chart
+                                                    <span class="bi bi-bar-chart-steps"></span> @Localizer.GetString("Scheduled Task")
                                                 </button>
                                             </li>
                                             <li class="nav-item" role="presentation">
@@ -259,7 +259,7 @@
                                             {
                                                 <div class="py-3">
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <h6 class="mb-0">@Localizer.GetString("Activities")</h6>
+                                                        <h6 class="mb-0">@Localizer.GetString("Issue")</h6>
                                                         @if (!showAddActivity.ContainsKey(p.Id) || !showAddActivity[p.Id])
                                                         {
                                                             <button class="btn btn-sm btn-primary" @onclick="async () => await ShowAddActivityFormAsync(p.Id)" disabled="@(currentEditingActivityId != null)">
@@ -446,22 +446,22 @@
                                         {
                                             @if (loadingTasks.ContainsKey(p.Id) && loadingTasks[p.Id])
                                             {
-                                                <div class="text-center py-3">
+                                                    <div class="text-center py-3">
                                                     <div class="spinner-border spinner-border-sm" role="status">
                                                         <span class="visually-hidden">Loading...</span>
                                                     </div>
-                                                    <span class="ms-2">Loading tasks...</span>
+                                                    <span class="ms-2">@Localizer.GetString("Loading tasks...")</span>
                                                 </div>
                                             }
                                             else
                                             {
                                                 <div class="py-3">
                                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                                        <h6 class="mb-0">Project Tasks</h6>
+                                                        <h6 class="mb-0">@Localizer.GetString("Scheduled Task")</h6>
                                                         @if (!showAddTask.ContainsKey(p.Id) || !showAddTask[p.Id])
                                                         {
                                                             <button class="btn btn-sm btn-primary" @onclick="() => ShowAddTaskForm(p.Id)">
-                                                                <i class="bi bi-plus-circle me-1"></i> Add Task
+                                                                <i class="bi bi-plus-circle me-1"></i> @Localizer.GetString("Add Task")
                                                             </button>
                                                         }
                                                     </div>
@@ -470,8 +470,8 @@
                                                     {
                                                         <div class="card mb-3">
                                                             <div class="card-header d-flex justify-content-between align-items-center">
-                                                                <h6 class="mb-0">New Task</h6>
-                                                                <button class="btn btn-sm btn-secondary" @onclick="() => HideAddTaskForm(p.Id)">Cancel</button>
+                                                                <h6 class="mb-0">@Localizer.GetString("New Task")</h6>
+                                                                <button class="btn btn-sm btn-secondary" @onclick="() => HideAddTaskForm(p.Id)">@Localizer.GetString("Cancel")</button>
                                                             </div>
                                                             <div class="card-body">
                                                                 <EditForm Model="newTaskModel" OnValidSubmit="() => CreateTaskAsync(p.Id)">
@@ -479,37 +479,37 @@
                                                                     <ValidationSummary />
                                                                     <div class="row">
                                                                         <div class="col-md-12 mb-3">
-                                                                            <label class="form-label">Title *</label>
+                                                                            <label class="form-label">@Localizer.GetString("Title") *</label>
                                                                             <InputText @bind-Value="newTaskModel.Title" class="form-control" />
                                                                             <ValidationMessage For="() => newTaskModel.Title" />
                                                                         </div>
                                                                     </div>
                                                                     <div class="mb-3">
-                                                                        <label class="form-label">Description</label>
+                                                                        <label class="form-label">@Localizer.GetString("Description")</label>
                                                                         <InputTextArea @bind-Value="newTaskModel.Description" class="form-control" rows="2" />
                                                                     </div>
                                                                     <div class="row">
                                                                         <div class="col-md-6 mb-3">
-                                                                            <label class="form-label">Start Date *</label>
+                                                                            <label class="form-label">@Localizer.GetString("Start Date") *</label>
                                                                             <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="newTaskModel.StartDate" class="form-control" />
                                                                             <ValidationMessage For="() => newTaskModel.StartDate" />
                                                                         </div>
                                                                         <div class="col-md-6 mb-3">
-                                                                            <label class="form-label">End Date *</label>
+                                                                            <label class="form-label">@Localizer.GetString("End Date") *</label>
                                                                             <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="newTaskModel.EndDate" class="form-control" />
                                                                             <ValidationMessage For="() => newTaskModel.EndDate" />
                                                                         </div>
                                                                     </div>
                                                                     <div class="mb-3">
-                                                                        <label class="form-label">Status</label>
+                                                                        <label class="form-label">@Localizer.GetString("Status")</label>
                                                                         <InputSelect @bind-Value="newTaskModel.Status" class="form-select">
-                                                                            <option value="@ProjectTaskStatus.NotStarted">Not Started</option>
-                                                                            <option value="@ProjectTaskStatus.InProgress">In Progress</option>
-                                                                            <option value="@ProjectTaskStatus.Completed">Completed</option>
-                                                                            <option value="@ProjectTaskStatus.Blocked">Blocked</option>
+                                                                            <option value="@ProjectTaskStatus.NotStarted">@Localizer.GetString("Not Started")</option>
+                                                                            <option value="@ProjectTaskStatus.InProgress">@Localizer.GetString("In Progress")</option>
+                                                                            <option value="@ProjectTaskStatus.Completed">@Localizer.GetString("Completed")</option>
+                                                                            <option value="@ProjectTaskStatus.Blocked">@Localizer.GetString("Blocked")</option>
                                                                         </InputSelect>
                                                                     </div>
-                                                                    <button class="btn btn-primary w-100" type="submit">Create Task</button>
+                                                                    <button class="btn btn-primary w-100" type="submit">@Localizer.GetString("Create Task")</button>
                                                                 </EditForm>
                                                             </div>
                                                         </div>
@@ -517,17 +517,17 @@
 
                                                     @if (!projectTasks.ContainsKey(p.Id) || projectTasks[p.Id] == null || !projectTasks[p.Id]!.Any())
                                                     {
-                                                        <p class="text-muted">No tasks yet.</p>
+                                                        <p class="text-muted">@Localizer.GetString("No tasks yet.")</p>
                                                     }
                                                     else
                                                     {
                                                         <div class="gantt-container mb-3">
                                                             <div class="gantt-header">
                                                                 <div class="row">
-                                                                    <div class="col-md-3 fw-bold">Task</div>
-                                                                    <div class="col-md-2 fw-bold">Status</div>
-                                                                    <div class="col-md-5 fw-bold">Timeline</div>
-                                                                    <div class="col-md-2 fw-bold">Actions</div>
+                                                                    <div class="col-md-3 fw-bold">@Localizer.GetString("Task")</div>
+                                                                    <div class="col-md-2 fw-bold">@Localizer.GetString("Status")</div>
+                                                                    <div class="col-md-5 fw-bold">@Localizer.GetString("Timeline")</div>
+                                                                    <div class="col-md-2 fw-bold">@Localizer.GetString("Actions")</div>
                                                                 </div>
                                                             </div>
                                                             @foreach (var task in projectTasks[p.Id]!)
@@ -544,25 +544,25 @@
                                                                         <div class="col-md-2">
                                                                             @if (task.Status == ProjectTaskStatus.NotStarted)
                                                                             {
-                                                                                <span class="badge bg-secondary">Not Started</span>
+                                                                                <span class="badge bg-secondary">@Localizer.GetString("Not Started")</span>
                                                                             }
                                                                             else if (task.Status == ProjectTaskStatus.InProgress)
                                                                             {
-                                                                                <span class="badge bg-primary">In Progress</span>
+                                                                                <span class="badge bg-primary">@Localizer.GetString("In Progress")</span>
                                                                             }
                                                                             else if (task.Status == ProjectTaskStatus.Completed)
                                                                             {
-                                                                                <span class="badge bg-success">Completed</span>
+                                                                                <span class="badge bg-success">@Localizer.GetString("Completed")</span>
                                                                             }
                                                                             else if (task.Status == ProjectTaskStatus.Blocked)
                                                                             {
-                                                                                <span class="badge bg-danger">Blocked</span>
+                                                                                <span class="badge bg-danger">@Localizer.GetString("Blocked")</span>
                                                                             }
                                                                         </div>
                                                                         <div class="col-md-5">
                                                                             <div class="small">
-                                                                                <strong>Start:</strong> @task.StartAtUtc.ToLocalTime().ToString("g")<br/>
-                                                                                <strong>End:</strong> @task.EndAtUtc.ToLocalTime().ToString("g")
+                                                                                <strong>@Localizer.GetString("Start"):</strong> @task.StartAtUtc.ToLocalTime().ToString("g")<br/>
+                                                                                <strong>@Localizer.GetString("End"):</strong> @task.EndAtUtc.ToLocalTime().ToString("g")
                                                                             </div>
                                                                             <div class="progress mt-1" style="height: 20px;">
                                                                                 @{
@@ -598,8 +598,8 @@
                                                                     {
                                                                         <div class="card mt-2 mb-2">
                                                                             <div class="card-header d-flex justify-content-between align-items-center">
-                                                                                <h6 class="mb-0">Edit Task</h6>
-                                                                                <button class="btn btn-sm btn-secondary" @onclick="CancelEditTask">Cancel</button>
+                                                                                <h6 class="mb-0">@Localizer.GetString("Edit Task")</h6>
+                                                                                <button class="btn btn-sm btn-secondary" @onclick="CancelEditTask">@Localizer.GetString("Cancel")</button>
                                                                             </div>
                                                                             <div class="card-body">
                                                                                 <EditForm Model="editTaskModel" OnValidSubmit="SaveEditTaskAsync">
@@ -607,39 +607,39 @@
                                                                                     <ValidationSummary />
                                                                                     <div class="row">
                                                                                         <div class="col-md-12 mb-3">
-                                                                                            <label class="form-label">Title *</label>
+                                                                                            <label class="form-label">@Localizer.GetString("Title") *</label>
                                                                                             <InputText @bind-Value="editTaskModel.Title" class="form-control" />
                                                                                             <ValidationMessage For="() => editTaskModel.Title" />
                                                                                         </div>
                                                                                     </div>
                                                                                     <div class="mb-3">
-                                                                                        <label class="form-label">Description</label>
+                                                                                        <label class="form-label">@Localizer.GetString("Description")</label>
                                                                                         <InputTextArea @bind-Value="editTaskModel.Description" class="form-control" rows="2" />
                                                                                     </div>
                                                                                     <div class="row">
                                                                                         <div class="col-md-6 mb-3">
-                                                                                            <label class="form-label">Start Date *</label>
+                                                                                            <label class="form-label">@Localizer.GetString("Start Date") *</label>
                                                                                             <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="editTaskModel.StartDate" class="form-control" />
                                                                                             <ValidationMessage For="() => editTaskModel.StartDate" />
                                                                                         </div>
                                                                                         <div class="col-md-6 mb-3">
-                                                                                            <label class="form-label">End Date *</label>
+                                                                                            <label class="form-label">@Localizer.GetString("End Date") *</label>
                                                                                             <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="editTaskModel.EndDate" class="form-control" />
                                                                                             <ValidationMessage For="() => editTaskModel.EndDate" />
                                                                                         </div>
                                                                                     </div>
                                                                                     <div class="mb-3">
-                                                                                        <label class="form-label">Status</label>
+                                                                                        <label class="form-label">@Localizer.GetString("Status")</label>
                                                                                         <InputSelect @bind-Value="editTaskModel.Status" class="form-select">
-                                                                                            <option value="@ProjectTaskStatus.NotStarted">Not Started</option>
-                                                                                            <option value="@ProjectTaskStatus.InProgress">In Progress</option>
-                                                                                            <option value="@ProjectTaskStatus.Completed">Completed</option>
-                                                                                            <option value="@ProjectTaskStatus.Blocked">Blocked</option>
+                                                                                            <option value="@ProjectTaskStatus.NotStarted">@Localizer.GetString("Not Started")</option>
+                                                                                            <option value="@ProjectTaskStatus.InProgress">@Localizer.GetString("In Progress")</option>
+                                                                                            <option value="@ProjectTaskStatus.Completed">@Localizer.GetString("Completed")</option>
+                                                                                            <option value="@ProjectTaskStatus.Blocked">@Localizer.GetString("Blocked")</option>
                                                                                         </InputSelect>
                                                                                     </div>
                                                                                     <div class="d-flex gap-2">
-                                                                                        <button class="btn btn-primary" type="submit">Save Changes</button>
-                                                                                        <button class="btn btn-secondary" type="button" @onclick="CancelEditTask">Cancel</button>
+                                                                                        <button class="btn btn-primary" type="submit">@Localizer.GetString("Save Changes")</button>
+                                                                                        <button class="btn btn-secondary" type="button" @onclick="CancelEditTask">@Localizer.GetString("Cancel")</button>
                                                                                     </div>
                                                                                 </EditForm>
                                                                             </div>

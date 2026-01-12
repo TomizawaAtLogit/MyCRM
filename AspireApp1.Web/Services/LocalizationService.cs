@@ -127,6 +127,21 @@ public class LocalizationService
             ["To"] = "To",
             ["Edit Activity"] = "Edit Activity",
             ["Cancel"] = "Cancel"
+            // Scheduled task labels
+            , ["Issue"] = "Issue"
+            , ["Scheduled Task"] = "Scheduled Task"
+            , ["Add Task"] = "Add Task"
+            , ["New Task"] = "New Task"
+            , ["Create Task"] = "Create Task"
+            , ["No tasks yet."] = "No tasks yet."
+            , ["Loading tasks..."] = "Loading tasks..."
+            , ["Timeline"] = "Timeline"
+            , ["Start"] = "Start"
+            , ["End"] = "End"
+            , ["Not Started"] = "Not Started"
+            , ["Completed"] = "Completed"
+            , ["Blocked"] = "Blocked"
+            , ["Edit Task"] = "Edit Task"
         },
         ["ja"] = new Dictionary<string, string>
         {
@@ -244,6 +259,21 @@ public class LocalizationService
             ["To"] = "終了",
             ["Edit Activity"] = "アクティビティを編集",
             ["Cancel"] = "キャンセル"
+            // Scheduled task labels
+            , ["Issue"] = "課題"
+            , ["Scheduled Task"] = "スケジュールタスク"
+            , ["Add Task"] = "タスクを追加"
+            , ["New Task"] = "新しいタスク"
+            , ["Create Task"] = "タスクを作成"
+            , ["No tasks yet."] = "まだタスクはありません。"
+            , ["Loading tasks..."] = "タスクを読み込み中..."
+            , ["Timeline"] = "タイムライン"
+            , ["Start"] = "開始"
+            , ["End"] = "終了"
+            , ["Not Started"] = "未着手"
+            , ["Completed"] = "完了"
+            , ["Blocked"] = "ブロック済み"
+            , ["Edit Task"] = "タスクを編集"
         }
     };
 
