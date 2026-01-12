@@ -1,7 +1,10 @@
 ﻿@page "/"
 @rendermode InteractiveServer
+@using Microsoft.AspNetCore.WebUtilities
 @inject ProjectActivityApiClient ProjectActivityApi
+@inject ProjectTaskApiClient ProjectTaskApi
 @inject CasesApiClient CasesApi
+@inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 @inject LocalizationService Localizer
 @implements IDisposable
@@ -12,19 +15,18 @@
     <h1>@Localizer.GetString("Activity Calendar")</h1>
     <div class="d-flex">
         <div class="btn-group me-2" role="group">
-            <button type="button" class="btn @(scheduleType == "project" ? "btn-primary" : "btn-outline-primary")" @onclick="@(() => SetScheduleType("project"))">
+            <button type="button" class="btn @(scheduleType == "project" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetScheduleType("project")'>
                 <i class="bi bi-folder"></i> @Localizer.GetString("Projects")
             </button>
-            <button type="button" class="btn @(scheduleType == "case" ? "btn-primary" : "btn-outline-primary")" @onclick="@(() => SetScheduleType("case"))">
+            <button type="button" class="btn @(scheduleType == "case" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetScheduleType("case")'>
                 <i class="bi bi-briefcase"></i> @Localizer.GetString("Cases")
             </button>
         </div>
-
         <div class="btn-group" role="group">
-            <button type="button" class="btn @(viewMode == "grid" ? "btn-primary" : "btn-outline-primary")" @onclick="@(() => SetViewMode("grid"))">
+            <button type="button" class="btn @(viewMode == "grid" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetViewMode("grid")'>
                 <i class="bi bi-calendar3"></i> @Localizer.GetString("Calendar")
             </button>
-            <button type="button" class="btn @(viewMode == "list" ? "btn-primary" : "btn-outline-primary")" @onclick="@(() => SetViewMode("list"))">
+            <button type="button" class="btn @(viewMode == "list" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetViewMode("list")'>
                 <i class="bi bi-list-ul"></i> @Localizer.GetString("List")
             </button>
         </div>
@@ -39,11 +41,24 @@
     </div>
 }
 
+@if (IsTasksView)
+{
+    <div class="alert alert-info d-flex justify-content-between align-items-center">
+        <div>
+            <strong>@Localizer.GetString("Viewing scheduled tasks for")</strong>
+            <span class="ms-2 text-muted">@(!string.IsNullOrWhiteSpace(activeProjectFilterName) ? activeProjectFilterName : $"#{activeProjectFilterId}")</span>
+        </div>
+        <button class="btn btn-sm btn-outline-secondary" @onclick="ClearProjectFilter">
+            <i class="bi bi-x-circle me-1"></i> @Localizer.GetString("Clear Filter")
+        </button>
+    </div>
+}
+
 @if (viewMode == "grid")
 {
     <div class="card mb-4">
         <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <button class="btn btn-outline-secondary" @onclick="PreviousMonth">
                     <i class="bi bi-chevron-left"></i> @Localizer.GetString("Previous")
                 </button>
@@ -52,14 +67,14 @@
                     @Localizer.GetString("Next") <i class="bi bi-chevron-right"></i>
                 </button>
             </div>
-            
+
             @if (isLoading)
             {
                 <div class="text-center py-5">
                     <div class="spinner-border" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="mt-2">Loading activities...</p>
+                    <p class="mt-2">@Localizer.GetString("Loading activities...")</p>
                 </div>
             }
             else
@@ -72,34 +87,65 @@
                     <div class="calendar-header">Fri</div>
                     <div class="calendar-header">Sat</div>
                     <div class="calendar-header">Sun</div>
-                    
+
                     @foreach (var day in GetCalendarDays())
                     {
-                        <div class="calendar-cell @(day.IsCurrentMonth ? "" : "other-month") @(day.IsToday ? "today" : "")">
+                        <div class="calendar-cell @(day.IsCurrentMonth ? string.Empty : "other-month") @(day.IsToday ? "today" : string.Empty)">
                             <div class="calendar-day-number">@day.Date.Day</div>
-                            @if (day.Activities.Any())
+
+                            @if (day.Entries.Any())
                             {
                                 <div class="calendar-activities">
-                                    @foreach (var activity in day.Activities.Take(3))
+                                    @foreach (var entry in day.Entries.Take(3))
                                     {
-                                        <div class="calendar-activity @GetActivityClass(activity.ActivityType)" 
-                                             @onclick="() => ShowActivityDetails(activity)"
-                                             title="@activity.Summary">
-                                            <span class="activity-summary">@TruncateText(activity.Summary, 30)</span>
-                                        </div>
+                                        var projectLink = GetProjectIssueLink(entry);
+                                        var projectDisplayName = entry.EntryKind == "activity"
+                                            ? GetEntryProjectDisplayName(entry)
+                                            : null;
+                                        var primaryTitle = GetEntryPrimaryTitle(entry);
+                                        var showActivitySummary = ShouldShowActivitySummary(entry, primaryTitle);
+                                        <article class="calendar-entry" @onclick="() => ShowEntryDetails(entry)">
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <span class="badge @GetEntryBadgeClass(entry)">@GetEntryTypeLabel(entry)</span>
+                                                <small class="text-muted">@GetEntryDateLabel(entry)</small>
+                                            </div>
+                                            <h6 class="entry-summary mb-1">
+                                                @if (!string.IsNullOrWhiteSpace(projectDisplayName))
+                                                {
+                                                    <span class="d-inline-flex align-items-center gap-1">
+                                                        <i class="bi bi-folder"></i>
+                                                        @if (!string.IsNullOrWhiteSpace(projectLink))
+                                                        {
+                                                            <a class="text-decoration-none" href="@projectLink">@primaryTitle</a>
+                                                        }
+                                                        else
+                                                        {
+                                                            @primaryTitle
+                                                        }
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    @primaryTitle
+                                                }
+                                            </h6>
+                                            @if (showActivitySummary)
+                                            {
+                                                <small class="text-muted d-block">@TruncateText(entry.Summary, 60)</small>
+                                            }
+                                        </article>
                                     }
-                                    @if (day.Activities.Count > 3)
+
+                                    @if (day.Entries.Count > 3)
                                     {
-                                        <div class="calendar-activity-more">
-                                            +@(day.Activities.Count - 3) more
-                                        </div>
+                                        <div class="calendar-more text-muted small">+@(day.Entries.Count - 3) more</div>
                                     }
                                 </div>
                             }
-                            else if (day.IsCurrentMonth)
+                            else
                             {
                                 <div class="calendar-activities empty">
-                                    <span class="text-muted small">No activities</span>
+                                    <span class="text-muted small">@Localizer.GetString("No activities")</span>
                                 </div>
                             }
                         </div>
@@ -117,55 +163,72 @@ else
                 <button class="btn btn-outline-secondary" @onclick="PreviousMonth">
                     <i class="bi bi-chevron-left"></i> @Localizer.GetString("Previous")
                 </button>
-                <h4 class="mb-0">@Localizer.GetString("Activities for") @currentDate.ToString("MMMM yyyy")</h4>
+                <h4 class="mb-0">@Localizer.GetString("Entries for") @currentDate.ToString("MMMM yyyy")</h4>
                 <button class="btn btn-outline-secondary" @onclick="NextMonth">
                     @Localizer.GetString("Next") <i class="bi bi-chevron-right"></i>
                 </button>
             </div>
-            
+
             @if (isLoading)
             {
                 <div class="text-center py-5">
                     <div class="spinner-border" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="mt-2">Loading activities...</p>
+                    <p class="mt-2">@Localizer.GetString("Loading activities...")</p>
                 </div>
             }
-            else if (!activities.Any())
+            else if (!calendarEntries.Any())
             {
-                <p class="text-muted">No activities for this month.</p>
+                <p class="text-muted">@Localizer.GetString("No activities for this month.")</p>
             }
             else
             {
                 <div class="list-group">
-                    @foreach (var activity in activities.OrderBy(a => a.ActivityDate))
+                    @foreach (var entry in calendarEntries.OrderBy(e => e.Date))
                     {
-                        <div class="list-group-item list-group-item-action" @onclick="() => ShowActivityDetails(activity)">
-                            <div class="d-flex w-100 justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                        <span class="badge @GetActivityBadgeClass(activity.ActivityType)">
-                                            @(string.IsNullOrWhiteSpace(activity.ActivityType) ? "General" : activity.ActivityType)
-                                        </span>
-                                        <small class="text-muted">@activity.ActivityDate.ToLocalTime().ToString("MMM dd, yyyy")</small>
-                                    </div>
-                                    <h6 class="mb-1">@activity.Summary</h6>
-                                    @if (!string.IsNullOrWhiteSpace(activity.Description))
-                                    {
-                                        <p class="mb-1 text-muted small">@TruncateText(activity.Description, 100)</p>
-                                    }
-                                    @if (!string.IsNullOrWhiteSpace(activity.ProjectName))
-                                    {
-                                        <small class="text-muted">
-                                            <i class="bi bi-folder"></i> @activity.ProjectName
-                                        </small>
-                                    }
+                        var projectLink = GetProjectIssueLink(entry);
+                        var projectDisplayName = entry.EntryKind == "activity"
+                            ? GetEntryProjectDisplayName(entry)
+                            : null;
+                        var primaryTitle = GetEntryPrimaryTitle(entry);
+                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-start" @onclick="() => ShowEntryDetails(entry)">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <span class="badge @GetEntryBadgeClass(entry)">@GetEntryTypeLabel(entry)</span>
+                                    <small class="text-muted">@GetEntryDateLabel(entry)</small>
                                 </div>
-                                <a href="/projects" class="btn btn-sm btn-outline-primary ms-2">
-                                    @Localizer.GetString("View Project")
-                                </a>
+                                <h5 class="mb-1">
+                                    @if (!string.IsNullOrWhiteSpace(projectDisplayName))
+                                    {
+                                        <span class="d-inline-flex align-items-center gap-1">
+                                            <i class="bi bi-folder"></i>
+                                            @if (!string.IsNullOrWhiteSpace(projectLink))
+                                            {
+                                                <a class="text-decoration-none" href="@projectLink">@primaryTitle</a>
+                                            }
+                                            else
+                                            {
+                                                @primaryTitle
+                                            }
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        @primaryTitle
+                                    }
+                                </h5>
+                                @if (!string.IsNullOrWhiteSpace(entry.Description))
+                                {
+                                    <p class="mb-1 text-muted small">@TruncateText(entry.Description, 100)</p>
+                                }
                             </div>
+                            @if (entry.EntryKind == "task" && entry.TaskStatus.HasValue)
+                            {
+                                <span class="badge @GetEntryBadgeClass(entry) d-flex align-items-center">
+                                    @GetTaskStatusLabel(entry.TaskStatus)
+                                </span>
+                            }
                         </div>
                     }
                 </div>
@@ -174,61 +237,74 @@ else
     </div>
 }
 
-@* Activity Details Modal *@
-@if (selectedActivity != null)
+@if (selectedEntry != null)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Activity Details</h5>
-                    <button type="button" class="btn-close" @onclick="CloseActivityDetails"></button>
+                    <h5 class="modal-title">@GetEntryTypeLabel(selectedEntry)</h5>
+                    <button type="button" class="btn-close" @onclick="CloseEntryDetails"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <span class="badge @GetActivityBadgeClass(selectedActivity.ActivityType)">
-                            @(string.IsNullOrWhiteSpace(selectedActivity.ActivityType) ? "General" : selectedActivity.ActivityType)
-                        </span>
-                        <span class="ms-2 text-muted">@selectedActivity.ActivityDate.ToLocalTime().ToString("MMMM dd, yyyy")</span>
+                        <span class="badge @GetEntryBadgeClass(selectedEntry)">@GetEntryTypeLabel(selectedEntry)</span>
+                        <span class="ms-2 text-muted">@GetEntryDateLabel(selectedEntry)</span>
                     </div>
-                    
-                    <h6 class="mb-3">@selectedActivity.Summary</h6>
-                    
-                    @if (!string.IsNullOrWhiteSpace(selectedActivity.Description))
+
+                    <h5 class="mb-3">@selectedEntry.Summary</h5>
+
+                    @if (!string.IsNullOrWhiteSpace(selectedEntry.Description))
                     {
                         <div class="mb-3">
-                            <strong>Description:</strong>
-                            <p class="mt-1">@selectedActivity.Description</p>
+                            <strong>@Localizer.GetString("Description")</strong>
+                            <p class="mb-0">@selectedEntry.Description</p>
                         </div>
                     }
-                    
-                    @if (!string.IsNullOrWhiteSpace(selectedActivity.NextAction))
+
+                    @if (!string.IsNullOrWhiteSpace(selectedEntry.NextAction))
                     {
                         <div class="mb-3">
-                            <strong>Next Action:</strong>
-                            <p class="mt-1">@selectedActivity.NextAction</p>
+                            <strong>@Localizer.GetString("Next Action")</strong>
+                            <p class="mb-0">@selectedEntry.NextAction</p>
                         </div>
                     }
-                    
-                    @if (!string.IsNullOrWhiteSpace(selectedActivity.PerformedBy))
+
+                    @if (!string.IsNullOrWhiteSpace(selectedEntry.ProjectName))
                     {
                         <div class="mb-3">
-                            <strong>Performed By:</strong>
-                            <p class="mt-1">@selectedActivity.PerformedBy</p>
+                            <strong>@Localizer.GetString("Project")</strong>
+                            <p class="mb-0">@selectedEntry.ProjectName</p>
                         </div>
                     }
-                    
-                    @if (!string.IsNullOrWhiteSpace(selectedActivity.ProjectName))
+
+                    @if (selectedEntry.EntryKind == "task")
                     {
                         <div class="mb-3">
-                            <strong>Project:</strong>
-                            <p class="mt-1">@selectedActivity.ProjectName</p>
+                            <strong>@Localizer.GetString("Status")</strong>
+                            <span class="ms-2">@GetTaskStatusLabel(selectedEntry.TaskStatus)</span>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>@Localizer.GetString("Start Date")</strong>
+                                <p class="mb-0">@selectedEntry.StartDate?.ToString("f")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>@Localizer.GetString("End Date")</strong>
+                                <p class="mb-0">@selectedEntry.EndDate?.ToString("f")</p>
+                            </div>
+                        </div>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(selectedEntry.PerformedBy))
+                    {
+                        <div class="mb-3">
+                            <strong>@Localizer.GetString("Performed By")</strong>
+                            <p class="mb-0">@selectedEntry.PerformedBy</p>
                         </div>
                     }
                 </div>
                 <div class="modal-footer">
-                    <a href="/projects" class="btn btn-primary">View in Project</a>
-                    <button type="button" class="btn btn-secondary" @onclick="CloseActivityDetails">Close</button>
+                    <button type="button" class="btn btn-secondary" @onclick="CloseEntryDetails">@Localizer.GetString("Close")</button>
                 </div>
             </div>
         </div>
@@ -236,20 +312,34 @@ else
 }
 
 @code {
+    private const int CALENDAR_WEEKS = 6;
+    private const int DAYS_PER_WEEK = 7;
+
     private string viewMode = "grid";
-    private string scheduleType = "project"; // "project" or "case"
+    private string scheduleType = "project";
     private DateTime currentDate = DateTime.Today;
-    private List<ProjectActivityDto> activities = new();
-    private bool isLoading = false;
+    private List<CalendarEntry> calendarEntries = new();
+    private CalendarEntry? selectedEntry;
+    private bool isLoading;
     private string? errorMessage;
-    private ProjectActivityDto? selectedActivity;
-    
+
+    private int? activeProjectFilterId;
+    private string? activeProjectFilterName;
+    private string? activeProjectFilterView;
+    private bool scheduleTypeOverriddenByQuery;
+    private CancellationTokenSource? loadCts;
+
+    private bool IsTasksView =>
+        activeProjectFilterId.HasValue && string.Equals(activeProjectFilterView, "tasks", StringComparison.OrdinalIgnoreCase);
+
     protected override async Task OnInitializedAsync()
     {
         Localizer.OnLanguageChanged += OnLanguageChanged;
-        await LoadActivitiesForMonth();
+        Navigation.LocationChanged += OnLocationChanged;
+        ApplyQueryParameters();
+        await LoadCalendarEntriesForMonth();
     }
-    
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -259,7 +349,199 @@ else
             StateHasChanged();
         }
     }
-    
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        ApplyQueryParameters(args.Location);
+        _ = InvokeAsync(LoadCalendarEntriesForMonth);
+    }
+
+    private void ApplyQueryParameters(string? location = null)
+    {
+        var uri = new Uri(location ?? Navigation.Uri);
+        var query = QueryHelpers.ParseQuery(uri.Query);
+
+        scheduleTypeOverriddenByQuery = query.ContainsKey("scheduleType");
+
+        if (query.TryGetValue("projectId", out var projectIdValue) && int.TryParse(projectIdValue, out var parsedProjectId))
+        {
+            activeProjectFilterId = parsedProjectId;
+        }
+        else
+        {
+            activeProjectFilterId = null;
+        }
+
+        if (query.TryGetValue("projectName", out var projectNameValues) && !string.IsNullOrWhiteSpace(projectNameValues))
+        {
+            activeProjectFilterName = Uri.UnescapeDataString(projectNameValues.ToString());
+        }
+        else
+        {
+            activeProjectFilterName = null;
+        }
+
+        activeProjectFilterView = query.TryGetValue("view", out var viewValues)
+            ? viewValues.ToString()
+            : null;
+
+        if (scheduleTypeOverriddenByQuery && query.TryGetValue("scheduleType", out var scheduleValues) && !string.IsNullOrWhiteSpace(scheduleValues))
+        {
+            scheduleType = scheduleValues!;
+        }
+    }
+
+    private void ClearProjectFilter()
+    {
+        if (!activeProjectFilterId.HasValue)
+        {
+            return;
+        }
+
+        activeProjectFilterId = null;
+        activeProjectFilterName = null;
+        activeProjectFilterView = null;
+
+        var uri = new Uri(Navigation.Uri);
+        var baseUri = uri.GetLeftPart(UriPartial.Path);
+        Navigation.NavigateTo(baseUri);
+    }
+
+    private async Task LoadCalendarEntriesForMonth()
+    {
+        loadCts?.Cancel();
+        loadCts = new CancellationTokenSource();
+        var ct = loadCts.Token;
+
+        selectedEntry = null;
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var startDate = new DateTime(currentDate.Year, currentDate.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            List<ProjectActivityDto> rawActivities;
+            if (scheduleType == "project")
+            {
+                rawActivities = (await ProjectActivityApi.SearchAsync(startDate, endDate, ct: ct)).ToList();
+            }
+            else
+            {
+                rawActivities = await BuildCaseActivitiesAsync(startDate, endDate, ct);
+            }
+
+            var activitiesToShow = activeProjectFilterId.HasValue
+                ? rawActivities.Where(a => a.ProjectId == activeProjectFilterId.Value).ToList()
+                : rawActivities;
+
+            var entries = activitiesToShow.Select(CalendarEntry.FromActivity).ToList();
+
+            if (activeProjectFilterId.HasValue && IsTasksView)
+            {
+                var tasks = await ProjectTaskApi.GetTasksByProjectIdAsync(activeProjectFilterId.Value, ct);
+                entries.AddRange(tasks
+                    .Where(t => TaskDateInRange(t, startDate, endDate))
+                    .Select(t => CalendarEntry.FromTask(t, activeProjectFilterName)));
+            }
+
+            calendarEntries = entries.OrderBy(e => e.Date).ToList();
+        }
+        catch (OperationCanceledException)
+        {
+            // loading interrupted
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load entries: {ex.Message}";
+            calendarEntries = new List<CalendarEntry>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task<List<ProjectActivityDto>> BuildCaseActivitiesAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
+    {
+        var cases = await CasesApi.GetCasesAsync(cancellationToken: cancellationToken);
+        var caseList = cases ?? Array.Empty<CaseDto>();
+        var list = new List<ProjectActivityDto>();
+
+        foreach (var c in caseList)
+        {
+            if (c.CreatedAt.Date >= startDate.Date && c.CreatedAt.Date <= endDate.Date)
+            {
+                list.Add(new ProjectActivityDto(
+                    Id: c.Id,
+                    ProjectId: 0,
+                    ActivityDate: c.CreatedAt,
+                    Summary: $"Case: {c.Title} (Created)",
+                    Description: c.Description,
+                    NextAction: null,
+                    ActivityType: "case-created",
+                    PerformedBy: c.AssignedToUserName,
+                    ProjectName: c.CustomerName
+                ));
+            }
+
+            if (c.DueDate.HasValue && c.DueDate.Value.Date >= startDate.Date && c.DueDate.Value.Date <= endDate.Date)
+            {
+                list.Add(new ProjectActivityDto(
+                    Id: c.Id,
+                    ProjectId: 0,
+                    ActivityDate: c.DueDate.Value,
+                    Summary: $"Case: {c.Title} (Due)",
+                    Description: c.Description,
+                    NextAction: null,
+                    ActivityType: "case-due",
+                    PerformedBy: c.AssignedToUserName,
+                    ProjectName: c.CustomerName
+                ));
+            }
+        }
+
+        return list.OrderBy(a => a.ActivityDate).ToList();
+    }
+
+    private bool TaskDateInRange(ProjectTaskDto task, DateTime startDate, DateTime endDate)
+    {
+        var localStart = task.StartAtUtc.ToLocalTime();
+        var localEnd = task.EndAtUtc.ToLocalTime();
+        return (localStart.Date >= startDate.Date && localStart.Date <= endDate.Date)
+            || (localEnd.Date >= startDate.Date && localEnd.Date <= endDate.Date);
+    }
+
+    private async Task SetViewMode(string mode)
+    {
+        viewMode = mode;
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "calendarViewMode", mode);
+        }
+        catch
+        {
+            // ignore
+        }
+    }
+
+    private async Task SetScheduleType(string type)
+    {
+        scheduleType = type;
+        scheduleTypeOverriddenByQuery = false;
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "calendarScheduleType", type);
+        }
+        catch
+        {
+            // ignore
+        }
+
+        await LoadCalendarEntriesForMonth();
+    }
+
     private async Task LoadViewModeFromStorage()
     {
         try
@@ -272,242 +554,282 @@ else
         }
         catch
         {
-            // Ignore errors accessing localStorage
+            // ignore
         }
     }
 
     private async Task LoadScheduleTypeFromStorage()
     {
+        if (scheduleTypeOverriddenByQuery)
+        {
+            return;
+        }
+
         try
         {
             var stored = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "calendarScheduleType");
-            if (!string.IsNullOrWhiteSpace(stored))
+            if (!string.IsNullOrWhiteSpace(stored) && !string.Equals(stored, scheduleType, StringComparison.OrdinalIgnoreCase))
+            {
                 scheduleType = stored;
+                await LoadCalendarEntriesForMonth();
+            }
         }
         catch
         {
             // ignore
         }
     }
-    
-    private async Task SetViewMode(string mode)
-    {
-        viewMode = mode;
-        try
-        {
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "calendarViewMode", mode);
-        }
-        catch
-        {
-            // Ignore errors accessing localStorage
-        }
-    }
 
-    private async Task SetScheduleType(string type)
-    {
-        scheduleType = type;
-        try
-        {
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "calendarScheduleType", type);
-        }
-        catch
-        {
-            // ignore
-        }
-
-        await LoadActivitiesForMonth();
-    }
-    
-    private async Task LoadActivitiesForMonth()
-    {
-        isLoading = true;
-        errorMessage = null;
-        
-        try
-        {
-            var startDate = new DateTime(currentDate.Year, currentDate.Month, 1);
-            var endDate = startDate.AddMonths(1).AddDays(-1);
-            
-            if (scheduleType == "project")
-            {
-                activities = (await ProjectActivityApi.SearchAsync(startDate, endDate)).ToList();
-            }
-            else
-            {
-                // Case schedule: map cases' CreatedAt and DueDate into calendar activities
-                var cases = await CasesApi.GetCasesAsync(cancellationToken: CancellationToken.None);
-                var caseList = cases ?? Array.Empty<CaseDto>();
-
-                var list = new List<ProjectActivityDto>();
-                foreach (var c in caseList)
-                {
-                    if (c.CreatedAt.Date >= startDate.Date && c.CreatedAt.Date <= endDate.Date)
-                    {
-                        list.Add(new ProjectActivityDto(
-                            Id: c.Id,
-                            ProjectId: 0,
-                            ActivityDate: c.CreatedAt,
-                            Summary: $"Case: {c.Title} (Created)",
-                            Description: c.Description,
-                            NextAction: null,
-                            ActivityType: "case-created",
-                            PerformedBy: c.AssignedToUserName,
-                            ProjectName: c.CustomerName
-                        ));
-                    }
-
-                    if (c.DueDate.HasValue && c.DueDate.Value.Date >= startDate.Date && c.DueDate.Value.Date <= endDate.Date)
-                    {
-                        list.Add(new ProjectActivityDto(
-                            Id: c.Id,
-                            ProjectId: 0,
-                            ActivityDate: c.DueDate.Value,
-                            Summary: $"Case: {c.Title} (Due)",
-                            Description: c.Description,
-                            NextAction: null,
-                            ActivityType: "case-due",
-                            PerformedBy: c.AssignedToUserName,
-                            ProjectName: c.CustomerName
-                        ));
-                    }
-                }
-
-                activities = list.OrderBy(a => a.ActivityDate).ToList();
-            }
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Failed to load activities: {ex.Message}";
-            activities = new List<ProjectActivityDto>();
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-    
     private async Task PreviousMonth()
     {
         currentDate = currentDate.AddMonths(-1);
-        await LoadActivitiesForMonth();
+        await LoadCalendarEntriesForMonth();
     }
-    
+
     private async Task NextMonth()
     {
         currentDate = currentDate.AddMonths(1);
-        await LoadActivitiesForMonth();
+        await LoadCalendarEntriesForMonth();
     }
-    
-    private const int CALENDAR_WEEKS = 6;
-    private const int DAYS_PER_WEEK = 7;
-    
+
     private List<CalendarDay> GetCalendarDays()
     {
         var days = new List<CalendarDay>();
         var firstDayOfMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
         var startDate = GetMondayOfWeek(firstDayOfMonth);
-        
-        // Generate weeks to cover all possible month layouts
+
         for (int i = 0; i < CALENDAR_WEEKS * DAYS_PER_WEEK; i++)
         {
             var date = startDate.AddDays(i);
-            var dayActivities = activities
-                .Where(a => a.ActivityDate.Date == date.Date)
-                .OrderBy(a => a.ActivityDate)
+            var dayEntries = calendarEntries
+                .Where(entry => entry.Date.Date == date.Date
+                    || (entry.EntryKind == "task"
+                        && entry.StartDate.HasValue
+                        && entry.EndDate.HasValue
+                        && date.Date >= entry.StartDate.Value.Date
+                        && date.Date <= entry.EndDate.Value.Date))
+                .OrderBy(e => e.Date)
                 .ToList();
-            
+
             days.Add(new CalendarDay
             {
                 Date = date,
                 IsCurrentMonth = date.Month == currentDate.Month && date.Year == currentDate.Year,
                 IsToday = date.Date == DateTime.Today,
-                Activities = dayActivities
+                Entries = dayEntries
             });
         }
-        
+
         return days;
     }
-    
+
     private DateTime GetMondayOfWeek(DateTime date)
     {
         var dayOfWeek = (int)date.DayOfWeek;
-        // Convert Sunday (0) to 7 for Monday-based week
         if (dayOfWeek == 0) dayOfWeek = 7;
         return date.AddDays(-(dayOfWeek - 1));
     }
-    
-    private string GetActivityClass(string? activityType)
+
+    private string GetEntryBadgeClass(CalendarEntry entry)
     {
-        if (string.IsNullOrWhiteSpace(activityType))
-            return "activity-default";
-        
-        return activityType.ToLowerInvariant() switch
+        if (entry.EntryKind == "task")
         {
-            "meeting" => "activity-primary",
-            "call" => "activity-info",
-            "email" => "activity-warning",
-            "visit" => "activity-success",
-            "task" => "activity-secondary",
-            "case-created" => "activity-info",
-            "case-due" => "activity-warning",
-            _ => "activity-default"
-        };
-    }
-    
-    private string GetActivityBadgeClass(string? activityType)
-    {
-        if (string.IsNullOrWhiteSpace(activityType))
-            return "bg-secondary";
-        
-        return activityType.ToLowerInvariant() switch
+            return entry.TaskStatus switch
+            {
+                ProjectTaskStatus.InProgress => "bg-info",
+                ProjectTaskStatus.Completed => "bg-success",
+                ProjectTaskStatus.Blocked => "bg-danger",
+                ProjectTaskStatus.NotStarted => "bg-secondary",
+                _ => "bg-secondary"
+            };
+        }
+
+        return entry.ActivityType switch
         {
-            "meeting" => "bg-primary",
-            "call" => "bg-info",
-            "email" => "bg-warning text-dark",
-            "visit" => "bg-success",
-            "task" => "bg-secondary",
-            "case-created" => "bg-info",
-            "case-due" => "bg-warning text-dark",
+            null or "" => "bg-secondary",
+            var activity when activity.Equals("meeting", StringComparison.OrdinalIgnoreCase) => "bg-primary",
+            var activity when activity.Equals("call", StringComparison.OrdinalIgnoreCase) => "bg-info",
+            var activity when activity.Equals("email", StringComparison.OrdinalIgnoreCase) => "bg-warning text-dark",
+            var activity when activity.Equals("visit", StringComparison.OrdinalIgnoreCase) => "bg-success",
+            var activity when activity.Equals("task", StringComparison.OrdinalIgnoreCase) => "bg-secondary",
+            var activity when activity.Equals("case-created", StringComparison.OrdinalIgnoreCase) => "bg-info",
+            var activity when activity.Equals("case-due", StringComparison.OrdinalIgnoreCase) => "bg-warning text-dark",
             _ => "bg-secondary"
         };
     }
-    
+
+    private string GetTaskStatusLabel(ProjectTaskStatus? status)
+    {
+        return status switch
+        {
+            ProjectTaskStatus.NotStarted => Localizer.GetString("Not Started"),
+            ProjectTaskStatus.InProgress => Localizer.GetString("In Progress"),
+            ProjectTaskStatus.Completed => Localizer.GetString("Completed"),
+            ProjectTaskStatus.Blocked => Localizer.GetString("Blocked"),
+            _ => Localizer.GetString("Scheduled Task")
+        };
+    }
+
+    private string GetEntryTypeLabel(CalendarEntry entry)
+    {
+        return entry.EntryKind == "task"
+            ? Localizer.GetString("Scheduled Task")
+            : Localizer.GetString("Issue");
+    }
+
+    private string GetEntryDateLabel(CalendarEntry entry)
+    {
+        if (entry.EntryKind == "task" && entry.StartDate.HasValue && entry.EndDate.HasValue)
+        {
+            return $"{entry.StartDate.Value.ToString("MMM d")} - {entry.EndDate.Value.ToString("MMM d")}";
+        }
+
+        return entry.Date.ToString("MMM d, yyyy h:mm tt");
+    }
+
+    private string? GetProjectIssueLink(CalendarEntry entry)
+    {
+        if (!entry.ProjectId.HasValue || entry.ProjectId.Value <= 0)
+        {
+            return null;
+        }
+
+        var parameters = new Dictionary<string, object?>
+        {
+            ["projectId"] = entry.ProjectId.Value,
+            ["tab"] = "activities"
+        };
+
+        return Navigation.GetUriWithQueryParameters("/projects", parameters);
+    }
+
+    private string? GetEntryProjectDisplayName(CalendarEntry entry)
+    {
+        if (!string.IsNullOrWhiteSpace(entry.ProjectName))
+        {
+            return entry.ProjectName;
+        }
+
+        if (entry.ProjectId.HasValue && entry.ProjectId.Value > 0)
+        {
+            return $"#{entry.ProjectId.Value}";
+        }
+
+        return null;
+    }
+
+    private string GetEntryPrimaryTitle(CalendarEntry entry)
+    {
+        if (entry.EntryKind == "activity")
+        {
+            var projectName = GetEntryProjectDisplayName(entry);
+            if (!string.IsNullOrWhiteSpace(projectName))
+            {
+                return TruncateText(projectName, 40);
+            }
+        }
+
+        return TruncateText(entry.Summary, 40);
+    }
+
+    private bool ShouldShowActivitySummary(CalendarEntry entry, string primaryTitle)
+    {
+        if (entry.EntryKind != "activity" || string.IsNullOrWhiteSpace(entry.Summary))
+        {
+            return false;
+        }
+
+        var truncatedSummary = TruncateText(entry.Summary, 40);
+        return !string.Equals(primaryTitle, truncatedSummary, StringComparison.OrdinalIgnoreCase);
+    }
+
     private string TruncateText(string? text, int maxLength)
     {
         if (string.IsNullOrWhiteSpace(text))
+        {
             return string.Empty;
-        
-        if (text.Length <= maxLength)
-            return text;
-        
-        return text.Substring(0, maxLength) + "...";
+        }
+
+        return text.Length <= maxLength ? text : text.Substring(0, maxLength) + "...";
     }
-    
-    private void ShowActivityDetails(ProjectActivityDto activity)
+
+    private void ShowEntryDetails(CalendarEntry entry)
     {
-        selectedActivity = activity;
+        selectedEntry = entry;
     }
-    
-    private void CloseActivityDetails()
+
+    private void CloseEntryDetails()
     {
-        selectedActivity = null;
+        selectedEntry = null;
     }
-    
+
+    public void Dispose()
+    {
+        Localizer.OnLanguageChanged -= OnLanguageChanged;
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private class CalendarEntry
+    {
+        public DateTime Date { get; set; }
+        public string Summary { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public int? ProjectId { get; set; }
+        public string? ProjectName { get; set; }
+        public string EntryKind { get; set; } = "activity";
+        public string? ActivityType { get; set; }
+        public ProjectTaskStatus? TaskStatus { get; set; }
+        public string? NextAction { get; set; }
+        public string? PerformedBy { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+
+        public static CalendarEntry FromActivity(ProjectActivityDto activity)
+        {
+            return new CalendarEntry
+            {
+                Date = activity.ActivityDate.ToLocalTime(),
+                Summary = activity.Summary,
+                Description = activity.Description,
+                ProjectId = activity.ProjectId,
+                ProjectName = activity.ProjectName,
+                ActivityType = activity.ActivityType,
+                EntryKind = "activity",
+                NextAction = activity.NextAction,
+                PerformedBy = activity.PerformedBy
+            };
+        }
+
+        public static CalendarEntry FromTask(ProjectTaskDto task, string? projectName)
+        {
+            var localStart = task.StartAtUtc.ToLocalTime();
+            var localEnd = task.EndAtUtc.ToLocalTime();
+            return new CalendarEntry
+            {
+                Date = localStart,
+                Summary = task.Title,
+                Description = task.Description,
+                ProjectId = task.ProjectId,
+                ProjectName = projectName,
+                EntryKind = "task",
+                ActivityType = "task",
+                TaskStatus = task.Status,
+                StartDate = localStart,
+                EndDate = localEnd
+            };
+        }
+    }
+
     private class CalendarDay
     {
         public DateTime Date { get; set; }
         public bool IsCurrentMonth { get; set; }
         public bool IsToday { get; set; }
-        public List<ProjectActivityDto> Activities { get; set; } = new();
-    }
-    
-    public void Dispose()
-    {
-        Localizer.OnLanguageChanged -= OnLanguageChanged;
-    }
-    
-    private void OnLanguageChanged()
-    {
-        InvokeAsync(StateHasChanged);
+        public List<CalendarEntry> Entries { get; set; } = new();
     }
 }

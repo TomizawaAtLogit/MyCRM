@@ -8,8 +8,11 @@
 @inject IJSRuntime JSRuntime
 @inject LocalizationService Localizer
 @inject AdminApiClient AdminApi
+@inject NavigationManager Navigation
 @using System.ComponentModel.DataAnnotations
+@using System.Collections.Generic
 @using AspireApp1.Web
+@using Microsoft.AspNetCore.WebUtilities
 @using Microsoft.AspNetCore.Components.Forms
 @implements IDisposable
 
@@ -457,7 +460,12 @@
                                             {
                                                 <div class="py-3">
                                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                                        <h6 class="mb-0">@Localizer.GetString("Scheduled Task")</h6>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <h6 class="mb-0">@Localizer.GetString("Scheduled Task")</h6>
+                                                            <a class="btn btn-sm btn-outline-info" href="@GetProjectCalendarLink(p)">
+                                                                <i class="bi bi-calendar3 me-1"></i> @Localizer.GetString("View on Calendar")
+                                                            </a>
+                                                        </div>
                                                         @if (!showAddTask.ContainsKey(p.Id) || !showAddTask[p.Id])
                                                         {
                                                             <button class="btn btn-sm btn-primary" @onclick="() => ShowAddTaskForm(p.Id)">
@@ -832,9 +840,15 @@
     // Modal visibility
     private bool showCreateModal = false;
 
+    // Query-driven project highlighting
+    private int? highlightProjectIdFromQuery;
+    private string? highlightProjectTabFromQuery;
+    private bool highlightProjectApplied;
+
     protected override async Task OnInitializedAsync()
     {
         Localizer.OnLanguageChanged += OnLanguageChanged;
+        ParseProjectQueryParameters();
         newProject ??= new();
         editModel ??= new();
         createEditContext = new EditContext(newProject);
@@ -865,6 +879,7 @@
             ProjectStatus? status = string.IsNullOrEmpty(filterStatus) ? null : Enum.Parse<ProjectStatus>(filterStatus);
             projects = await ProjectsApi.GetProjectsAsync(customerId, status);
             loadError = null;
+            await ApplyHighlightedProjectAsync();
         }
         catch (Exception ex)
         {
@@ -1366,6 +1381,94 @@
         currentEditingProjectId = null;
         currentEditingTaskId = null;
         editTaskModel = null;
+    }
+
+    private string GetProjectCalendarLink(ProjectDto project)
+    {
+        var parameters = new Dictionary<string, object?>
+        {
+            ["projectId"] = project.Id,
+            ["projectName"] = project.Name,
+            ["view"] = "tasks",
+            ["scheduleType"] = "project"
+        };
+
+        return Navigation.GetUriWithQueryParameters("/", parameters);
+    }
+
+    private void ParseProjectQueryParameters()
+    {
+        var uri = new Uri(Navigation.Uri);
+        var query = QueryHelpers.ParseQuery(uri.Query);
+
+        if (query.TryGetValue("projectId", out var projectIdValue) && int.TryParse(projectIdValue, out var parsedId) && parsedId > 0)
+        {
+            highlightProjectIdFromQuery = parsedId;
+        }
+
+        if (query.TryGetValue("tab", out var tabValues))
+        {
+            var tabText = tabValues.ToString();
+            if (!string.IsNullOrWhiteSpace(tabText))
+            {
+                highlightProjectTabFromQuery = NormalizeProjectTab(tabText);
+            }
+        }
+        else if (query.TryGetValue("view", out var viewValues))
+        {
+            var viewText = viewValues.ToString();
+            if (string.Equals(viewText, "tasks", StringComparison.OrdinalIgnoreCase))
+            {
+                highlightProjectTabFromQuery = "gantt";
+            }
+            else if (string.Equals(viewText, "issue", StringComparison.OrdinalIgnoreCase))
+            {
+                highlightProjectTabFromQuery = "activities";
+            }
+        }
+    }
+
+    private async Task ApplyHighlightedProjectAsync()
+    {
+        if (!highlightProjectIdFromQuery.HasValue || highlightProjectApplied)
+        {
+            return;
+        }
+
+        var projectId = highlightProjectIdFromQuery.Value;
+        expandedProjects[projectId] = true;
+        var tab = NormalizeProjectTab(highlightProjectTabFromQuery);
+        projectActiveTabs[projectId] = tab;
+
+        if (tab == "activities")
+        {
+            await LoadActivitiesAsync(projectId);
+        }
+        else if (tab == "gantt")
+        {
+            await LoadTasksAsync(projectId);
+        }
+
+        highlightProjectApplied = true;
+    }
+
+    private string NormalizeProjectTab(string? tab)
+    {
+        if (string.IsNullOrWhiteSpace(tab))
+        {
+            return "activities";
+        }
+
+        return tab.ToLowerInvariant() switch
+        {
+            "activity" => "activities",
+            "activities" => "activities",
+            "issue" => "activities",
+            "gantt" => "gantt",
+            "tasks" => "gantt",
+            "files" => "files",
+            _ => "activities"
+        };
     }
 
     class NewModel 
