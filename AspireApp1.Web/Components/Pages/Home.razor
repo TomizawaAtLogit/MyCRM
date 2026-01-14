@@ -200,9 +200,11 @@ else if (viewMode == "gantt")
             }
             else
             {
-                <div class="gantt-container">
+                var columns = GetGanttColumns();
+                var columnCount = columns.Count;
+                <div class="gantt-container" style="--gantt-columns: @columnCount;">
                     <div class="gantt-timeline">
-                        @foreach (var column in GetGanttColumns())
+                        @foreach (var column in columns)
                         {
                             <div class="gantt-timeline-column">
                                 <div class="gantt-timeline-header">@column.Label</div>

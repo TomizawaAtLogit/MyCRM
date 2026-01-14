@@ -284,6 +284,13 @@ h1:focus {
     display: flex;
     align-items: center;
     padding: 0.5rem 0;
+    background-image: repeating-linear-gradient(
+        to right,
+        transparent,
+        transparent calc(100% / var(--gantt-columns, 7) - 1px),
+        var(--border-color) calc(100% / var(--gantt-columns, 7) - 1px),
+        var(--border-color) calc(100% / var(--gantt-columns, 7))
+    );
 }
 
 .gantt-bar {
