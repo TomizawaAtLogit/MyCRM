@@ -26,6 +26,9 @@
             <button type="button" class="btn @(viewMode == "grid" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetViewMode("grid")'>
                 <i class="bi bi-calendar3"></i> @Localizer.GetString("Calendar")
             </button>
+            <button type="button" class="btn @(viewMode == "gantt" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetViewMode("gantt")'>
+                <i class="bi bi-bar-chart-fill"></i> @Localizer.GetString("Gantt")
+            </button>
             <button type="button" class="btn @(viewMode == "list" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetViewMode("list")'>
                 <i class="bi bi-list-ul"></i> @Localizer.GetString("List")
             </button>
@@ -150,6 +153,83 @@
                             }
                         </div>
                     }
+                </div>
+            }
+        </div>
+    </div>
+}
+else if (viewMode == "gantt")
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <button class="btn btn-outline-secondary" @onclick="PreviousPeriod">
+                    <i class="bi bi-chevron-left"></i> @Localizer.GetString("Previous")
+                </button>
+                <div class="d-flex align-items-center gap-3">
+                    <h4 class="mb-0">@GetGanttPeriodTitle()</h4>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm @(ganttPeriod == "daily" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetGanttPeriod("daily")'>
+                            @Localizer.GetString("Daily")
+                        </button>
+                        <button type="button" class="btn btn-sm @(ganttPeriod == "weekly" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetGanttPeriod("weekly")'>
+                            @Localizer.GetString("Weekly")
+                        </button>
+                        <button type="button" class="btn btn-sm @(ganttPeriod == "monthly" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetGanttPeriod("monthly")'>
+                            @Localizer.GetString("Monthly")
+                        </button>
+                    </div>
+                </div>
+                <button class="btn btn-outline-secondary" @onclick="NextPeriod">
+                    @Localizer.GetString("Next") <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+
+            @if (isLoading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">@Localizer.GetString("Loading activities...")</p>
+                </div>
+            }
+            else if (!calendarEntries.Any())
+            {
+                <p class="text-muted">@Localizer.GetString("No activities for this period.")</p>
+            }
+            else
+            {
+                <div class="gantt-container">
+                    <div class="gantt-timeline">
+                        @foreach (var column in GetGanttColumns())
+                        {
+                            <div class="gantt-timeline-column">
+                                <div class="gantt-timeline-header">@column.Label</div>
+                            </div>
+                        }
+                    </div>
+                    <div class="gantt-rows">
+                        @foreach (var entry in GetGanttEntries())
+                        {
+                            <div class="gantt-row-wrapper">
+                                <div class="gantt-row-label">
+                                    <span class="badge @GetEntryBadgeClass(entry)">@GetEntryTypeLabel(entry)</span>
+                                    <span class="ms-2">@TruncateText(entry.Summary, 50)</span>
+                                </div>
+                                <div class="gantt-row-timeline">
+                                    @{
+                                        var spanInfo = GetGanttSpan(entry);
+                                    }
+                                    <div class="gantt-bar @GetEntryBadgeClass(entry)" 
+                                         style="left: @(spanInfo.StartPercent)%; width: @(spanInfo.WidthPercent)%;"
+                                         @onclick="() => ShowEntryDetails(entry)">
+                                        <span class="gantt-bar-label">@TruncateText(entry.Summary, 30)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
                 </div>
             }
         </div>
@@ -317,11 +397,17 @@ else
 
     private string viewMode = "grid";
     private string scheduleType = "project";
+    private string ganttPeriod = "weekly";
     private DateTime currentDate = DateTime.Today;
+    private DateTime ganttStartDate = DateTime.Today;
     private List<CalendarEntry> calendarEntries = new();
     private CalendarEntry? selectedEntry;
     private bool isLoading;
     private string? errorMessage;
+
+    // Cache for different periods
+    private Dictionary<string, (DateTime, DateTime, List<CalendarEntry>)> ganttCache = new();
+    private string? lastFilterState;
 
     private int? activeProjectFilterId;
     private string? activeProjectFilterName;
@@ -401,6 +487,9 @@ else
         activeProjectFilterId = null;
         activeProjectFilterName = null;
         activeProjectFilterView = null;
+
+        // Clear Gantt cache when filter changes
+        ganttCache.Clear();
 
         var uri = new Uri(Navigation.Uri);
         var baseUri = uri.GetLeftPart(UriPartial.Path);
@@ -515,14 +604,24 @@ else
 
     private async Task SetViewMode(string mode)
     {
-        viewMode = mode;
-        try
+        if (viewMode != mode)
         {
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "calendarViewMode", mode);
-        }
-        catch
-        {
-            // ignore
+            viewMode = mode;
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "calendarViewMode", mode);
+            }
+            catch
+            {
+                // ignore
+            }
+
+            // Load data for Gantt view when switching to it
+            if (mode == "gantt")
+            {
+                ganttStartDate = GetPeriodStartDate(DateTime.Today, ganttPeriod);
+                await LoadGanttEntries();
+            }
         }
     }
 
@@ -530,6 +629,10 @@ else
     {
         scheduleType = type;
         scheduleTypeOverriddenByQuery = false;
+        
+        // Clear Gantt cache when schedule type changes
+        ganttCache.Clear();
+        
         try
         {
             await JSRuntime.InvokeVoidAsync("localStorage.setItem", "calendarScheduleType", type);
@@ -539,7 +642,14 @@ else
             // ignore
         }
 
-        await LoadCalendarEntriesForMonth();
+        if (viewMode == "gantt")
+        {
+            await LoadGanttEntries();
+        }
+        else
+        {
+            await LoadCalendarEntriesForMonth();
+        }
     }
 
     private async Task LoadViewModeFromStorage()
@@ -763,6 +873,241 @@ else
         selectedEntry = null;
     }
 
+    private async Task SetGanttPeriod(string period)
+    {
+        if (ganttPeriod != period)
+        {
+            ganttPeriod = period;
+            ganttStartDate = GetPeriodStartDate(DateTime.Today, period);
+            await LoadGanttEntries();
+        }
+    }
+
+    private string GetGanttPeriodTitle()
+    {
+        return ganttPeriod switch
+        {
+            "daily" => ganttStartDate.ToString("MMMM d, yyyy"),
+            "weekly" => $"{Localizer.GetString("Week of")} {ganttStartDate.ToString("MMM d, yyyy")}",
+            "monthly" => ganttStartDate.ToString("MMMM yyyy"),
+            _ => ganttStartDate.ToString("MMMM yyyy")
+        };
+    }
+
+    private async Task PreviousPeriod()
+    {
+        if (viewMode == "gantt")
+        {
+            ganttStartDate = ganttPeriod switch
+            {
+                "daily" => ganttStartDate.AddDays(-1),
+                "weekly" => ganttStartDate.AddDays(-7),
+                "monthly" => ganttStartDate.AddMonths(-1),
+                _ => ganttStartDate.AddMonths(-1)
+            };
+            await LoadGanttEntries();
+        }
+        else
+        {
+            await PreviousMonth();
+        }
+    }
+
+    private async Task NextPeriod()
+    {
+        if (viewMode == "gantt")
+        {
+            ganttStartDate = ganttPeriod switch
+            {
+                "daily" => ganttStartDate.AddDays(1),
+                "weekly" => ganttStartDate.AddDays(7),
+                "monthly" => ganttStartDate.AddMonths(1),
+                _ => ganttStartDate.AddMonths(1)
+            };
+            await LoadGanttEntries();
+        }
+        else
+        {
+            await NextMonth();
+        }
+    }
+
+    private DateTime GetPeriodStartDate(DateTime date, string period)
+    {
+        return period switch
+        {
+            "daily" => date.Date,
+            "weekly" => GetMondayOfWeek(date),
+            "monthly" => new DateTime(date.Year, date.Month, 1),
+            _ => new DateTime(date.Year, date.Month, 1)
+        };
+    }
+
+    private (DateTime start, DateTime end) GetGanttDateRange()
+    {
+        return ganttPeriod switch
+        {
+            "daily" => (ganttStartDate, ganttStartDate.AddDays(1).AddSeconds(-1)),
+            "weekly" => (ganttStartDate, ganttStartDate.AddDays(7).AddSeconds(-1)),
+            "monthly" => (ganttStartDate, ganttStartDate.AddMonths(1).AddSeconds(-1)),
+            _ => (ganttStartDate, ganttStartDate.AddMonths(1).AddSeconds(-1))
+        };
+    }
+
+    private async Task LoadGanttEntries()
+    {
+        var currentFilterState = $"{scheduleType}|{activeProjectFilterId}|{activeProjectFilterView}";
+        
+        // Check if filter state changed - if so, clear cache
+        if (lastFilterState != null && lastFilterState != currentFilterState)
+        {
+            ganttCache.Clear();
+        }
+        lastFilterState = currentFilterState;
+
+        // Check cache first
+        var cacheKey = $"{ganttPeriod}|{ganttStartDate:yyyy-MM-dd}";
+        if (ganttCache.TryGetValue(cacheKey, out var cached))
+        {
+            calendarEntries = cached.Item3;
+            return;
+        }
+
+        loadCts?.Cancel();
+        loadCts = new CancellationTokenSource();
+        var ct = loadCts.Token;
+
+        selectedEntry = null;
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var (startDate, endDate) = GetGanttDateRange();
+
+            List<ProjectActivityDto> rawActivities;
+            if (scheduleType == "project")
+            {
+                rawActivities = (await ProjectActivityApi.SearchAsync(startDate, endDate, ct: ct)).ToList();
+            }
+            else
+            {
+                rawActivities = await BuildCaseActivitiesAsync(startDate, endDate, ct);
+            }
+
+            var activitiesToShow = activeProjectFilterId.HasValue
+                ? rawActivities.Where(a => a.ProjectId == activeProjectFilterId.Value).ToList()
+                : rawActivities;
+
+            var entries = activitiesToShow.Select(CalendarEntry.FromActivity).ToList();
+
+            if (activeProjectFilterId.HasValue && IsTasksView)
+            {
+                var tasks = await ProjectTaskApi.GetTasksByProjectIdAsync(activeProjectFilterId.Value, ct);
+                entries.AddRange(tasks
+                    .Where(t => TaskDateInRange(t, startDate, endDate))
+                    .Select(t => CalendarEntry.FromTask(t, activeProjectFilterName)));
+            }
+
+            calendarEntries = entries.OrderBy(e => e.Date).ToList();
+            
+            // Cache the results
+            ganttCache[cacheKey] = (startDate, endDate, calendarEntries);
+        }
+        catch (OperationCanceledException)
+        {
+            // loading interrupted
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load entries: {ex.Message}";
+            calendarEntries = new List<CalendarEntry>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private List<GanttColumn> GetGanttColumns()
+    {
+        var columns = new List<GanttColumn>();
+        var (startDate, endDate) = GetGanttDateRange();
+
+        switch (ganttPeriod)
+        {
+            case "daily":
+                // Show hours for daily view
+                for (int hour = 0; hour < 24; hour++)
+                {
+                    columns.Add(new GanttColumn { Date = startDate.AddHours(hour), Label = $"{hour:00}:00" });
+                }
+                break;
+
+            case "weekly":
+                // Show days for weekly view
+                for (int day = 0; day < 7; day++)
+                {
+                    var date = startDate.AddDays(day);
+                    columns.Add(new GanttColumn { Date = date, Label = date.ToString("ddd M/d") });
+                }
+                break;
+
+            case "monthly":
+                // Show days for monthly view
+                var currentDate = startDate;
+                while (currentDate <= endDate)
+                {
+                    columns.Add(new GanttColumn { Date = currentDate, Label = currentDate.Day.ToString() });
+                    currentDate = currentDate.AddDays(1);
+                }
+                break;
+        }
+
+        return columns;
+    }
+
+    private List<CalendarEntry> GetGanttEntries()
+    {
+        // For Gantt view, we need entries with date ranges
+        // For activities without explicit ranges, create a single-point range
+        return calendarEntries
+            .Select(e =>
+            {
+                if (!e.StartDate.HasValue || !e.EndDate.HasValue)
+                {
+                    // Create a 1-hour span for activities without explicit ranges
+                    e.StartDate = e.Date;
+                    e.EndDate = e.Date.AddHours(1);
+                }
+                return e;
+            })
+            .OrderBy(e => e.StartDate)
+            .ToList();
+    }
+
+    private (double StartPercent, double WidthPercent) GetGanttSpan(CalendarEntry entry)
+    {
+        if (!entry.StartDate.HasValue || !entry.EndDate.HasValue)
+        {
+            return (0, 0);
+        }
+
+        var (rangeStart, rangeEnd) = GetGanttDateRange();
+        var totalDuration = (rangeEnd - rangeStart).TotalMinutes;
+        
+        var entryStart = entry.StartDate.Value > rangeStart ? entry.StartDate.Value : rangeStart;
+        var entryEnd = entry.EndDate.Value < rangeEnd ? entry.EndDate.Value : rangeEnd;
+
+        var offsetMinutes = (entryStart - rangeStart).TotalMinutes;
+        var durationMinutes = (entryEnd - entryStart).TotalMinutes;
+
+        var startPercent = (offsetMinutes / totalDuration) * 100;
+        var widthPercent = (durationMinutes / totalDuration) * 100;
+
+        return (Math.Max(0, startPercent), Math.Max(0.5, widthPercent));
+    }
+
     public void Dispose()
     {
         Localizer.OnLanguageChanged -= OnLanguageChanged;
@@ -831,5 +1176,11 @@ else
         public bool IsCurrentMonth { get; set; }
         public bool IsToday { get; set; }
         public List<CalendarEntry> Entries { get; set; } = new();
+    }
+
+    private class GanttColumn
+    {
+        public DateTime Date { get; set; }
+        public string Label { get; set; } = string.Empty;
     }
 }

@@ -217,25 +217,131 @@ h1:focus {
     border: 1px solid var(--border-color);
     border-radius: 4px;
     background-color: var(--bg-primary);
+    overflow-x: auto;
 }
 
-.gantt-header {
-    background-color: var(--bg-tertiary);
-    padding: 0.75rem;
+.gantt-timeline {
+    display: flex;
     border-bottom: 2px solid var(--border-color);
+    background-color: var(--bg-tertiary);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.gantt-timeline-column {
+    flex: 1;
+    min-width: 60px;
+    border-right: 1px solid var(--border-color);
+}
+
+.gantt-timeline-column:last-child {
+    border-right: none;
+}
+
+.gantt-timeline-header {
+    padding: 0.75rem 0.5rem;
+    text-align: center;
     font-weight: 600;
+    font-size: 0.875rem;
 }
 
-.gantt-row {
-    padding: 0.75rem;
+.gantt-rows {
+    position: relative;
+}
+
+.gantt-row-wrapper {
+    display: flex;
     border-bottom: 1px solid var(--border-color);
+    min-height: 60px;
+    position: relative;
 }
 
-.gantt-row:last-child {
+.gantt-row-wrapper:last-child {
     border-bottom: none;
 }
 
-.gantt-row:hover {
+.gantt-row-wrapper:hover {
     background-color: var(--bg-secondary);
+}
+
+.gantt-row-label {
+    width: 250px;
+    min-width: 250px;
+    padding: 0.75rem;
+    border-right: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-primary);
+    position: sticky;
+    left: 0;
+    z-index: 5;
+}
+
+.gantt-row-timeline {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.gantt-bar {
+    position: absolute;
+    height: 30px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.gantt-bar:hover {
+    opacity: 0.85;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.gantt-bar-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: white;
+}
+
+.gantt-bar.bg-warning .gantt-bar-label,
+.gantt-bar.text-dark .gantt-bar-label {
+    color: #000;
+}
+
+/* Responsive Gantt Chart */
+@media (max-width: 768px) {
+    .gantt-row-label {
+        width: 150px;
+        min-width: 150px;
+        font-size: 0.75rem;
+    }
+    
+    .gantt-timeline-column {
+        min-width: 40px;
+    }
+    
+    .gantt-timeline-header {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .gantt-bar {
+        height: 24px;
+    }
+    
+    .gantt-bar-label {
+        font-size: 0.65rem;
+    }
 }
 
