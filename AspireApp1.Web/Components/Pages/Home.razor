@@ -4,6 +4,7 @@
 @inject ProjectActivityApiClient ProjectActivityApi
 @inject ProjectTaskApiClient ProjectTaskApi
 @inject CasesApiClient CasesApi
+@inject ProjectsApiClient ProjectsApi
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 @inject LocalizationService Localizer
@@ -11,10 +12,11 @@
 
 <PageTitle>@Localizer.GetString("Home")</PageTitle>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>@Localizer.GetString("Activity Calendar")</h1>
-    <div class="d-flex">
-        <div class="btn-group me-2" role="group">
+<div class="calendar-header-wrapper mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>@Localizer.GetString("Activity Calendar")</h1>
+        <div class="d-flex">
+            <div class="btn-group me-2" role="group">
             <button type="button" class="btn @(scheduleType == "project" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetScheduleType("project")'>
                 <i class="bi bi-folder"></i> @Localizer.GetString("Projects")
             </button>
@@ -32,6 +34,7 @@
             <button type="button" class="btn @(viewMode == "list" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetViewMode("list")'>
                 <i class="bi bi-list-ul"></i> @Localizer.GetString("List")
             </button>
+        </div>
         </div>
     </div>
 </div>
@@ -416,6 +419,7 @@ else
     private string? activeProjectFilterName;
     private string? activeProjectFilterView;
     private bool scheduleTypeOverriddenByQuery;
+    private readonly Dictionary<int, string?> projectNameCache = new();
     private CancellationTokenSource? loadCts;
 
     private bool IsTasksView =>
@@ -537,6 +541,8 @@ else
                     .Where(t => TaskDateInRange(t, startDate, endDate))
                     .Select(t => CalendarEntry.FromTask(t, activeProjectFilterName)));
             }
+
+            await PopulateProjectNamesAsync(entries, ct);
 
             calendarEntries = entries.OrderBy(e => e.Date).ToList();
         }
@@ -823,12 +829,58 @@ else
             return entry.ProjectName;
         }
 
+        if (entry.ProjectId.HasValue && entry.ProjectId.Value > 0 && projectNameCache.TryGetValue(entry.ProjectId.Value, out var cachedName) && !string.IsNullOrWhiteSpace(cachedName))
+        {
+            return cachedName;
+        }
+
         if (entry.ProjectId.HasValue && entry.ProjectId.Value > 0)
         {
             return $"#{entry.ProjectId.Value}";
         }
 
         return null;
+    }
+
+    private async Task PopulateProjectNamesAsync(List<CalendarEntry> entries, CancellationToken cancellationToken = default)
+    {
+        var idsToFetch = entries
+            .Where(e => e.ProjectId.HasValue && e.ProjectId.Value > 0 && string.IsNullOrWhiteSpace(e.ProjectName) && !projectNameCache.ContainsKey(e.ProjectId.Value))
+            .Select(e => e.ProjectId!.Value)
+            .Distinct()
+            .ToList();
+
+        if (idsToFetch.Count > 0)
+        {
+            foreach (var projectId in idsToFetch)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                try
+                {
+                    var project = await ProjectsApi.GetProjectAsync(projectId, cancellationToken);
+                    projectNameCache[projectId] = project?.Name;
+                }
+                catch
+                {
+                    projectNameCache[projectId] = null;
+                }
+            }
+        }
+
+        foreach (var entry in entries)
+        {
+            if (entry.ProjectId.HasValue && entry.ProjectId.Value > 0 && string.IsNullOrWhiteSpace(entry.ProjectName))
+            {
+                if (projectNameCache.TryGetValue(entry.ProjectId.Value, out var cachedName) && !string.IsNullOrWhiteSpace(cachedName))
+                {
+                    entry.ProjectName = cachedName;
+                }
+            }
+        }
     }
 
     private string GetEntryPrimaryTitle(CalendarEntry entry)
@@ -1011,6 +1063,8 @@ else
                     .Where(t => TaskDateInRange(t, startDate, endDate))
                     .Select(t => CalendarEntry.FromTask(t, activeProjectFilterName)));
             }
+
+            await PopulateProjectNamesAsync(entries, ct);
 
             calendarEntries = entries.OrderBy(e => e.Date).ToList();
             

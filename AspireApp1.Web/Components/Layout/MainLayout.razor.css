@@ -22,7 +22,7 @@ main {
     background-color: var(--bg-primary);
     border-bottom: 1px solid var(--border-color);
     justify-content: flex-end;
-    height: 3.5rem;
+    height: var(--layout-toolbar-height);
     display: flex;
     align-items: center;
     gap: 1rem;

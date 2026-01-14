@@ -1,3 +1,8 @@
+:root {
+    --layout-toolbar-height: 3.5rem;
+    --content-top-padding: 1.1rem;
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
@@ -17,7 +22,7 @@ a, .btn-link {
 }
 
 .content {
-    padding-top: 1.1rem;
+    padding-top: var(--content-top-padding);
 }
 
 h1:focus {
@@ -188,6 +193,20 @@ h1:focus {
 
 .btn-chevron i {
     font-weight: bold;
+}
+
+.calendar-header-wrapper {
+    position: sticky;
+    top: calc(var(--layout-toolbar-height) + var(--content-top-padding));
+    z-index: 15;
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.9rem 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.calendar-header-wrapper .d-flex {
+    width: 100%;
 }
 
 /* Responsive Design */
