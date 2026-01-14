@@ -337,7 +337,7 @@
                                                         </div>
                                                     }
 
-                                                    <table class="table table-sm table-hover">
+                                                    <table class="table table-sm table-hover project-issues-table">
                                                         <thead>
                                                             <tr>
                                                                 <th>@Localizer.GetString("Date")</th>
@@ -355,7 +355,7 @@
                                                                 <tr>
                                                                     <td class="small">@activity.ActivityDate.ToLocalTime().ToString("g")</td>
                                                                     <td>@activity.Summary</td>
-                                                                    <td class="small">@activity.Description</td>
+                                                                    <td class="small description-cell">@activity.Description</td>
                                                                     <td class="small">@activity.NextAction</td>
                                                                     <td class="small">@activity.ActivityType</td>
                                                                     <td class="small">@activity.PerformedBy</td>

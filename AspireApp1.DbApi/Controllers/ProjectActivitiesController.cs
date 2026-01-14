@@ -1,3 +1,4 @@
+using System.Linq;
 using AspireApp1.DbApi.Models;
 using AspireApp1.DbApi.Repositories;
 using AspireApp1.DbApi.DTOs;
@@ -21,7 +22,7 @@ public class ProjectActivitiesController : AuditableControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<ProjectActivity>> Get(
+    public async Task<IEnumerable<ProjectActivityDto>> Get(
         [FromQuery] DateTime? startDate,
         [FromQuery] DateTime? endDate,
         [FromQuery] string? activityType)
@@ -29,14 +30,16 @@ public class ProjectActivitiesController : AuditableControllerBase
         // If any filter is provided, use search; otherwise return all
         if (startDate.HasValue || endDate.HasValue || !string.IsNullOrWhiteSpace(activityType))
         {
-            return await _repo.SearchAsync(startDate, endDate, activityType);
+            var searchResults = await _repo.SearchAsync(startDate, endDate, activityType);
+            return searchResults.Select(ToDto);
         }
         
-        return await _repo.GetAllAsync();
+        var allActivities = await _repo.GetAllAsync();
+        return allActivities.Select(ToDto);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ProjectActivity>> Get(int id)
+    public async Task<ActionResult<ProjectActivityDto>> Get(int id)
     {
         var activity = await _repo.GetAsync(id);
         if (activity == null)
@@ -45,21 +48,21 @@ public class ProjectActivitiesController : AuditableControllerBase
         var (username, userId) = await GetCurrentUserInfoAsync();
         await _auditService.LogActionAsync(username, userId, "Read", "ProjectActivity", activity.Id, activity);
 
-        return activity;
+        return ToDto(activity);
     }
 
     [HttpGet("by-project/{projectId}")]
-    public async Task<IEnumerable<ProjectActivity>> GetByProject(int projectId)
+    public async Task<IEnumerable<ProjectActivityDto>> GetByProject(int projectId)
     {
         var activities = await _repo.GetByProjectIdAsync(projectId);
         var (username, userId) = await GetCurrentUserInfoAsync();
         var arr = activities.ToArray();
         await _auditService.LogActionAsync(username, userId, "Read", "ProjectActivity", projectId, new { ProjectId = projectId, Count = arr.Length });
-        return arr;
+        return arr.Select(ToDto);
     }
 
     [HttpPost]
-    public async Task<ActionResult<ProjectActivity>> Post(ProjectActivityCreateDto dto)
+    public async Task<ActionResult<ProjectActivityDto>> Post(ProjectActivityCreateDto dto)
     {
         var activity = new ProjectActivity
         {
@@ -75,7 +78,7 @@ public class ProjectActivitiesController : AuditableControllerBase
         var created = await _repo.AddAsync(activity);
         var (username, userId) = await GetCurrentUserInfoAsync();
         await _auditService.LogActionAsync(username, userId, "Create", "ProjectActivity", created.Id, created);
-        return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+        return CreatedAtAction(nameof(Get), new { id = created.Id }, ToDto(created));
     }
 
     [HttpPut("{id}")]
@@ -111,5 +114,19 @@ public class ProjectActivitiesController : AuditableControllerBase
         var (username, userId) = await GetCurrentUserInfoAsync();
         await _auditService.LogActionAsync(username, userId, "Delete", "ProjectActivity", id, existing);
         return NoContent();
+    }
+
+    private static ProjectActivityDto ToDto(ProjectActivity activity)
+    {
+        return new ProjectActivityDto(
+            activity.Id,
+            activity.ProjectId,
+            activity.ActivityDate,
+            activity.Summary,
+            activity.Description,
+            activity.NextAction,
+            activity.ActivityType,
+            activity.PerformedBy,
+            activity.Project?.Name);
     }
 }
