@@ -281,16 +281,29 @@ h1:focus {
 .gantt-row-timeline {
     flex: 1;
     position: relative;
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(var(--gantt-columns, 7), 1fr);
     align-items: center;
     padding: 0.5rem 0;
-    background-image: repeating-linear-gradient(
-        to right,
-        transparent,
-        transparent calc(100% / var(--gantt-columns, 7) - 1px),
-        var(--border-color) calc(100% / var(--gantt-columns, 7) - 1px),
-        var(--border-color) calc(100% / var(--gantt-columns, 7))
-    );
+}
+
+.gantt-row-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--gantt-columns, 7), 1fr);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.gantt-row-timeline > * {
+    grid-column: 1 / -1;
+    position: relative;
+    z-index: 1;
 }
 
 .gantt-bar {

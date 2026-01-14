@@ -396,6 +396,7 @@ else
 @code {
     private const int CALENDAR_WEEKS = 6;
     private const int DAYS_PER_WEEK = 7;
+    private const double MIN_GANTT_BAR_WIDTH = 0.5;
 
     private string viewMode = "grid";
     private string scheduleType = "project";
@@ -1078,9 +1079,22 @@ else
             {
                 if (!e.StartDate.HasValue || !e.EndDate.HasValue)
                 {
-                    // Create a 1-hour span for activities without explicit ranges
-                    e.StartDate = e.Date;
-                    e.EndDate = e.Date.AddHours(1);
+                    // Create a copy with 1-hour span for activities without explicit ranges
+                    return new CalendarEntry
+                    {
+                        Date = e.Date,
+                        Summary = e.Summary,
+                        Description = e.Description,
+                        ProjectId = e.ProjectId,
+                        ProjectName = e.ProjectName,
+                        EntryKind = e.EntryKind,
+                        ActivityType = e.ActivityType,
+                        TaskStatus = e.TaskStatus,
+                        NextAction = e.NextAction,
+                        PerformedBy = e.PerformedBy,
+                        StartDate = e.Date,
+                        EndDate = e.Date.AddHours(1)
+                    };
                 }
                 return e;
             })
@@ -1107,7 +1121,7 @@ else
         var startPercent = (offsetMinutes / totalDuration) * 100;
         var widthPercent = (durationMinutes / totalDuration) * 100;
 
-        return (Math.Max(0, startPercent), Math.Max(0.5, widthPercent));
+        return (Math.Max(0, startPercent), Math.Max(MIN_GANTT_BAR_WIDTH, widthPercent));
     }
 
     public void Dispose()
