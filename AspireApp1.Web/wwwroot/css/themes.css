@@ -4,9 +4,9 @@
 :root, html[data-theme="light"] {
     /* Background colors */
     --bg-primary: #FFFFFF;
-    --bg-secondary: #E3F2FD;
+    --bg-secondary: #E6E6EE;
     --bg-tertiary: #F5F5F5;
-    --bg-sidebar: linear-gradient(180deg, #64B5F6 0%, #42A5F5 70%);
+    --bg-sidebar: #666699;
     
     /* Text colors */
     --text-primary: #212121;
@@ -24,13 +24,13 @@
     --border-light: #F5F5F5;
     
     /* Navigation colors */
-    --nav-top-bg: rgba(255, 255, 255, 0.9);
-    --nav-link-color: rgba(33, 33, 33, 0.8);
-    --nav-icon-color: rgba(33, 33, 33, 0.8);
+    --nav-top-bg: #666699;
+    --nav-link-color: #FFFFFF;
+    --nav-icon-color: #FFFFFF;
     --nav-link-active-bg: #1976D2;
     --nav-link-active-color: #FFFFFF;
-    --nav-link-hover-bg: rgba(25, 118, 210, 0.1);
-    --nav-link-hover-color: #1976D2;
+    --nav-link-hover-bg: rgba(255, 255, 255, 0.2);
+    --nav-link-hover-color: #FFFFFF;
     
     /* Button colors */
     --btn-primary-bg: #1976D2;
@@ -60,9 +60,9 @@
 html[data-theme="dark"] {
     /* Background colors */
     --bg-primary: #2C2C2C;
-    --bg-secondary: #3A3A3A;
+    --bg-secondary: #666699;
     --bg-tertiary: #424242;
-    --bg-sidebar: linear-gradient(180deg, #1A1A1A 0%, #121212 70%);
+    --bg-sidebar: #373753;
     
     /* Text colors */
     --text-primary: #E0E0E0;
@@ -80,13 +80,13 @@ html[data-theme="dark"] {
     --border-light: #3A3A3A;
     
     /* Navigation colors */
-    --nav-top-bg: rgba(42, 42, 42, 0.95);
-    --nav-link-color: #B0B0B0;
-    --nav-icon-color: #E0E0E0;
+    --nav-top-bg: #373753;
+    --nav-link-color: #FFFFFF;
+    --nav-icon-color: #FFFFFF;
     --nav-link-active-bg: #FF9800;
     --nav-link-active-color: #212121;
-    --nav-link-hover-bg: rgba(255, 152, 0, 0.2);
-    --nav-link-hover-color: #FF9800;
+    --nav-link-hover-bg: rgba(255, 255, 255, 0.2);
+    --nav-link-hover-color: #FFFFFF;
     
     /* Button colors */
     --btn-primary-bg: #FF9800;

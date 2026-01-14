@@ -27,7 +27,7 @@
 
 /* Ensure brand text is visible in light theme */
 html[data-theme="light"] .top-row .navbar-brand {
-    color: #000 !important;
+    color: #FFFFFF !important;
 }
 
 .bi {
@@ -41,14 +41,12 @@ html[data-theme="light"] .top-row .navbar-brand {
 }
 
 html[data-theme="light"] .bi {
-    filter: brightness(0) saturate(100%) invert(15%);
+    filter: none;
 }
 
-/* Light theme: use darker text for nav links so they remain readable */
 html[data-theme="light"] .nav-item ::deep a {
-    color: #21313a; /* dark slate */
+    color: #FFFFFF;
 }
-
 
 html[data-theme="dark"] .bi {
     filter: none;
@@ -197,6 +195,8 @@ html[data-theme="dark"] .collapse-toggle span.bi {
 
 .nav-scrollable {
     display: none;
+    background-color: var(--bg-sidebar);
+    min-height: calc(100vh - 3.5rem);
 }
 
 .navbar-toggler:checked ~ .nav-scrollable {

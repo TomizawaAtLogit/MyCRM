@@ -2,6 +2,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AspireApp1.DbApi.DTOs;
 
+public record ProjectActivityDto(
+    int Id,
+    int ProjectId,
+    DateTime ActivityDate,
+    string Summary,
+    string? Description,
+    string? NextAction,
+    string? ActivityType,
+    string? PerformedBy,
+    string? ProjectName);
+
 public record ProjectActivityCreateDto(
     int ProjectId,
     [Required] DateTime ActivityDate,

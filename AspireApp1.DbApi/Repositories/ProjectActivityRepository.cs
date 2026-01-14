@@ -32,6 +32,7 @@ public class ProjectActivityRepository : IProjectActivityRepository
     public async Task<IEnumerable<ProjectActivity>> GetByProjectIdAsync(int projectId)
     {
         return await _db.ProjectActivities
+            .Include(a => a.Project)
             .Where(a => a.ProjectId == projectId)
             .AsNoTracking()
             .OrderByDescending(a => a.ActivityDate)
@@ -70,6 +71,7 @@ public class ProjectActivityRepository : IProjectActivityRepository
     {
         _db.ProjectActivities.Add(activity);
         await _db.SaveChangesAsync();
+        await _db.Entry(activity).Reference(a => a.Project).LoadAsync();
         return activity;
     }
 
