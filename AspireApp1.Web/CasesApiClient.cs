@@ -176,6 +176,9 @@ namespace AspireApp1.Web
         Incident,
         ServiceRequest,
         Question,
-        Maintenance
+        Maintenance,
+        PlannedWork,
+        PowerOutage,
+        Other
     }
 }

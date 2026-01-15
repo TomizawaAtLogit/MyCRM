@@ -106,6 +106,9 @@
                             <option value="Incident">@Localizer.GetString("Incident")</option>
                             <option value="ServiceRequest">@Localizer.GetString("Service Request")</option>
                             <option value="Maintenance">@Localizer.GetString("Maintenance")</option>
+                            <option value="PlannedWork">@Localizer.GetString("Planned Work")</option>
+                            <option value="PowerOutage">@Localizer.GetString("Power Outage")</option>
+                            <option value="Other">@Localizer.GetString("Other")</option>
                         </select>
                     </div>
                     <div class="col-md-4">
@@ -164,13 +167,48 @@
                     <tr>
                         <th style="width: 50px;"></th>
                         <th>@Localizer.GetString("Title")</th>
-                        <th>@Localizer.GetString("Customer")</th>
-                        <th>@Localizer.GetString("Status")</th>
-                        <th>@Localizer.GetString("Priority")</th>
-                        <th>@Localizer.GetString("Issue Type")</th>
-                        <th>@Localizer.GetString("Assigned To")</th>
-                        <th>@Localizer.GetString("Due Date")</th>
-                        <th>@Localizer.GetString("Created")</th>
+                        <th>
+                            <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(CasesSortColumn.Customer)" aria-label="Sort by customer">
+                                <span>@Localizer.GetString("Customer")</span>
+                                <span class="sort-indicator text-muted small">@GetSortIndicator(CasesSortColumn.Customer)</span>
+                            </button>
+                        </th>
+                        <th>
+                            <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(CasesSortColumn.Status)" aria-label="Sort by status">
+                                <span>@Localizer.GetString("Status")</span>
+                                <span class="sort-indicator text-muted small">@GetSortIndicator(CasesSortColumn.Status)</span>
+                            </button>
+                        </th>
+                        <th>
+                            <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(CasesSortColumn.Priority)" aria-label="Sort by priority">
+                                <span>@Localizer.GetString("Priority")</span>
+                                <span class="sort-indicator text-muted small">@GetSortIndicator(CasesSortColumn.Priority)</span>
+                            </button>
+                        </th>
+                        <th>
+                            <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(CasesSortColumn.IssueType)" aria-label="Sort by issue type">
+                                <span>@Localizer.GetString("Issue Type")</span>
+                                <span class="sort-indicator text-muted small">@GetSortIndicator(CasesSortColumn.IssueType)</span>
+                            </button>
+                        </th>
+                        <th>
+                            <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(CasesSortColumn.AssignedTo)" aria-label="Sort by assignee">
+                                <span>@Localizer.GetString("Assigned To")</span>
+                                <span class="sort-indicator text-muted small">@GetSortIndicator(CasesSortColumn.AssignedTo)</span>
+                            </button>
+                        </th>
+                        <th>
+                            <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(CasesSortColumn.DueDate)" aria-label="Sort by due date">
+                                <span>@Localizer.GetString("Due Date")</span>
+                                <span class="sort-indicator text-muted small">@GetSortIndicator(CasesSortColumn.DueDate)</span>
+                            </button>
+                        </th>
+                        <th>
+                            <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(CasesSortColumn.Created)" aria-label="Sort by created date">
+                                <span>@Localizer.GetString("Created")</span>
+                                <span class="sort-indicator text-muted small">@GetSortIndicator(CasesSortColumn.Created)</span>
+                            </button>
+                        </th>
                         <th>@Localizer.GetString("Actions")</th>
                     </tr>
                 </thead>
@@ -193,11 +231,17 @@
                                 }
                                 @if (!string.IsNullOrWhiteSpace(c.Description))
                                 {
+                                    var description = c.Description;
+                                    var isExpanded = descriptionExpanded.ContainsKey(c.Id) && descriptionExpanded[c.Id];
+                                    var needsToggle = description.Length > 120;
                                     <div class="small text-muted mt-1">
-                                        @Truncate(c.Description, 120)
-                                        @if (c.Description.Length > 120)
+                                        <span>@(isExpanded || !needsToggle ? description : Truncate(description, 120))</span>
+                                        @if (needsToggle)
                                         {
-                                            <a href="#" class="ms-2" @onclick="() => ShowDescriptionModal(c.Title, c.Description)">View</a>
+                                            <button type="button" class="btn btn-link btn-sm p-0 ms-2"
+                                                    @onclick="() => ToggleDescription(c.Id)">
+                                                @(isExpanded ? Localizer.GetString("Hide") : Localizer.GetString("View"))
+                                            </button>
                                         }
                                     </div>
                                 }
@@ -243,7 +287,7 @@
                                     <span class="badge bg-secondary">@Localizer.GetString("Low")</span>
                                 }
                             </td>
-                            <td class="small">@c.IssueType</td>
+                            <td class="small">@GetLocalizedIssueType(c.IssueType)</td>
                             <td>@c.AssignedToUserName</td>
                             <td class="small">@(c.DueDate.HasValue ? c.DueDate.Value.ToLocalTime().ToString("g") : "")</td>
                             <td class="small">@c.CreatedAt.ToLocalTime().ToString("g")</td>
@@ -504,7 +548,21 @@
                                                                 <tr>
                                                                     <td class="small">@activity.ActivityDate.ToLocalTime().ToString("g")</td>
                                                                     <td>@activity.Summary</td>
-                                                                    <td class="small" style="white-space: pre-wrap; word-break: break-word;">@activity.Description</td>
+                                                                    @{
+                                                                        var activityDescription = activity.Description ?? string.Empty;
+                                                                        var activityNeedsToggle = activityDescription.Length > 120;
+                                                                        var activityIsExpanded = activityDescriptionExpanded.ContainsKey(activity.Id) && activityDescriptionExpanded[activity.Id];
+                                                                    }
+                                                                    <td class="small" style="white-space: pre-wrap; word-break: break-word;">
+                                                                        <span>@(activityIsExpanded || !activityNeedsToggle ? activityDescription : Truncate(activityDescription, 120))</span>
+                                                                        @if (activityNeedsToggle)
+                                                                        {
+                                                                            <button type="button" class="btn btn-link btn-sm p-0 ms-2"
+                                                                                    @onclick="() => ToggleActivityDescription(activity.Id)">
+                                                                                @(activityIsExpanded ? Localizer.GetString("Hide") : Localizer.GetString("View"))
+                                                                            </button>
+                                                                        }
+                                                                    </td>
                                                                     <td class="small">@activity.ActivityType</td>
                                                                     <td class="small">@activity.PerformedBy</td>
                                                                     <td>
@@ -666,6 +724,9 @@
                                     <option value="@IssueType.Incident">@Localizer.GetString("Incident")</option>
                                     <option value="@IssueType.ServiceRequest">@Localizer.GetString("Service Request")</option>
                                     <option value="@IssueType.Maintenance">@Localizer.GetString("Maintenance")</option>
+                                    <option value="@IssueType.PlannedWork">@Localizer.GetString("Planned Work")</option>
+                                    <option value="@IssueType.PowerOutage">@Localizer.GetString("Power Outage")</option>
+                                    <option value="@IssueType.Other">@Localizer.GetString("Other")</option>
                                 </InputSelect>
                             </div>
                         </div>
@@ -767,6 +828,9 @@
                                     <option value="@IssueType.Incident">@Localizer.GetString("Incident")</option>
                                     <option value="@IssueType.ServiceRequest">@Localizer.GetString("Service Request")</option>
                                     <option value="@IssueType.Maintenance">@Localizer.GetString("Maintenance")</option>
+                                    <option value="@IssueType.PlannedWork">@Localizer.GetString("Planned Work")</option>
+                                    <option value="@IssueType.PowerOutage">@Localizer.GetString("Power Outage")</option>
+                                    <option value="@IssueType.Other">@Localizer.GetString("Other")</option>
                                 </InputSelect>
                             </div>
                             <div class="col-md-4 mb-3">
@@ -850,6 +914,8 @@
     private DateTime? filterDueTo;
     private DateTime? filterCreatedFrom;
     private DateTime? filterCreatedTo;
+    private CasesSortColumn sortColumn = CasesSortColumn.Created;
+    private bool sortDescending = true;
     private bool showDescriptionModal = false;
     private string descriptionModalTitle = string.Empty;
     private string descriptionModalBody = string.Empty;
@@ -877,6 +943,8 @@
     private Dictionary<int, DateTime?> activityFilterFrom = new();
     private Dictionary<int, DateTime?> activityFilterTo = new();
     private Dictionary<int, List<CaseActivityDto>?> filteredActivities = new();
+    private Dictionary<int, bool> descriptionExpanded = new();
+    private Dictionary<int, bool> activityDescriptionExpanded = new();
     
     // Single edit tracking for activities
     private int? currentEditingCaseId;
@@ -978,7 +1046,61 @@
             q = q.Where(c => c.CreatedAt.Date <= filterCreatedTo.Value.Date);
         }
 
-        cases = q.ToArray();
+        cases = ApplySorting(q).ToArray();
+    }
+
+    private void SetSortColumn(CasesSortColumn column)
+    {
+        if (sortColumn == column)
+        {
+            sortDescending = !sortDescending;
+        }
+        else
+        {
+            sortColumn = column;
+            sortDescending = false;
+        }
+
+        ApplyClientFilters();
+    }
+
+    private IEnumerable<CaseDto> ApplySorting(IEnumerable<CaseDto> items)
+    {
+        return sortColumn switch
+        {
+            CasesSortColumn.Customer => sortDescending
+                ? items.OrderByDescending(c => c.CustomerName ?? string.Empty)
+                : items.OrderBy(c => c.CustomerName ?? string.Empty),
+            CasesSortColumn.Status => sortDescending
+                ? items.OrderByDescending(c => c.Status.ToString())
+                : items.OrderBy(c => c.Status.ToString()),
+            CasesSortColumn.Priority => sortDescending
+                ? items.OrderByDescending(c => c.Priority.ToString())
+                : items.OrderBy(c => c.Priority.ToString()),
+            CasesSortColumn.IssueType => sortDescending
+                ? items.OrderByDescending(c => c.IssueType.ToString())
+                : items.OrderBy(c => c.IssueType.ToString()),
+            CasesSortColumn.AssignedTo => sortDescending
+                ? items.OrderByDescending(c => c.AssignedToUserName ?? string.Empty)
+                : items.OrderBy(c => c.AssignedToUserName ?? string.Empty),
+            CasesSortColumn.DueDate => sortDescending
+                ? items.OrderByDescending(c => c.DueDate ?? DateTime.MinValue)
+                : items.OrderBy(c => c.DueDate ?? DateTime.MaxValue),
+            CasesSortColumn.Created => sortDescending
+                ? items.OrderByDescending(c => c.CreatedAt)
+                : items.OrderBy(c => c.CreatedAt),
+            _ => items
+        };
+    }
+
+    private string GetSortIndicator(CasesSortColumn column)
+    {
+        if (sortColumn != column)
+        {
+            return string.Empty;
+        }
+
+        return sortDescending ? "▼" : "▲";
     }
 
     private Task OnTitleFilterChanged(ChangeEventArgs e)
@@ -1248,6 +1370,24 @@
             InvokeAsync(StateHasChanged);
         });
     }
+
+    private void ToggleDescription(int caseId)
+    {
+        if (!descriptionExpanded.ContainsKey(caseId))
+        {
+            descriptionExpanded[caseId] = false;
+        }
+        descriptionExpanded[caseId] = !descriptionExpanded[caseId];
+    }
+    
+    private void ToggleActivityDescription(int activityId)
+    {
+        if (!activityDescriptionExpanded.ContainsKey(activityId))
+        {
+            activityDescriptionExpanded[activityId] = false;
+        }
+        activityDescriptionExpanded[activityId] = !activityDescriptionExpanded[activityId];
+    }
     
     private async Task ShowAddActivityFormAsync(int caseId)
     {
@@ -1443,6 +1583,27 @@
         return caseActivities.ContainsKey(caseId) ? caseActivities[caseId] : null;
     }
 
+    private static readonly Dictionary<IssueType, string> IssueTypeLocalizationKeys = new()
+    {
+        [IssueType.Bug] = "Bug",
+        [IssueType.Incident] = "Incident",
+        [IssueType.ServiceRequest] = "Service Request",
+        [IssueType.Question] = "Question",
+        [IssueType.Maintenance] = "Maintenance",
+        [IssueType.PlannedWork] = "Planned Work",
+        [IssueType.PowerOutage] = "Power Outage",
+        [IssueType.Other] = "Other"
+    };
+
+    private string GetLocalizedIssueType(IssueType issueType)
+    {
+        var key = IssueTypeLocalizationKeys.TryGetValue(issueType, out var localizationKey)
+            ? localizationKey
+            : issueType.ToString();
+
+        return Localizer.GetString(key);
+    }
+
     private static string ToDateInputValue(DateTime? value)
     {
         return value.HasValue ? value.Value.ToString("yyyy-MM-dd") : string.Empty;
@@ -1529,6 +1690,17 @@
         public int? AssignedToUserId { get; set; }
         public string? ResolutionNotes { get; set; }
         public DateTime? DueDate { get; set; }
+    }
+
+    private enum CasesSortColumn
+    {
+        Customer,
+        Status,
+        Priority,
+        IssueType,
+        AssignedTo,
+        DueDate,
+        Created
     }
 
     private void ShowCreateModal()

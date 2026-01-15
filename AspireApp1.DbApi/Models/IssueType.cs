@@ -6,5 +6,8 @@ public enum IssueType
     Incident,
     ServiceRequest,
     Question,
-    Maintenance
+    Maintenance,
+    PlannedWork,
+    PowerOutage,
+    Other
 }
