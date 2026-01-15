@@ -445,25 +445,25 @@ else
         }
     }
 
-    private async Task OnCustomerFilterChanged(ChangeEventArgs e)
+    private void OnCustomerFilterChanged(ChangeEventArgs e)
     {
         filterCustomerId = e.Value?.ToString();
         ApplyFilters();
     }
 
-    private async Task OnStatusFilterChanged(ChangeEventArgs e)
+    private void OnStatusFilterChanged(ChangeEventArgs e)
     {
         filterStatus = e.Value?.ToString();
         ApplyFilters();
     }
 
-    private async Task OnStageFilterChanged(ChangeEventArgs e)
+    private void OnStageFilterChanged(ChangeEventArgs e)
     {
         filterStage = e.Value?.ToString();
         ApplyFilters();
     }
 
-    private async Task OnAssignedToFilterChanged(ChangeEventArgs e)
+    private void OnAssignedToFilterChanged(ChangeEventArgs e)
     {
         filterAssignedToUserId = e.Value?.ToString();
         ApplyFilters();

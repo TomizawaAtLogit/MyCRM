@@ -9,6 +9,7 @@ namespace AspireApp1.DbApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    // [Authorize] // Commented for local development
     public class RequirementDefinitionsController : AuditableControllerBase
     {
         private readonly IRequirementDefinitionRepository _repo;
