@@ -165,7 +165,9 @@ public class CustomersController : AuditableControllerBase
             Country = dto.Country,
             ContactPerson = dto.ContactPerson,
             Phone = dto.Phone,
-            Description = dto.Description
+            Description = dto.Description,
+            Latitude = dto.Latitude,
+            Longitude = dto.Longitude
         };
         var created = await _repo.AddSiteAsync(site);
         
@@ -190,6 +192,8 @@ public class CustomersController : AuditableControllerBase
         site.ContactPerson = dto.ContactPerson;
         site.Phone = dto.Phone;
         site.Description = dto.Description;
+        site.Latitude = dto.Latitude;
+        site.Longitude = dto.Longitude;
         site.UpdatedAt = DateTime.UtcNow;
         
         await _repo.UpdateSiteAsync(site);

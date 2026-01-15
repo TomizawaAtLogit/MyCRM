@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 # File uploads
 FileUploads/
+
+# Development settings with API keys
+appsettings.Development.json

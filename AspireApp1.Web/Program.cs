@@ -17,6 +17,9 @@ builder.Services.AddRazorComponents()
 // Add localization service as singleton so language persists across circuits
 builder.Services.AddSingleton<LocalizationService>();
 
+// Add Google Maps service
+builder.Services.AddSingleton<GoogleMapsService>();
+
 builder.Services.AddOutputCache();
 
 // Add Windows Authentication - DISABLED FOR LOCAL DEVELOPMENT

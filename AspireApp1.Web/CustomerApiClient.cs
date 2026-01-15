@@ -69,7 +69,9 @@ public record CustomerSiteDto(
     string? Country,
     string? ContactPerson,
     string? Phone,
-    string? Description);
+    string? Description,
+    double? Latitude,
+    double? Longitude);
 
 public record CustomerSiteCreateDto(
     [Required] string SiteName,
@@ -78,7 +80,9 @@ public record CustomerSiteCreateDto(
     string? Country,
     string? ContactPerson,
     string? Phone,
-    string? Description);
+    string? Description,
+    double? Latitude,
+    double? Longitude);
 
 public record CustomerSystemDto(
     int Id,
