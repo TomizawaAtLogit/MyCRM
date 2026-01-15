@@ -74,6 +74,9 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IAuditRepository, AuditRepository>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<IRequirementDefinitionRepository, RequirementDefinitionRepository>();
+builder.Services.AddScoped<IPreSalesProposalRepository, PreSalesProposalRepository>();
+builder.Services.AddScoped<IPreSalesActivityRepository, PreSalesActivityRepository>();
 
 // Add background service for audit log cleanup
 builder.Services.AddHostedService<AuditCleanupService>();
