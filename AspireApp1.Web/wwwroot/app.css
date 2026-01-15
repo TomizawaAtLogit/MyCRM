@@ -237,24 +237,39 @@ h1:focus {
     border: 1px solid var(--border-color);
     border-radius: 4px;
     background-color: var(--bg-primary);
+    overflow: hidden;
+}
+
+.gantt-scroll-area {
     overflow-x: auto;
+    position: relative;
+    width: 100%;
+}
+
+.gantt-controls {
+    position: sticky;
+    top: calc(var(--layout-toolbar-height) + var(--content-top-padding));
+    z-index: 12;
+    background-color: var(--bg-primary);
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
 }
 
 .gantt-timeline {
-    display: flex;
+    display: grid;
     border-bottom: 2px solid var(--border-color);
     background-color: var(--bg-tertiary);
     position: sticky;
     top: 0;
     z-index: 10;
     margin-left: var(--gantt-label-width);
+    grid-template-columns: repeat(var(--gantt-columns, 7), minmax(0, 1fr));
     width: calc(100% - var(--gantt-label-width));
 }
 
 .gantt-timeline-column {
-    flex: 1;
-    min-width: 60px;
     border-right: 1px solid var(--border-color);
+    min-height: 64px;
 }
 
 .gantt-timeline-column:last-child {
@@ -270,6 +285,7 @@ h1:focus {
 
 .gantt-rows {
     position: relative;
+    width: calc(100% - var(--gantt-label-width));
 }
 
 .gantt-row-wrapper {
@@ -304,9 +320,10 @@ h1:focus {
     flex: 1;
     position: relative;
     display: grid;
-    grid-template-columns: repeat(var(--gantt-columns, 7), 1fr);
+    grid-template-columns: repeat(var(--gantt-columns, 7), minmax(0, 1fr));
     align-items: center;
     padding: 0.5rem 0;
+    width: calc(100% - var(--gantt-label-width));
 }
 
 .gantt-row-timeline::before {
@@ -317,7 +334,8 @@ h1:focus {
     right: 0;
     bottom: 0;
     display: grid;
-    grid-template-columns: repeat(var(--gantt-columns, 7), 1fr);
+    grid-template-columns: repeat(var(--gantt-columns, 7), minmax(0, 1fr));
+    width: 100%;
     pointer-events: none;
     z-index: 0;
 }
@@ -384,6 +402,11 @@ h1:focus {
     
     .gantt-bar-label {
         font-size: 0.65rem;
+    }
+
+    .gantt-controls {
+        position: static;
+        top: auto;
     }
 }
 
