@@ -289,9 +289,7 @@
         isEditingSite = true;
         try
         {
-            var dto = new CustomerSiteDto(
-                editingSiteId,
-                CustomerId,
+            var dto = new CustomerSiteUpdateDto(
                 editSite.SiteName!,
                 editSite.Address,
                 editSite.PostCode,

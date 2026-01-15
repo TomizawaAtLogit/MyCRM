@@ -20,7 +20,7 @@ You need a Google Maps API key to use this feature. Follow these steps to obtain
 
 ### Development Environment
 
-1. Open `AspireApp1.Web/appsettings.Development.json`
+1. Copy `AspireApp1.Web/appsettings.Development.json.template` to `AspireApp1.Web/appsettings.Development.json`
 2. Replace `YOUR_DEVELOPMENT_GOOGLE_MAPS_API_KEY_HERE` with your actual API key:
 
 ```json
