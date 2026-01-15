@@ -1115,7 +1115,8 @@ else
                 // Show hours for daily view
                 for (int hour = 0; hour < 24; hour++)
                 {
-                    columns.Add(new GanttColumn { Date = startDate.AddHours(hour), Label = $"{hour:00}:00" });
+                    var hourLabel = hour + 1;
+                    columns.Add(new GanttColumn { Date = startDate.AddHours(hour), Label = hourLabel.ToString(CultureInfo.InvariantCulture) });
                 }
                 break;
 
