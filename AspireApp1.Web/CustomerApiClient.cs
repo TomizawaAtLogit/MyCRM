@@ -69,7 +69,9 @@ public record CustomerSiteDto(
     string? Country,
     string? ContactPerson,
     string? Phone,
-    string? Description);
+    string? Description,
+    double? Latitude,
+    double? Longitude);
 
 public record CustomerSiteCreateDto(
     [Required] string SiteName,
@@ -78,7 +80,20 @@ public record CustomerSiteCreateDto(
     string? Country,
     string? ContactPerson,
     string? Phone,
-    string? Description);
+    string? Description,
+    double? Latitude,
+    double? Longitude);
+
+public record CustomerSiteUpdateDto(
+    [Required] string SiteName,
+    string? Address,
+    string? PostCode,
+    string? Country,
+    string? ContactPerson,
+    string? Phone,
+    string? Description,
+    double? Latitude,
+    double? Longitude);
 
 public record CustomerSystemDto(
     int Id,
@@ -292,7 +307,7 @@ public class CustomerApiClient
         return null;
     }
 
-    public async Task<bool> UpdateSiteAsync(int customerId, int id, CustomerSiteDto dto, CancellationToken ct = default)
+    public async Task<bool> UpdateSiteAsync(int customerId, int id, CustomerSiteUpdateDto dto, CancellationToken ct = default)
     {
         var res = await _http.PutAsJsonAsync($"/api/customers/{customerId}/sites/{id}", dto, ct);
         return res.IsSuccessStatusCode;

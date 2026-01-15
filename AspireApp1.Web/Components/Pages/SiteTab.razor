@@ -1,9 +1,10 @@
 @using System.ComponentModel.DataAnnotations
 @inject CustomerApiClient CustomerApi
 @inject IJSRuntime JSRuntime
+@inject GoogleMapsService GoogleMapsService
 
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-6">
         <h5>Sites</h5>
         @if (Sites == null || !Sites.Any())
         {
@@ -12,7 +13,7 @@
         else
         {
             <div class="table-responsive">
-                <table class="table table-sm">
+                <table class="table table-sm table-hover">
                     <thead>
                         <tr>
                             <th>Site Name</th>
@@ -24,15 +25,17 @@
                     <tbody>
                         @foreach (var site in Sites)
                         {
-                            <tr>
+                            <tr class="@(selectedSite?.Id == site.Id ? "table-active" : "")" 
+                                style="cursor: pointer;"
+                                @onclick="() => SelectSite(site)">
                                 <td>@site.SiteName</td>
                                 <td>@site.Description</td>
                                 <td>@site.ContactPerson</td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEdit(site)">
+                                    <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEdit(site)" @onclick:stopPropagation="true">
                                         <i class="bi bi-pencil"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(site.Id)">
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(site.Id)" @onclick:stopPropagation="true">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </td>
@@ -41,6 +44,14 @@
                     </tbody>
                 </table>
             </div>
+        }
+    </div>
+    <div class="col-md-6">
+        <h5>Location Map</h5>
+        <div id="siteMap" style="width: 100%; height: 400px; border: 1px solid #ddd; border-radius: 4px;"></div>
+        @if (selectedSite == null)
+        {
+            <p class="text-muted mt-2"><small>Select a site from the list to view its location on the map.</small></p>
         }
     </div>
 </div>
@@ -162,6 +173,73 @@
     private int editingSiteId = 0;
     private bool showCreateForm = false;
     private bool isEditingSite = false;
+    private CustomerSiteDto? selectedSite = null;
+    private bool mapInitialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await InitializeMapAsync();
+        }
+    }
+
+    private async Task InitializeMapAsync()
+    {
+        try
+        {
+            var apiKey = GoogleMapsService.GetApiKey();
+            if (string.IsNullOrEmpty(apiKey) || apiKey == "YOUR_GOOGLE_MAPS_API_KEY_HERE" || apiKey == "YOUR_DEVELOPMENT_GOOGLE_MAPS_API_KEY_HERE")
+            {
+                Console.WriteLine("Google Maps API key not configured. Map will not be displayed.");
+                return;
+            }
+
+            await JSRuntime.InvokeVoidAsync("googleMapsHelper.initMap", "siteMap", apiKey);
+            mapInitialized = true;
+            
+            // If there are sites, select the first one
+            if (Sites?.Any() == true)
+            {
+                await SelectSite(Sites.First());
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error initializing map: {ex.Message}");
+        }
+    }
+
+    private async Task SelectSite(CustomerSiteDto site)
+    {
+        selectedSite = site;
+        
+        if (mapInitialized)
+        {
+            try
+            {
+                var fullAddress = BuildFullAddress(site);
+                await JSRuntime.InvokeVoidAsync("googleMapsHelper.showSite", 
+                    site.SiteName, 
+                    fullAddress, 
+                    site.Latitude, 
+                    site.Longitude);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error showing site on map: {ex.Message}");
+            }
+        }
+    }
+
+    private string BuildFullAddress(CustomerSiteDto site)
+    {
+        var parts = new List<string>();
+        if (!string.IsNullOrEmpty(site.Address)) parts.Add(site.Address);
+        if (!string.IsNullOrEmpty(site.PostCode)) parts.Add(site.PostCode);
+        if (!string.IsNullOrEmpty(site.Country)) parts.Add(site.Country);
+        return string.Join(", ", parts);
+    }
 
     private async Task CreateAsync()
     {
@@ -172,7 +250,9 @@
             null,
             newSite.ContactPerson,
             newSite.Phone,
-            newSite.Description);
+            newSite.Description,
+            null, // Latitude - will be set by geocoding later
+            null); // Longitude - will be set by geocoding later
 
         await CustomerApi.AddSiteAsync(CustomerId, dto);
         newSite = new();
@@ -209,16 +289,16 @@
         isEditingSite = true;
         try
         {
-            var dto = new CustomerSiteDto(
-                editingSiteId,
-                CustomerId,
+            var dto = new CustomerSiteUpdateDto(
                 editSite.SiteName!,
                 editSite.Address,
                 editSite.PostCode,
                 null, // Country
                 editSite.ContactPerson,
                 editSite.Phone,
-                editSite.Description);
+                editSite.Description,
+                null, // Latitude - will be set by geocoding later
+                null); // Longitude - will be set by geocoding later
 
             var success = await CustomerApi.UpdateSiteAsync(CustomerId, editingSiteId, dto);
             if (success)

@@ -9,7 +9,9 @@ public record CustomerSiteCreateDto(
     string? Country,
     string? ContactPerson,
     string? Phone,
-    string? Description);
+    string? Description,
+    double? Latitude,
+    double? Longitude);
 
 public record CustomerSiteUpdateDto(
     [Required] string SiteName,
@@ -18,7 +20,9 @@ public record CustomerSiteUpdateDto(
     string? Country,
     string? ContactPerson,
     string? Phone,
-    string? Description);
+    string? Description,
+    double? Latitude,
+    double? Longitude);
 
 public record CustomerDatabaseCreateDto(
     [Required] string DatabaseName,
