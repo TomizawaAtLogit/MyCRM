@@ -1,6 +1,7 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.WebUtilities
+@using System.Globalization
 @inject ProjectActivityApiClient ProjectActivityApi
 @inject ProjectTaskApiClient ProjectTaskApi
 @inject CasesApiClient CasesApi
@@ -180,6 +181,9 @@ else if (viewMode == "gantt")
                         </button>
                         <button type="button" class="btn btn-sm @(ganttPeriod == "monthly" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetGanttPeriod("monthly")'>
                             @Localizer.GetString("Monthly")
+                        </button>
+                        <button type="button" class="btn btn-sm @(ganttPeriod == "yearly" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetGanttPeriod("yearly")'>
+                            @Localizer.GetString("Yearly")
                         </button>
                     </div>
                 </div>
@@ -406,6 +410,7 @@ else
     private string ganttPeriod = "weekly";
     private DateTime currentDate = DateTime.Today;
     private DateTime ganttStartDate = DateTime.Today;
+    private DateTime ganttAnchorDate = DateTime.Today;
     private List<CalendarEntry> calendarEntries = new();
     private CalendarEntry? selectedEntry;
     private bool isLoading;
@@ -628,7 +633,8 @@ else
             // Load data for Gantt view when switching to it
             if (mode == "gantt")
             {
-                ganttStartDate = GetPeriodStartDate(DateTime.Today, ganttPeriod);
+                ganttAnchorDate = DateTime.Today;
+                ganttStartDate = GetPeriodStartDate(ganttAnchorDate, ganttPeriod);
                 await LoadGanttEntries();
             }
         }
@@ -930,12 +936,16 @@ else
 
     private async Task SetGanttPeriod(string period)
     {
-        if (ganttPeriod != period)
+        if (ganttPeriod == period)
         {
-            ganttPeriod = period;
-            ganttStartDate = GetPeriodStartDate(DateTime.Today, period);
-            await LoadGanttEntries();
+            return;
         }
+
+        var referenceDate = ganttAnchorDate != default ? ganttAnchorDate : DateTime.Today;
+        ganttPeriod = period;
+        ganttStartDate = GetPeriodStartDate(referenceDate, period);
+        ganttAnchorDate = referenceDate;
+        await LoadGanttEntries();
     }
 
     private string GetGanttPeriodTitle()
@@ -945,6 +955,7 @@ else
             "daily" => ganttStartDate.ToString("MMMM d, yyyy"),
             "weekly" => $"{Localizer.GetString("Week of")} {ganttStartDate.ToString("MMM d, yyyy")}",
             "monthly" => ganttStartDate.ToString("MMMM yyyy"),
+            "yearly" => $"{Localizer.GetString("Year of")} {ganttStartDate.Year}",
             _ => ganttStartDate.ToString("MMMM yyyy")
         };
     }
@@ -953,13 +964,8 @@ else
     {
         if (viewMode == "gantt")
         {
-            ganttStartDate = ganttPeriod switch
-            {
-                "daily" => ganttStartDate.AddDays(-1),
-                "weekly" => ganttStartDate.AddDays(-7),
-                "monthly" => ganttStartDate.AddMonths(-1),
-                _ => ganttStartDate.AddMonths(-1)
-            };
+            ShiftGanttAnchor(-1);
+            ganttStartDate = GetPeriodStartDate(ganttAnchorDate, ganttPeriod);
             await LoadGanttEntries();
         }
         else
@@ -972,19 +978,26 @@ else
     {
         if (viewMode == "gantt")
         {
-            ganttStartDate = ganttPeriod switch
-            {
-                "daily" => ganttStartDate.AddDays(1),
-                "weekly" => ganttStartDate.AddDays(7),
-                "monthly" => ganttStartDate.AddMonths(1),
-                _ => ganttStartDate.AddMonths(1)
-            };
+            ShiftGanttAnchor(1);
+            ganttStartDate = GetPeriodStartDate(ganttAnchorDate, ganttPeriod);
             await LoadGanttEntries();
         }
         else
         {
             await NextMonth();
         }
+    }
+
+    private void ShiftGanttAnchor(int direction)
+    {
+        ganttAnchorDate = ganttPeriod switch
+        {
+            "daily" => ganttAnchorDate.AddDays(direction),
+            "weekly" => ganttAnchorDate.AddDays(7 * direction),
+            "monthly" => ganttAnchorDate.AddMonths(direction),
+            "yearly" => ganttAnchorDate.AddYears(direction),
+            _ => ganttAnchorDate.AddMonths(direction)
+        };
     }
 
     private DateTime GetPeriodStartDate(DateTime date, string period)
@@ -994,6 +1007,7 @@ else
             "daily" => date.Date,
             "weekly" => GetMondayOfWeek(date),
             "monthly" => new DateTime(date.Year, date.Month, 1),
+            "yearly" => new DateTime(date.Year, 1, 1),
             _ => new DateTime(date.Year, date.Month, 1)
         };
     }
@@ -1005,6 +1019,7 @@ else
             "daily" => (ganttStartDate, ganttStartDate.AddDays(1).AddSeconds(-1)),
             "weekly" => (ganttStartDate, ganttStartDate.AddDays(7).AddSeconds(-1)),
             "monthly" => (ganttStartDate, ganttStartDate.AddMonths(1).AddSeconds(-1)),
+            "yearly" => (ganttStartDate, ganttStartDate.AddYears(1).AddSeconds(-1)),
             _ => (ganttStartDate, ganttStartDate.AddMonths(1).AddSeconds(-1))
         };
     }
@@ -1090,6 +1105,7 @@ else
     {
         var columns = new List<GanttColumn>();
         var (startDate, endDate) = GetGanttDateRange();
+        var culture = CultureInfo.GetCultureInfo(Localizer.GetCurrentCulture());
 
         switch (ganttPeriod)
         {
@@ -1106,7 +1122,7 @@ else
                 for (int day = 0; day < 7; day++)
                 {
                     var date = startDate.AddDays(day);
-                    columns.Add(new GanttColumn { Date = date, Label = date.ToString("ddd M/d") });
+                    columns.Add(new GanttColumn { Date = date, Label = date.ToString("ddd M/d", culture) });
                 }
                 break;
 
@@ -1117,6 +1133,15 @@ else
                 {
                     columns.Add(new GanttColumn { Date = currentDate, Label = currentDate.Day.ToString() });
                     currentDate = currentDate.AddDays(1);
+                }
+                break;
+
+            case "yearly":
+                var monthDate = startDate;
+                while (monthDate <= endDate)
+                {
+                    columns.Add(new GanttColumn { Date = monthDate, Label = monthDate.ToString("MMM", culture) });
+                    monthDate = monthDate.AddMonths(1);
                 }
                 break;
         }

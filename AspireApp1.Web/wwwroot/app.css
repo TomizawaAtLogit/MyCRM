@@ -233,6 +233,7 @@ h1:focus {
 
 /* Gantt Chart Styles */
 .gantt-container {
+    --gantt-label-width: 250px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     background-color: var(--bg-primary);
@@ -246,6 +247,8 @@ h1:focus {
     position: sticky;
     top: 0;
     z-index: 10;
+    margin-left: var(--gantt-label-width);
+    width: calc(100% - var(--gantt-label-width));
 }
 
 .gantt-timeline-column {
@@ -285,8 +288,8 @@ h1:focus {
 }
 
 .gantt-row-label {
-    width: 250px;
-    min-width: 250px;
+    width: var(--gantt-label-width);
+    min-width: var(--gantt-label-width);
     padding: 0.75rem;
     border-right: 2px solid var(--border-color);
     display: flex;

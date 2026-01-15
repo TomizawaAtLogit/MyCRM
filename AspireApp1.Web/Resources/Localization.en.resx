@@ -172,8 +172,14 @@
   <data name="Monthly" xml:space="preserve">
     <value>Monthly</value>
   </data>
+  <data name="Yearly" xml:space="preserve">
+    <value>Yearly</value>
+  </data>
   <data name="Week of" xml:space="preserve">
     <value>Week of</value>
+  </data>
+  <data name="Year of" xml:space="preserve">
+    <value>Year of</value>
   </data>
   <data name="No activities for this period." xml:space="preserve">
     <value>No activities for this period.</value>

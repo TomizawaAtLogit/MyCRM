@@ -172,8 +172,14 @@
   <data name="Monthly" xml:space="preserve">
     <value>月次</value>
   </data>
+  <data name="Yearly" xml:space="preserve">
+    <value>年次</value>
+  </data>
   <data name="Week of" xml:space="preserve">
     <value>週</value>
+  </data>
+  <data name="Year of" xml:space="preserve">
+    <value>年</value>
   </data>
   <data name="No activities for this period." xml:space="preserve">
     <value>この期間にはアクティビティがありません。</value>
