@@ -27,6 +27,9 @@ namespace AspireApp1.DbApi.Data
         public DbSet<UserRole> UserRoles { get; set; } = null!;
         public DbSet<AuditLog> AuditLogs { get; set; } = null!;
         public DbSet<EntityFile> EntityFiles { get; set; } = null!;
+        public DbSet<RequirementDefinition> RequirementDefinitions { get; set; } = null!;
+        public DbSet<PreSalesProposal> PreSalesProposals { get; set; } = null!;
+        public DbSet<PreSalesActivity> PreSalesActivities { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -427,6 +430,79 @@ namespace AspireApp1.DbApi.Data
                 
                 b.HasIndex(x => x.Priority);
                 b.HasIndex(x => x.IsActive);
+            });
+
+            modelBuilder.Entity<RequirementDefinition>(b =>
+            {
+                b.ToTable("requirement_definitions");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.Title).IsRequired().HasMaxLength(500).HasColumnName("title");
+                b.Property(x => x.Description).HasColumnName("description");
+                b.Property(x => x.CustomerId).HasColumnName("customer_id");
+                b.Property(x => x.Category).HasMaxLength(100).HasColumnName("category");
+                b.Property(x => x.Priority).HasMaxLength(50).HasColumnName("priority");
+                b.Property(x => x.Status).HasMaxLength(50).HasColumnName("status");
+                b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
+                b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                
+                b.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
+                b.HasIndex(x => x.CustomerId);
+                b.HasIndex(x => x.Category);
+                b.HasIndex(x => x.Status);
+            });
+
+            modelBuilder.Entity<PreSalesProposal>(b =>
+            {
+                b.ToTable("presales_proposals");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.Title).IsRequired().HasMaxLength(500).HasColumnName("title");
+                b.Property(x => x.Description).HasColumnName("description");
+                b.Property(x => x.CustomerId).HasColumnName("customer_id");
+                b.Property(x => x.RequirementDefinitionId).HasColumnName("requirement_definition_id");
+                b.Property(x => x.Status).HasConversion<string>().HasMaxLength(50).HasColumnName("status");
+                b.Property(x => x.Stage).HasConversion<string>().HasMaxLength(50).HasColumnName("stage");
+                b.Property(x => x.AssignedToUserId).HasColumnName("assigned_to_user_id");
+                b.Property(x => x.EstimatedValue).HasPrecision(18, 2).HasColumnName("estimated_value");
+                b.Property(x => x.ProbabilityPercentage).HasColumnName("probability_percentage");
+                b.Property(x => x.ExpectedCloseDate).HasColumnName("expected_close_date");
+                b.Property(x => x.ClosedAt).HasColumnName("closed_at");
+                b.Property(x => x.Notes).HasColumnName("notes");
+                b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
+                b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                
+                b.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
+                b.HasOne(x => x.RequirementDefinition).WithMany().HasForeignKey(x => x.RequirementDefinitionId).OnDelete(DeleteBehavior.SetNull);
+                b.HasOne(x => x.AssignedToUser).WithMany().HasForeignKey(x => x.AssignedToUserId).OnDelete(DeleteBehavior.SetNull);
+                b.HasIndex(x => x.CustomerId);
+                b.HasIndex(x => x.RequirementDefinitionId);
+                b.HasIndex(x => x.AssignedToUserId);
+                b.HasIndex(x => x.Status);
+                b.HasIndex(x => x.Stage);
+                b.HasIndex(x => x.ExpectedCloseDate);
+            });
+
+            modelBuilder.Entity<PreSalesActivity>(b =>
+            {
+                b.ToTable("presales_activities");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.PreSalesProposalId).HasColumnName("presales_proposal_id");
+                b.Property(x => x.ActivityDate).HasColumnName("activity_date");
+                b.Property(x => x.Summary).IsRequired().HasMaxLength(500).HasColumnName("summary");
+                b.Property(x => x.Description).HasMaxLength(5000).HasColumnName("description");
+                b.Property(x => x.NextAction).HasMaxLength(1000).HasColumnName("next_action");
+                b.Property(x => x.ActivityType).HasMaxLength(100).HasColumnName("activity_type");
+                b.Property(x => x.PerformedBy).HasMaxLength(200).HasColumnName("performed_by");
+                b.Property(x => x.PreviousAssignedToUserId).HasColumnName("previous_assigned_to_user_id");
+                b.Property(x => x.NewAssignedToUserId).HasColumnName("new_assigned_to_user_id");
+                b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
+                b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                
+                b.HasOne(x => x.PreSalesProposal).WithMany().HasForeignKey(x => x.PreSalesProposalId).OnDelete(DeleteBehavior.Cascade);
+                b.HasIndex(x => x.PreSalesProposalId);
+                b.HasIndex(x => x.ActivityDate);
             });
         }
     }
