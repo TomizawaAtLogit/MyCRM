@@ -386,14 +386,16 @@ public class PreSalesBase : ComponentBase
 
     protected void FilterOrdersByCustomer()
     {
-        if (editingProposal.CustomerId > 0 && allOrders != null)
+        filteredOrders = FilterOrdersByCustomerId(editingProposal.CustomerId);
+    }
+
+    protected OrderWithCustomerDto[]? FilterOrdersByCustomerId(int customerId)
+    {
+        if (customerId > 0 && allOrders != null)
         {
-            filteredOrders = allOrders.Where(o => o.CustomerId == editingProposal.CustomerId).ToArray();
+            return allOrders.Where(o => o.CustomerId == customerId).ToArray();
         }
-        else
-        {
-            filteredOrders = null;
-        }
+        return null;
     }
 
     protected void HideDetailsModal()

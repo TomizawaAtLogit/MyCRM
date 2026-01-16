@@ -1727,38 +1727,36 @@
     {
         // Clear order when customer changes (lifecycle hook)
         newProject!.CustomerOrderId = null;
-        FilterOrdersForNew();
+        FilterOrders(newProject.CustomerId);
     }
 
     private void OnEditProjectCustomerChanged()
     {
         // Clear order when customer changes (lifecycle hook)
         editModel!.CustomerOrderId = null;
-        FilterOrdersForEdit();
+        FilterOrders(editModel.CustomerId);
+    }
+
+    private void FilterOrders(int customerId)
+    {
+        if (customerId > 0 && allOrders != null)
+        {
+            filteredOrders = allOrders.Where(o => o.CustomerId == customerId).ToArray();
+        }
+        else
+        {
+            filteredOrders = null;
+        }
     }
 
     private void FilterOrdersForNew()
     {
-        if (newProject!.CustomerId > 0 && allOrders != null)
-        {
-            filteredOrders = allOrders.Where(o => o.CustomerId == newProject.CustomerId).ToArray();
-        }
-        else
-        {
-            filteredOrders = null;
-        }
+        FilterOrders(newProject!.CustomerId);
     }
 
     private void FilterOrdersForEdit()
     {
-        if (editModel!.CustomerId > 0 && allOrders != null)
-        {
-            filteredOrders = allOrders.Where(o => o.CustomerId == editModel.CustomerId).ToArray();
-        }
-        else
-        {
-            filteredOrders = null;
-        }
+        FilterOrders(editModel!.CustomerId);
     }
 }
 
