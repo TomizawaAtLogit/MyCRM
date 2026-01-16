@@ -206,3 +206,63 @@ CREATE INDEX IF NOT EXISTS idx_entity_files_entity ON entity_files(entity_type, 
 CREATE INDEX IF NOT EXISTS idx_entity_files_uploadedat ON entity_files(uploaded_at);
 CREATE INDEX IF NOT EXISTS idx_entity_files_retentionuntil ON entity_files(retention_until);
 
+-- Create requirement_definitions table for pre-sales catalog
+CREATE TABLE IF NOT EXISTS requirement_definitions (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(500) NOT NULL,
+    description TEXT,
+    customer_id INTEGER NOT NULL REFERENCES customers(id) ON DELETE RESTRICT,
+    category VARCHAR(100),
+    priority VARCHAR(50),
+    status VARCHAR(50),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE INDEX IF NOT EXISTS idx_requirement_definitions_category ON requirement_definitions(category);
+CREATE INDEX IF NOT EXISTS idx_requirement_definitions_customerid ON requirement_definitions(customer_id);
+CREATE INDEX IF NOT EXISTS idx_requirement_definitions_status ON requirement_definitions(status);
+
+-- Pre-sales proposals and activities tables
+CREATE TABLE IF NOT EXISTS presales_proposals (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(500) NOT NULL,
+    description TEXT,
+    customer_id INTEGER NOT NULL REFERENCES customers(id) ON DELETE RESTRICT,
+    requirement_definition_id INTEGER REFERENCES requirement_definitions(id) ON DELETE SET NULL,
+    status VARCHAR(50) NOT NULL,
+    stage VARCHAR(50) NOT NULL,
+    assigned_to_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    estimated_value NUMERIC(18, 2),
+    probability_percentage INTEGER,
+    expected_close_date TIMESTAMP WITH TIME ZONE,
+    closed_at TIMESTAMP WITH TIME ZONE,
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE IF NOT EXISTS presales_activities (
+    id SERIAL PRIMARY KEY,
+    presales_proposal_id INTEGER NOT NULL REFERENCES presales_proposals(id) ON DELETE CASCADE,
+    activity_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    summary VARCHAR(500) NOT NULL,
+    description VARCHAR(5000),
+    next_action VARCHAR(1000),
+    activity_type VARCHAR(100),
+    performed_by VARCHAR(200),
+    previous_assigned_to_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    new_assigned_to_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE INDEX IF NOT EXISTS idx_presales_proposals_assigned_to_user_id ON presales_proposals(assigned_to_user_id);
+CREATE INDEX IF NOT EXISTS idx_presales_proposals_customer_id ON presales_proposals(customer_id);
+CREATE INDEX IF NOT EXISTS idx_presales_proposals_expected_close_date ON presales_proposals(expected_close_date);
+CREATE INDEX IF NOT EXISTS idx_presales_proposals_requirement_definition_id ON presales_proposals(requirement_definition_id);
+CREATE INDEX IF NOT EXISTS idx_presales_proposals_stage ON presales_proposals(stage);
+CREATE INDEX IF NOT EXISTS idx_presales_proposals_status ON presales_proposals(status);
+CREATE INDEX IF NOT EXISTS idx_presales_activities_activity_date ON presales_activities(activity_date);
+CREATE INDEX IF NOT EXISTS idx_presales_activities_presales_proposal_id ON presales_activities(presales_proposal_id);
+
