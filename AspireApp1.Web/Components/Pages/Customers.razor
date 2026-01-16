@@ -234,22 +234,6 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link @(activeTab == "orders" ? "active" : "")" 
-                            type="button"
-                            @onclick="@(() => SetActiveTab("orders"))"
-                            role="tab">
-                        <span class="bi bi-file-text"></span> Orders
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link @(activeTab == "projects" ? "active" : "")" 
-                            type="button"
-                            @onclick="@(() => SetActiveTab("projects"))"
-                            role="tab">
-                        <span class="bi bi-kanban"></span> Projects
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
                     <button class="nav-link @(activeTab == "files" ? "active" : "")" 
                             type="button"
                             @onclick="@(() => SetActiveTab("files"))"
@@ -267,14 +251,6 @@
                 else if (activeTab == "systems")
                 {
                     <SystemTab CustomerId="selectedCustomerDetails.Id" Systems="selectedCustomerDetails.Systems.OrderBy(s => s.SystemName).ToList()" Sites="selectedCustomerDetails.Sites" OnRefresh="LoadCustomerDetails" />
-                }
-                else if (activeTab == "orders")
-                {
-                    <OrderTab CustomerId="selectedCustomerDetails.Id" Orders="selectedCustomerDetails.Orders" OnRefresh="LoadCustomerDetails" />
-                }
-                else if (activeTab == "projects")
-                {
-                    <ProjectTab CustomerId="selectedCustomerDetails.Id" ProjectActivities="selectedCustomerDetails.ProjectActivities" OnRefresh="LoadCustomerDetails" />
                 }
                 else if (activeTab == "files")
                 {
@@ -321,7 +297,7 @@
             
             if (!string.IsNullOrEmpty(tabParam))
             {
-                activeTab = tabParam;
+                activeTab = NormalizeTab(tabParam);
             }
         }
     }
@@ -366,7 +342,18 @@
 
     private void SetActiveTab(string tab)
     {
-        activeTab = tab;
+        activeTab = NormalizeTab(tab);
+    }
+
+    private string NormalizeTab(string? tab)
+    {
+        return tab?.ToLowerInvariant() switch
+        {
+            "systems" => "systems",
+            "files" => "files",
+            "sites" => "sites",
+            _ => "sites",
+        };
     }
 
     private async Task CreateCustomerAsync()
