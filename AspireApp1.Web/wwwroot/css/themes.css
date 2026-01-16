@@ -214,6 +214,13 @@ a:hover {
     background-color: var(--bg-tertiary);
 }
 
+.presales-activities-panel {
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
 .form-control, .form-select {
     background-color: var(--bg-primary);
     border-color: var(--border-color);

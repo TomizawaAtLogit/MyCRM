@@ -100,6 +100,9 @@ public class LocalizationService
             ["Add New Customer"] = "Add New Customer",
             ["Back to List"] = "Back to List",
             ["Contact Person"] = "Contact Person",
+            ["DeleteCustomerConfirmation"] = "Are you sure you want to delete this customer?",
+            ["DeleteCustomerBlocked"] = "Customer has related cases, projects, requirement definitions, or pre-sales proposals and cannot be deleted.",
+            ["DeleteCustomerFailed"] = "Failed to delete customer.",
             // Common
             ["Activity Calendar"] = "Activity Calendar",
             ["Activities for"] = "Activities for",
@@ -287,6 +290,9 @@ public class LocalizationService
             ["Add New Customer"] = "新規顧客を追加",
             ["Back to List"] = "リストに戻る",
             ["Contact Person"] = "担当者",
+            ["DeleteCustomerConfirmation"] = "この顧客を削除してもよろしいですか？",
+            ["DeleteCustomerBlocked"] = "関連するケース、プロジェクト、要件定義、またはプレセールス提案が存在するため、この顧客を削除できません。",
+            ["DeleteCustomerFailed"] = "顧客の削除に失敗しました。",
             // Common
             ["Activity Calendar"] = "アクティビティカレンダー",
             ["Activities for"] = "アクティビティ：",

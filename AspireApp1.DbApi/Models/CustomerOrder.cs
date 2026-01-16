@@ -16,5 +16,5 @@ public class CustomerOrder
     public DateTime? UpdatedAt { get; set; }
 
     // Navigation property
-    public Customer Customer { get; set; } = null!;
+    public Customer? Customer { get; set; }
 }

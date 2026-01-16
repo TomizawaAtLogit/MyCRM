@@ -33,6 +33,105 @@
     </div>
 }
 
+@if (showProjectDetailsModal && selectedProjectDetails != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Localizer.GetString("Project Details") - @selectedProjectDetails.Name</h5>
+                    <button type="button" class="btn-close" @onclick="HideProjectDetailsModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">@Localizer.GetString("Project ID"):</dt>
+                                <dd class="col-sm-8">@selectedProjectDetails.Id</dd>
+                                <dt class="col-sm-4">@Localizer.GetString("Customer"):</dt>
+                                <dd class="col-sm-8">@selectedProjectDetails.CustomerName</dd>
+                                <dt class="col-sm-4">@Localizer.GetString("Status"):</dt>
+                                <dd class="col-sm-8">@Localizer.GetString(selectedProjectDetails.Status.ToString())</dd>
+                                <dt class="col-sm-4">@Localizer.GetString("Created"):</dt>
+                                <dd class="col-sm-8">@selectedProjectDetails.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            @if (!string.IsNullOrWhiteSpace(selectedProjectDetails.Description))
+                            {
+                                <div>
+                                    <h6>@Localizer.GetString("Description")</h6>
+                                    <p>@selectedProjectDetails.Description</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">@Localizer.GetString("Activities")</h6>
+                            @if (projectDetailsLoading)
+                            {
+                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                    <span class="visually-hidden">@Localizer.GetString("Loading...")</span>
+                                </div>
+                            }
+                        </div>
+                        @if (projectDetailsLoading)
+                        {
+                            <div class="text-center py-2">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">@Localizer.GetString("Loading...")</span>
+                                </div>
+                                <p class="text-muted mb-0 mt-2">@Localizer.GetString("Loading activities...")</p>
+                            </div>
+                        }
+                        else if (projectDetailsActivities != null && projectDetailsActivities.Any())
+                        {
+                            <div class="list-group">
+                                @foreach (var activity in projectDetailsActivities)
+                                {
+                                    <div class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between">
+                                                <strong>@activity.Summary</strong>
+                                                <small class="text-muted">@activity.ActivityDate.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</small>
+                                            </div>
+                                            @if (!string.IsNullOrWhiteSpace(activity.Description))
+                                            {
+                                                <p class="mb-1 text-muted">@activity.Description</p>
+                                            }
+                                            <small>
+                                                @if (!string.IsNullOrWhiteSpace(activity.NextAction))
+                                                {
+                                                    <span>@Localizer.GetString("Next Action"): @activity.NextAction</span>
+                                                    <br />
+                                                }
+                                                @if (!string.IsNullOrWhiteSpace(activity.PerformedBy))
+                                                {
+                                                    <span>@Localizer.GetString("Performed By"): @activity.PerformedBy</span>
+                                                }
+                                            </small>
+                                        </div>
+                                        <span class="text-muted ms-3"><i class="bi bi-chevron-right"></i></span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0">@Localizer.GetString("No activities yet.")</p>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="HideProjectDetailsModal">@Localizer.GetString("Close")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <div class="row mb-3">
     <div class="col-md-12">
         <h5>@Localizer.GetString("Filters")</h5>
@@ -130,6 +229,9 @@
                             <td>
                                 <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEdit(p)">
                                     <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-info me-1" type="button" @onclick="async () => await ShowProjectDetailsAsync(p)" aria-label='@Localizer.GetString("View Project Details")'>
+                                    <i class="bi bi-eye"></i>
                                 </button>
                                 <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteProjectAsync(p.Id)">
                                     <i class="bi bi-trash"></i>
@@ -839,6 +941,10 @@
     
     // Modal visibility
     private bool showCreateModal = false;
+    private bool showProjectDetailsModal = false;
+    private ProjectDto? selectedProjectDetails;
+    private List<ProjectActivityDto>? projectDetailsActivities;
+    private bool projectDetailsLoading;
 
     // Query-driven project highlighting
     private int? highlightProjectIdFromQuery;
@@ -1055,6 +1161,32 @@
         {
             loadingActivities[projectId] = false;
         }
+    }
+
+    private async Task ShowProjectDetailsAsync(ProjectDto project)
+    {
+        selectedProjectDetails = project;
+        showProjectDetailsModal = true;
+        projectDetailsLoading = true;
+        await EnsureProjectDetailsActivitiesAsync(project.Id);
+        projectDetailsLoading = false;
+    }
+
+    private async Task EnsureProjectDetailsActivitiesAsync(int projectId)
+    {
+        if (!projectActivities.ContainsKey(projectId))
+        {
+            await LoadActivitiesAsync(projectId);
+        }
+        projectDetailsActivities = projectActivities.ContainsKey(projectId) ? projectActivities[projectId] : null;
+    }
+
+    private void HideProjectDetailsModal()
+    {
+        showProjectDetailsModal = false;
+        selectedProjectDetails = null;
+        projectDetailsActivities = null;
+        projectDetailsLoading = false;
     }
     
     private void ShowToast(string message, string type)

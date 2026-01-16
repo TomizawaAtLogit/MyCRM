@@ -10,6 +10,7 @@ public interface ICustomerRepository
     Task<Customer> AddAsync(Customer customer);
     Task UpdateAsync(Customer customer);
     Task DeleteAsync(int id);
+    Task<CustomerDependencyType?> GetDeletionBlockerAsync(int customerId);
     
     // Child entity operations
     Task<CustomerDatabase> AddDatabaseAsync(CustomerDatabase database);

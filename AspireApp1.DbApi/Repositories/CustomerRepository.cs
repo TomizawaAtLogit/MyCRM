@@ -61,6 +61,23 @@ public class CustomerRepository : ICustomerRepository
         }
     }
 
+    public async Task<CustomerDependencyType?> GetDeletionBlockerAsync(int customerId)
+    {
+        if (await _db.Cases.AsNoTracking().AnyAsync(c => c.CustomerId == customerId))
+            return CustomerDependencyType.Case;
+
+        if (await _db.Projects.AsNoTracking().AnyAsync(p => p.CustomerId == customerId))
+            return CustomerDependencyType.Project;
+
+        if (await _db.RequirementDefinitions.AsNoTracking().AnyAsync(r => r.CustomerId == customerId))
+            return CustomerDependencyType.RequirementDefinition;
+
+        if (await _db.PreSalesProposals.AsNoTracking().AnyAsync(p => p.CustomerId == customerId))
+            return CustomerDependencyType.PreSalesProposal;
+
+        return null;
+    }
+
     // Database operations
     public async Task<CustomerDatabase> AddDatabaseAsync(CustomerDatabase database)
     {

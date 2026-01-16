@@ -1,10 +1,14 @@
 @page "/customers"
 @rendermode InteractiveServer
 @using System.ComponentModel.DataAnnotations
+@using System.Net.Http
+@using System.Text.Json
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.JSInterop
 @* @attribute [Authorize] *@ @* DISABLED FOR LOCAL DEVELOPMENT *@
 @inject CustomerApiClient CustomerApi
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 @inject LocalizationService Localizer
 @implements IDisposable
 
@@ -19,6 +23,14 @@
         </button>
     }
 </div>
+
+@if (!string.IsNullOrEmpty(deleteErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @deleteErrorMessage
+        <button type="button" class="btn-close" aria-label="Close" @onclick="() => deleteErrorMessage = null"></button>
+    </div>
+}
 
 @if (selectedCustomerDetails == null)
 {
@@ -116,7 +128,7 @@
                         <i class="bi bi-pencil"></i>
                     </button>
                 }
-                <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteCustomer(selectedCustomerDetails.Id)">
+                <button class="btn btn-outline-danger btn-sm" @onclick="() => ConfirmDeleteCustomer(selectedCustomerDetails.Id)">
                     <i class="bi bi-trash"></i>
                 </button>
             </div>
@@ -278,6 +290,7 @@
     private CustomerDto? selectedCustomer;
     private CustomerWithChildrenDto? selectedCustomerDetails;
     private string activeTab = "sites";
+    private string? deleteErrorMessage;
     
     private NewCustomerModel newCustomer = new();
     private EditContext? createEditContext;
@@ -321,6 +334,7 @@
     private async Task SelectCustomer(int id)
     {
         selectedCustomer = customers?.FirstOrDefault(c => c.Id == id);
+        deleteErrorMessage = null;
         await LoadCustomerDetails();
     }
 
@@ -330,6 +344,7 @@
         selectedCustomerDetails = null;
         isEditing = false;
         activeTab = "sites";
+        deleteErrorMessage = null;
     }
 
     private async Task LoadCustomerDetails()
@@ -414,16 +429,68 @@
         isEditing = false;
     }
 
+    private async Task ConfirmDeleteCustomer(int id)
+    {
+        if (id == 0)
+        {
+            return;
+        }
+
+        var confirmationMessage = Localizer.GetString("DeleteCustomerConfirmation") ??
+            "Are you sure you want to delete this customer?";
+
+        if (await JS.InvokeAsync<bool>("confirm", confirmationMessage))
+        {
+            await DeleteCustomer(id);
+        }
+    }
+
     private async Task DeleteCustomer(int id)
     {
-        if (id != 0)
+        if (id == 0)
         {
-            await CustomerApi.DeleteCustomerAsync(id);
+            return;
+        }
+
+        var response = await CustomerApi.DeleteCustomerAsync(id);
+        if (response.IsSuccessStatusCode)
+        {
+            deleteErrorMessage = null;
             selectedCustomer = null;
             selectedCustomerDetails = null;
             await LoadCustomersAsync();
         }
+        else
+        {
+            deleteErrorMessage = await GetDeleteErrorMessageAsync(response);
+        }
     }
+
+    private async Task<string> GetDeleteErrorMessageAsync(HttpResponseMessage response)
+    {
+        var content = await response.Content.ReadAsStringAsync();
+        if (!string.IsNullOrWhiteSpace(content))
+        {
+            try
+            {
+                var errorResponse = JsonSerializer.Deserialize<ApiErrorResponse>(content);
+                if (!string.IsNullOrWhiteSpace(errorResponse?.Message))
+                {
+                    return errorResponse.Message;
+                }
+            }
+            catch (JsonException)
+            {
+                // Ignore parsing issues and fall back to raw content
+            }
+
+            return content;
+        }
+
+        return Localizer.GetString("DeleteCustomerFailed");
+    }
+
+    private record ApiErrorResponse(string? Message);
 
     class NewCustomerModel
     {

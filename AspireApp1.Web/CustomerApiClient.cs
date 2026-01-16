@@ -271,10 +271,9 @@ public class CustomerApiClient
         return res.IsSuccessStatusCode;
     }
 
-    public async Task<bool> DeleteCustomerAsync(int id, CancellationToken ct = default)
+    public async Task<HttpResponseMessage> DeleteCustomerAsync(int id, CancellationToken ct = default)
     {
-        var res = await _http.DeleteAsync($"/api/customers/{id}", ct);
-        return res.IsSuccessStatusCode;
+        return await _http.DeleteAsync($"/api/customers/{id}", ct);
     }
 
     // Database operations

@@ -3,6 +3,7 @@ using AspireApp1.DbApi.Models;
 using AspireApp1.DbApi.Repositories;
 using AspireApp1.DbApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace AspireApp1.DbApi.Controllers;
 
@@ -106,15 +107,37 @@ public class CustomersController : AuditableControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        // Get customer before deletion for audit
         var customer = await _repo.GetAsync(id);
-        
-        await _repo.DeleteAsync(id);
-        
-        // Log delete action
+        if (customer == null)
+            return NotFound();
+
+        var blocker = await _repo.GetDeletionBlockerAsync(id);
+        if (blocker != null)
+        {
+            var message = blocker switch
+            {
+                CustomerDependencyType.Case => "Customer has related cases. Resolve or reassign them before deleting the customer.",
+                CustomerDependencyType.Project => "Customer still owns projects. Close or reassign those projects before deleting.",
+                CustomerDependencyType.RequirementDefinition => "Customer is attached to requirement definitions. Remove those dependencies before deleting.",
+                CustomerDependencyType.PreSalesProposal => "Customer has pre-sales proposals tied to it. Cancel or delete those before removing the customer.",
+                _ => "Cannot delete customer because related data exists."
+            };
+
+            return Conflict(new { message });
+        }
+
+        try
+        {
+            await _repo.DeleteAsync(id);
+        }
+        catch (DbUpdateException)
+        {
+            return Conflict(new { message = "Cannot delete customer because related data exists." });
+        }
+
         var (username, userId) = await GetCurrentUserInfoAsync();
         await _auditService.LogActionAsync(username, userId, "Delete", "Customer", id, customer);
-        
+
         return NoContent();
     }
 

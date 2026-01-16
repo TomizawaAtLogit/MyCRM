@@ -1,0 +1,558 @@
+#nullable enable
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
+using AspireApp1.Web;
+using AspireApp1.Web.Services;
+
+namespace AspireApp1.Web.Components.Pages;
+
+public class PreSalesBase : ComponentBase
+{
+    [Inject] protected PreSalesProposalsApiClient ProposalsApi { get; set; } = null!;
+    [Inject] protected PreSalesActivitiesApiClient ActivitiesApi { get; set; } = null!;
+    [Inject] protected RequirementDefinitionsApiClient RequirementsApi { get; set; } = null!;
+    [Inject] protected CustomerApiClient CustomersApi { get; set; } = null!;
+    [Inject] protected AdminApiClient AdminApi { get; set; } = null!;
+    [Inject] protected IJSRuntime JSRuntime { get; set; } = null!;
+    [Inject] protected LocalizationService Localizer { get; set; } = null!;
+
+    protected PreSalesProposalDto[]? proposals;
+    protected PreSalesProposalDto[]? filteredProposals;
+    protected CustomerDto[]? customers;
+    protected UserDto[]? users;
+    protected RequirementDefinitionDto[]? requirements;
+    protected PreSalesActivityDto[]? proposalActivities;
+
+    protected bool isLoading = true;
+    protected bool showModal = false;
+    protected bool showDetailsModal = false;
+    protected bool showToast = false;
+    protected string toastMessage = "";
+    protected string toastType = "success";
+
+    protected PreSalesProposalEditModel editingProposal = new();
+    protected PreSalesProposalDto? selectedProposal;
+
+    protected string? filterCustomerId = "";
+    protected string? filterStatus = "";
+    protected string? filterStage = "";
+    protected string? filterAssignedToUserId = "";
+    protected readonly Dictionary<int, bool> expandedProposals = new();
+    protected readonly Dictionary<int, bool> proposalDescriptionExpanded = new();
+    protected readonly Dictionary<int, string> proposalActiveTabs = new();
+    protected readonly Dictionary<int, bool> loadingProposalActivities = new();
+    protected readonly Dictionary<int, PreSalesActivityDto[]> cachedProposalActivities = new();
+    protected readonly Dictionary<int, bool> showAddActivityForm = new();
+    protected readonly Dictionary<int, NewProposalActivityModel> newActivityModels = new();
+    protected readonly Dictionary<int, EditContext> activityCreateContexts = new();
+    protected readonly Dictionary<int, bool> isProcessingActivity = new();
+    protected readonly Dictionary<int, int?> editingActivityIds = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task LoadData()
+    {
+        isLoading = true;
+
+        proposals = await ProposalsApi.GetProposalsAsync();
+        customers = await CustomersApi.GetCustomersAsync();
+        users = await AdminApi.GetUsersAsync();
+        requirements = await RequirementsApi.GetRequirementDefinitionsAsync();
+
+        ApplyFilters();
+        isLoading = false;
+    }
+
+    protected void ApplyFilters()
+    {
+        filteredProposals = proposals;
+
+        if (!string.IsNullOrEmpty(filterCustomerId) && int.TryParse(filterCustomerId, out var custId))
+        {
+            filteredProposals = filteredProposals?.Where(p => p.CustomerId == custId).ToArray();
+        }
+
+        if (!string.IsNullOrEmpty(filterStatus) && Enum.TryParse<PreSalesStatus>(filterStatus, out var status))
+        {
+            filteredProposals = filteredProposals?.Where(p => p.Status == status).ToArray();
+        }
+
+        if (!string.IsNullOrEmpty(filterStage) && Enum.TryParse<PreSalesStage>(filterStage, out var stage))
+        {
+            filteredProposals = filteredProposals?.Where(p => p.Stage == stage).ToArray();
+        }
+
+        if (!string.IsNullOrEmpty(filterAssignedToUserId) && int.TryParse(filterAssignedToUserId, out var userId))
+        {
+            filteredProposals = filteredProposals?.Where(p => p.AssignedToUserId == userId).ToArray();
+        }
+    }
+
+    protected void OnCustomerFilterChanged(ChangeEventArgs e)
+    {
+        filterCustomerId = e.Value?.ToString();
+        ApplyFilters();
+    }
+
+    protected void OnStatusFilterChanged(ChangeEventArgs e)
+    {
+        filterStatus = e.Value?.ToString();
+        ApplyFilters();
+    }
+
+    protected void OnStageFilterChanged(ChangeEventArgs e)
+    {
+        filterStage = e.Value?.ToString();
+        ApplyFilters();
+    }
+
+    protected void OnAssignedToFilterChanged(ChangeEventArgs e)
+    {
+        filterAssignedToUserId = e.Value?.ToString();
+        ApplyFilters();
+    }
+
+    protected void ShowCreateModal()
+    {
+        editingProposal = new PreSalesProposalEditModel();
+        showModal = true;
+    }
+
+    protected void ShowEditModal(PreSalesProposalDto proposal)
+    {
+        editingProposal = new PreSalesProposalEditModel
+        {
+            Id = proposal.Id,
+            Title = proposal.Title,
+            Description = proposal.Description,
+            CustomerId = proposal.CustomerId,
+            RequirementDefinitionId = proposal.RequirementDefinitionId,
+            Status = proposal.Status,
+            Stage = proposal.Stage,
+            AssignedToUserId = proposal.AssignedToUserId,
+            EstimatedValue = proposal.EstimatedValue,
+            ProbabilityPercentage = proposal.ProbabilityPercentage,
+            ExpectedCloseDate = proposal.ExpectedCloseDate,
+            Notes = proposal.Notes
+        };
+        showModal = true;
+    }
+
+    protected async Task ShowDetailsModal(PreSalesProposalDto proposal)
+    {
+        selectedProposal = proposal;
+        proposalActivities = await LoadActivitiesIfNeededAsync(proposal.Id, forceRefresh: true);
+        showDetailsModal = true;
+    }
+
+    protected async Task ToggleProposalExpansionAsync(int proposalId)
+    {
+        var isExpanded = expandedProposals.TryGetValue(proposalId, out var expanded) && expanded;
+        expandedProposals[proposalId] = !isExpanded;
+
+        if (!proposalActiveTabs.ContainsKey(proposalId))
+        {
+            proposalActiveTabs[proposalId] = "activities";
+        }
+
+        if (expandedProposals[proposalId])
+        {
+            await LoadActivitiesIfNeededAsync(proposalId);
+        }
+    }
+
+    protected async Task StartEditActivity(int proposalId, PreSalesActivityDto activity)
+    {
+        EnsureActivityModel(proposalId);
+        newActivityModels[proposalId] = new NewProposalActivityModel
+        {
+            ActivityDate = activity.ActivityDate,
+            Summary = activity.Summary,
+            Description = activity.Description,
+            NextAction = activity.NextAction,
+            ActivityType = activity.ActivityType,
+            PerformedBy = activity.PerformedBy
+        };
+        activityCreateContexts[proposalId] = new EditContext(newActivityModels[proposalId]);
+        editingActivityIds[proposalId] = activity.Id;
+        showAddActivityForm[proposalId] = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected void CancelActivityEdit(int proposalId)
+    {
+        editingActivityIds[proposalId] = null;
+        showAddActivityForm[proposalId] = false;
+        ResetActivityModel(proposalId);
+    }
+
+    protected async Task DeleteActivityAsync(int proposalId, int activityId)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", Localizer.GetString("Confirm Delete Activity")))
+        {
+            return;
+        }
+
+        var success = await ActivitiesApi.DeleteActivityAsync(activityId);
+        if (success)
+        {
+            ShowToast(Localizer.GetString("Activity deleted successfully"), "success");
+            if (editingActivityIds.TryGetValue(proposalId, out var editingId) && editingId == activityId)
+            {
+                editingActivityIds[proposalId] = null;
+                showAddActivityForm[proposalId] = false;
+                ResetActivityModel(proposalId);
+            }
+            var refreshed = await LoadActivitiesIfNeededAsync(proposalId, forceRefresh: true);
+            if (selectedProposal?.Id == proposalId)
+            {
+                proposalActivities = refreshed;
+            }
+        }
+        else
+        {
+            ShowToast(Localizer.GetString("Error deleting activity"), "danger");
+        }
+    }
+
+
+    protected async Task ShowAddActivityFormAsync(int proposalId)
+    {
+        EnsureActivityModel(proposalId);
+        editingActivityIds[proposalId] = null;
+        showAddActivityForm[proposalId] = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected void HideAddActivityForm(int proposalId)
+    {
+        showAddActivityForm[proposalId] = false;
+        editingActivityIds[proposalId] = null;
+    }
+
+    protected void EnsureActivityModel(int proposalId)
+    {
+        if (!newActivityModels.ContainsKey(proposalId))
+        {
+            newActivityModels[proposalId] = new NewProposalActivityModel();
+            activityCreateContexts[proposalId] = new EditContext(newActivityModels[proposalId]);
+        }
+        else if (!activityCreateContexts.ContainsKey(proposalId))
+        {
+            activityCreateContexts[proposalId] = new EditContext(newActivityModels[proposalId]);
+        }
+    }
+
+    protected void ResetActivityModel(int proposalId)
+    {
+        newActivityModels[proposalId] = new NewProposalActivityModel();
+        activityCreateContexts[proposalId] = new EditContext(newActivityModels[proposalId]);
+    }
+
+    protected async Task SubmitActivityFormAsync(int proposalId)
+    {
+        if (!activityCreateContexts.TryGetValue(proposalId, out var context) || !context.Validate())
+        {
+            ShowToast(Localizer.GetString("Please correct the validation errors"), "danger");
+            return;
+        }
+
+        if (!newActivityModels.TryGetValue(proposalId, out var model))
+        {
+            ShowToast(Localizer.GetString("Error creating activity"), "danger");
+            return;
+        }
+
+        var editingId = editingActivityIds.TryGetValue(proposalId, out var id) ? id : null;
+        isProcessingActivity[proposalId] = true;
+        try
+        {
+            bool succeeded;
+            if (editingId.HasValue)
+            {
+                var dto = new UpdatePreSalesActivityDto(
+                    editingId.Value,
+                    proposalId,
+                    model.Summary,
+                    string.IsNullOrWhiteSpace(model.Description) ? null : model.Description,
+                    string.IsNullOrWhiteSpace(model.NextAction) ? null : model.NextAction,
+                    string.IsNullOrWhiteSpace(model.ActivityType) ? null : model.ActivityType,
+                    string.IsNullOrWhiteSpace(model.PerformedBy) ? null : model.PerformedBy,
+                    model.ActivityDate);
+
+                succeeded = await ActivitiesApi.UpdateActivityAsync(dto);
+                ShowToast(Localizer.GetString(succeeded ? "Activity updated successfully" : "Failed to update activity"), succeeded ? "success" : "danger");
+            }
+            else
+            {
+                var dto = new CreatePreSalesActivityDto(
+                    proposalId,
+                    model.Summary,
+                    string.IsNullOrWhiteSpace(model.Description) ? null : model.Description,
+                    string.IsNullOrWhiteSpace(model.NextAction) ? null : model.NextAction,
+                    string.IsNullOrWhiteSpace(model.ActivityType) ? null : model.ActivityType,
+                    string.IsNullOrWhiteSpace(model.PerformedBy) ? null : model.PerformedBy,
+                    model.ActivityDate);
+
+                var created = await ActivitiesApi.CreateActivityAsync(dto);
+                succeeded = created != null;
+                ShowToast(Localizer.GetString(succeeded ? "Activity created successfully" : "Failed to create activity"), succeeded ? "success" : "danger");
+            }
+
+            if (!succeeded)
+            {
+                return;
+            }
+
+            var refreshed = await LoadActivitiesIfNeededAsync(proposalId, forceRefresh: true);
+            if (selectedProposal?.Id == proposalId)
+            {
+                proposalActivities = refreshed;
+            }
+
+            showAddActivityForm[proposalId] = false;
+            editingActivityIds[proposalId] = null;
+            ResetActivityModel(proposalId);
+        }
+        catch (Exception ex)
+        {
+            ShowToast(Localizer.GetString(editingId.HasValue ? "Error updating activity" : "Error creating activity") + $": {ex.Message}", "danger");
+        }
+        finally
+        {
+            isProcessingActivity[proposalId] = false;
+        }
+    }
+
+    protected async Task<PreSalesActivityDto[]> LoadActivitiesIfNeededAsync(int proposalId, bool forceRefresh = false)
+    {
+        if (!forceRefresh && cachedProposalActivities.TryGetValue(proposalId, out var cached))
+        {
+            return cached;
+        }
+
+        loadingProposalActivities[proposalId] = true;
+        try
+        {
+            var activities = await ActivitiesApi.GetActivitiesAsync(proposalId) ?? Array.Empty<PreSalesActivityDto>();
+            cachedProposalActivities[proposalId] = activities;
+            return activities;
+        }
+        catch (Exception ex)
+        {
+            cachedProposalActivities[proposalId] = Array.Empty<PreSalesActivityDto>();
+            ShowToast(Localizer.GetString("Error loading activities") + $": {ex.Message}", "danger");
+            return Array.Empty<PreSalesActivityDto>();
+        }
+        finally
+        {
+            loadingProposalActivities[proposalId] = false;
+        }
+    }
+
+    protected bool IsProposalLoadingActivities(int proposalId)
+    {
+        return loadingProposalActivities.TryGetValue(proposalId, out var loading) && loading;
+    }
+
+    protected void HideModal()
+    {
+        showModal = false;
+        editingProposal = new();
+    }
+
+    protected void HideDetailsModal()
+    {
+        showDetailsModal = false;
+        selectedProposal = null;
+        proposalActivities = null;
+    }
+
+    protected async Task SaveProposal()
+    {
+        try
+        {
+            if (editingProposal.Id == 0)
+            {
+                var dto = new CreatePreSalesProposalDto(
+                    editingProposal.Title,
+                    editingProposal.Description,
+                    editingProposal.CustomerId,
+                    editingProposal.RequirementDefinitionId,
+                    editingProposal.Status,
+                    editingProposal.Stage,
+                    editingProposal.AssignedToUserId,
+                    editingProposal.EstimatedValue,
+                    editingProposal.ProbabilityPercentage,
+                    editingProposal.ExpectedCloseDate,
+                    editingProposal.Notes
+                );
+                var created = await ProposalsApi.CreateProposalAsync(dto);
+                if (created != null)
+                {
+                    ShowToast(Localizer.GetString("Proposal created successfully!"), "success");
+                    await LoadData();
+                    HideModal();
+                }
+            }
+            else
+            {
+                var dto = new UpdatePreSalesProposalDto(
+                    editingProposal.Id,
+                    editingProposal.Title,
+                    editingProposal.Description,
+                    editingProposal.CustomerId,
+                    editingProposal.RequirementDefinitionId,
+                    editingProposal.Status,
+                    editingProposal.Stage,
+                    editingProposal.AssignedToUserId,
+                    editingProposal.EstimatedValue,
+                    editingProposal.ProbabilityPercentage,
+                    editingProposal.ExpectedCloseDate,
+                    editingProposal.Notes
+                );
+                var success = await ProposalsApi.UpdateProposalAsync(dto);
+                if (success)
+                {
+                    ShowToast(Localizer.GetString("Proposal updated successfully!"), "success");
+                    await LoadData();
+                    HideModal();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast(Localizer.GetString("Error saving proposal") + $": {ex.Message}", "danger");
+        }
+    }
+
+    protected async Task DeleteProposal(int id)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", Localizer.GetString("Confirm Delete Proposal")))
+        {
+            var success = await ProposalsApi.DeleteProposalAsync(id);
+            if (success)
+            {
+                ShowToast(Localizer.GetString("Proposal deleted successfully!"), "success");
+                await LoadData();
+            }
+            else
+            {
+                ShowToast(Localizer.GetString("Error deleting proposal"), "danger");
+            }
+        }
+    }
+
+    protected void ShowToast(string message, string type)
+    {
+        toastMessage = message;
+        toastType = type;
+        showToast = true;
+    }
+
+    protected string GetStatusBadgeColor(PreSalesStatus status)
+    {
+        return status switch
+        {
+            PreSalesStatus.Draft => "secondary",
+            PreSalesStatus.InReview => "info",
+            PreSalesStatus.Pending => "warning",
+            PreSalesStatus.Approved => "success",
+            PreSalesStatus.Rejected => "danger",
+            PreSalesStatus.Closed => "dark",
+            _ => "secondary"
+        };
+    }
+
+    protected string GetStatusLabel(PreSalesStatus status) =>
+        Localizer.GetString($"PreSalesStatus.{status}");
+
+    protected string GetStageLabel(PreSalesStage stage) =>
+        Localizer.GetString($"PreSalesStage.{stage}");
+
+    protected string GetProposalTab(int proposalId)
+    {
+        return proposalActiveTabs.TryGetValue(proposalId, out var tab) ? tab : "activities";
+    }
+
+    protected void SetProposalTab(int proposalId, string tab)
+    {
+        proposalActiveTabs[proposalId] = tab;
+    }
+
+    protected void ToggleProposalDescription(int proposalId)
+    {
+        if (!proposalDescriptionExpanded.ContainsKey(proposalId))
+        {
+            proposalDescriptionExpanded[proposalId] = false;
+        }
+
+        proposalDescriptionExpanded[proposalId] = !proposalDescriptionExpanded[proposalId];
+    }
+
+    protected string Truncate(string? s, int length)
+    {
+        if (string.IsNullOrEmpty(s)) return string.Empty;
+        return s.Length <= length ? s : s.Substring(0, length) + "...";
+    }
+
+    protected class NewProposalActivityModel
+    {
+        public DateTime ActivityDate { get; set; } = DateTime.UtcNow;
+
+        [Required, MaxLength(500)]
+        public string Summary { get; set; } = string.Empty;
+
+        [MaxLength(5000)]
+        public string? Description { get; set; }
+
+        [MaxLength(500)]
+        public string? NextAction { get; set; }
+
+        [MaxLength(200)]
+        public string? ActivityType { get; set; }
+
+        [MaxLength(200)]
+        public string? PerformedBy { get; set; }
+    }
+
+    public class PreSalesProposalEditModel
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public string Title { get; set; } = "";
+
+        public string? Description { get; set; }
+
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a customer")]
+        public int CustomerId { get; set; }
+
+        public int? RequirementDefinitionId { get; set; }
+
+        public PreSalesStatus Status { get; set; } = PreSalesStatus.Draft;
+
+        public PreSalesStage Stage { get; set; } = PreSalesStage.InitialContact;
+
+        public int? AssignedToUserId { get; set; }
+
+        public decimal? EstimatedValue { get; set; }
+
+        [Range(0, 100)]
+        public int? ProbabilityPercentage { get; set; }
+
+        public DateTime? ExpectedCloseDate { get; set; }
+
+        public string? Notes { get; set; }
+    }
+}
