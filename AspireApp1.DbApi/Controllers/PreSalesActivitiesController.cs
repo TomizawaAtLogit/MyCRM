@@ -130,6 +130,7 @@ namespace AspireApp1.DbApi.Controllers
             existing.Description = dto.Description;
             existing.NextAction = dto.NextAction;
             existing.ActivityType = dto.ActivityType;
+            existing.PerformedBy = dto.PerformedBy ?? existing.PerformedBy;
             
             await _repo.UpdateAsync(existing);
             

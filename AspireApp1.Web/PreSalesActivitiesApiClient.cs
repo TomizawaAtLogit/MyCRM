@@ -110,5 +110,6 @@ namespace AspireApp1.Web
         string? Description,
         string? NextAction,
         string? ActivityType,
+        string? PerformedBy,
         DateTime ActivityDate);
 }

@@ -97,7 +97,7 @@ else if (filteredProposals != null && filteredProposals.Any())
         <table class="table table-hover">
             <thead>
                 <tr>
-                    <th>@Localizer.GetString("ID")</th>
+                    <th class="text-center" style="width: 48px;"></th>
                     <th>@Localizer.GetString("Title")</th>
                     <th>@Localizer.GetString("Customer")</th>
                     <th>@Localizer.GetString("Status")</th>
@@ -113,8 +113,29 @@ else if (filteredProposals != null && filteredProposals.Any())
                 @foreach (var proposal in filteredProposals)
                 {
                     <tr>
-                        <td>@proposal.Id</td>
-                        <td>@proposal.Title</td>
+                        <td class="text-center align-middle">
+                            <button class="btn btn-link btn-chevron" @onclick="() => ToggleProposalExpansionAsync(proposal.Id)" type="button" aria-label="@Localizer.GetString("Activities")">
+                                <i class="bi @(expandedProposals.ContainsKey(proposal.Id) && expandedProposals[proposal.Id] ? "bi-chevron-down" : "bi-chevron-right")"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <strong>@proposal.Title</strong>
+                            @if (!string.IsNullOrWhiteSpace(proposal.Description))
+                            {
+                                var description = proposal.Description;
+                                var isExpanded = proposalDescriptionExpanded.TryGetValue(proposal.Id, out var expanded) && expanded;
+                                var needsToggle = description.Length > 120;
+                                <div class="small text-muted mt-1">
+                                    <span>@(isExpanded || !needsToggle ? description : Truncate(description, 120))</span>
+                                    @if (needsToggle)
+                                    {
+                                        <button type="button" class="btn btn-link btn-sm p-0 ms-2" @onclick="() => ToggleProposalDescription(proposal.Id)">
+                                            @(isExpanded ? Localizer.GetString("Hide") : Localizer.GetString("View"))
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        </td>
                         <td>@proposal.CustomerName</td>
                         <td><span class="badge bg-@GetStatusBadgeColor(proposal.Status)">@GetStatusLabel(proposal.Status)</span></td>
                         <td><span class="badge bg-secondary">@GetStageLabel(proposal.Stage)</span></td>
@@ -134,6 +155,173 @@ else if (filteredProposals != null && filteredProposals.Any())
                             </button>
                         </td>
                     </tr>
+                    @if (expandedProposals.ContainsKey(proposal.Id) && expandedProposals[proposal.Id])
+                    {
+                        <tr>
+                            <td colspan="10" class="p-0 border-top-0">
+                                <div class="bg-light border-top px-4 py-3">
+                                    <ul class="nav nav-tabs mb-3" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                                <button class="nav-link @(GetProposalTab(proposal.Id) == "activities" ? "active" : "")"
+                                                    type="button"
+                                                    @onclick='@(() => SetProposalTab(proposal.Id, "activities"))'
+                                                    role="tab">
+                                                <span class="bi bi-calendar-event"></span> @Localizer.GetString("Activities")
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                                <button class="nav-link @(GetProposalTab(proposal.Id) == "files" ? "active" : "")"
+                                                    type="button"
+                                                    @onclick='@(() => SetProposalTab(proposal.Id, "files"))'
+                                                    role="tab">
+                                                <span class="bi bi-file-earmark-arrow-up"></span> @Localizer.GetString("Files")
+                                            </button>
+                                        </li>
+                                    </ul>
+                                    @if (GetProposalTab(proposal.Id) == "activities")
+                                    {
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="mb-0">@Localizer.GetString("Activities")</h6>
+                                            <button class="btn btn-sm btn-primary" type="button" @onclick="async () => await ShowAddActivityFormAsync(proposal.Id)">
+                                                <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>@Localizer.GetString("Add New Activity")
+                                            </button>
+                                        </div>
+                                    @if (showAddActivityForm.TryGetValue(proposal.Id, out var showActivityForm) && showActivityForm && newActivityModels.ContainsKey(proposal.Id) && activityCreateContexts.ContainsKey(proposal.Id))
+                                    {
+                                        var model = newActivityModels[proposal.Id];
+                                        var context = activityCreateContexts[proposal.Id];
+                                        var isEditingActivity = editingActivityIds.TryGetValue(proposal.Id, out var editingId) && editingId.HasValue;
+                                        var isProcessing = isProcessingActivity.TryGetValue(proposal.Id, out var processing) && processing;
+                                        <div class="card mb-3">
+                                            <div class="card-header d-flex justify-content-between align-items-center">
+                                                <h6 class="mb-0">@Localizer.GetString(isEditingActivity ? "Edit Activity" : "New Activity")</h6>
+                                                <button class="btn btn-sm btn-secondary" type="button" @onclick="() => CancelActivityEdit(proposal.Id)">@Localizer.GetString("Cancel")</button>
+                                            </div>
+                                            <div class="card-body">
+                                                <EditForm EditContext="context" OnValidSubmit="async () => await SubmitActivityFormAsync(proposal.Id)">
+                                                    <DataAnnotationsValidator />
+                                                    <ValidationSummary />
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">@Localizer.GetString("Activity Date") *</label>
+                                                            <InputDate class="form-control" @bind-Value="model.ActivityDate" />
+                                                            <ValidationMessage For="() => model.ActivityDate" />
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">@Localizer.GetString("Summary") *</label>
+                                                            <InputText class="form-control" @bind-Value="model.Summary" />
+                                                            <ValidationMessage For="() => model.Summary" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">@Localizer.GetString("Description")</label>
+                                                        <InputTextArea class="form-control" rows="3" @bind-Value="model.Description" />
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">@Localizer.GetString("Next Action")</label>
+                                                            <InputText class="form-control" @bind-Value="model.NextAction" />
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">@Localizer.GetString("Performed By")</label>
+                                                            <InputSelect TValue="string?" class="form-select" @bind-Value="model.PerformedBy">
+                                                                @if (users != null)
+                                                                {
+                                                                    @foreach (var user in users.Where(u => u.IsActive))
+                                                                    {
+                                                                        <option value="@user.DisplayName">@user.DisplayName</option>
+                                                                    }
+                                                                }
+                                                            </InputSelect>
+                                                            <ValidationMessage For="() => model.PerformedBy" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 offset-md-6 mb-3">
+                                                            <label class="form-label">&nbsp;</label>
+                                                            <button class="btn btn-primary w-100" type="submit" disabled="@isProcessing">
+                                                                @if (isProcessing)
+                                                                {
+                                                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>@Localizer.GetString(isEditingActivity ? "Saving..." : "Creating...")
+                                                                }
+                                                                else
+                                                                {
+                                                                    @if (isEditingActivity)
+                                                                    {
+                                                                        <i class="bi bi-pencil me-1" aria-hidden="true"></i>@Localizer.GetString("Save Activity")
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>@Localizer.GetString("Create Activity")
+                                                                    }
+                                                                }
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </EditForm>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (IsProposalLoadingActivities(proposal.Id))
+                                    {
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="spinner-border spinner-border-sm" role="status">
+                                                <span class="visually-hidden">@Localizer.GetString("Loading...")</span>
+                                            </div>
+                                            <span>@Localizer.GetString("Loading activities...")</span>
+                                        </div>
+                                    }
+                                    else if (cachedProposalActivities.TryGetValue(proposal.Id, out var inlineActivities) && inlineActivities.Any())
+                                    {
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-hover mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>@Localizer.GetString("Date")</th>
+                                                        <th>@Localizer.GetString("Summary")</th>
+                                                        <th>@Localizer.GetString("Description")</th>
+                                                        <th>@Localizer.GetString("Next Action")</th>
+                                                        <th>@Localizer.GetString("Performed By")</th>
+                                                        <th>@Localizer.GetString("Actions")</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var activity in inlineActivities)
+                                                    {
+                                                        <tr>
+                                                            <td class="small">@activity.ActivityDate.ToLocalTime().ToString("g")</td>
+                                                            <td>@activity.Summary</td>
+                                                            <td class="small text-break">@(string.IsNullOrWhiteSpace(activity.Description) ? "-" : activity.Description)</td>
+                                                            <td class="small">@(string.IsNullOrWhiteSpace(activity.NextAction) ? "-" : activity.NextAction)</td>
+                                                            <td class="small">@(string.IsNullOrWhiteSpace(activity.PerformedBy) ? "-" : activity.PerformedBy)</td>
+                                                            <td>
+                                                                <button class="btn btn-sm btn-outline-primary me-1" type="button" @onclick="async () => await StartEditActivity(proposal.Id, activity)">
+                                                                    <i class="bi bi-pencil"></i>
+                                                                </button>
+                                                                <button class="btn btn-sm btn-outline-danger" type="button" @onclick="async () => await DeleteActivityAsync(proposal.Id, activity.Id)">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted mb-0">@Localizer.GetString("No activities yet.")</p>
+                                    }
+                            }
+                            else if (GetProposalTab(proposal.Id) == "files")
+                            {
+                                <FileManager EntityType="PreSalesProposal" EntityId="@proposal.Id" />
+                            }
+                        }
+                        </div>
+                    </td>
+                </tr>
+                    }
                 }
             </tbody>
         </table>
@@ -232,7 +420,7 @@ else
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">@Localizer.GetString("Assigned To")</label>
-                                <InputSelect class="form-select" @bind-Value="editingProposal.AssignedToUserId">
+                                <InputSelect TValue="int?" class="form-select" @bind-Value="editingProposal.AssignedToUserId">
                                     <option value="">-- @Localizer.GetString("Unassigned") --</option>
                                     @if (users != null)
                                     {
@@ -409,6 +597,16 @@ else
     private string? filterStatus = "";
     private string? filterStage = "";
     private string? filterAssignedToUserId = "";
+    private readonly Dictionary<int, bool> expandedProposals = new();
+    private readonly Dictionary<int, bool> proposalDescriptionExpanded = new();
+    private readonly Dictionary<int, string> proposalActiveTabs = new();
+    private readonly Dictionary<int, bool> loadingProposalActivities = new();
+    private readonly Dictionary<int, PreSalesActivityDto[]> cachedProposalActivities = new();
+    private readonly Dictionary<int, bool> showAddActivityForm = new();
+    private readonly Dictionary<int, NewProposalActivityModel> newActivityModels = new();
+    private readonly Dictionary<int, EditContext> activityCreateContexts = new();
+    private readonly Dictionary<int, bool> isProcessingActivity = new();
+    private readonly Dictionary<int, int?> editingActivityIds = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -506,8 +704,218 @@ else
     private async Task ShowDetailsModal(PreSalesProposalDto proposal)
     {
         selectedProposal = proposal;
-        proposalActivities = await ActivitiesApi.GetActivitiesAsync(proposal.Id);
+        proposalActivities = await LoadActivitiesIfNeededAsync(proposal.Id, forceRefresh: true);
         showDetailsModal = true;
+    }
+
+    private async Task ToggleProposalExpansionAsync(int proposalId)
+    {
+        var isExpanded = expandedProposals.TryGetValue(proposalId, out var expanded) && expanded;
+        expandedProposals[proposalId] = !isExpanded;
+
+        if (!proposalActiveTabs.ContainsKey(proposalId))
+        {
+            proposalActiveTabs[proposalId] = "activities";
+        }
+
+        if (expandedProposals[proposalId])
+        {
+            await LoadActivitiesIfNeededAsync(proposalId);
+        }
+    }
+
+    private async Task StartEditActivity(int proposalId, PreSalesActivityDto activity)
+    {
+        EnsureActivityModel(proposalId);
+        newActivityModels[proposalId] = new NewProposalActivityModel
+        {
+            ActivityDate = activity.ActivityDate,
+            Summary = activity.Summary,
+            Description = activity.Description,
+            NextAction = activity.NextAction,
+            ActivityType = activity.ActivityType,
+            PerformedBy = activity.PerformedBy
+        };
+        activityCreateContexts[proposalId] = new EditContext(newActivityModels[proposalId]);
+        editingActivityIds[proposalId] = activity.Id;
+        showAddActivityForm[proposalId] = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void CancelActivityEdit(int proposalId)
+    {
+        editingActivityIds[proposalId] = null;
+        showAddActivityForm[proposalId] = false;
+        ResetActivityModel(proposalId);
+    }
+
+    private async Task DeleteActivityAsync(int proposalId, int activityId)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", Localizer.GetString("Confirm Delete Activity")))
+        {
+            return;
+        }
+
+        var success = await ActivitiesApi.DeleteActivityAsync(activityId);
+        if (success)
+        {
+            ShowToast(Localizer.GetString("Activity deleted successfully"), "success");
+            if (editingActivityIds.TryGetValue(proposalId, out var editingId) && editingId == activityId)
+            {
+                editingActivityIds[proposalId] = null;
+                showAddActivityForm[proposalId] = false;
+                ResetActivityModel(proposalId);
+            }
+            var refreshed = await LoadActivitiesIfNeededAsync(proposalId, forceRefresh: true);
+            if (selectedProposal?.Id == proposalId)
+            {
+                proposalActivities = refreshed;
+            }
+        }
+        else
+        {
+            ShowToast(Localizer.GetString("Error deleting activity"), "danger");
+        }
+    }
+
+
+    private async Task ShowAddActivityFormAsync(int proposalId)
+    {
+        EnsureActivityModel(proposalId);
+        editingActivityIds[proposalId] = null;
+        showAddActivityForm[proposalId] = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void HideAddActivityForm(int proposalId)
+    {
+        showAddActivityForm[proposalId] = false;
+        editingActivityIds[proposalId] = null;
+    }
+
+    private void EnsureActivityModel(int proposalId)
+    {
+        if (!newActivityModels.ContainsKey(proposalId))
+        {
+            newActivityModels[proposalId] = new NewProposalActivityModel();
+            activityCreateContexts[proposalId] = new EditContext(newActivityModels[proposalId]);
+        }
+        else if (!activityCreateContexts.ContainsKey(proposalId))
+        {
+            activityCreateContexts[proposalId] = new EditContext(newActivityModels[proposalId]);
+        }
+    }
+
+    private void ResetActivityModel(int proposalId)
+    {
+        newActivityModels[proposalId] = new NewProposalActivityModel();
+        activityCreateContexts[proposalId] = new EditContext(newActivityModels[proposalId]);
+    }
+
+    private async Task SubmitActivityFormAsync(int proposalId)
+    {
+        if (!activityCreateContexts.TryGetValue(proposalId, out var context) || !context.Validate())
+        {
+            ShowToast(Localizer.GetString("Please correct the validation errors"), "danger");
+            return;
+        }
+
+        if (!newActivityModels.TryGetValue(proposalId, out var model))
+        {
+            ShowToast(Localizer.GetString("Error creating activity"), "danger");
+            return;
+        }
+
+        var editingId = editingActivityIds.TryGetValue(proposalId, out var id) ? id : null;
+        isProcessingActivity[proposalId] = true;
+        try
+        {
+            bool succeeded;
+            if (editingId.HasValue)
+            {
+                var dto = new UpdatePreSalesActivityDto(
+                    editingId.Value,
+                    proposalId,
+                    model.Summary,
+                    string.IsNullOrWhiteSpace(model.Description) ? null : model.Description,
+                    string.IsNullOrWhiteSpace(model.NextAction) ? null : model.NextAction,
+                    string.IsNullOrWhiteSpace(model.ActivityType) ? null : model.ActivityType,
+                    string.IsNullOrWhiteSpace(model.PerformedBy) ? null : model.PerformedBy,
+                    model.ActivityDate);
+
+                succeeded = await ActivitiesApi.UpdateActivityAsync(dto);
+                ShowToast(Localizer.GetString(succeeded ? "Activity updated successfully" : "Failed to update activity"), succeeded ? "success" : "danger");
+            }
+            else
+            {
+                var dto = new CreatePreSalesActivityDto(
+                    proposalId,
+                    model.Summary,
+                    string.IsNullOrWhiteSpace(model.Description) ? null : model.Description,
+                    string.IsNullOrWhiteSpace(model.NextAction) ? null : model.NextAction,
+                    string.IsNullOrWhiteSpace(model.ActivityType) ? null : model.ActivityType,
+                    string.IsNullOrWhiteSpace(model.PerformedBy) ? null : model.PerformedBy,
+                    model.ActivityDate);
+
+                var created = await ActivitiesApi.CreateActivityAsync(dto);
+                succeeded = created != null;
+                ShowToast(Localizer.GetString(succeeded ? "Activity created successfully" : "Failed to create activity"), succeeded ? "success" : "danger");
+            }
+
+            if (!succeeded)
+            {
+                return;
+            }
+
+            var refreshed = await LoadActivitiesIfNeededAsync(proposalId, forceRefresh: true);
+            if (selectedProposal?.Id == proposalId)
+            {
+                proposalActivities = refreshed;
+            }
+
+            showAddActivityForm[proposalId] = false;
+            editingActivityIds[proposalId] = null;
+            ResetActivityModel(proposalId);
+        }
+        catch (Exception ex)
+        {
+            ShowToast(Localizer.GetString(editingId.HasValue ? "Error updating activity" : "Error creating activity") + $": {ex.Message}", "danger");
+        }
+        finally
+        {
+            isProcessingActivity[proposalId] = false;
+        }
+    }
+
+    private async Task<PreSalesActivityDto[]> LoadActivitiesIfNeededAsync(int proposalId, bool forceRefresh = false)
+    {
+        if (!forceRefresh && cachedProposalActivities.TryGetValue(proposalId, out var cached))
+        {
+            return cached;
+        }
+
+        loadingProposalActivities[proposalId] = true;
+        try
+        {
+            var activities = await ActivitiesApi.GetActivitiesAsync(proposalId) ?? Array.Empty<PreSalesActivityDto>();
+            cachedProposalActivities[proposalId] = activities;
+            return activities;
+        }
+        catch (Exception ex)
+        {
+            cachedProposalActivities[proposalId] = Array.Empty<PreSalesActivityDto>();
+            ShowToast(Localizer.GetString("Error loading activities") + $": {ex.Message}", "danger");
+            return Array.Empty<PreSalesActivityDto>();
+        }
+        finally
+        {
+            loadingProposalActivities[proposalId] = false;
+        }
+    }
+
+    private bool IsProposalLoadingActivities(int proposalId)
+    {
+        return loadingProposalActivities.TryGetValue(proposalId, out var loading) && loading;
     }
 
     private void HideModal()
@@ -624,6 +1032,52 @@ else
 
     private string GetStageLabel(PreSalesStage stage) =>
         Localizer.GetString($"PreSalesStage.{stage}");
+
+    private string GetProposalTab(int proposalId)
+    {
+        return proposalActiveTabs.TryGetValue(proposalId, out var tab) ? tab : "activities";
+    }
+
+    private void SetProposalTab(int proposalId, string tab)
+    {
+        proposalActiveTabs[proposalId] = tab;
+    }
+
+    private void ToggleProposalDescription(int proposalId)
+    {
+        if (!proposalDescriptionExpanded.ContainsKey(proposalId))
+        {
+            proposalDescriptionExpanded[proposalId] = false;
+        }
+
+        proposalDescriptionExpanded[proposalId] = !proposalDescriptionExpanded[proposalId];
+    }
+
+    private string Truncate(string? s, int length)
+    {
+        if (string.IsNullOrEmpty(s)) return string.Empty;
+        return s.Length <= length ? s : s.Substring(0, length) + "...";
+    }
+
+    class NewProposalActivityModel
+    {
+        public DateTime ActivityDate { get; set; } = DateTime.UtcNow;
+
+        [Required, MaxLength(500)]
+        public string Summary { get; set; } = string.Empty;
+
+        [MaxLength(5000)]
+        public string? Description { get; set; }
+
+        [MaxLength(500)]
+        public string? NextAction { get; set; }
+
+        [MaxLength(200)]
+        public string? ActivityType { get; set; }
+
+        [MaxLength(200)]
+        public string? PerformedBy { get; set; }
+    }
 
     public class PreSalesProposalEditModel
     {
