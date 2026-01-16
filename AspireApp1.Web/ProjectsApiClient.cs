@@ -87,8 +87,8 @@ namespace AspireApp1.Web
         }
     }
 
-    public record ProjectDto(int Id, string Name, string? Description, int CustomerId, string? CustomerName, ProjectStatus Status, DateTime CreatedAt);
-    public record ProjectCreateDto(string Name, string? Description, int CustomerId, ProjectStatus Status = ProjectStatus.Wip);
+    public record ProjectDto(int Id, string Name, string? Description, int CustomerId, string? CustomerName, int? CustomerOrderId, string? CustomerOrderNumber, ProjectStatus Status, DateTime CreatedAt);
+    public record ProjectCreateDto(string Name, string? Description, int CustomerId, int? CustomerOrderId = null, ProjectStatus Status = ProjectStatus.Wip);
 
     public enum ProjectStatus
     {
