@@ -48,6 +48,8 @@ namespace AspireApp1.DbApi.Controllers
                 p.Description,
                 p.CustomerId,
                 p.Customer?.Name,
+                p.CustomerOrderId,
+                p.CustomerOrder?.OrderNumber,
                 p.Status,
                 p.CreatedAt
             ));
@@ -69,6 +71,8 @@ namespace AspireApp1.DbApi.Controllers
                 p.Description,
                 p.CustomerId,
                 p.Customer?.Name,
+                p.CustomerOrderId,
+                p.CustomerOrder?.OrderNumber,
                 p.Status,
                 p.CreatedAt
             );
@@ -82,6 +86,7 @@ namespace AspireApp1.DbApi.Controllers
                 Name = dto.Name,
                 Description = dto.Description,
                 CustomerId = dto.CustomerId,
+                CustomerOrderId = dto.CustomerOrderId,
                 Status = dto.Status
             };
             
@@ -101,6 +106,8 @@ namespace AspireApp1.DbApi.Controllers
                 result.Description,
                 result.CustomerId,
                 result.Customer?.Name,
+                result.CustomerOrderId,
+                result.CustomerOrder?.OrderNumber,
                 result.Status,
                 result.CreatedAt
             ));
@@ -115,6 +122,7 @@ namespace AspireApp1.DbApi.Controllers
             existing.Name = dto.Name;
             existing.Description = dto.Description;
             existing.CustomerId = dto.CustomerId;
+            existing.CustomerOrderId = dto.CustomerOrderId;
             existing.Status = dto.Status;
             
             await _repo.UpdateAsync(existing);

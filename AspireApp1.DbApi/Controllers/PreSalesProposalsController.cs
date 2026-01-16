@@ -82,6 +82,7 @@ namespace AspireApp1.DbApi.Controllers
                 Description = dto.Description,
                 CustomerId = dto.CustomerId,
                 RequirementDefinitionId = dto.RequirementDefinitionId,
+                CustomerOrderId = dto.CustomerOrderId,
                 Status = dto.Status,
                 Stage = dto.Stage,
                 AssignedToUserId = dto.AssignedToUserId,
@@ -117,6 +118,7 @@ namespace AspireApp1.DbApi.Controllers
             existing.Description = dto.Description;
             existing.CustomerId = dto.CustomerId;
             existing.RequirementDefinitionId = dto.RequirementDefinitionId;
+            existing.CustomerOrderId = dto.CustomerOrderId;
             existing.Status = dto.Status;
             existing.Stage = dto.Stage;
             existing.AssignedToUserId = dto.AssignedToUserId;
@@ -177,6 +179,8 @@ namespace AspireApp1.DbApi.Controllers
                 p.Customer?.Name,
                 p.RequirementDefinitionId,
                 p.RequirementDefinition?.Title,
+                p.CustomerOrderId,
+                p.CustomerOrder?.OrderNumber,
                 p.Status,
                 p.Stage,
                 p.AssignedToUserId,

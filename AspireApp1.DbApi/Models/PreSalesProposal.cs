@@ -7,6 +7,7 @@ public class PreSalesProposal
     public string? Description { get; set; }
     public int CustomerId { get; set; }
     public int? RequirementDefinitionId { get; set; }
+    public int? CustomerOrderId { get; set; }
     public PreSalesStatus Status { get; set; } = PreSalesStatus.Draft;
     public PreSalesStage Stage { get; set; } = PreSalesStage.InitialContact;
     public int? AssignedToUserId { get; set; }
@@ -21,5 +22,6 @@ public class PreSalesProposal
     // Navigation properties
     public Customer Customer { get; set; } = null!;
     public RequirementDefinition? RequirementDefinition { get; set; }
+    public CustomerOrder? CustomerOrder { get; set; }
     public User? AssignedToUser { get; set; }
 }
