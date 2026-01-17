@@ -20,6 +20,9 @@ builder.Services.AddSingleton<LocalizationService>();
 // Add Google Maps service
 builder.Services.AddSingleton<GoogleMapsService>();
 
+// Add shared customer selection store as scoped (per user session/circuit)
+builder.Services.AddScoped<CustomerSelectionStore>();
+
 builder.Services.AddOutputCache();
 
 // Add Windows Authentication - DISABLED FOR LOCAL DEVELOPMENT

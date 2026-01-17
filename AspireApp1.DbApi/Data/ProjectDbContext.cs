@@ -42,11 +42,14 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.Name).IsRequired().HasColumnName("name");
                 b.Property(x => x.Description).HasColumnName("description");
                 b.Property(x => x.CustomerId).HasColumnName("customer_id");
+                b.Property(x => x.CustomerOrderId).HasColumnName("customer_order_id");
                 b.Property(x => x.Status).HasConversion<string>().HasMaxLength(50).HasColumnName("status");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 
                 b.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
+                b.HasOne(x => x.CustomerOrder).WithMany().HasForeignKey(x => x.CustomerOrderId).OnDelete(DeleteBehavior.SetNull);
                 b.HasIndex(x => x.CustomerId);
+                b.HasIndex(x => x.CustomerOrderId);
             });
 
             modelBuilder.Entity<ProjectTask>(b =>
@@ -461,6 +464,7 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.Description).HasColumnName("description");
                 b.Property(x => x.CustomerId).HasColumnName("customer_id");
                 b.Property(x => x.RequirementDefinitionId).HasColumnName("requirement_definition_id");
+                b.Property(x => x.CustomerOrderId).HasColumnName("customer_order_id");
                 b.Property(x => x.Status).HasConversion<string>().HasMaxLength(50).HasColumnName("status");
                 b.Property(x => x.Stage).HasConversion<string>().HasMaxLength(50).HasColumnName("stage");
                 b.Property(x => x.AssignedToUserId).HasColumnName("assigned_to_user_id");
@@ -474,9 +478,11 @@ namespace AspireApp1.DbApi.Data
                 
                 b.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
                 b.HasOne(x => x.RequirementDefinition).WithMany().HasForeignKey(x => x.RequirementDefinitionId).OnDelete(DeleteBehavior.SetNull);
+                b.HasOne(x => x.CustomerOrder).WithMany().HasForeignKey(x => x.CustomerOrderId).OnDelete(DeleteBehavior.SetNull);
                 b.HasOne(x => x.AssignedToUser).WithMany().HasForeignKey(x => x.AssignedToUserId).OnDelete(DeleteBehavior.SetNull);
                 b.HasIndex(x => x.CustomerId);
                 b.HasIndex(x => x.RequirementDefinitionId);
+                b.HasIndex(x => x.CustomerOrderId);
                 b.HasIndex(x => x.AssignedToUserId);
                 b.HasIndex(x => x.Status);
                 b.HasIndex(x => x.Stage);

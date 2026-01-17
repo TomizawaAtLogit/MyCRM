@@ -356,7 +356,7 @@ else
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">@Localizer.GetString("Customer") *</label>
-                                <InputSelect class="form-select" @bind-Value="editingProposal.CustomerId">
+                                <InputSelect class="form-select" @bind-Value="editingProposal.CustomerId" @bind-Value:after="OnProposalCustomerChanged">
                                     <option value="0">-- @Localizer.GetString("Customer") --</option>
                                     @if (customers != null)
                                     {
@@ -369,6 +369,22 @@ else
                             </div>
 
                             <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Customer Order")</label>
+                                <InputSelect TValue="int?" class="form-select" @bind-Value="editingProposal.CustomerOrderId" disabled="@(editingProposal.CustomerId == 0)">
+                                    <option value="">-- @Localizer.GetString("None") --</option>
+                                    @if (filteredOrders != null)
+                                    {
+                                        @foreach (var order in filteredOrders)
+                                        {
+                                            <option value="@order.Id">@order.OrderNumber - @order.ContractType</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
                                 <label class="form-label">@Localizer.GetString("Requirement Definition")</label>
                                 <InputSelect class="form-select" @bind-Value="editingProposal.RequirementDefinitionId">
                                     <option value="">-- @Localizer.GetString("Requirement Definition") --</option>

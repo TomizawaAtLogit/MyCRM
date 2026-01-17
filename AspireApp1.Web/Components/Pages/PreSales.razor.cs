@@ -18,6 +18,7 @@ public class PreSalesBase : ComponentBase
     [Inject] protected PreSalesActivitiesApiClient ActivitiesApi { get; set; } = null!;
     [Inject] protected RequirementDefinitionsApiClient RequirementsApi { get; set; } = null!;
     [Inject] protected CustomerApiClient CustomersApi { get; set; } = null!;
+    [Inject] protected OrderApiClient OrdersApi { get; set; } = null!;
     [Inject] protected AdminApiClient AdminApi { get; set; } = null!;
     [Inject] protected IJSRuntime JSRuntime { get; set; } = null!;
     [Inject] protected LocalizationService Localizer { get; set; } = null!;
@@ -25,6 +26,8 @@ public class PreSalesBase : ComponentBase
     protected PreSalesProposalDto[]? proposals;
     protected PreSalesProposalDto[]? filteredProposals;
     protected CustomerDto[]? customers;
+    protected OrderWithCustomerDto[]? allOrders;
+    protected OrderWithCustomerDto[]? filteredOrders;
     protected UserDto[]? users;
     protected RequirementDefinitionDto[]? requirements;
     protected PreSalesActivityDto[]? proposalActivities;
@@ -67,6 +70,7 @@ public class PreSalesBase : ComponentBase
         customers = await CustomersApi.GetCustomersAsync();
         users = await AdminApi.GetUsersAsync();
         requirements = await RequirementsApi.GetRequirementDefinitionsAsync();
+        allOrders = await OrdersApi.GetOrdersAsync();
 
         ApplyFilters();
         isLoading = false;
@@ -136,6 +140,7 @@ public class PreSalesBase : ComponentBase
             Description = proposal.Description,
             CustomerId = proposal.CustomerId,
             RequirementDefinitionId = proposal.RequirementDefinitionId,
+            CustomerOrderId = proposal.CustomerOrderId,
             Status = proposal.Status,
             Stage = proposal.Stage,
             AssignedToUserId = proposal.AssignedToUserId,
@@ -144,6 +149,7 @@ public class PreSalesBase : ComponentBase
             ExpectedCloseDate = proposal.ExpectedCloseDate,
             Notes = proposal.Notes
         };
+        FilterOrdersByCustomer();
         showModal = true;
     }
 
@@ -368,6 +374,28 @@ public class PreSalesBase : ComponentBase
     {
         showModal = false;
         editingProposal = new();
+        filteredOrders = null;
+    }
+
+    protected void OnProposalCustomerChanged()
+    {
+        // Clear order when customer changes (lifecycle hook)
+        editingProposal.CustomerOrderId = null;
+        FilterOrdersByCustomer();
+    }
+
+    protected void FilterOrdersByCustomer()
+    {
+        filteredOrders = FilterOrdersByCustomerId(editingProposal.CustomerId);
+    }
+
+    protected OrderWithCustomerDto[]? FilterOrdersByCustomerId(int customerId)
+    {
+        if (customerId > 0 && allOrders != null)
+        {
+            return allOrders.Where(o => o.CustomerId == customerId).ToArray();
+        }
+        return null;
     }
 
     protected void HideDetailsModal()
@@ -388,6 +416,7 @@ public class PreSalesBase : ComponentBase
                     editingProposal.Description,
                     editingProposal.CustomerId,
                     editingProposal.RequirementDefinitionId,
+                    editingProposal.CustomerOrderId,
                     editingProposal.Status,
                     editingProposal.Stage,
                     editingProposal.AssignedToUserId,
@@ -412,6 +441,7 @@ public class PreSalesBase : ComponentBase
                     editingProposal.Description,
                     editingProposal.CustomerId,
                     editingProposal.RequirementDefinitionId,
+                    editingProposal.CustomerOrderId,
                     editingProposal.Status,
                     editingProposal.Stage,
                     editingProposal.AssignedToUserId,
@@ -539,6 +569,8 @@ public class PreSalesBase : ComponentBase
         public int CustomerId { get; set; }
 
         public int? RequirementDefinitionId { get; set; }
+
+        public int? CustomerOrderId { get; set; }
 
         public PreSalesStatus Status { get; set; } = PreSalesStatus.Draft;
 

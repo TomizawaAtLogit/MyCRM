@@ -14,17 +14,20 @@ namespace AspireApp1.DbApi.Controllers
     {
         private readonly IPreSalesProposalRepository _repo;
         private readonly IPreSalesActivityRepository _activityRepo;
+        private readonly IOrderRepository _orderRepo;
         private readonly IAuditService _auditService;
         
         public PreSalesProposalsController(
             IPreSalesProposalRepository repo,
             IPreSalesActivityRepository activityRepo,
+            IOrderRepository orderRepo,
             IUserRepository userRepo,
             IAuditService auditService)
             : base(userRepo)
         {
             _repo = repo;
             _activityRepo = activityRepo;
+            _orderRepo = orderRepo;
             _auditService = auditService;
         }
 
@@ -76,12 +79,23 @@ namespace AspireApp1.DbApi.Controllers
         [HttpPost]
         public async Task<ActionResult<PreSalesProposalDto>> Post(CreatePreSalesProposalDto dto)
         {
+            // Validate CustomerOrderId belongs to CustomerId
+            if (dto.CustomerOrderId.HasValue)
+            {
+                var order = await _orderRepo.GetAsync(dto.CustomerOrderId.Value);
+                if (order == null)
+                    return BadRequest("The specified CustomerOrderId does not exist.");
+                if (order.CustomerId != dto.CustomerId)
+                    return BadRequest("The specified CustomerOrderId does not belong to the specified CustomerId.");
+            }
+            
             var proposal = new PreSalesProposal
             {
                 Title = dto.Title,
                 Description = dto.Description,
                 CustomerId = dto.CustomerId,
                 RequirementDefinitionId = dto.RequirementDefinitionId,
+                CustomerOrderId = dto.CustomerOrderId,
                 Status = dto.Status,
                 Stage = dto.Stage,
                 AssignedToUserId = dto.AssignedToUserId,
@@ -110,6 +124,16 @@ namespace AspireApp1.DbApi.Controllers
             var existing = await _repo.GetAsync(id);
             if (existing == null) return NotFound();
             
+            // Validate CustomerOrderId belongs to CustomerId
+            if (dto.CustomerOrderId.HasValue)
+            {
+                var order = await _orderRepo.GetAsync(dto.CustomerOrderId.Value);
+                if (order == null)
+                    return BadRequest("The specified CustomerOrderId does not exist.");
+                if (order.CustomerId != dto.CustomerId)
+                    return BadRequest("The specified CustomerOrderId does not belong to the specified CustomerId.");
+            }
+            
             var oldAssignedToUserId = existing.AssignedToUserId;
             var (username, userId) = await GetCurrentUserInfoAsync();
             
@@ -117,6 +141,7 @@ namespace AspireApp1.DbApi.Controllers
             existing.Description = dto.Description;
             existing.CustomerId = dto.CustomerId;
             existing.RequirementDefinitionId = dto.RequirementDefinitionId;
+            existing.CustomerOrderId = dto.CustomerOrderId;
             existing.Status = dto.Status;
             existing.Stage = dto.Stage;
             existing.AssignedToUserId = dto.AssignedToUserId;
@@ -177,6 +202,8 @@ namespace AspireApp1.DbApi.Controllers
                 p.Customer?.Name,
                 p.RequirementDefinitionId,
                 p.RequirementDefinition?.Title,
+                p.CustomerOrderId,
+                p.CustomerOrder?.OrderNumber,
                 p.Status,
                 p.Stage,
                 p.AssignedToUserId,

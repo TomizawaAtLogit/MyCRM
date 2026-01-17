@@ -13,12 +13,14 @@ namespace AspireApp1.DbApi.Controllers
     public class ProjectsController : AuditableControllerBase
     {
         private readonly IProjectRepository _repo;
+        private readonly IOrderRepository _orderRepo;
         private readonly IAuditService _auditService;
         
-        public ProjectsController(IProjectRepository repo, IUserRepository userRepo, IAuditService auditService)
+        public ProjectsController(IProjectRepository repo, IOrderRepository orderRepo, IUserRepository userRepo, IAuditService auditService)
             : base(userRepo)
         {
             _repo = repo;
+            _orderRepo = orderRepo;
             _auditService = auditService;
         }
 
@@ -48,6 +50,8 @@ namespace AspireApp1.DbApi.Controllers
                 p.Description,
                 p.CustomerId,
                 p.Customer?.Name,
+                p.CustomerOrderId,
+                p.CustomerOrder?.OrderNumber,
                 p.Status,
                 p.CreatedAt
             ));
@@ -69,6 +73,8 @@ namespace AspireApp1.DbApi.Controllers
                 p.Description,
                 p.CustomerId,
                 p.Customer?.Name,
+                p.CustomerOrderId,
+                p.CustomerOrder?.OrderNumber,
                 p.Status,
                 p.CreatedAt
             );
@@ -77,11 +83,22 @@ namespace AspireApp1.DbApi.Controllers
         [HttpPost]
         public async Task<ActionResult<ProjectDto>> Post(CreateProjectDto dto)
         {
+            // Validate CustomerOrderId belongs to CustomerId
+            if (dto.CustomerOrderId.HasValue)
+            {
+                var order = await _orderRepo.GetAsync(dto.CustomerOrderId.Value);
+                if (order == null)
+                    return BadRequest("The specified CustomerOrderId does not exist.");
+                if (order.CustomerId != dto.CustomerId)
+                    return BadRequest("The specified CustomerOrderId does not belong to the specified CustomerId.");
+            }
+            
             var project = new Project
             {
                 Name = dto.Name,
                 Description = dto.Description,
                 CustomerId = dto.CustomerId,
+                CustomerOrderId = dto.CustomerOrderId,
                 Status = dto.Status
             };
             
@@ -101,6 +118,8 @@ namespace AspireApp1.DbApi.Controllers
                 result.Description,
                 result.CustomerId,
                 result.Customer?.Name,
+                result.CustomerOrderId,
+                result.CustomerOrder?.OrderNumber,
                 result.Status,
                 result.CreatedAt
             ));
@@ -112,9 +131,20 @@ namespace AspireApp1.DbApi.Controllers
             var existing = await _repo.GetAsync(id);
             if (existing == null) return NotFound();
             
+            // Validate CustomerOrderId belongs to CustomerId
+            if (dto.CustomerOrderId.HasValue)
+            {
+                var order = await _orderRepo.GetAsync(dto.CustomerOrderId.Value);
+                if (order == null)
+                    return BadRequest("The specified CustomerOrderId does not exist.");
+                if (order.CustomerId != dto.CustomerId)
+                    return BadRequest("The specified CustomerOrderId does not belong to the specified CustomerId.");
+            }
+            
             existing.Name = dto.Name;
             existing.Description = dto.Description;
             existing.CustomerId = dto.CustomerId;
+            existing.CustomerOrderId = dto.CustomerOrderId;
             existing.Status = dto.Status;
             
             await _repo.UpdateAsync(existing);

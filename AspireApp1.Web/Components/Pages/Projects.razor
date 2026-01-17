@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject ProjectsApiClient ProjectsApi
 @inject CustomerApiClient CustomersApi
+@inject OrderApiClient OrdersApi
 @inject ProjectActivityApiClient ProjectActivityApi
 @inject ProjectTaskApiClient ProjectTaskApi
 @inject EntityFilesApiClient EntityFilesApi
@@ -799,7 +800,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">@Localizer.GetString("Customer") *</label>
-                                <InputSelect @bind-Value="newProject.CustomerId" class="form-select">
+                                <InputSelect @bind-Value="newProject.CustomerId" @bind-Value:after="OnNewProjectCustomerChanged" class="form-select">
                                     <option value="0">-- Select Customer --</option>
                                     @if (customers != null)
                                     {
@@ -812,17 +813,32 @@
                                 <ValidationMessage For="() => newProject.CustomerId" />
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Customer Order")</label>
+                                <InputSelect TValue="int?" @bind-Value="newProject.CustomerOrderId" class="form-select" disabled="@(newProject.CustomerId == 0)">
+                                    <option value="">-- @Localizer.GetString("None") --</option>
+                                    @if (filteredOrders != null)
+                                    {
+                                        @foreach (var order in filteredOrders)
+                                        {
+                                            <option value="@order.Id">@order.OrderNumber - @order.ContractType</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Status")</label>
+                                <InputSelect @bind-Value="newProject.Status" class="form-select">
+                                    <option value="@ProjectStatus.Wip">WIP</option>
+                                    <option value="@ProjectStatus.Pending">Pending</option>
+                                    <option value="@ProjectStatus.Closed">Closed</option>
+                                </InputSelect>
+                            </div>
+                        </div>
                         <div class="mb-3">
                             <label class="form-label">@Localizer.GetString("Description")</label>
                             <InputTextArea @bind-Value="newProject.Description" class="form-control" rows="3" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">@Localizer.GetString("Status")</label>
-                            <InputSelect @bind-Value="newProject.Status" class="form-select">
-                                <option value="@ProjectStatus.Wip">WIP</option>
-                                <option value="@ProjectStatus.Pending">Pending</option>
-                                <option value="@ProjectStatus.Closed">Closed</option>
-                            </InputSelect>
                         </div>
                         <div class="d-flex gap-2">
                             <button class="btn btn-primary" type="submit">@Localizer.GetString("Create Project")</button>
@@ -861,7 +877,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Customer *</label>
-                            <InputSelect @bind-Value="editModel.CustomerId" class="form-select">
+                            <InputSelect @bind-Value="editModel.CustomerId" @bind-Value:after="OnEditProjectCustomerChanged" class="form-select">
                                 <option value="0">-- Select Customer --</option>
                                 @if (customers != null)
                                 {
@@ -872,6 +888,19 @@
                                 }
                             </InputSelect>
                             <ValidationMessage For="() => editModel!.CustomerId" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Customer Order")</label>
+                            <InputSelect TValue="int?" @bind-Value="editModel.CustomerOrderId" class="form-select" disabled="@(editModel.CustomerId == 0)">
+                                <option value="">-- @Localizer.GetString("None") --</option>
+                                @if (filteredOrders != null)
+                                {
+                                    @foreach (var order in filteredOrders)
+                                    {
+                                        <option value="@order.Id">@order.OrderNumber - @order.ContractType</option>
+                                    }
+                                }
+                            </InputSelect>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Status</label>
@@ -896,6 +925,8 @@
     private Web.ProjectDto[]? projects;
     private Web.CustomerDto[]? customers;
     private Web.UserDto[]? users;
+    private OrderWithCustomerDto[]? allOrders;
+    private OrderWithCustomerDto[]? filteredOrders;
     private string? loadError;
     private string filterCustomerId = "";
     private string filterStatus = "";
@@ -969,11 +1000,13 @@
         {
             customers = await CustomersApi.GetCustomersAsync();
             users = await AdminApi.GetUsersAsync();
+            allOrders = await OrdersApi.GetOrdersAsync();
         }
         catch
         {
             customers = Array.Empty<CustomerDto>();
             users = Array.Empty<UserDto>();
+            allOrders = Array.Empty<OrderWithCustomerDto>();
         }
     }
 
@@ -1023,7 +1056,7 @@
             return;
         }
 
-        var dto = new ProjectCreateDto(newProject!.Name, newProject.Description, newProject.CustomerId, newProject.Status);
+        var dto = new ProjectCreateDto(newProject!.Name, newProject.Description, newProject.CustomerId, newProject.CustomerOrderId, newProject.Status);
         var created = await ProjectsApi.CreateProjectAsync(dto);
         if (created is not null)
         {
@@ -1043,9 +1076,11 @@
             Name = p.Name, 
             Description = p.Description,
             CustomerId = p.CustomerId,
+            CustomerOrderId = p.CustomerOrderId,
             Status = p.Status
         };
         editEditContext = new EditContext(editModel);
+        FilterOrdersForEdit();
         isEditing = true;
     }
 
@@ -1065,7 +1100,7 @@
             return;
         }
         
-        var dto = new ProjectCreateDto(editModel!.Name, editModel.Description, editModel.CustomerId, editModel.Status);
+        var dto = new ProjectCreateDto(editModel!.Name, editModel.Description, editModel.CustomerId, editModel.CustomerOrderId, editModel.Status);
         var ok = await ProjectsApi.UpdateProjectAsync(editModel!.Id, dto);
         if (ok)
         {
@@ -1608,6 +1643,7 @@
         [Required] public string Name { get; set; } = string.Empty; 
         public string? Description { get; set; }
         [Required] public int CustomerId { get; set; }
+        public int? CustomerOrderId { get; set; }
         public ProjectStatus Status { get; set; } = ProjectStatus.Wip;
     }
     
@@ -1617,6 +1653,7 @@
         [Required] public string Name { get; set; } = string.Empty; 
         public string? Description { get; set; }
         [Required] public int CustomerId { get; set; }
+        public int? CustomerOrderId { get; set; }
         public ProjectStatus Status { get; set; } = ProjectStatus.Wip;
     }
     
@@ -1674,14 +1711,52 @@
     
     private void ShowCreateModal()
     {
+        filteredOrders = null;
         showCreateModal = true;
     }
     
     private void HideCreateModal()
     {
         showCreateModal = false;
+        filteredOrders = null;
         newProject = new();
         createEditContext = new EditContext(newProject);
+    }
+
+    private void OnNewProjectCustomerChanged()
+    {
+        // Clear order when customer changes (lifecycle hook)
+        newProject!.CustomerOrderId = null;
+        FilterOrders(newProject.CustomerId);
+    }
+
+    private void OnEditProjectCustomerChanged()
+    {
+        // Clear order when customer changes (lifecycle hook)
+        editModel!.CustomerOrderId = null;
+        FilterOrders(editModel.CustomerId);
+    }
+
+    private void FilterOrders(int customerId)
+    {
+        if (customerId > 0 && allOrders != null)
+        {
+            filteredOrders = allOrders.Where(o => o.CustomerId == customerId).ToArray();
+        }
+        else
+        {
+            filteredOrders = null;
+        }
+    }
+
+    private void FilterOrdersForNew()
+    {
+        FilterOrders(newProject!.CustomerId);
+    }
+
+    private void FilterOrdersForEdit()
+    {
+        FilterOrders(editModel!.CustomerId);
     }
 }
 
