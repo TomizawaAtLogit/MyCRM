@@ -660,14 +660,29 @@
                                                                             <ValidationMessage For="() => newTaskModel.EndDate" />
                                                                         </div>
                                                                     </div>
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label">@Localizer.GetString("Status")</label>
-                                                                        <InputSelect @bind-Value="newTaskModel.Status" class="form-select">
-                                                                            <option value="@ProjectTaskStatus.NotStarted">@Localizer.GetString("Not Started")</option>
-                                                                            <option value="@ProjectTaskStatus.InProgress">@Localizer.GetString("In Progress")</option>
-                                                                            <option value="@ProjectTaskStatus.Completed">@Localizer.GetString("Completed")</option>
-                                                                            <option value="@ProjectTaskStatus.Blocked">@Localizer.GetString("Blocked")</option>
-                                                                        </InputSelect>
+                                                                    <div class="row">
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <label class="form-label">@Localizer.GetString("Status")</label>
+                                                                            <InputSelect @bind-Value="newTaskModel.Status" class="form-select">
+                                                                                <option value="@ProjectTaskStatus.NotStarted">@Localizer.GetString("Not Started")</option>
+                                                                                <option value="@ProjectTaskStatus.InProgress">@Localizer.GetString("In Progress")</option>
+                                                                                <option value="@ProjectTaskStatus.Completed">@Localizer.GetString("Completed")</option>
+                                                                                <option value="@ProjectTaskStatus.Blocked">@Localizer.GetString("Blocked")</option>
+                                                                            </InputSelect>
+                                                                        </div>
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <label class="form-label">@Localizer.GetString("Performed By")</label>
+                                                                            <InputSelect @bind-Value="newTaskModel.PerformedBy" class="form-select">
+                                                                                <option value="">@Localizer.GetString("Select User")</option>
+                                                                                @if (users != null)
+                                                                                {
+                                                                                    @foreach (var u in users.Where(u => u.IsActive))
+                                                                                    {
+                                                                                        <option value="@u.DisplayName">@u.DisplayName</option>
+                                                                                    }
+                                                                                }
+                                                                            </InputSelect>
+                                                                        </div>
                                                                     </div>
                                                                     <button class="btn btn-primary w-100" type="submit">@Localizer.GetString("Create Task")</button>
                                                                 </EditForm>
@@ -686,7 +701,8 @@
                                                                 <div class="row">
                                                                     <div class="col-md-3 fw-bold">@Localizer.GetString("Task")</div>
                                                                     <div class="col-md-2 fw-bold">@Localizer.GetString("Status")</div>
-                                                                    <div class="col-md-5 fw-bold">@Localizer.GetString("Timeline")</div>
+                                                                    <div class="col-md-2 fw-bold">@Localizer.GetString("Performed By")</div>
+                                                                    <div class="col-md-3 fw-bold">@Localizer.GetString("Timeline")</div>
                                                                     <div class="col-md-2 fw-bold">@Localizer.GetString("Actions")</div>
                                                                 </div>
                                                             </div>
@@ -719,7 +735,10 @@
                                                                                 <span class="badge bg-danger">@Localizer.GetString("Blocked")</span>
                                                                             }
                                                                         </div>
-                                                                        <div class="col-md-5">
+                                                                        <div class="col-md-2 small">
+                                                                            @(string.IsNullOrWhiteSpace(task.PerformedBy) ? "-" : task.PerformedBy)
+                                                                        </div>
+                                                                        <div class="col-md-3">
                                                                             <div class="small">
                                                                                 <strong>@Localizer.GetString("Start"):</strong> @task.StartAtUtc.ToLocalTime().ToString("g")<br/>
                                                                                 <strong>@Localizer.GetString("End"):</strong> @task.EndAtUtc.ToLocalTime().ToString("g")
@@ -788,14 +807,33 @@
                                                                                             <ValidationMessage For="() => editTaskModel.EndDate" />
                                                                                         </div>
                                                                                     </div>
-                                                                                    <div class="mb-3">
-                                                                                        <label class="form-label">@Localizer.GetString("Status")</label>
-                                                                                        <InputSelect @bind-Value="editTaskModel.Status" class="form-select">
-                                                                                            <option value="@ProjectTaskStatus.NotStarted">@Localizer.GetString("Not Started")</option>
-                                                                                            <option value="@ProjectTaskStatus.InProgress">@Localizer.GetString("In Progress")</option>
-                                                                                            <option value="@ProjectTaskStatus.Completed">@Localizer.GetString("Completed")</option>
-                                                                                            <option value="@ProjectTaskStatus.Blocked">@Localizer.GetString("Blocked")</option>
-                                                                                        </InputSelect>
+                                                                                    <div class="row">
+                                                                                        <div class="col-md-6 mb-3">
+                                                                                            <label class="form-label">@Localizer.GetString("Status")</label>
+                                                                                            <InputSelect @bind-Value="editTaskModel.Status" class="form-select">
+                                                                                                <option value="@ProjectTaskStatus.NotStarted">@Localizer.GetString("Not Started")</option>
+                                                                                                <option value="@ProjectTaskStatus.InProgress">@Localizer.GetString("In Progress")</option>
+                                                                                                <option value="@ProjectTaskStatus.Completed">@Localizer.GetString("Completed")</option>
+                                                                                                <option value="@ProjectTaskStatus.Blocked">@Localizer.GetString("Blocked")</option>
+                                                                                            </InputSelect>
+                                                                                        </div>
+                                                                                        <div class="col-md-6 mb-3">
+                                                                                            <label class="form-label">@Localizer.GetString("Performed By")</label>
+                                                                                            <InputSelect @bind-Value="editTaskModel.PerformedBy" class="form-select">
+                                                                                                <option value="">@Localizer.GetString("Select User")</option>
+                                                                                                @if (users != null)
+                                                                                                {
+                                                                                                    @if (!string.IsNullOrEmpty(editTaskModel.PerformedBy) && !users.Any(u => u.IsActive && u.DisplayName == editTaskModel.PerformedBy))
+                                                                                                    {
+                                                                                                        <option value="@editTaskModel.PerformedBy">@editTaskModel.PerformedBy (Inactive)</option>
+                                                                                                    }
+                                                                                                    @foreach (var u in users.Where(u => u.IsActive))
+                                                                                                    {
+                                                                                                        <option value="@u.DisplayName">@u.DisplayName</option>
+                                                                                                    }
+                                                                                                }
+                                                                                            </InputSelect>
+                                                                                        </div>
                                                                                     </div>
                                                                                     <div class="d-flex gap-2">
                                                                                         <button class="btn btn-primary" type="submit">@Localizer.GetString("Save Changes")</button>
@@ -886,14 +924,27 @@
                                 </InputSelect>
                             </div>
                         </div>
-                        <!-- Row 4: Status -->
+                        <!-- Row 4: Status and Project Reader -->
                         <div class="row mb-3">
-                            <div class="col-12">
+                            <div class="col-md-6">
                                 <label class="form-label">@Localizer.GetString("Status")</label>
                                 <InputSelect @bind-Value="newProject.Status" class="form-select">
                                     <option value="@ProjectStatus.Wip">WIP</option>
                                     <option value="@ProjectStatus.Pending">Pending</option>
                                     <option value="@ProjectStatus.Closed">Closed</option>
+                                </InputSelect>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">@Localizer.GetString("Project Reader")</label>
+                                <InputSelect @bind-Value="newProject.ProjectReader" class="form-select">
+                                    <option value="">@Localizer.GetString("Select User")</option>
+                                    @if (users != null)
+                                    {
+                                        @foreach (var u in users.Where(u => u.IsActive))
+                                        {
+                                            <option value="@u.DisplayName">@u.DisplayName</option>
+                                        }
+                                    }
                                 </InputSelect>
                             </div>
                         </div>
@@ -968,14 +1019,31 @@
                                 </InputSelect>
                             </div>
                         </div>
-                        <!-- Row 4: Status -->
+                        <!-- Row 4: Status and Project Reader -->
                         <div class="row mb-3">
-                            <div class="col-12">
+                            <div class="col-md-6">
                                 <label class="form-label">@Localizer.GetString("Status")</label>
                                 <InputSelect @bind-Value="editModel.Status" class="form-select">
                                     <option value="@ProjectStatus.Wip">WIP</option>
                                     <option value="@ProjectStatus.Pending">Pending</option>
                                     <option value="@ProjectStatus.Closed">Closed</option>
+                                </InputSelect>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">@Localizer.GetString("Project Reader")</label>
+                                <InputSelect @bind-Value="editModel.ProjectReader" class="form-select">
+                                    <option value="">@Localizer.GetString("Select User")</option>
+                                    @if (users != null)
+                                    {
+                                        @if (!string.IsNullOrEmpty(editModel.ProjectReader) && !users.Any(u => u.IsActive && u.DisplayName == editModel.ProjectReader))
+                                        {
+                                            <option value="@editModel.ProjectReader">@editModel.ProjectReader (Inactive)</option>
+                                        }
+                                        @foreach (var u in users.Where(u => u.IsActive))
+                                        {
+                                            <option value="@u.DisplayName">@u.DisplayName</option>
+                                        }
+                                    }
                                 </InputSelect>
                             </div>
                         </div>
@@ -1180,7 +1248,7 @@
             return;
         }
 
-        var dto = new ProjectCreateDto(newProject!.Name, newProject.Description, newProject.CustomerId, newProject.CustomerOrderId, newProject.Status);
+        var dto = new ProjectCreateDto(newProject!.Name, newProject.Description, newProject.CustomerId, newProject.CustomerOrderId, newProject.Status, newProject.ProjectReader);
         var created = await ProjectsApi.CreateProjectAsync(dto);
         if (created is not null)
         {
@@ -1201,7 +1269,8 @@
             Description = p.Description,
             CustomerId = p.CustomerId,
             CustomerOrderId = p.CustomerOrderId,
-            Status = p.Status
+            Status = p.Status,
+            ProjectReader = p.ProjectReader
         };
         editEditContext = new EditContext(editModel);
         FilterOrdersForEdit();
@@ -1224,7 +1293,7 @@
             return;
         }
         
-        var dto = new ProjectCreateDto(editModel!.Name, editModel.Description, editModel.CustomerId, editModel.CustomerOrderId, editModel.Status);
+        var dto = new ProjectCreateDto(editModel!.Name, editModel.Description, editModel.CustomerId, editModel.CustomerOrderId, editModel.Status, editModel.ProjectReader);
         var ok = await ProjectsApi.UpdateProjectAsync(editModel!.Id, dto);
         if (ok)
         {
@@ -1598,6 +1667,7 @@
                 newTaskModel.StartDate.ToUniversalTime(),
                 newTaskModel.EndDate.ToUniversalTime(),
                 newTaskModel.Status,
+                newTaskModel.PerformedBy,
                 0
             );
             
@@ -1632,6 +1702,7 @@
             StartDate = task.StartAtUtc.ToLocalTime(),
             EndDate = task.EndAtUtc.ToLocalTime(),
             Status = task.Status,
+            PerformedBy = task.PerformedBy,
             DisplayOrder = task.DisplayOrder
         };
     }
@@ -1648,6 +1719,7 @@
                 editTaskModel.StartDate.ToUniversalTime(),
                 editTaskModel.EndDate.ToUniversalTime(),
                 editTaskModel.Status,
+                editTaskModel.PerformedBy,
                 editTaskModel.DisplayOrder
             );
             
@@ -1790,6 +1862,7 @@
         [Required] public int CustomerId { get; set; }
         public int? CustomerOrderId { get; set; }
         public ProjectStatus Status { get; set; } = ProjectStatus.Wip;
+        [MaxLength(200)] public string? ProjectReader { get; set; }
     }
     
     class EditModel 
@@ -1800,6 +1873,7 @@
         [Required] public int CustomerId { get; set; }
         public int? CustomerOrderId { get; set; }
         public ProjectStatus Status { get; set; } = ProjectStatus.Wip;
+        [MaxLength(200)] public string? ProjectReader { get; set; }
     }
     
     class NewActivityModel
@@ -1831,6 +1905,7 @@
         [Required] public DateTime StartDate { get; set; } = DateTime.Now;
         [Required] public DateTime EndDate { get; set; } = DateTime.Now.AddDays(1);
         public ProjectTaskStatus Status { get; set; } = ProjectTaskStatus.NotStarted;
+        [MaxLength(200)] public string? PerformedBy { get; set; }
     }
     
     class EditTaskModel
@@ -1841,6 +1916,7 @@
         [Required] public DateTime StartDate { get; set; } = DateTime.Now;
         [Required] public DateTime EndDate { get; set; } = DateTime.Now.AddDays(1);
         public ProjectTaskStatus Status { get; set; } = ProjectTaskStatus.NotStarted;
+        [MaxLength(200)] public string? PerformedBy { get; set; }
         public int DisplayOrder { get; set; }
     }
 

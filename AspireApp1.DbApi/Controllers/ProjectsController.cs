@@ -53,6 +53,7 @@ namespace AspireApp1.DbApi.Controllers
                 p.CustomerOrderId,
                 p.CustomerOrder?.OrderNumber,
                 p.Status,
+                p.ProjectReader,
                 p.CreatedAt
             ));
         }
@@ -76,6 +77,7 @@ namespace AspireApp1.DbApi.Controllers
                 p.CustomerOrderId,
                 p.CustomerOrder?.OrderNumber,
                 p.Status,
+                p.ProjectReader,
                 p.CreatedAt
             );
         }
@@ -99,7 +101,8 @@ namespace AspireApp1.DbApi.Controllers
                 Description = dto.Description,
                 CustomerId = dto.CustomerId,
                 CustomerOrderId = dto.CustomerOrderId,
-                Status = dto.Status
+                Status = dto.Status,
+                ProjectReader = dto.ProjectReader
             };
             
             var created = await _repo.AddAsync(project);
@@ -121,6 +124,7 @@ namespace AspireApp1.DbApi.Controllers
                 result.CustomerOrderId,
                 result.CustomerOrder?.OrderNumber,
                 result.Status,
+                result.ProjectReader,
                 result.CreatedAt
             ));
         }
@@ -146,6 +150,7 @@ namespace AspireApp1.DbApi.Controllers
             existing.CustomerId = dto.CustomerId;
             existing.CustomerOrderId = dto.CustomerOrderId;
             existing.Status = dto.Status;
+            existing.ProjectReader = dto.ProjectReader;
             
             await _repo.UpdateAsync(existing);
             

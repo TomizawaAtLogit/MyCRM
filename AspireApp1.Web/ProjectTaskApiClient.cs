@@ -83,6 +83,7 @@ namespace AspireApp1.Web
         DateTime StartAtUtc, 
         DateTime EndAtUtc, 
         ProjectTaskStatus Status, 
+        string? PerformedBy,
         int DisplayOrder, 
         DateTime CreatedAt, 
         DateTime? UpdatedAt);
@@ -92,7 +93,8 @@ namespace AspireApp1.Web
         string? Description, 
         DateTime StartAtUtc, 
         DateTime EndAtUtc, 
-        ProjectTaskStatus Status = ProjectTaskStatus.NotStarted, 
+        ProjectTaskStatus Status = ProjectTaskStatus.NotStarted,
+        string? PerformedBy = null,
         int DisplayOrder = 0);
 
     public record UpdateProjectTaskDto(
@@ -100,7 +102,8 @@ namespace AspireApp1.Web
         string? Description, 
         DateTime StartAtUtc, 
         DateTime EndAtUtc, 
-        ProjectTaskStatus Status, 
+        ProjectTaskStatus Status,
+        string? PerformedBy,
         int DisplayOrder);
 
     public enum ProjectTaskStatus

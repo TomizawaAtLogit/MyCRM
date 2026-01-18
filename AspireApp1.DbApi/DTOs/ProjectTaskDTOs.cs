@@ -11,6 +11,7 @@ public record ProjectTaskDto(
     DateTime StartAtUtc,
     DateTime EndAtUtc,
     ProjectTaskStatus Status,
+    string? PerformedBy,
     int DisplayOrder,
     DateTime CreatedAt,
     DateTime? UpdatedAt);
@@ -21,6 +22,7 @@ public record CreateProjectTaskDto(
     DateTime StartAtUtc,
     DateTime EndAtUtc,
     ProjectTaskStatus Status = ProjectTaskStatus.NotStarted,
+    [MaxLength(200)] string? PerformedBy = null,
     int DisplayOrder = 0);
 
 public record UpdateProjectTaskDto(
@@ -29,4 +31,5 @@ public record UpdateProjectTaskDto(
     DateTime StartAtUtc,
     DateTime EndAtUtc,
     ProjectTaskStatus Status,
+    [MaxLength(200)] string? PerformedBy,
     int DisplayOrder);

@@ -12,6 +12,7 @@ public record ProjectDto(
     int? CustomerOrderId,
     string? CustomerOrderNumber,
     ProjectStatus Status,
+    string? ProjectReader,
     DateTime CreatedAt);
 
 public record CreateProjectDto(
@@ -19,4 +20,5 @@ public record CreateProjectDto(
     string? Description,
     [Required] int CustomerId,
     int? CustomerOrderId = null,
-    ProjectStatus Status = ProjectStatus.Wip);
+    ProjectStatus Status = ProjectStatus.Wip,
+    [MaxLength(200)] string? ProjectReader = null);
