@@ -23,6 +23,9 @@ builder.Services.AddSingleton<GoogleMapsService>();
 // Add shared customer selection store as scoped (per user session/circuit)
 builder.Services.AddScoped<CustomerSelectionStore>();
 
+// Add authorization service for page permissions (scoped per user session/circuit)
+builder.Services.AddScoped<AuthorizationService>();
+
 builder.Services.AddOutputCache();
 
 // Add Windows Authentication - DISABLED FOR LOCAL DEVELOPMENT

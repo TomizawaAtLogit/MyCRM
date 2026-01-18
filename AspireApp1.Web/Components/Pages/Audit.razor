@@ -11,6 +11,7 @@
 
 <PageTitle>@Localizer.GetString("Audit Logs")</PageTitle>
 
+<PageAccessGuard PageName="Audit">
 <h1>@Localizer.GetString("Audit Logs")</h1>
 
 <div class="row mb-3">
@@ -234,6 +235,8 @@ else
         </div>
     </div>
 }
+
+</PageAccessGuard>
 
 @code {
     private AuditLogDto[]? logs;

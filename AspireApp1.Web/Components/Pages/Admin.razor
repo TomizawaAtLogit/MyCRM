@@ -9,6 +9,7 @@
 
 <PageTitle>Admin - User & Role Management</PageTitle>
 
+<PageAccessGuard PageName="Admin">
 <div class="container-fluid mt-4">
     <h2>Admin Panel</h2>
     <p class="text-muted">Manage users and roles</p>
@@ -492,6 +493,8 @@
         </div>
     }
 </div>
+
+</PageAccessGuard>
 
 @code {
     private string activeTab = "users";
