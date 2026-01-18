@@ -116,6 +116,8 @@ namespace AspireApp1.Web
         string? Description,
         int CustomerId,
         string? CustomerName,
+        int? CustomerOrderId,
+        string? CustomerOrderName,
         CaseStatus Status,
         CasePriority Priority,
         IssueType IssueType,
@@ -138,7 +140,7 @@ namespace AspireApp1.Web
         CasePriority Priority = CasePriority.Medium,
         IssueType IssueType = IssueType.Question,
         int? AssignedToUserId = null,
-        string? ResolutionNotes = null,
+        int? CustomerOrderId = null,
         DateTime? DueDate = null);
 
     public record CaseUpdateDto(
@@ -151,7 +153,8 @@ namespace AspireApp1.Web
         IssueType IssueType,
         int? AssignedToUserId,
         string? ResolutionNotes,
-        DateTime? DueDate);
+        DateTime? DueDate,
+        int? CustomerOrderId);
 
     public enum CaseStatus
     {
