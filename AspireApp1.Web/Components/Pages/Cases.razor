@@ -17,6 +17,7 @@
 
 <PageTitle>@Localizer.GetString("Cases")</PageTitle>
 
+<PageAccessGuard PageName="Cases">
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">@Localizer.GetString("Cases")</h1>
     <button class="btn btn-primary" @onclick="ShowCreateModal">
@@ -1117,6 +1118,8 @@
         </div>
     </div>
 }
+
+</PageAccessGuard>
 
 @code {
     private Web.CaseDto[]? cases;

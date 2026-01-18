@@ -9,6 +9,7 @@
 
 <PageTitle>Admin - User & Role Management</PageTitle>
 
+<PageAccessGuard PageName="Admin">
 <div class="container-fluid mt-4">
     <h2>Admin Panel</h2>
     <p class="text-muted">Manage users and roles</p>
@@ -174,6 +175,10 @@
                                 <td>
                                     @if (isAdmin)
                                     {
+                                        <button class="btn btn-sm btn-info me-1" 
+                                                @onclick="() => ShowPagePermissionsModal(role)">
+                                            Page Permissions
+                                        </button>
                                         <button class="btn btn-sm btn-secondary me-1" 
                                                 @onclick="() => ShowManageUsersModal(role)">
                                             Manage Users
@@ -400,6 +405,57 @@
     </div>
 }
 
+<!-- Page Permissions Modal -->
+@if (showPagePermissionsModal && managingPermissionsRole != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Page Permissions for @managingPermissionsRole.Name</h5>
+                    <button type="button" class="btn-close" @onclick="HidePagePermissionsModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-3">Select which pages this role can access:</p>
+                    @if (savingPermissions)
+                    {
+                        <div class="text-center py-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Saving...</span>
+                            </div>
+                        </div>
+                    }
+                    <div class="row">
+                        @foreach (var pageName in availablePages)
+                        {
+                            var isEnabled = pagePermissions.Contains(pageName);
+                            var pageId = $"page-{pageName}";
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                           id="@pageId" 
+                                           checked="@isEnabled"
+                                           disabled="@savingPermissions"
+                                           @onchange="(e) => TogglePagePermission(pageName, (bool)e.Value!)">
+                                    <label class="form-check-label" for="@pageId">
+                                        <strong>@pageName</strong>
+                                        <br />
+                                        <small class="text-muted">@GetPageDescription(pageName)</small>
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HidePagePermissionsModal" disabled="@savingPermissions">Close</button>
+                    <button type="button" class="btn btn-primary" @onclick="SavePagePermissions" disabled="@savingPermissions">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <!-- Delete Confirmation Modal -->
 @if (showDeleteConfirmation)
 {
@@ -438,6 +494,8 @@
     }
 </div>
 
+</PageAccessGuard>
+
 @code {
     private string activeTab = "users";
     private bool loading = true;
@@ -465,6 +523,17 @@
     private RoleDto? managingRole;
     private bool showManageUsersModal = false;
     private bool loadingRoleUsers = false;
+
+    // Page Permissions
+    private RoleDto? managingPermissionsRole;
+    private bool showPagePermissionsModal = false;
+    private bool savingPermissions = false;
+    private HashSet<string> pagePermissions = new();
+    private readonly List<string> availablePages = new()
+    {
+        "Admin", "Projects", "Cases", "Audit", "PreSales", "Customers", "Orders",
+        "Support", "CaseTemplates", "SlaConfiguration"
+    };
 
     // Delete confirmation
     private bool showDeleteConfirmation = false;
@@ -823,6 +892,98 @@
         {
             ShowToast("Error", "Failed to delete role", "danger", 5000);
         }
+    }
+
+    // Page Permissions management
+    private void ShowPagePermissionsModal(RoleDto role)
+    {
+        managingPermissionsRole = role;
+        // Parse existing permissions
+        pagePermissions = string.IsNullOrEmpty(role.PagePermissions)
+            ? new HashSet<string>()
+            : role.PagePermissions.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => p.Trim())
+                .ToHashSet();
+        showPagePermissionsModal = true;
+    }
+
+    private void HidePagePermissionsModal()
+    {
+        showPagePermissionsModal = false;
+        managingPermissionsRole = null;
+        pagePermissions.Clear();
+        savingPermissions = false;
+    }
+
+    private void TogglePagePermission(string page, bool isEnabled)
+    {
+        if (isEnabled)
+        {
+            pagePermissions.Add(page);
+        }
+        else
+        {
+            pagePermissions.Remove(page);
+        }
+    }
+
+    private async Task SavePagePermissions()
+    {
+        if (managingPermissionsRole == null) return;
+
+        savingPermissions = true;
+        StateHasChanged();
+
+        try
+        {
+            // Create updated role with new permissions
+            var updatedRole = new RoleDto(
+                managingPermissionsRole.Id,
+                managingPermissionsRole.Name,
+                managingPermissionsRole.Description,
+                string.Join(",", pagePermissions.OrderBy(p => p))
+            );
+
+            var success = await AdminApi.UpdateRoleAsync(managingPermissionsRole.Id, updatedRole);
+
+            if (success)
+            {
+                ShowToast("Success", "Page permissions updated successfully", "success", 3000);
+                await LoadRoles();
+                HidePagePermissionsModal();
+            }
+            else
+            {
+                ShowToast("Error", "Failed to update page permissions", "danger", 5000);
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast("Error", $"An error occurred: {ex.Message}", "danger", 5000);
+        }
+        finally
+        {
+            savingPermissions = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetPageDescription(string page)
+    {
+        return page switch
+        {
+            "Admin" => "User and role management",
+            "Projects" => "Project management and tracking",
+            "Cases" => "Support case management",
+            "Audit" => "System audit logs and history",
+            "PreSales" => "Pre-sales proposals and activities",
+            "Customers" => "Customer information and management",
+            "Orders" => "Customer orders and transactions",
+            "Support" => "Support dashboard and tools",
+            "CaseTemplates" => "Case template configuration",
+            "SlaConfiguration" => "SLA threshold settings",
+            _ => "Access to " + page
+        };
     }
 
     // Delete confirmation
