@@ -65,6 +65,34 @@
                                     <p>@selectedProjectDetails.Description</p>
                                 </div>
                             }
+                            @if (selectedProjectDetails.CustomerOrderId.HasValue && selectedProjectDetails.CustomerOrderId > 0)
+                            {
+                                <div class="mt-3">
+                                    <h6>@Localizer.GetString("Customer Order")</h6>
+                                    @{
+                                        var associatedOrder = GetAssociatedOrder(selectedProjectDetails.CustomerOrderId.Value);
+                                        if (associatedOrder != null)
+                                        {
+                                            <dl class="row mb-0 small">
+                                                <dt class="col-sm-5">@Localizer.GetString("Order Number"):</dt>
+                                                <dd class="col-sm-7"><strong>@associatedOrder.OrderNumber</strong></dd>
+                                                <dt class="col-sm-5">@Localizer.GetString("Contract Type"):</dt>
+                                                <dd class="col-sm-7">@associatedOrder.ContractType</dd>
+                                                <dt class="col-sm-5">@Localizer.GetString("Status"):</dt>
+                                                <dd class="col-sm-7">
+                                                    <span class="badge @GetStatusBadgeClass(associatedOrder.Status)">
+                                                        @(associatedOrder.Status ?? Localizer.GetString("Unknown"))
+                                                    </span>
+                                                </dd>
+                                            </dl>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-muted mb-0">@Localizer.GetString("Order not found")</p>
+                                        }
+                                    }
+                                </div>
+                            }
                         </div>
                     </div>
 
@@ -184,10 +212,30 @@
                 <thead>
                     <tr>
                         <th style="width: 50px;"></th>
-                        <th>@Localizer.GetString("Name")</th>
-                        <th>@Localizer.GetString("Customer")</th>
-                        <th>@Localizer.GetString("Status")</th>
-                        <th>@Localizer.GetString("Created")</th>
+                        <th>
+                            <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(ProjectsSortColumn.Name)" aria-label="Sort by name">
+                                <span>@Localizer.GetString("Name")</span>
+                                <span class="sort-indicator text-muted small">@GetSortIndicator(ProjectsSortColumn.Name)</span>
+                            </button>
+                        </th>
+                        <th>
+                            <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(ProjectsSortColumn.Customer)" aria-label="Sort by customer">
+                                <span>@Localizer.GetString("Customer")</span>
+                                <span class="sort-indicator text-muted small">@GetSortIndicator(ProjectsSortColumn.Customer)</span>
+                            </button>
+                        </th>
+                        <th>
+                            <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(ProjectsSortColumn.Status)" aria-label="Sort by status">
+                                <span>@Localizer.GetString("Status")</span>
+                                <span class="sort-indicator text-muted small">@GetSortIndicator(ProjectsSortColumn.Status)</span>
+                            </button>
+                        </th>
+                        <th>
+                            <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(ProjectsSortColumn.Created)" aria-label="Sort by created date">
+                                <span>@Localizer.GetString("Created")</span>
+                                <span class="sort-indicator text-muted small">@GetSortIndicator(ProjectsSortColumn.Created)</span>
+                            </button>
+                        </th>
                         <th>@Localizer.GetString("Actions")</th>
                     </tr>
                 </thead>
@@ -931,6 +979,10 @@
     private string filterCustomerId = "";
     private string filterStatus = "";
     
+    // Sorting
+    private ProjectsSortColumn sortColumn = ProjectsSortColumn.Created;
+    private bool sortDescending = true;
+    
     [SupplyParameterFromForm]
     private NewModel? newProject { get; set; }
     
@@ -1019,6 +1071,7 @@
             projects = await ProjectsApi.GetProjectsAsync(customerId, status);
             loadError = null;
             await ApplyHighlightedProjectAsync();
+            ApplySorting();
         }
         catch (Exception ex)
         {
@@ -1030,6 +1083,54 @@
     private async Task ApplyFiltersAsync()
     {
         await LoadAsync();
+        ApplySorting();
+    }
+
+    private void SetSortColumn(ProjectsSortColumn column)
+    {
+        if (sortColumn == column)
+        {
+            sortDescending = !sortDescending;
+        }
+        else
+        {
+            sortColumn = column;
+            sortDescending = false;
+        }
+
+        ApplySorting();
+    }
+
+    private void ApplySorting()
+    {
+        if (projects == null || projects.Length == 0) return;
+
+        projects = sortColumn switch
+        {
+            ProjectsSortColumn.Name => sortDescending
+                ? projects.OrderByDescending(p => p.Name).ToArray()
+                : projects.OrderBy(p => p.Name).ToArray(),
+            ProjectsSortColumn.Customer => sortDescending
+                ? projects.OrderByDescending(p => p.CustomerName).ToArray()
+                : projects.OrderBy(p => p.CustomerName).ToArray(),
+            ProjectsSortColumn.Status => sortDescending
+                ? projects.OrderByDescending(p => p.Status).ToArray()
+                : projects.OrderBy(p => p.Status).ToArray(),
+            ProjectsSortColumn.Created => sortDescending
+                ? projects.OrderByDescending(p => p.CreatedAt).ToArray()
+                : projects.OrderBy(p => p.CreatedAt).ToArray(),
+            _ => projects
+        };
+    }
+
+    private string GetSortIndicator(ProjectsSortColumn column)
+    {
+        if (sortColumn != column)
+        {
+            return string.Empty;
+        }
+
+        return sortDescending ? "▼" : "▲";
     }
 
     private async Task OnCustomerFilterChanged(ChangeEventArgs e)
@@ -1135,6 +1236,27 @@
     {
         isEditing = false;
         editModel = new();
+    }
+
+    private OrderWithCustomerDto? GetAssociatedOrder(int orderId)
+    {
+        if (allOrders == null || allOrders.Length == 0)
+        {
+            return null;
+        }
+
+        return allOrders.FirstOrDefault(o => o.Id == orderId);
+    }
+
+    private string GetStatusBadgeClass(string? status)
+    {
+        return status?.ToLowerInvariant() switch
+        {
+            "active" => "bg-success",
+            "expired" => "bg-danger",
+            "pending" => "bg-warning text-dark",
+            _ => "bg-secondary"
+        };
     }
     
     private async Task ToggleProjectExpansionAsync(int projectId)
@@ -1757,6 +1879,14 @@
     private void FilterOrdersForEdit()
     {
         FilterOrders(editModel!.CustomerId);
+    }
+
+    private enum ProjectsSortColumn
+    {
+        Name,
+        Customer,
+        Status,
+        Created
     }
 }
 

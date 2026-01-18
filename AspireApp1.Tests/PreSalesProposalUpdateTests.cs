@@ -51,8 +51,9 @@ public class PreSalesProposalUpdateTests
         var activityRepo = new PreSalesActivityRepository(context);
         var auditService = new AuditService(auditRepo, NullLogger<AuditService>.Instance);
         var userRepo = new UserRepository(context);
+        var orderRepo = new OrderRepository(context);
 
-        var controller = new PreSalesProposalsController(preSalesRepo, activityRepo, userRepo, auditService)
+        var controller = new PreSalesProposalsController(preSalesRepo, activityRepo, orderRepo, userRepo, auditService)
         {
             ControllerContext = new ControllerContext
             {
@@ -70,6 +71,7 @@ public class PreSalesProposalUpdateTests
             proposal.Description,
             proposal.CustomerId,
             proposal.RequirementDefinitionId,
+            proposal.CustomerOrderId,
             proposal.Status,
             proposal.Stage,
             newAssignee.Id,

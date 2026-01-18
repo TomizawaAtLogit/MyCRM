@@ -85,21 +85,36 @@ else
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
                 <tr>
-                    <th style="cursor: pointer;" @onclick='() => SortBy("OrderNumber")'>
-                        @Localizer.GetString("Order Number") @GetSortIcon("OrderNumber")
+                    <th>
+                        <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(OrdersSortColumn.OrderNumber)" aria-label="Sort by order number">
+                            <span>@Localizer.GetString("Order Number")</span>
+                            <span class="sort-indicator text-muted small">@GetSortIndicator(OrdersSortColumn.OrderNumber)</span>
+                        </button>
                     </th>
-                    <th style="cursor: pointer;" @onclick='() => SortBy("CustomerName")'>
-                        @Localizer.GetString("Customer") @GetSortIcon("CustomerName")
+                    <th>
+                        <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(OrdersSortColumn.Customer)" aria-label="Sort by customer">
+                            <span>@Localizer.GetString("Customer")</span>
+                            <span class="sort-indicator text-muted small">@GetSortIndicator(OrdersSortColumn.Customer)</span>
+                        </button>
                     </th>
-                    <th style="cursor: pointer;" @onclick='() => SortBy("ContractType")'>
-                        @Localizer.GetString("Contract Type") @GetSortIcon("ContractType")
+                    <th>
+                        <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(OrdersSortColumn.ContractType)" aria-label="Sort by contract type">
+                            <span>@Localizer.GetString("Contract Type")</span>
+                            <span class="sort-indicator text-muted small">@GetSortIndicator(OrdersSortColumn.ContractType)</span>
+                        </button>
                     </th>
-                    <th style="cursor: pointer;" @onclick='() => SortBy("StartDate")'>
-                        @Localizer.GetString("Start Date") @GetSortIcon("StartDate")
+                    <th>
+                        <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(OrdersSortColumn.StartDate)" aria-label="Sort by start date">
+                            <span>@Localizer.GetString("Start Date")</span>
+                            <span class="sort-indicator text-muted small">@GetSortIndicator(OrdersSortColumn.StartDate)</span>
+                        </button>
                     </th>
                     <th>@Localizer.GetString("End Date")</th>
-                    <th style="cursor: pointer;" @onclick='() => SortBy("Status")'>
-                        @Localizer.GetString("Status") @GetSortIcon("Status")
+                    <th>
+                        <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(OrdersSortColumn.Status)" aria-label="Sort by status">
+                            <span>@Localizer.GetString("Status")</span>
+                            <span class="sort-indicator text-muted small">@GetSortIndicator(OrdersSortColumn.Status)</span>
+                        </button>
                     </th>
                     <th class="text-end">@Localizer.GetString("Contract Value")</th>
                     <th>@Localizer.GetString("Actions")</th>
@@ -110,7 +125,7 @@ else
                 {
                     <tr>
                         <td><strong>@order.OrderNumber</strong></td>
-                        <td>@order.CustomerName</td>
+                        <td>@GetCustomerName(order)</td>
                         <td>@order.ContractType</td>
                         <td>@order.StartDate.ToString("yyyy-MM-dd")</td>
                         <td>@(order.EndDate?.ToString("yyyy-MM-dd") ?? "-")</td>
@@ -365,8 +380,8 @@ else
     private int pageSize = 25;
     private int totalPages = 1;
 
-    private string sortColumn = "StartDate";
-    private bool sortAscending = false;
+    private OrdersSortColumn sortColumn = OrdersSortColumn.StartDate;
+    private bool sortDescending = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -387,6 +402,7 @@ else
                 availableContractTypes = orders
                     .Select(o => o.ContractType)
                     .Where(ct => !string.IsNullOrWhiteSpace(ct))
+                    .Select(ct => ct!)
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .OrderBy(ct => ct)
                     .ToList();
@@ -394,6 +410,7 @@ else
                 availableStatuses = orders
                     .Select(o => o.Status)
                     .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(s => s!)
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .OrderBy(s => s)
                     .ToList();
@@ -477,19 +494,25 @@ else
         ApplyFilters();
     }
 
-    private void SortBy(string column)
+    private void SetSortColumn(OrdersSortColumn column)
     {
         if (sortColumn == column)
         {
-            sortAscending = !sortAscending;
+            sortDescending = !sortDescending;
         }
         else
         {
             sortColumn = column;
-            sortAscending = true;
+            sortDescending = false;
         }
 
+        ApplyClientFilters();
+    }
+
+    private void ApplyClientFilters()
+    {
         ApplySorting();
+        currentPage = 1;
         UpdatePagination();
     }
 
@@ -497,29 +520,44 @@ else
     {
         filteredOrders = sortColumn switch
         {
-            "OrderNumber" => sortAscending
-                ? filteredOrders.OrderBy(o => o.OrderNumber).ToArray()
-                : filteredOrders.OrderByDescending(o => o.OrderNumber).ToArray(),
-            "CustomerName" => sortAscending
-                ? filteredOrders.OrderBy(o => o.CustomerName).ToArray()
-                : filteredOrders.OrderByDescending(o => o.CustomerName).ToArray(),
-            "ContractType" => sortAscending
-                ? filteredOrders.OrderBy(o => o.ContractType).ToArray()
-                : filteredOrders.OrderByDescending(o => o.ContractType).ToArray(),
-            "StartDate" => sortAscending
-                ? filteredOrders.OrderBy(o => o.StartDate).ToArray()
-                : filteredOrders.OrderByDescending(o => o.StartDate).ToArray(),
-            "Status" => sortAscending
-                ? filteredOrders.OrderBy(o => o.Status).ToArray()
-                : filteredOrders.OrderByDescending(o => o.Status).ToArray(),
+            OrdersSortColumn.OrderNumber => sortDescending
+                ? filteredOrders.OrderByDescending(o => o.OrderNumber).ToArray()
+                : filteredOrders.OrderBy(o => o.OrderNumber).ToArray(),
+            OrdersSortColumn.Customer => sortDescending
+                ? filteredOrders.OrderByDescending(o => GetCustomerName(o) ?? string.Empty).ToArray()
+                : filteredOrders.OrderBy(o => GetCustomerName(o) ?? string.Empty).ToArray(),
+            OrdersSortColumn.ContractType => sortDescending
+                ? filteredOrders.OrderByDescending(o => o.ContractType).ToArray()
+                : filteredOrders.OrderBy(o => o.ContractType).ToArray(),
+            OrdersSortColumn.StartDate => sortDescending
+                ? filteredOrders.OrderByDescending(o => o.StartDate).ToArray()
+                : filteredOrders.OrderBy(o => o.StartDate).ToArray(),
+            OrdersSortColumn.Status => sortDescending
+                ? filteredOrders.OrderByDescending(o => o.Status ?? string.Empty).ToArray()
+                : filteredOrders.OrderBy(o => o.Status ?? string.Empty).ToArray(),
             _ => filteredOrders
         };
     }
 
-    private string GetSortIcon(string column)
+    private string GetSortIndicator(OrdersSortColumn column)
     {
-        if (sortColumn != column) return string.Empty;
-        return sortAscending ? "↑" : "↓";
+        if (sortColumn != column)
+        {
+            return string.Empty;
+        }
+
+        return sortDescending ? "▼" : "▲";
+    }
+
+    private string GetCustomerName(OrderWithCustomerDto order)
+    {
+        // If customer name is "Unknown", try to find it from the loaded customers list
+        if (order.CustomerName == "Unknown" && customers != null)
+        {
+            var customer = customers.FirstOrDefault(c => c.Id == order.CustomerId);
+            return customer?.Name ?? order.CustomerName;
+        }
+        return order.CustomerName;
     }
 
     private void UpdatePagination()
@@ -735,5 +773,14 @@ else
         public string? Status { get; set; }
         public string? BillingFrequency { get; set; }
         public string? Description { get; set; }
+    }
+
+    private enum OrdersSortColumn
+    {
+        OrderNumber,
+        Customer,
+        ContractType,
+        StartDate,
+        Status
     }
 }

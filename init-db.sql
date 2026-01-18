@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS projects (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     customer_id INTEGER NOT NULL REFERENCES customers(id) ON DELETE RESTRICT,
+    customer_order_id INTEGER REFERENCES customer_orders(id) ON DELETE SET NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'Wip',
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -195,6 +196,7 @@ CREATE INDEX IF NOT EXISTS idx_systems_customerid ON systems(customer_id);
 CREATE INDEX IF NOT EXISTS idx_system_components_systemid ON system_components(system_id);
 CREATE INDEX IF NOT EXISTS idx_system_components_serialnumber ON system_components(serial_number);
 CREATE INDEX IF NOT EXISTS idx_projects_customerid ON projects(customer_id);
+CREATE INDEX IF NOT EXISTS idx_projects_customer_order_id ON projects(customer_order_id);
 CREATE INDEX IF NOT EXISTS idx_project_activities_projectid ON project_activities(project_id);
 CREATE INDEX IF NOT EXISTS idx_project_activities_activitydate ON project_activities(activity_date);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON audit_logs(timestamp);
@@ -229,6 +231,7 @@ CREATE TABLE IF NOT EXISTS presales_proposals (
     title VARCHAR(500) NOT NULL,
     description TEXT,
     customer_id INTEGER NOT NULL REFERENCES customers(id) ON DELETE RESTRICT,
+    customer_order_id INTEGER REFERENCES customer_orders(id) ON DELETE SET NULL,
     requirement_definition_id INTEGER REFERENCES requirement_definitions(id) ON DELETE SET NULL,
     status VARCHAR(50) NOT NULL,
     stage VARCHAR(50) NOT NULL,
@@ -263,6 +266,7 @@ CREATE INDEX IF NOT EXISTS idx_presales_proposals_expected_close_date ON presale
 CREATE INDEX IF NOT EXISTS idx_presales_proposals_requirement_definition_id ON presales_proposals(requirement_definition_id);
 CREATE INDEX IF NOT EXISTS idx_presales_proposals_stage ON presales_proposals(stage);
 CREATE INDEX IF NOT EXISTS idx_presales_proposals_status ON presales_proposals(status);
+CREATE INDEX IF NOT EXISTS idx_presales_proposals_customer_order_id ON presales_proposals(customer_order_id);
 CREATE INDEX IF NOT EXISTS idx_presales_activities_activity_date ON presales_activities(activity_date);
 CREATE INDEX IF NOT EXISTS idx_presales_activities_presales_proposal_id ON presales_activities(presales_proposal_id);
 

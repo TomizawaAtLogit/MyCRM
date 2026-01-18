@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AspireApp1.AppHost\AspireApp1.AppHost.csproj" />
-    <ProjectReference Include="..\AspireApp1.DbApi\AspireApp1.DbApi.csproj" />
+    <ProjectReference Include="..\AspireApp1.DbApi\AspireApp1.BackEnd.csproj" />
   </ItemGroup>
 
   <ItemGroup>
