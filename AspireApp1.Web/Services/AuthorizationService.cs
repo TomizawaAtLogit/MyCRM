@@ -1,18 +1,26 @@
 using AspireApp1.Web;
+using Microsoft.Extensions.Logging;
 
 namespace AspireApp1.Web.Services;
 
 public class AuthorizationService
 {
     private readonly AdminApiClient _adminApi;
+    private readonly ILogger<AuthorizationService> _logger;
     private UserDto? _currentUser;
     private HashSet<string> _userPagePermissions = new();
     private DateTime? _lastRefresh;
     private readonly TimeSpan _cacheExpiration = TimeSpan.FromMinutes(5);
+    
+    // For development only - should be false in production
+    private readonly bool _allowUnauthenticatedAccess;
 
-    public AuthorizationService(AdminApiClient adminApi)
+    public AuthorizationService(AdminApiClient adminApi, ILogger<AuthorizationService> logger, IConfiguration configuration)
     {
         _adminApi = adminApi;
+        _logger = logger;
+        // Check if we're in development mode - only allow unauthenticated access in development
+        _allowUnauthenticatedAccess = configuration.GetValue<bool>("Development:AllowUnauthenticatedAccess", true);
     }
 
     /// <summary>
@@ -24,14 +32,26 @@ public class AuthorizationService
     {
         await EnsureUserLoadedAsync();
         
-        // If no user is loaded or no permissions, deny access
+        // If no user is loaded, check if we allow unauthenticated access (development only)
         if (_currentUser == null)
         {
-            // For local development without authentication, allow all access
-            return true;
+            if (_allowUnauthenticatedAccess)
+            {
+                _logger.LogWarning("Allowing unauthenticated access to page '{PageName}' - development mode only", pageName);
+                return true;
+            }
+            
+            _logger.LogWarning("Denying access to page '{PageName}' - user not authenticated", pageName);
+            return false;
         }
 
-        return _userPagePermissions.Contains(pageName);
+        var hasAccess = _userPagePermissions.Contains(pageName);
+        if (!hasAccess)
+        {
+            _logger.LogInformation("User '{Username}' denied access to page '{PageName}'", _currentUser.WindowsUsername, pageName);
+        }
+        
+        return hasAccess;
     }
 
     /// <summary>
@@ -97,8 +117,11 @@ public class AuthorizationService
 
             _lastRefresh = DateTime.UtcNow;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            // Log the error for debugging
+            _logger.LogError(ex, "Failed to load user permissions for username '{Username}'", Environment.UserName);
+            
             // If we can't load the user, they have no permissions
             _currentUser = null;
             _userPagePermissions.Clear();
