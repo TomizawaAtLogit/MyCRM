@@ -11,16 +11,25 @@ public class AuthorizationService
     private HashSet<string> _userPagePermissions = new();
     private DateTime? _lastRefresh;
     private readonly TimeSpan _cacheExpiration = TimeSpan.FromMinutes(5);
+    private readonly TimeSpan _failureCacheExpiration = TimeSpan.FromSeconds(30);
+    private bool _lastLoadWasFailure = false;
     
     // For development only - should be false in production
     private readonly bool _allowUnauthenticatedAccess;
 
-    public AuthorizationService(AdminApiClient adminApi, ILogger<AuthorizationService> logger, IConfiguration configuration)
+    public AuthorizationService(AdminApiClient adminApi, ILogger<AuthorizationService> logger, IConfiguration configuration, IHostEnvironment environment)
     {
         _adminApi = adminApi;
         _logger = logger;
-        // Check if we're in development mode - only allow unauthenticated access in development
-        _allowUnauthenticatedAccess = configuration.GetValue<bool>("Development:AllowUnauthenticatedAccess", true);
+        // In development mode without authentication, allow unauthenticated access by default
+        // In production, always require authentication (default: false)
+        var defaultValue = environment.IsDevelopment();
+        _allowUnauthenticatedAccess = configuration.GetValue<bool>("Development:AllowUnauthenticatedAccess", defaultValue);
+        
+        if (_allowUnauthenticatedAccess && !environment.IsDevelopment())
+        {
+            _logger.LogWarning("SECURITY WARNING: Unauthenticated access is enabled in a non-development environment!");
+        }
     }
 
     /// <summary>
@@ -84,7 +93,9 @@ public class AuthorizationService
     private async Task EnsureUserLoadedAsync()
     {
         // Check if we need to refresh the cache
-        if (_lastRefresh.HasValue && DateTime.UtcNow - _lastRefresh.Value < _cacheExpiration)
+        // Use shorter cache duration for failures to allow quicker recovery
+        var cacheExpiration = _lastLoadWasFailure ? _failureCacheExpiration : _cacheExpiration;
+        if (_lastRefresh.HasValue && DateTime.UtcNow - _lastRefresh.Value < cacheExpiration)
         {
             return;
         }
@@ -116,6 +127,7 @@ public class AuthorizationService
             }
 
             _lastRefresh = DateTime.UtcNow;
+            _lastLoadWasFailure = false;
         }
         catch (Exception ex)
         {
@@ -125,7 +137,8 @@ public class AuthorizationService
             // If we can't load the user, they have no permissions
             _currentUser = null;
             _userPagePermissions.Clear();
-            _lastRefresh = DateTime.UtcNow; // Still cache the failure to avoid hammering the API
+            _lastRefresh = DateTime.UtcNow;
+            _lastLoadWasFailure = true; // Use shorter cache for failures
         }
     }
 }
