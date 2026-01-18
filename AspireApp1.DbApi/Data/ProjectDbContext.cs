@@ -44,6 +44,7 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.CustomerId).HasColumnName("customer_id");
                 b.Property(x => x.CustomerOrderId).HasColumnName("customer_order_id");
                 b.Property(x => x.Status).HasConversion<string>().HasMaxLength(50).HasColumnName("status");
+                b.Property(x => x.ProjectReader).HasMaxLength(200).HasColumnName("project_reader");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 
                 b.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
@@ -63,6 +64,7 @@ namespace AspireApp1.DbApi.Data
                 b.Property(x => x.StartAtUtc).HasColumnName("start_at_utc");
                 b.Property(x => x.EndAtUtc).HasColumnName("end_at_utc");
                 b.Property(x => x.Status).HasConversion<string>().HasMaxLength(50).HasColumnName("status");
+                b.Property(x => x.PerformedBy).HasMaxLength(200).HasColumnName("performed_by");
                 b.Property(x => x.DisplayOrder).HasColumnName("display_order");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");

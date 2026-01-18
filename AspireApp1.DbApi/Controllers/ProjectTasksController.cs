@@ -45,6 +45,7 @@ namespace AspireApp1.DbApi.Controllers
                 t.StartAtUtc,
                 t.EndAtUtc,
                 t.Status,
+                t.PerformedBy,
                 t.DisplayOrder,
                 t.CreatedAt,
                 t.UpdatedAt
@@ -66,6 +67,7 @@ namespace AspireApp1.DbApi.Controllers
                 StartAtUtc = dto.StartAtUtc,
                 EndAtUtc = dto.EndAtUtc,
                 Status = dto.Status,
+                PerformedBy = dto.PerformedBy,
                 DisplayOrder = dto.DisplayOrder
             };
             
@@ -83,6 +85,7 @@ namespace AspireApp1.DbApi.Controllers
                 created.StartAtUtc,
                 created.EndAtUtc,
                 created.Status,
+                created.PerformedBy,
                 created.DisplayOrder,
                 created.CreatedAt,
                 created.UpdatedAt
@@ -108,6 +111,7 @@ namespace AspireApp1.DbApi.Controllers
                 task.StartAtUtc,
                 task.EndAtUtc,
                 task.Status,
+                task.PerformedBy,
                 task.DisplayOrder,
                 task.CreatedAt,
                 task.UpdatedAt
@@ -144,6 +148,7 @@ namespace AspireApp1.DbApi.Controllers
             existing.StartAtUtc = dto.StartAtUtc;
             existing.EndAtUtc = dto.EndAtUtc;
             existing.Status = dto.Status;
+            existing.PerformedBy = dto.PerformedBy;
             existing.DisplayOrder = dto.DisplayOrder;
             
             await _taskRepo.UpdateAsync(existing);
