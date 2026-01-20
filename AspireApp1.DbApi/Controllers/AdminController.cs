@@ -161,7 +161,8 @@ public class AdminController : AuditableControllerBase
             r.Name,
             r.Description,
             r.PagePermissions,
-            UserCount = r.UserRoles?.Count ?? 0
+            UserCount = r.UserRoles?.Count ?? 0,
+            CoverageCount = r.RoleCoverages?.Count ?? 0
         });
     }
 
@@ -230,5 +231,48 @@ public class AdminController : AuditableControllerBase
             u.Email,
             u.IsActive
         }));
+    }
+
+    // Coverage management
+    [HttpGet("roles/{id}/coverage")]
+    public async Task<ActionResult<IEnumerable<object>>> GetCustomersByRole(int id)
+    {
+        var customers = await _roleRepo.GetCustomersByRoleAsync(id);
+        return Ok(customers.Select(c => new
+        {
+            c.Id,
+            c.Name,
+            c.ContactPerson,
+            c.Email,
+            c.Phone
+        }));
+    }
+
+    [HttpPost("roles/{roleId}/coverage/{customerId}")]
+    public async Task<IActionResult> AssignCoverage(int roleId, int customerId)
+    {
+        var success = await _roleRepo.AssignCoverageAsync(roleId, customerId);
+        if (!success)
+            return Conflict("Coverage already assigned to role");
+        
+        // Log assign coverage action
+        var (username, currentUserId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, currentUserId, "AssignCoverage", "RoleCoverage", 0, new { RoleId = roleId, CustomerId = customerId });
+        
+        return NoContent();
+    }
+
+    [HttpDelete("roles/{roleId}/coverage/{customerId}")]
+    public async Task<IActionResult> RemoveCoverage(int roleId, int customerId)
+    {
+        var success = await _roleRepo.RemoveCoverageAsync(roleId, customerId);
+        if (!success)
+            return NotFound();
+        
+        // Log remove coverage action
+        var (username, currentUserId) = await GetCurrentUserInfoAsync();
+        await _auditService.LogActionAsync(username, currentUserId, "RemoveCoverage", "RoleCoverage", 0, new { RoleId = roleId, CustomerId = customerId });
+        
+        return NoContent();
     }
 }
