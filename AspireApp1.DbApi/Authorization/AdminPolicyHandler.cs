@@ -54,9 +54,9 @@ public class AdminPolicyHandler : AuthorizationHandler<AdminPolicyRequirement>
 
         _logger.LogInformation("AdminPolicyHandler: User found with {RoleCount} roles", user.UserRoles?.Count ?? 0);
 
-        // Check if user has a role with "Admin" in page permissions
+        // Check if user has a role with "Admin" page permission (new format: "Admin:FullControl" or legacy: "Admin")
         var hasAdminPermission = user.UserRoles
-            ?.Any(ur => ur.Role.PagePermissions.Contains("Admin", StringComparison.OrdinalIgnoreCase)) ?? false;
+            ?.Any(ur => PagePermissionHelper.HasPagePermission(ur.Role.PagePermissions, "Admin", new[] { "ReadOnly", "FullControl" })) ?? false;
 
         _logger.LogInformation("AdminPolicyHandler: Has admin permission: {HasPermission}", hasAdminPermission);
 

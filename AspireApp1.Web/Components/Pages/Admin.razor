@@ -423,7 +423,7 @@
                     <button type="button" class="btn-close" @onclick="HidePagePermissionsModal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-muted mb-3">Select which pages this role can access:</p>
+                    <p class="text-muted mb-3">Select permission levels for each page:</p>
                     @if (savingPermissions)
                     {
                         <div class="text-center py-3">
@@ -435,20 +435,20 @@
                     <div class="row">
                         @foreach (var pageName in availablePages)
                         {
-                            var isEnabled = pagePermissions.Contains(pageName);
+                            var currentPermission = pagePermissions.ContainsKey(pageName) ? pagePermissions[pageName] : "None";
                             var pageId = $"page-{pageName}";
                             <div class="col-md-6 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" 
-                                           id="@pageId" 
-                                           checked="@isEnabled"
-                                           disabled="@savingPermissions"
-                                           @onchange="(e) => TogglePagePermission(pageName, (bool)e.Value!)">
-                                    <label class="form-check-label" for="@pageId">
-                                        <strong>@pageName</strong>
-                                        <br />
-                                        <small class="text-muted">@GetPageDescription(pageName)</small>
-                                    </label>
+                                <div class="mb-2">
+                                    <label class="form-label"><strong>@pageName</strong></label>
+                                    <small class="text-muted d-block mb-2">@GetPageDescription(pageName)</small>
+                                    <select class="form-select form-select-sm" 
+                                            id="@pageId"
+                                            disabled="@savingPermissions"
+                                            @onchange="(e) => ChangePagePermission(pageName, (string)e.Value!)">
+                                        <option value="None" selected="@(currentPermission == "None")">None - No access</option>
+                                        <option value="ReadOnly" selected="@(currentPermission == "ReadOnly")">Read only - View only</option>
+                                        <option value="FullControl" selected="@(currentPermission == "FullControl")">Full Control - Full access</option>
+                                    </select>
                                 </div>
                             </div>
                         }
@@ -535,10 +535,14 @@
     private RoleDto? managingPermissionsRole;
     private bool showPagePermissionsModal = false;
     private bool savingPermissions = false;
-    private HashSet<string> pagePermissions = new();
+    private Dictionary<string, string> pagePermissions = new(); // page -> permission level (None, ReadOnly, FullControl)
     private readonly List<string> availablePages = new()
     {
         "Admin", "Projects", "Cases", "Audit", "PreSales", "Customers", "Orders"
+    };
+    private readonly List<string> permissionLevels = new()
+    {
+        "None", "ReadOnly", "FullControl"
     };
 
     // Delete confirmation
@@ -904,12 +908,28 @@
     private void ShowPagePermissionsModal(RoleDto role)
     {
         managingPermissionsRole = role;
-        // Parse existing permissions
-        pagePermissions = string.IsNullOrEmpty(role.PagePermissions)
-            ? new HashSet<string>()
-            : role.PagePermissions.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .Select(p => p.Trim())
-                .ToHashSet();
+        // Parse existing permissions (format: "Page:Level,Page:Level,...")
+        pagePermissions = new Dictionary<string, string>();
+        if (!string.IsNullOrEmpty(role.PagePermissions))
+        {
+            var permissions = role.PagePermissions.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var perm in permissions)
+            {
+                var parts = perm.Trim().Split(':');
+                if (parts.Length == 2)
+                {
+                    pagePermissions[parts[0].Trim()] = parts[1].Trim();
+                }
+            }
+        }
+        // Ensure all pages have an entry (default to None)
+        foreach (var page in availablePages)
+        {
+            if (!pagePermissions.ContainsKey(page))
+            {
+                pagePermissions[page] = "None";
+            }
+        }
         showPagePermissionsModal = true;
     }
 
@@ -921,16 +941,9 @@
         savingPermissions = false;
     }
 
-    private void TogglePagePermission(string page, bool isEnabled)
+    private void ChangePagePermission(string page, string permissionLevel)
     {
-        if (isEnabled)
-        {
-            pagePermissions.Add(page);
-        }
-        else
-        {
-            pagePermissions.Remove(page);
-        }
+        pagePermissions[page] = permissionLevel;
     }
 
     private async Task SavePagePermissions()
@@ -942,12 +955,19 @@
 
         try
         {
+            // Create permission string in format "Page:Level,Page:Level,..."
+            var permissionString = string.Join(",", 
+                pagePermissions
+                    .Where(p => p.Value != "None") // Only include non-None permissions
+                    .OrderBy(p => p.Key)
+                    .Select(p => $"{p.Key}:{p.Value}"));
+
             // Create updated role with new permissions
             var updatedRole = new RoleDto(
                 managingPermissionsRole.Id,
                 managingPermissionsRole.Name,
                 managingPermissionsRole.Description,
-                string.Join(",", pagePermissions.OrderBy(p => p))
+                permissionString
             );
 
             var success = await AdminApi.UpdateRoleAsync(managingPermissionsRole.Id, updatedRole);

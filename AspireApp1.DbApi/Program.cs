@@ -128,30 +128,30 @@ void SeedData(ProjectDbContext db)
 {
     Console.WriteLine("Seeding initial data...");
     
-    // Create default roles
+    // Create default roles (using new format: "Page:PermissionLevel")
     var adminRole = new Role
     {
         Name = "Admin",
         Description = "Administrator role with full access",
-        PagePermissions = "Admin,Support,PreSales,Cases,CaseTemplates,Projects,Customers,Audit,SlaConfiguration,Orders"
+        PagePermissions = "Admin:FullControl,Support:FullControl,PreSales:FullControl,Cases:FullControl,CaseTemplates:FullControl,Projects:FullControl,Customers:FullControl,Audit:FullControl,SlaConfiguration:FullControl,Orders:FullControl"
     };
     var supportRole = new Role
     {
         Name = "Support",
         Description = "Support team role for case management",
-        PagePermissions = "Support,Cases,CaseTemplates,Customers,SlaConfiguration,Audit"
+        PagePermissions = "Support:FullControl,Cases:FullControl,CaseTemplates:FullControl,Customers:ReadOnly,SlaConfiguration:ReadOnly,Audit:ReadOnly"
     };
     var preSalesRole = new Role
     {
         Name = "PreSales",
         Description = "Pre-sales team role for project management",
-        PagePermissions = "PreSales,Projects,Customers"
+        PagePermissions = "PreSales:FullControl,Projects:FullControl,Customers:ReadOnly"
     };
     var userRole = new Role
     {
         Name = "User",
         Description = "Standard user role",
-        PagePermissions = "Customers"
+        PagePermissions = "Customers:ReadOnly"
     };
     
     db.Roles.AddRange(adminRole, supportRole, preSalesRole, userRole);

@@ -1,3 +1,4 @@
+using AspireApp1.DbApi.Authorization;
 using AspireApp1.DbApi.Models;
 using AspireApp1.DbApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -49,9 +50,9 @@ public class AuditsController : AuditableControllerBase
             return Forbid();
         }
 
-        // Check if user is admin
+        // Check if user is admin (new format: "Admin:FullControl" or legacy: "Admin")
         var isAdmin = currentUser.UserRoles
-            ?.Any(ur => ur.Role.PagePermissions.Contains("Admin", StringComparison.OrdinalIgnoreCase)) ?? false;
+            ?.Any(ur => PagePermissionHelper.HasPagePermission(ur.Role.PagePermissions, "Admin", new[] { "ReadOnly", "FullControl" })) ?? false;
 
         // Determine which logs to return
         int? filterUserId = null;
@@ -96,9 +97,9 @@ public class AuditsController : AuditableControllerBase
             return Forbid();
         }
 
-        // Check if user is admin
+        // Check if user is admin (new format: "Admin:FullControl" or legacy: "Admin")
         var isAdmin = currentUser.UserRoles
-            ?.Any(ur => ur.Role.PagePermissions.Contains("Admin", StringComparison.OrdinalIgnoreCase)) ?? false;
+            ?.Any(ur => PagePermissionHelper.HasPagePermission(ur.Role.PagePermissions, "Admin", new[] { "ReadOnly", "FullControl" })) ?? false;
 
         // Non-admin users can only view their own logs
         if (!isAdmin && log.UserId != currentUser.Id)
@@ -129,7 +130,7 @@ public class AuditsController : AuditableControllerBase
         }
 
         var isAdmin = currentUser.UserRoles
-            ?.Any(ur => ur.Role.PagePermissions.Contains("Admin", StringComparison.OrdinalIgnoreCase)) ?? false;
+            ?.Any(ur => PagePermissionHelper.HasPagePermission(ur.Role.PagePermissions, "Admin", new[] { "ReadOnly", "FullControl" })) ?? false;
 
         return Ok(isAdmin);
     }

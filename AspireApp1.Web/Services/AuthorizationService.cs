@@ -111,16 +111,29 @@ public class AuthorizationService
             if (_currentUser != null && _currentUser.Roles != null)
             {
                 // Collect all page permissions from all roles
+                // New format: "Page:PermissionLevel" (e.g., "Admin:FullControl,Projects:ReadOnly")
                 _userPagePermissions.Clear();
                 foreach (var role in _currentUser.Roles)
                 {
                     if (!string.IsNullOrEmpty(role.PagePermissions))
                     {
-                        var permissions = role.PagePermissions.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                            .Select(p => p.Trim());
+                        var permissions = role.PagePermissions.Split(',', StringSplitOptions.RemoveEmptyEntries);
                         foreach (var permission in permissions)
                         {
-                            _userPagePermissions.Add(permission);
+                            var trimmed = permission.Trim();
+                            // Parse format "Page:Level" or legacy format "Page"
+                            var pageName = trimmed.Contains(':') 
+                                ? trimmed.Split(':')[0].Trim() 
+                                : trimmed;
+                            var permLevel = trimmed.Contains(':') 
+                                ? trimmed.Split(':')[1].Trim() 
+                                : "FullControl"; // Default to FullControl for legacy permissions
+                            
+                            // Only add if permission level is not "None"
+                            if (!permLevel.Equals("None", StringComparison.OrdinalIgnoreCase))
+                            {
+                                _userPagePermissions.Add(pageName);
+                            }
                         }
                     }
                 }

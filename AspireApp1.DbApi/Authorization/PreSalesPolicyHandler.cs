@@ -52,8 +52,8 @@ public class PreSalesPolicyHandler : AuthorizationHandler<PreSalesPolicyRequirem
         _logger.LogInformation("PreSalesPolicyHandler: User found with {RoleCount} roles", user.UserRoles?.Count ?? 0);
 
         var hasPreSalesPermission = user.UserRoles
-            ?.Any(ur => ur.Role.PagePermissions.Contains("PreSales", StringComparison.OrdinalIgnoreCase) ||
-                        ur.Role.PagePermissions.Contains("Admin", StringComparison.OrdinalIgnoreCase)) ?? false;
+            ?.Any(ur => PagePermissionHelper.HasPagePermission(ur.Role.PagePermissions, "PreSales", new[] { "ReadOnly", "FullControl" }) ||
+                        PagePermissionHelper.HasPagePermission(ur.Role.PagePermissions, "Admin", new[] { "ReadOnly", "FullControl" })) ?? false;
 
         _logger.LogInformation("PreSalesPolicyHandler: Has pre-sales permission: {HasPermission}", hasPreSalesPermission);
 
