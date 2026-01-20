@@ -12,14 +12,12 @@ namespace AspireApp1.DbApi.Controllers;
 public class AuditsController : AuditableControllerBase
 {
     private readonly IAuditRepository _auditRepo;
-    private readonly IUserRepository _userRepo;
     private readonly ILogger<AuditsController> _logger;
 
     public AuditsController(IAuditRepository auditRepo, IUserRepository userRepo, ILogger<AuditsController> logger)
         : base(userRepo)
     {
         _auditRepo = auditRepo;
-        _userRepo = userRepo;
         _logger = logger;
     }
 
