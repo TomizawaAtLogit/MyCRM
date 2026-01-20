@@ -332,12 +332,13 @@
                                     @foreach (var customer in customers.OrderByDescending(c => assignedCustomerIds.Contains(c.Id)))
                                     {
                                         var isAssigned = assignedCustomerIds.Contains(customer.Id);
-                                        <tr>
+                                        var customerId = customer.Id;
+                                        <tr key="@customerId">
                                             <td>
                                                 <input class="form-check-input" type="checkbox" 
                                                        checked="@isAssigned"
                                                        disabled="@processingCoverageChange"
-                                                       @onchange="(e) => ToggleCoverage(managingCoverageRole.Id, customer.Id, (bool)e.Value!)">
+                                                       @onchange="@((ChangeEventArgs e) => ToggleCoverage(managingCoverageRole.Id, customerId, (bool)e.Value!))">
                                             </td>
                                             <td>@customer.Name</td>
                                             <td>@(customer.ContactPerson ?? "-")</td>
