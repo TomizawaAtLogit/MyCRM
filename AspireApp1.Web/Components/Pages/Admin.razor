@@ -1227,8 +1227,8 @@
         showManageCoverageModal = true;
         StateHasChanged();
         
-        // Load all customers and assigned customers in parallel
-        var customersTask = CustomerApi.GetCustomersAsync();
+        // Load all customers (without filtering) and assigned customers in parallel
+        var customersTask = CustomerApi.GetAllCustomersAsync();
         var assignedCustomersTask = AdminApi.GetCustomersByRoleAsync(role.Id);
         
         await Task.WhenAll(customersTask, assignedCustomersTask);

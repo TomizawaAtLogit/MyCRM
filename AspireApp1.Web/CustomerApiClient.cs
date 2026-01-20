@@ -218,6 +218,19 @@ public class CustomerApiClient
         }
     }
 
+    public async Task<CustomerDto[]> GetAllCustomersAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            return await _http.GetFromJsonAsync<CustomerDto[]>("/api/customers/all", ct) 
+                   ?? Array.Empty<CustomerDto>();
+        }
+        catch (HttpRequestException)
+        {
+            return Array.Empty<CustomerDto>();
+        }
+    }
+
     public async Task<CustomerDto?> GetCustomerAsync(int id, CancellationToken ct = default)
     {
         try

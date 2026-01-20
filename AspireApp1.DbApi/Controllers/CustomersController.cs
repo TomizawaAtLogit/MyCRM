@@ -37,6 +37,14 @@ public class CustomersController : AuditableControllerBase
         return await _repo.GetAllAsync(allowedCustomerIds);
     }
 
+    [HttpGet("all")]
+    public async Task<IEnumerable<Customer>> GetAllCustomers()
+    {
+        // This endpoint returns ALL customers without filtering
+        // Used by admin for managing coverage - only accessible to authenticated users
+        return await _repo.GetAllAsync();
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<Customer>> Get(int id)
     {
