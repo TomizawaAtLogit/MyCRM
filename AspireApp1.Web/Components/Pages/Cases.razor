@@ -357,7 +357,7 @@
                                             {
                                                 <div class="py-3">
                                                     <p class="text-muted mb-2">@Localizer.GetString("No activities yet.")</p>
-                                                    @if (!showAddActivity.ContainsKey(c.Id) || !showAddActivity[c.Id])
+                                                    @if (!isReadOnly && (!showAddActivity.ContainsKey(c.Id) || !showAddActivity[c.Id]))
                                                     {
                                                         <button class="btn btn-sm btn-primary" @onclick="async () => await ShowAddActivityFormAsync(c.Id)">
                                                             <i class="bi bi-plus-circle me-1"></i> @Localizer.GetString("Add New Activity")
@@ -428,7 +428,7 @@
                                                         <h6 class="mb-0">@Localizer.GetString("Activities")</h6>
                                                         <div class="d-flex gap-2">
                                                             <div>
-                                                                @if (!showAddActivity.ContainsKey(c.Id) || !showAddActivity[c.Id])
+                                                                @if (!isReadOnly && (!showAddActivity.ContainsKey(c.Id) || !showAddActivity[c.Id]))
                                                                 {
                                                                     <button class="btn btn-sm btn-primary" @onclick="async () => await ShowAddActivityFormAsync(c.Id)">
                                                                         <i class="bi bi-plus-circle me-1"></i> @Localizer.GetString("Add New Activity")
@@ -582,12 +582,15 @@
                                                                     <td class="small">@activity.ActivityType</td>
                                                                     <td class="small">@activity.PerformedBy</td>
                                                                     <td>
-                                                                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEditActivity(c.Id, activity)">
-                                                                            <i class="bi bi-pencil"></i>
-                                                                        </button>
-                                                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteActivityAsync(c.Id, activity.Id)">
-                                                                            <i class="bi bi-trash"></i>
-                                                                        </button>
+                                                                        @if (!isReadOnly)
+                                                                        {
+                                                                            <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEditActivity(c.Id, activity)">
+                                                                                <i class="bi bi-pencil"></i>
+                                                                            </button>
+                                                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteActivityAsync(c.Id, activity.Id)">
+                                                                                <i class="bi bi-trash"></i>
+                                                                            </button>
+                                                                        }
                                                                     </td>
                                                                 </tr>
                                                                 
@@ -660,7 +663,7 @@
                                         }
                                         else if (GetCaseTab(c.Id) == "files")
                                         {
-                                            <FileManager EntityType="Case" EntityId="@c.Id" />
+                                            <FileManager EntityType="Case" EntityId="@c.Id" isReadOnly="@isReadOnly" />
                                         }
                                     </div>
                                 </td>

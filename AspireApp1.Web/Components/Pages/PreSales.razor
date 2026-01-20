@@ -186,9 +186,12 @@ else if (filteredProposals != null && filteredProposals.Any())
                                     {
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <h6 class="mb-0">@Localizer.GetString("Activities")</h6>
-                                            <button class="btn btn-sm btn-primary" type="button" @onclick="async () => await ShowAddActivityFormAsync(proposal.Id)">
-                                                <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>@Localizer.GetString("Add New Activity")
-                                            </button>
+                                            @if (!isReadOnly)
+                                            {
+                                                <button class="btn btn-sm btn-primary" type="button" @onclick="async () => await ShowAddActivityFormAsync(proposal.Id)">
+                                                    <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>@Localizer.GetString("Add New Activity")
+                                                </button>
+                                            }
                                         </div>
                                     @if (showAddActivityForm.TryGetValue(proposal.Id, out var showActivityForm) && showActivityForm && newActivityModels.ContainsKey(proposal.Id) && activityCreateContexts.ContainsKey(proposal.Id))
                                     {
@@ -299,12 +302,15 @@ else if (filteredProposals != null && filteredProposals.Any())
                                                             <td class="small">@(string.IsNullOrWhiteSpace(activity.NextAction) ? "-" : activity.NextAction)</td>
                                                             <td class="small">@(string.IsNullOrWhiteSpace(activity.PerformedBy) ? "-" : activity.PerformedBy)</td>
                                                             <td>
-                                                                <button class="btn btn-sm btn-outline-primary me-1" type="button" @onclick="async () => await StartEditActivity(proposal.Id, activity)">
-                                                                    <i class="bi bi-pencil"></i>
-                                                                </button>
-                                                                <button class="btn btn-sm btn-outline-danger" type="button" @onclick="async () => await DeleteActivityAsync(proposal.Id, activity.Id)">
-                                                                    <i class="bi bi-trash"></i>
-                                                                </button>
+                                                                @if (!isReadOnly)
+                                                                {
+                                                                    <button class="btn btn-sm btn-outline-primary me-1" type="button" @onclick="async () => await StartEditActivity(proposal.Id, activity)">
+                                                                        <i class="bi bi-pencil"></i>
+                                                                    </button>
+                                                                    <button class="btn btn-sm btn-outline-danger" type="button" @onclick="async () => await DeleteActivityAsync(proposal.Id, activity.Id)">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </button>
+                                                                }
                                                             </td>
                                                         </tr>
                                                     }
@@ -319,7 +325,7 @@ else if (filteredProposals != null && filteredProposals.Any())
                             }
                             else if (GetProposalTab(proposal.Id) == "files")
                             {
-                                <FileManager EntityType="PreSalesProposal" EntityId="@proposal.Id" />
+                                <FileManager EntityType="PreSalesProposal" EntityId="@proposal.Id" isReadOnly="@isReadOnly" />
                             }
                         }
                         </div>

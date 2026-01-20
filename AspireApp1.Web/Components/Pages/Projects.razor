@@ -352,7 +352,7 @@
                                                 <div class="py-3">
                                                     <p class="text-muted mb-2">No activities yet.</p>
 
-                                                    @if (!showAddActivity.ContainsKey(p.Id) || !showAddActivity[p.Id])
+                                                    @if (!isReadOnly && (!showAddActivity.ContainsKey(p.Id) || !showAddActivity[p.Id]))
                                                     {
                                                         <button class="btn btn-sm btn-primary" @onclick="async () => await ShowAddActivityFormAsync(p.Id)" disabled="@(currentEditingActivityId != null)">
                                                             <i class="bi bi-plus-circle me-1"></i> @Localizer.GetString("Add New Activity")
@@ -426,7 +426,7 @@
                                                 <div class="py-3">
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                                         <h6 class="mb-0">@Localizer.GetString("Issue")</h6>
-                                                        @if (!showAddActivity.ContainsKey(p.Id) || !showAddActivity[p.Id])
+                                                        @if (!isReadOnly && (!showAddActivity.ContainsKey(p.Id) || !showAddActivity[p.Id]))
                                                         {
                                                             <button class="btn btn-sm btn-primary" @onclick="async () => await ShowAddActivityFormAsync(p.Id)" disabled="@(currentEditingActivityId != null)">
                                                                 <i class="bi bi-plus-circle me-1"></i> @Localizer.GetString("Add New Activity")
@@ -523,12 +523,15 @@
                                                                     <td class="small">@activity.ActivityType</td>
                                                                     <td class="small">@activity.PerformedBy</td>
                                                                     <td>
-                                                                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEditActivity(p.Id, activity)">
-                                                                            <i class="bi bi-pencil"></i>
-                                                                        </button>
-                                                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteActivityAsync(p.Id, activity.Id)">
-                                                                            <i class="bi bi-trash"></i>
-                                                                        </button>
+                                                                        @if (!isReadOnly)
+                                                                        {
+                                                                            <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEditActivity(p.Id, activity)">
+                                                                                <i class="bi bi-pencil"></i>
+                                                                            </button>
+                                                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteActivityAsync(p.Id, activity.Id)">
+                                                                                <i class="bi bi-trash"></i>
+                                                                            </button>
+                                                                        }
                                                                     </td>
                                                                 </tr>
 
@@ -863,7 +866,7 @@
                                         }
                                         else
                                         {
-                                            <FileManager EntityType="Project" EntityId="p.Id" />
+                                            <FileManager EntityType="Project" EntityId="p.Id" isReadOnly="@isReadOnly" />
                                         }
                                     </div>
                                 </td>
