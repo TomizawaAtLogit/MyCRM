@@ -731,11 +731,7 @@
         {
             await LoadUsers();
         }
-        else if (activeTab == "roles")
-        {
-            await LoadRoles();
-        }
-        else if (activeTab == "coverage")
+        else // Both "roles" and "coverage" tabs use the same data
         {
             await LoadRoles();
         }

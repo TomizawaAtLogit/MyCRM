@@ -18,6 +18,10 @@ public record UserCreateDto(
     string? Email,
     bool IsActive);
 
+/// <summary>
+/// Role DTO with counts. UserCount and CoverageCount represent the number of users and customers
+/// assigned to this role. CoverageCount of 0 means the role has access to all customers.
+/// </summary>
 public record RoleDto(
     int Id,
     string Name,
