@@ -5,5 +5,6 @@ public enum CustomerDependencyType
     Case,
     Project,
     RequirementDefinition,
-    PreSalesProposal
+    PreSalesProposal,
+    RoleCoverage
 }

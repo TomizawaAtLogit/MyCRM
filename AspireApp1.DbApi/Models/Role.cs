@@ -9,6 +9,7 @@ public class Role
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 
-    // Navigation property
+    // Navigation properties
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public ICollection<RoleCoverage> RoleCoverages { get; set; } = new List<RoleCoverage>();
 }

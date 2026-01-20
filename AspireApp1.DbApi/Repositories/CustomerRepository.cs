@@ -75,6 +75,9 @@ public class CustomerRepository : ICustomerRepository
         if (await _db.PreSalesProposals.AsNoTracking().AnyAsync(p => p.CustomerId == customerId))
             return CustomerDependencyType.PreSalesProposal;
 
+        if (await _db.RoleCoverages.AsNoTracking().AnyAsync(rc => rc.CustomerId == customerId))
+            return CustomerDependencyType.RoleCoverage;
+
         return null;
     }
 

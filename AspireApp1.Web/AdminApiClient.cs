@@ -18,12 +18,17 @@ public record UserCreateDto(
     string? Email,
     bool IsActive);
 
+/// <summary>
+/// Role DTO with counts. UserCount and CoverageCount represent the number of users and customers
+/// assigned to this role. CoverageCount of 0 means the role has access to all customers.
+/// </summary>
 public record RoleDto(
     int Id,
     string Name,
     string? Description,
     string PagePermissions,
-    int UserCount = 0);
+    int UserCount = 0,
+    int CoverageCount = 0);
 
 public record UsersByRoleDto(
     int Id,
@@ -36,6 +41,13 @@ public record RoleCreateDto(
     [Required] string Name,
     string? Description,
     [Required] string PagePermissions);
+
+public record CustomersByRoleDto(
+    int Id,
+    string Name,
+    string? ContactPerson,
+    string? Email,
+    string? Phone);
 
 public class AdminApiClient
 {
@@ -181,5 +193,31 @@ public class AdminApiClient
         {
             return Array.Empty<UsersByRoleDto>();
         }
+    }
+
+    // Coverage operations
+    public async Task<CustomersByRoleDto[]> GetCustomersByRoleAsync(int roleId, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _http.GetFromJsonAsync<CustomersByRoleDto[]>($"/api/admin/roles/{roleId}/coverage", ct)
+                   ?? Array.Empty<CustomersByRoleDto>();
+        }
+        catch (HttpRequestException)
+        {
+            return Array.Empty<CustomersByRoleDto>();
+        }
+    }
+
+    public async Task<bool> AssignCoverageAsync(int roleId, int customerId, CancellationToken ct = default)
+    {
+        var res = await _http.PostAsync($"/api/admin/roles/{roleId}/coverage/{customerId}", null, ct);
+        return res.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> RemoveCoverageAsync(int roleId, int customerId, CancellationToken ct = default)
+    {
+        var res = await _http.DeleteAsync($"/api/admin/roles/{roleId}/coverage/{customerId}", ct);
+        return res.IsSuccessStatusCode;
     }
 }

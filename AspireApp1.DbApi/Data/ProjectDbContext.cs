@@ -25,6 +25,7 @@ namespace AspireApp1.DbApi.Data
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Role> Roles { get; set; } = null!;
         public DbSet<UserRole> UserRoles { get; set; } = null!;
+        public DbSet<RoleCoverage> RoleCoverages { get; set; } = null!;
         public DbSet<AuditLog> AuditLogs { get; set; } = null!;
         public DbSet<EntityFile> EntityFiles { get; set; } = null!;
         public DbSet<RequirementDefinition> RequirementDefinitions { get; set; } = null!;
@@ -265,6 +266,20 @@ namespace AspireApp1.DbApi.Data
                 b.HasOne(x => x.User).WithMany(x => x.UserRoles).HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
                 b.HasOne(x => x.Role).WithMany(x => x.UserRoles).HasForeignKey(x => x.RoleId).OnDelete(DeleteBehavior.Cascade);
                 b.HasIndex(x => new { x.UserId, x.RoleId }).IsUnique();
+            });
+
+            modelBuilder.Entity<RoleCoverage>(b =>
+            {
+                b.ToTable("role_coverages");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.RoleId).HasColumnName("role_id");
+                b.Property(x => x.CustomerId).HasColumnName("customer_id");
+                b.Property(x => x.AssignedAt).HasDefaultValueSql("now()").HasColumnName("assigned_at");
+                
+                b.HasOne(x => x.Role).WithMany(x => x.RoleCoverages).HasForeignKey(x => x.RoleId).OnDelete(DeleteBehavior.Cascade);
+                b.HasOne(x => x.Customer).WithMany(x => x.RoleCoverages).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
+                b.HasIndex(x => new { x.RoleId, x.CustomerId }).IsUnique();
             });
 
             modelBuilder.Entity<AuditLog>(b =>

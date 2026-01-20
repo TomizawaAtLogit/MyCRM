@@ -25,6 +25,7 @@ public class RoleRepository : IRoleRepository
     {
         return await _db.Roles
             .Include(r => r.UserRoles)
+            .Include(r => r.RoleCoverages)
             .AsNoTracking()
             .OrderBy(r => r.Name)
             .ToListAsync();
@@ -73,5 +74,47 @@ public class RoleRepository : IRoleRepository
             _db.Roles.Remove(role);
             await _db.SaveChangesAsync();
         }
+    }
+
+    public async Task<IEnumerable<Customer>> GetCustomersByRoleAsync(int roleId)
+    {
+        return await _db.Customers
+            .Where(c => c.RoleCoverages!.Any(rc => rc.RoleId == roleId))
+            .AsNoTracking()
+            .OrderBy(c => c.Name)
+            .ToListAsync();
+    }
+
+    public async Task<bool> AssignCoverageAsync(int roleId, int customerId)
+    {
+        // Check if coverage already exists
+        var exists = await _db.RoleCoverages
+            .AnyAsync(rc => rc.RoleId == roleId && rc.CustomerId == customerId);
+        
+        if (exists)
+            return false;
+
+        var roleCoverage = new RoleCoverage
+        {
+            RoleId = roleId,
+            CustomerId = customerId
+        };
+
+        _db.RoleCoverages.Add(roleCoverage);
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> RemoveCoverageAsync(int roleId, int customerId)
+    {
+        var roleCoverage = await _db.RoleCoverages
+            .FirstOrDefaultAsync(rc => rc.RoleId == roleId && rc.CustomerId == customerId);
+        
+        if (roleCoverage == null)
+            return false;
+
+        _db.RoleCoverages.Remove(roleCoverage);
+        await _db.SaveChangesAsync();
+        return true;
     }
 }

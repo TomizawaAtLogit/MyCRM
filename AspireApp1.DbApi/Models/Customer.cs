@@ -17,4 +17,5 @@ public class Customer
     public ICollection<CustomerSystem> CustomerSystems { get; set; } = new List<CustomerSystem>();
     public ICollection<System> Systems { get; set; } = new List<System>();
     public ICollection<CustomerOrder> Orders { get; set; } = new List<CustomerOrder>();
+    public ICollection<RoleCoverage> RoleCoverages { get; set; } = new List<RoleCoverage>();
 }
