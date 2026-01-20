@@ -32,12 +32,15 @@
                                 <td>@site.Description</td>
                                 <td>@site.ContactPerson</td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEdit(site)" @onclick:stopPropagation="true">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(site.Id)" @onclick:stopPropagation="true">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    @if (!IsReadOnly)
+                                    {
+                                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEdit(site)" @onclick:stopPropagation="true">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(site.Id)" @onclick:stopPropagation="true">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -61,11 +64,14 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Add Site</h5>
-                <button class="btn btn-sm btn-outline-primary" @onclick="() => showCreateForm = !showCreateForm">
-                    <i class="bi @(showCreateForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
-                </button>
+                @if (!IsReadOnly)
+                {
+                    <button class="btn btn-sm btn-outline-primary" @onclick="() => showCreateForm = !showCreateForm">
+                        <i class="bi @(showCreateForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
+                    </button>
+                }
             </div>
-            @if (showCreateForm)
+            @if (showCreateForm && !IsReadOnly)
             {
                 <div class="card-body">
                 <EditForm Model="newSite" OnValidSubmit="CreateAsync">
@@ -167,6 +173,9 @@
 
     [Parameter]
     public EventCallback OnRefresh { get; set; }
+
+    [Parameter]
+    public bool IsReadOnly { get; set; } = false;
 
     private NewSiteModel newSite = new();
     private EditSiteModel editSite = new();

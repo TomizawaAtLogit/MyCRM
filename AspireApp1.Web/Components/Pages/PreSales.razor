@@ -10,9 +10,12 @@
 <PageAccessGuard PageName="PreSales">
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">@Localizer.GetString("Pre-sales Proposals")</h1>
-    <button class="btn btn-primary" @onclick="ShowCreateModal">
-        <i class="bi bi-plus-circle me-2"></i>@Localizer.GetString("Create Proposal")
-    </button>
+    @if (!isReadOnly)
+    {
+        <button class="btn btn-primary" @onclick="ShowCreateModal">
+            <i class="bi bi-plus-circle me-2"></i>@Localizer.GetString("Create Proposal")
+        </button>
+    }
 </div>
 
 @if (showToast && !string.IsNullOrEmpty(toastMessage))
@@ -139,15 +142,21 @@ else if (filteredProposals != null && filteredProposals.Any())
                         <td>@(proposal.ProbabilityPercentage?.ToString() + "%" ?? "-")</td>
                         <td>@(proposal.ExpectedCloseDate?.ToString("yyyy-MM-dd") ?? "-")</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-primary" type="button" @onclick="() => ShowEditModal(proposal)" aria-label="@Localizer.GetString("Edit Proposal")">
-                                <i class="bi bi-pencil"></i>
-                            </button>
+                            @if (!isReadOnly)
+                            {
+                                <button class="btn btn-sm btn-outline-primary" type="button" @onclick="() => ShowEditModal(proposal)" aria-label="@Localizer.GetString("Edit Proposal")">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            }
                             <button class="btn btn-sm btn-outline-info" type="button" @onclick="() => ShowDetailsModal(proposal)" aria-label="@Localizer.GetString("View Proposal Details")">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" type="button" @onclick="() => DeleteProposal(proposal.Id)" aria-label="@Localizer.GetString("Delete Proposal")">
-                                <i class="bi bi-trash"></i>
-                            </button>
+                            @if (!isReadOnly)
+                            {
+                                <button class="btn btn-sm btn-outline-danger" type="button" @onclick="() => DeleteProposal(proposal.Id)" aria-label="@Localizer.GetString("Delete Proposal")">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            }
                         </td>
                     </tr>
                     @if (expandedProposals.ContainsKey(proposal.Id) && expandedProposals[proposal.Id])

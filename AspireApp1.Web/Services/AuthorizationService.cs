@@ -64,6 +64,50 @@ public class AuthorizationService
     }
 
     /// <summary>
+    /// Check if the current user has ReadOnly permission for a specific page
+    /// </summary>
+    /// <param name="pageName">Name of the page (e.g., "Projects", "Cases", "Orders")</param>
+    /// <returns>True if the user has ReadOnly permission (not FullControl), false otherwise</returns>
+    public async Task<bool> IsPageReadOnlyAsync(string pageName)
+    {
+        await EnsureUserLoadedAsync();
+        
+        if (_currentUser == null)
+            return false;
+
+        if (_currentUser.Roles == null)
+            return false;
+
+        // Check if user has ReadOnly (but not FullControl) permission for this page
+        foreach (var role in _currentUser.Roles)
+        {
+            if (!string.IsNullOrEmpty(role.PagePermissions))
+            {
+                var permissions = role.PagePermissions.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                foreach (var permission in permissions)
+                {
+                    var trimmed = permission.Trim();
+                    var parts = trimmed.Split(':');
+                    var permPage = parts[0].Trim();
+                    var permLevel = parts.Length > 1 ? parts[1].Trim() : "FullControl";
+                    
+                    if (permPage.Equals(pageName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // If this page permission is ReadOnly, return true
+                        if (permLevel.Equals("ReadOnly", StringComparison.OrdinalIgnoreCase))
+                            return true;
+                        // If it's FullControl, return false (not readonly)
+                        if (permLevel.Equals("FullControl", StringComparison.OrdinalIgnoreCase))
+                            return false;
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    /// <summary>
     /// Get all pages the current user has access to
     /// </summary>
     public async Task<IReadOnlySet<string>> GetUserPagePermissionsAsync()

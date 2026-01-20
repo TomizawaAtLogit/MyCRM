@@ -1,5 +1,11 @@
 @page "/projects"
 @rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@using System.Collections.Generic
+@using AspireApp1.Web
+@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.AspNetCore.Components.Forms
+@using AspireApp1.Web.Services
 @inject ProjectsApiClient ProjectsApi
 @inject CustomerApiClient CustomersApi
 @inject OrderApiClient OrdersApi
@@ -9,12 +15,8 @@
 @inject IJSRuntime JSRuntime
 @inject LocalizationService Localizer
 @inject AdminApiClient AdminApi
+@inject AuthorizationService AuthService
 @inject NavigationManager Navigation
-@using System.ComponentModel.DataAnnotations
-@using System.Collections.Generic
-@using AspireApp1.Web
-@using Microsoft.AspNetCore.WebUtilities
-@using Microsoft.AspNetCore.Components.Forms
 @implements IDisposable
 
 <PageTitle>@Localizer.GetString("Projects")</PageTitle>
@@ -22,9 +24,12 @@
 <PageAccessGuard PageName="Projects">
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">@Localizer.GetString("Projects")</h1>
-    <button class="btn btn-primary" @onclick="ShowCreateModal">
-        <i class="bi bi-plus-circle me-2"></i>@Localizer.GetString("Create Project")
-    </button>
+    @if (!isReadOnly)
+    {
+        <button class="btn btn-primary" @onclick="ShowCreateModal">
+            <i class="bi bi-plus-circle me-2"></i>@Localizer.GetString("Create Project")
+        </button>
+    }
 </div>
 
 @if (showToast && !string.IsNullOrEmpty(toastMessage))
@@ -277,15 +282,21 @@
                             </td>
                             <td class="small">@p.CreatedAt.ToLocalTime().ToString("g")</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEdit(p)">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
+                                @if (!isReadOnly)
+                                {
+                                    <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEdit(p)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                }
                                 <button class="btn btn-sm btn-outline-info me-1" type="button" @onclick="async () => await ShowProjectDetailsAsync(p)" aria-label='@Localizer.GetString("View Project Details")'>
                                     <i class="bi bi-eye"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteProjectAsync(p.Id)">
-                                    <i class="bi bi-trash"></i>
-                                </button>
+                                @if (!isReadOnly)
+                                {
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteProjectAsync(p.Id)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                }
                             </td>
                         </tr>
                         
@@ -1069,6 +1080,7 @@
     private string? loadError;
     private string filterCustomerId = "";
     private string filterStatus = "";
+    private bool isReadOnly = false;
     
     // Sorting
     private ProjectsSortColumn sortColumn = ProjectsSortColumn.Created;
@@ -1133,6 +1145,7 @@
         editModel ??= new();
         createEditContext = new EditContext(newProject);
         editEditContext = new EditContext(editModel);
+        isReadOnly = await AuthService.IsPageReadOnlyAsync("Projects");
         await LoadCustomersAsync();
         await LoadAsync();
     }

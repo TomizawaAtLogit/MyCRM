@@ -41,25 +41,28 @@
                                 }
                             </button>
                             <div class="position-absolute end-0 top-50 translate-middle-y me-2" style="z-index: 1050;">
-                                <button class="btn btn-sm btn-outline-primary me-1" 
-                                        @onclick="() => StartEditSystem(system)"
-                                        @onclick:stopPropagation="true"
-                                        disabled="@isDeletingSystem">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" 
-                                        @onclick="() => DeleteSystemAsync(system.Id, system.SystemName, componentCount)"
-                                        @onclick:stopPropagation="true"
-                                        disabled="@isDeletingSystem">
-                                    @if (isDeletingSystem)
-                                    {
-                                        <span class="spinner-border spinner-border-sm"></span>
-                                    }
-                                    else
-                                    {
-                                        <i class="bi bi-trash"></i>
-                                    }
-                                </button>
+                                @if (!IsReadOnly)
+                                {
+                                    <button class="btn btn-sm btn-outline-primary me-1" 
+                                            @onclick="() => StartEditSystem(system)"
+                                            @onclick:stopPropagation="true"
+                                            disabled="@isDeletingSystem">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                            @onclick="() => DeleteSystemAsync(system.Id, system.SystemName, componentCount)"
+                                            @onclick:stopPropagation="true"
+                                            disabled="@isDeletingSystem">
+                                        @if (isDeletingSystem)
+                                        {
+                                            <span class="spinner-border spinner-border-sm"></span>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-trash"></i>
+                                        }
+                                    </button>
+                                }
                             </div>
                         </h2>
                         <div id="@accordionId" class="accordion-collapse collapse show" 
@@ -97,23 +100,26 @@
                                                         <td>@component.Location</td>
                                                         <td>@(component.WarrantyExpiration?.ToShortDateString() ?? "-")</td>
                                                         <td>
-                                                            <button class="btn btn-sm btn-outline-primary me-1" 
-                                                                    @onclick="() => StartEditComponent(system.Id, component)"
-                                                                    disabled="@isDeletingComponent">
-                                                                <span class="bi bi-pencil"></span>
-                                                            </button>
-                                                            <button class="btn btn-sm btn-outline-danger" 
-                                                                    @onclick="() => DeleteComponentAsync(system.Id, component.Id)"
-                                                                    disabled="@isDeletingComponent">
-                                                                @if (isDeletingComponent)
-                                                                {
-                                                                    <span class="spinner-border spinner-border-sm"></span>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <span class="bi bi-trash"></span>
-                                                                }
-                                                            </button>
+                                                            @if (!IsReadOnly)
+                                                            {
+                                                                <button class="btn btn-sm btn-outline-primary me-1" 
+                                                                        @onclick="() => StartEditComponent(system.Id, component)"
+                                                                        disabled="@isDeletingComponent">
+                                                                    <span class="bi bi-pencil"></span>
+                                                                </button>
+                                                                <button class="btn btn-sm btn-outline-danger" 
+                                                                        @onclick="() => DeleteComponentAsync(system.Id, component.Id)"
+                                                                        disabled="@isDeletingComponent">
+                                                                    @if (isDeletingComponent)
+                                                                    {
+                                                                        <span class="spinner-border spinner-border-sm"></span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="bi bi-trash"></span>
+                                                                    }
+                                                                </button>
+                                                            }
                                                         </td>
                                                     </tr>
                                                 }
@@ -136,11 +142,14 @@
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Add System</h5>
-                <button class="btn btn-sm btn-outline-primary" @onclick="() => showAddSystemForm = !showAddSystemForm">
-                    <i class="bi @(showAddSystemForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
-                </button>
+                @if (!IsReadOnly)
+                {
+                    <button class="btn btn-sm btn-outline-primary" @onclick="() => showAddSystemForm = !showAddSystemForm">
+                        <i class="bi @(showAddSystemForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
+                    </button>
+                }
             </div>
-            @if (showAddSystemForm)
+            @if (showAddSystemForm && !IsReadOnly)
             {
             <div class="card-body">
                 <EditForm Model="newSystem" OnValidSubmit="CreateSystemAsync">
@@ -173,11 +182,14 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Add Component</h5>
-                <button class="btn btn-sm btn-outline-primary" @onclick="() => showAddComponentForm = !showAddComponentForm">
-                    <i class="bi @(showAddComponentForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
-                </button>
+                @if (!IsReadOnly)
+                {
+                    <button class="btn btn-sm btn-outline-primary" @onclick="() => showAddComponentForm = !showAddComponentForm">
+                        <i class="bi @(showAddComponentForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
+                    </button>
+                }
             </div>
-            @if (showAddComponentForm)
+            @if (showAddComponentForm && !IsReadOnly)
             {
                 <div class="card-body">
                 @if (Systems == null || !Systems.Any())
@@ -362,6 +374,9 @@
 
     [Parameter]
     public EventCallback OnRefresh { get; set; }
+
+    [Parameter]
+    public bool IsReadOnly { get; set; } = false;
 
     // Toast notification
     private string? toastMessage;

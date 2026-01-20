@@ -20,6 +20,7 @@ public class PreSalesBase : ComponentBase
     [Inject] protected CustomerApiClient CustomersApi { get; set; } = null!;
     [Inject] protected OrderApiClient OrdersApi { get; set; } = null!;
     [Inject] protected AdminApiClient AdminApi { get; set; } = null!;
+    [Inject] protected AuthorizationService AuthService { get; set; } = null!;
     [Inject] protected IJSRuntime JSRuntime { get; set; } = null!;
     [Inject] protected LocalizationService Localizer { get; set; } = null!;
 
@@ -31,6 +32,7 @@ public class PreSalesBase : ComponentBase
     protected UserDto[]? users;
     protected RequirementDefinitionDto[]? requirements;
     protected PreSalesActivityDto[]? proposalActivities;
+    protected bool isReadOnly = false;
 
     protected bool isLoading = true;
     protected bool showModal = false;
@@ -59,6 +61,7 @@ public class PreSalesBase : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
+        isReadOnly = await AuthService.IsPageReadOnlyAsync("PreSales");
         await LoadData();
     }
 

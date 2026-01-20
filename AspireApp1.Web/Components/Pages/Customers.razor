@@ -5,11 +5,13 @@
 @using System.Text.Json
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.JSInterop
+@using AspireApp1.Web.Services
 @* @attribute [Authorize] *@ @* DISABLED FOR LOCAL DEVELOPMENT *@
 @inject CustomerApiClient CustomerApi
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 @inject LocalizationService Localizer
+@inject AuthorizationService AuthService
 @implements IDisposable
 
 <PageTitle>@Localizer.GetString("Customers")</PageTitle>
@@ -72,11 +74,14 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">@Localizer.GetString("Add New Customer")</h5>
-                    <button class="btn btn-sm btn-outline-primary" @onclick="() => showCreateForm = !showCreateForm">
-                        <i class="bi @(showCreateForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
-                    </button>
+                    @if (!isReadOnly)
+                    {
+                        <button class="btn btn-sm btn-outline-primary" @onclick="() => showCreateForm = !showCreateForm">
+                            <i class="bi @(showCreateForm ? "bi-chevron-up" : "bi-chevron-down")"></i>
+                        </button>
+                    }
                 </div>
-                @if (showCreateForm)
+                @if (showCreateForm && !isReadOnly)
                 {
                     <div class="card-body">
                     <EditForm EditContext="createEditContext" OnValidSubmit="CreateCustomerAsync">
@@ -123,15 +128,18 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h4 class="mb-0">@selectedCustomerDetails.Name</h4>
             <div>
-                @if (!isEditing)
+                @if (!isReadOnly && !isEditing)
                 {
                     <button class="btn btn-outline-primary btn-sm me-2" @onclick="StartEdit">
                         <i class="bi bi-pencil"></i>
                     </button>
                 }
-                <button class="btn btn-outline-danger btn-sm" @onclick="() => ConfirmDeleteCustomer(selectedCustomerDetails.Id)">
-                    <i class="bi bi-trash"></i>
-                </button>
+                @if (!isReadOnly)
+                {
+                    <button class="btn btn-outline-danger btn-sm" @onclick="() => ConfirmDeleteCustomer(selectedCustomerDetails.Id)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                }
             </div>
         </div>
         <div class="card-body">
@@ -247,11 +255,11 @@
             <div class="tab-content mt-3">
                 @if (activeTab == "sites")
                 {
-                    <SiteTab CustomerId="selectedCustomerDetails.Id" Sites="selectedCustomerDetails.Sites" OnRefresh="LoadCustomerDetails" />
+                    <SiteTab CustomerId="selectedCustomerDetails.Id" Sites="selectedCustomerDetails.Sites" OnRefresh="LoadCustomerDetails" IsReadOnly="isReadOnly" />
                 }
                 else if (activeTab == "systems")
                 {
-                    <SystemTab CustomerId="selectedCustomerDetails.Id" Systems="selectedCustomerDetails.Systems.OrderBy(s => s.SystemName).ToList()" Sites="selectedCustomerDetails.Sites" OnRefresh="LoadCustomerDetails" />
+                    <SystemTab CustomerId="selectedCustomerDetails.Id" Systems="selectedCustomerDetails.Systems.OrderBy(s => s.SystemName).ToList()" Sites="selectedCustomerDetails.Sites" OnRefresh="LoadCustomerDetails" IsReadOnly="isReadOnly" />
                 }
                 else if (activeTab == "files")
                 {
@@ -270,6 +278,7 @@
     private CustomerWithChildrenDto? selectedCustomerDetails;
     private string activeTab = "sites";
     private string? deleteErrorMessage;
+    private bool isReadOnly = false;
     
     private NewCustomerModel newCustomer = new();
     private EditContext? createEditContext;
@@ -285,6 +294,7 @@
     {
         Localizer.OnLanguageChanged += OnLanguageChanged;
         createEditContext = new EditContext(newCustomer);
+        isReadOnly = await AuthService.IsPageReadOnlyAsync("Customers");
         await LoadCustomersAsync();
         
         // Check for query parameters to auto-select customer and tab

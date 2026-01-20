@@ -3,10 +3,12 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.JSInterop
+@using AspireApp1.Web.Services
 @inject OrderApiClient OrderApi
 @inject CustomerApiClient CustomerApi
 @inject IJSRuntime JSRuntime
 @inject LocalizationService Localizer
+@inject AuthorizationService AuthService
 @implements IDisposable
 
 <PageTitle>@Localizer.GetString("Orders")</PageTitle>
@@ -14,10 +16,13 @@
 <PageAccessGuard PageName="Orders">
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">@Localizer.GetString("Orders / Contracts")</h1>
-    <button class="btn btn-primary" @onclick="ShowCreateModal">
-        <i class="bi bi-plus-circle me-2"></i>
-        @Localizer.GetString("Create Order")
-    </button>
+    @if (!isReadOnly)
+    {
+        <button class="btn btn-primary" @onclick="ShowCreateModal">
+            <i class="bi bi-plus-circle me-2"></i>
+            @Localizer.GetString("Create Order")
+        </button>
+    }
 </div>
 
 @if (showToast && !string.IsNullOrEmpty(toastMessage))
@@ -149,12 +154,15 @@ else
                             <button class="btn btn-sm btn-outline-info me-1" @onclick="() => ShowDetailsModal(order)">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => ShowEditModal(order)">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteOrder(order.Id)">
-                                <i class="bi bi-trash"></i>
-                            </button>
+                            @if (!isReadOnly)
+                            {
+                                <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => ShowEditModal(order)">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteOrder(order.Id)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            }
                         </td>
                     </tr>
                 }
@@ -369,6 +377,7 @@ else
     private string toastType = "success";
     private bool isSavingOrder;
     private OrderFormModel editingOrder = new();
+    private bool isReadOnly = false;
 
     private List<string> availableContractTypes = new();
     private List<string> availableStatuses = new();
@@ -389,6 +398,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         Localizer.OnLanguageChanged += OnLanguageChanged;
+        isReadOnly = await AuthService.IsPageReadOnlyAsync("Orders");
         await LoadOrdersAsync();
     }
 
