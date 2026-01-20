@@ -184,4 +184,121 @@
   <data name="No activities for this period." xml:space="preserve">
     <value>No activities for this period.</value>
   </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Loading dashboard metrics" xml:space="preserve">
+    <value>Loading dashboard metrics</value>
+  </data>
+  <data name="No metrics available. Please configure your role coverage." xml:space="preserve">
+    <value>No metrics available. Please configure your role coverage.</value>
+  </data>
+  <data name="Total Cases" xml:space="preserve">
+    <value>Total Cases</value>
+  </data>
+  <data name="Resolution Rate" xml:space="preserve">
+    <value>Resolution Rate</value>
+  </data>
+  <data name="SLA Compliance" xml:space="preserve">
+    <value>SLA Compliance</value>
+  </data>
+  <data name="Active Projects" xml:space="preserve">
+    <value>Active Projects</value>
+  </data>
+  <data name="open" xml:space="preserve">
+    <value>open</value>
+  </data>
+  <data name="resolved" xml:space="preserve">
+    <value>resolved</value>
+  </data>
+  <data name="total" xml:space="preserve">
+    <value>total</value>
+  </data>
+  <data name="Plan" xml:space="preserve">
+    <value>Plan</value>
+  </data>
+  <data name="Do" xml:space="preserve">
+    <value>Do</value>
+  </data>
+  <data name="Check" xml:space="preserve">
+    <value>Check</value>
+  </data>
+  <data name="Act" xml:space="preserve">
+    <value>Act</value>
+  </data>
+  <data name="Pre-sales Pipeline" xml:space="preserve">
+    <value>Pre-sales Pipeline</value>
+  </data>
+  <data name="Case Status" xml:space="preserve">
+    <value>Case Status</value>
+  </data>
+  <data name="Case Priority" xml:space="preserve">
+    <value>Case Priority</value>
+  </data>
+  <data name="Project Status" xml:space="preserve">
+    <value>Project Status</value>
+  </data>
+  <data name="Identification" xml:space="preserve">
+    <value>Identification</value>
+  </data>
+  <data name="Qualification" xml:space="preserve">
+    <value>Qualification</value>
+  </data>
+  <data name="Proposal" xml:space="preserve">
+    <value>Proposal</value>
+  </data>
+  <data name="Negotiation" xml:space="preserve">
+    <value>Negotiation</value>
+  </data>
+  <data name="Closed Won" xml:space="preserve">
+    <value>Closed Won</value>
+  </data>
+  <data name="Closed Lost" xml:space="preserve">
+    <value>Closed Lost</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="In Progress" xml:space="preserve">
+    <value>In Progress</value>
+  </data>
+  <data name="Resolved" xml:space="preserve">
+    <value>Resolved</value>
+  </data>
+  <data name="Closed" xml:space="preserve">
+    <value>Closed</value>
+  </data>
+  <data name="Critical" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="On Hold" xml:space="preserve">
+    <value>On Hold</value>
+  </data>
+  <data name="Pre-sales Pipeline by Stage" xml:space="preserve">
+    <value>Pre-sales Pipeline by Stage</value>
+  </data>
+  <data name="Cases by Status" xml:space="preserve">
+    <value>Cases by Status</value>
+  </data>
+  <data name="Cases by Priority" xml:space="preserve">
+    <value>Cases by Priority</value>
+  </data>
+  <data name="Projects by Status" xml:space="preserve">
+    <value>Projects by Status</value>
+  </data>
 </root>

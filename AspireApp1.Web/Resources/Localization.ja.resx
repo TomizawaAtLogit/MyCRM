@@ -184,4 +184,121 @@
   <data name="No activities for this period." xml:space="preserve">
     <value>この期間にはアクティビティがありません。</value>
   </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>ダッシュボード</value>
+  </data>
+  <data name="Loading dashboard metrics" xml:space="preserve">
+    <value>ダッシュボード指標を読み込み中</value>
+  </data>
+  <data name="No metrics available. Please configure your role coverage." xml:space="preserve">
+    <value>指標がありません。ロールカバレッジを設定してください。</value>
+  </data>
+  <data name="Total Cases" xml:space="preserve">
+    <value>総ケース数</value>
+  </data>
+  <data name="Resolution Rate" xml:space="preserve">
+    <value>解決率</value>
+  </data>
+  <data name="SLA Compliance" xml:space="preserve">
+    <value>SLA遵守率</value>
+  </data>
+  <data name="Active Projects" xml:space="preserve">
+    <value>アクティブプロジェクト</value>
+  </data>
+  <data name="open" xml:space="preserve">
+    <value>オープン</value>
+  </data>
+  <data name="resolved" xml:space="preserve">
+    <value>解決済み</value>
+  </data>
+  <data name="total" xml:space="preserve">
+    <value>合計</value>
+  </data>
+  <data name="Plan" xml:space="preserve">
+    <value>計画</value>
+  </data>
+  <data name="Do" xml:space="preserve">
+    <value>実行</value>
+  </data>
+  <data name="Check" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="Act" xml:space="preserve">
+    <value>改善</value>
+  </data>
+  <data name="Pre-sales Pipeline" xml:space="preserve">
+    <value>プリセールスパイプライン</value>
+  </data>
+  <data name="Case Status" xml:space="preserve">
+    <value>ケースステータス</value>
+  </data>
+  <data name="Case Priority" xml:space="preserve">
+    <value>ケース優先度</value>
+  </data>
+  <data name="Project Status" xml:space="preserve">
+    <value>プロジェクトステータス</value>
+  </data>
+  <data name="Identification" xml:space="preserve">
+    <value>特定</value>
+  </data>
+  <data name="Qualification" xml:space="preserve">
+    <value>資格審査</value>
+  </data>
+  <data name="Proposal" xml:space="preserve">
+    <value>提案</value>
+  </data>
+  <data name="Negotiation" xml:space="preserve">
+    <value>交渉</value>
+  </data>
+  <data name="Closed Won" xml:space="preserve">
+    <value>受注</value>
+  </data>
+  <data name="Closed Lost" xml:space="preserve">
+    <value>失注</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>オープン</value>
+  </data>
+  <data name="In Progress" xml:space="preserve">
+    <value>進行中</value>
+  </data>
+  <data name="Resolved" xml:space="preserve">
+    <value>解決済み</value>
+  </data>
+  <data name="Closed" xml:space="preserve">
+    <value>クローズ</value>
+  </data>
+  <data name="Critical" xml:space="preserve">
+    <value>緊急</value>
+  </data>
+  <data name="High" xml:space="preserve">
+    <value>高</value>
+  </data>
+  <data name="Medium" xml:space="preserve">
+    <value>中</value>
+  </data>
+  <data name="Low" xml:space="preserve">
+    <value>低</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>アクティブ</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="On Hold" xml:space="preserve">
+    <value>保留中</value>
+  </data>
+  <data name="Pre-sales Pipeline by Stage" xml:space="preserve">
+    <value>ステージ別プリセールスパイプライン</value>
+  </data>
+  <data name="Cases by Status" xml:space="preserve">
+    <value>ステータス別ケース</value>
+  </data>
+  <data name="Cases by Priority" xml:space="preserve">
+    <value>優先度別ケース</value>
+  </data>
+  <data name="Projects by Status" xml:space="preserve">
+    <value>ステータス別プロジェクト</value>
+  </data>
 </root>
