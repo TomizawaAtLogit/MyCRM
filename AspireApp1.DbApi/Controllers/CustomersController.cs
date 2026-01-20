@@ -24,7 +24,17 @@ public class CustomersController : AuditableControllerBase
     [HttpGet]
     public async Task<IEnumerable<Customer>> Get()
     {
-        return await _repo.GetAllAsync();
+        // Get current user and their allowed customer IDs
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        
+        if (!userId.HasValue)
+        {
+            // If user is not found, return empty list
+            return Enumerable.Empty<Customer>();
+        }
+        
+        var allowedCustomerIds = await _userRepo.GetAllowedCustomerIdsAsync(userId.Value);
+        return await _repo.GetAllAsync(allowedCustomerIds);
     }
 
     [HttpGet("{id}")]

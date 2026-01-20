@@ -136,4 +136,41 @@ public class UserRepository : IUserRepository
         await _db.SaveChangesAsync();
         return true;
     }
+
+    public async Task<int[]?> GetAllowedCustomerIdsAsync(int userId)
+    {
+        // Get user with their roles and role coverages
+        var user = await _db.Users
+            .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                    .ThenInclude(r => r.RoleCoverages)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null || !user.UserRoles.Any())
+        {
+            // User not found or has no roles - no access
+            return Array.Empty<int>();
+        }
+
+        // Check if any role has no coverage (meaning access to all customers)
+        var hasUnrestrictedRole = user.UserRoles
+            .Any(ur => ur.Role != null && !ur.Role.RoleCoverages.Any());
+
+        if (hasUnrestrictedRole)
+        {
+            // User has at least one role with no coverage restrictions - access to all customers
+            return null;
+        }
+
+        // Get union of all customer IDs from all roles' coverage
+        var allowedCustomerIds = user.UserRoles
+            .Where(ur => ur.Role != null)
+            .SelectMany(ur => ur.Role!.RoleCoverages)
+            .Select(rc => rc.CustomerId)
+            .Distinct()
+            .ToArray();
+
+        return allowedCustomerIds;
+    }
 }

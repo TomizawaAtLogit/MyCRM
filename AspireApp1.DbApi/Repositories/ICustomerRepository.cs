@@ -5,6 +5,7 @@ namespace AspireApp1.DbApi.Repositories;
 public interface ICustomerRepository
 {
     Task<IEnumerable<Customer>> GetAllAsync();
+    Task<IEnumerable<Customer>> GetAllAsync(int[]? allowedCustomerIds);
     Task<Customer?> GetAsync(int id);
     Task<Customer?> GetWithChildrenAsync(int id);
     Task<Customer> AddAsync(Customer customer);

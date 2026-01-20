@@ -23,7 +23,18 @@ public class OrdersController : AuditableControllerBase
     [HttpGet]
     public async Task<IEnumerable<OrderWithCustomerDto>> Get()
     {
-        var orders = await _repo.GetAllAsync();
+        // Get current user and their allowed customer IDs
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        
+        if (!userId.HasValue)
+        {
+            // If user is not found, return empty list
+            return Enumerable.Empty<OrderWithCustomerDto>();
+        }
+        
+        var allowedCustomerIds = await _userRepo.GetAllowedCustomerIdsAsync(userId.Value);
+        var orders = await _repo.GetAllAsync(allowedCustomerIds);
+        
         return orders.Select(o => new OrderWithCustomerDto(
             o.Id,
             o.CustomerId,

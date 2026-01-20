@@ -30,13 +30,29 @@ namespace AspireApp1.DbApi.Controllers
         {
             IEnumerable<PreSalesActivity> activities;
             
+            // Get current user and their allowed customer IDs
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            
+            if (!userId.HasValue)
+            {
+                // If user is not found, return empty list
+                return Enumerable.Empty<PreSalesActivityDto>();
+            }
+            
+            var allowedCustomerIds = await _userRepo.GetAllowedCustomerIdsAsync(userId.Value);
+            
             if (proposalId.HasValue)
             {
                 activities = await _repo.GetByProposalIdAsync(proposalId.Value);
+                // Apply coverage filter after getting by proposal
+                if (allowedCustomerIds != null && allowedCustomerIds.Length > 0)
+                {
+                    activities = activities.Where(a => a.PreSalesProposal != null && allowedCustomerIds.Contains(a.PreSalesProposal.CustomerId));
+                }
             }
             else
             {
-                activities = await _repo.GetAllAsync();
+                activities = await _repo.GetAllAsync(allowedCustomerIds);
             }
 
             return activities.Select(a => new PreSalesActivityDto(

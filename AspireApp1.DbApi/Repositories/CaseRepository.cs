@@ -20,6 +20,33 @@ namespace AspireApp1.DbApi.Repositories
                 .AsNoTracking()
                 .ToListAsync();
 
+        public async Task<IEnumerable<Case>> GetAllAsync(int[]? allowedCustomerIds)
+        {
+            // If allowedCustomerIds is null, return all cases (unrestricted access)
+            if (allowedCustomerIds == null)
+            {
+                return await GetAllAsync();
+            }
+
+            // If allowedCustomerIds is empty, return no cases
+            if (allowedCustomerIds.Length == 0)
+            {
+                return Enumerable.Empty<Case>();
+            }
+
+            // Return only cases for allowed customers
+            return await _db.Cases
+                .Include(c => c.Customer)
+                .Include(c => c.System)
+                .Include(c => c.SystemComponent)
+                .Include(c => c.CustomerSite)
+                .Include(c => c.CustomerOrder)
+                .Include(c => c.AssignedToUser)
+                .Where(c => allowedCustomerIds.Contains(c.CustomerId))
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<Case>> GetByCustomerIdAsync(int customerId) =>
             await _db.Cases
                 .Include(c => c.Customer)

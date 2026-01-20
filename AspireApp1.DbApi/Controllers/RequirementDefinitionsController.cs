@@ -30,13 +30,30 @@ namespace AspireApp1.DbApi.Controllers
         {
             IEnumerable<RequirementDefinition> entities;
             
+            // Get current user and their allowed customer IDs
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            
+            if (!userId.HasValue)
+            {
+                // If user is not found, return empty list
+                return Enumerable.Empty<RequirementDefinitionDto>();
+            }
+            
+            var allowedCustomerIds = await _userRepo.GetAllowedCustomerIdsAsync(userId.Value);
+            
             if (customerId.HasValue)
             {
+                // Check if the requested customer is allowed
+                if (allowedCustomerIds != null && allowedCustomerIds.Length > 0 && !allowedCustomerIds.Contains(customerId.Value))
+                {
+                    // User doesn't have access to this customer
+                    return Enumerable.Empty<RequirementDefinitionDto>();
+                }
                 entities = await _repo.GetByCustomerIdAsync(customerId.Value);
             }
             else
             {
-                entities = await _repo.GetAllAsync();
+                entities = await _repo.GetAllAsync(allowedCustomerIds);
             }
 
             return entities.Select(r => new RequirementDefinitionDto(

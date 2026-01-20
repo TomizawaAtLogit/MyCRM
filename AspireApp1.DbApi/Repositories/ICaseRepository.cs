@@ -5,6 +5,7 @@ namespace AspireApp1.DbApi.Repositories
     public interface ICaseRepository
     {
         Task<IEnumerable<Case>> GetAllAsync();
+        Task<IEnumerable<Case>> GetAllAsync(int[]? allowedCustomerIds);
         Task<IEnumerable<Case>> GetByCustomerIdAsync(int customerId);
         Task<IEnumerable<Case>> GetByAssignedUserIdAsync(int userId);
         Task<IEnumerable<Case>> GetByStatusAsync(CaseStatus status);

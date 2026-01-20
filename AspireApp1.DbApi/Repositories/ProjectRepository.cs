@@ -12,6 +12,28 @@ namespace AspireApp1.DbApi.Repositories
         public async Task<IEnumerable<Project>> GetAllAsync() =>
             await _db.Projects.Include(p => p.Customer).AsNoTracking().ToListAsync();
 
+        public async Task<IEnumerable<Project>> GetAllAsync(int[]? allowedCustomerIds)
+        {
+            // If allowedCustomerIds is null, return all projects (unrestricted access)
+            if (allowedCustomerIds == null)
+            {
+                return await GetAllAsync();
+            }
+
+            // If allowedCustomerIds is empty, return no projects
+            if (allowedCustomerIds.Length == 0)
+            {
+                return Enumerable.Empty<Project>();
+            }
+
+            // Return only projects for allowed customers
+            return await _db.Projects
+                .Include(p => p.Customer)
+                .Where(p => allowedCustomerIds.Contains(p.CustomerId))
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<Project>> GetByCustomerIdAsync(int customerId) =>
             await _db.Projects.Include(p => p.Customer).Where(p => p.CustomerId == customerId).AsNoTracking().ToListAsync();
 
