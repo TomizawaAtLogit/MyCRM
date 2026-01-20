@@ -5,7 +5,7 @@ namespace AspireApp1.DbApi.Controllers;
 
 public abstract class AuditableControllerBase : ControllerBase
 {
-    private readonly IUserRepository _userRepo;
+    protected readonly IUserRepository _userRepo;
 
     protected AuditableControllerBase(IUserRepository userRepo)
     {

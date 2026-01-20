@@ -11,14 +11,12 @@ namespace AspireApp1.DbApi.Controllers;
 // [Authorize(Policy = "AdminOnly")] // DISABLED FOR LOCAL DEVELOPMENT
 public class AdminController : AuditableControllerBase
 {
-    private readonly IUserRepository _userRepo;
     private readonly IRoleRepository _roleRepo;
     private readonly IAuditService _auditService;
 
     public AdminController(IUserRepository userRepo, IRoleRepository roleRepo, IAuditService auditService)
         : base(userRepo)
     {
-        _userRepo = userRepo;
         _roleRepo = roleRepo;
         _auditService = auditService;
     }

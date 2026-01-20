@@ -46,21 +46,48 @@ namespace AspireApp1.DbApi.Controllers
         {
             IEnumerable<Case> cases;
             
+            // Get current user and their allowed customer IDs
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            
+            if (!userId.HasValue)
+            {
+                // If user is not found, return empty list
+                return Enumerable.Empty<CaseDto>();
+            }
+            
+            var allowedCustomerIds = await _userRepo.GetAllowedCustomerIdsAsync(userId.Value);
+            
             if (customerId.HasValue)
             {
+                // Check if the requested customer is allowed
+                if (allowedCustomerIds != null && allowedCustomerIds.Length > 0 && !allowedCustomerIds.Contains(customerId.Value))
+                {
+                    // User doesn't have access to this customer
+                    return Enumerable.Empty<CaseDto>();
+                }
                 cases = await _repo.GetByCustomerIdAsync(customerId.Value);
             }
             else if (assignedToUserId.HasValue)
             {
                 cases = await _repo.GetByAssignedUserIdAsync(assignedToUserId.Value);
+                // Apply coverage filter after getting by assigned user
+                if (allowedCustomerIds != null && allowedCustomerIds.Length > 0)
+                {
+                    cases = cases.Where(c => allowedCustomerIds.Contains(c.CustomerId));
+                }
             }
             else if (status.HasValue)
             {
                 cases = await _repo.GetByStatusAsync(status.Value);
+                // Apply coverage filter after getting by status
+                if (allowedCustomerIds != null && allowedCustomerIds.Length > 0)
+                {
+                    cases = cases.Where(c => allowedCustomerIds.Contains(c.CustomerId));
+                }
             }
             else
             {
-                cases = await _repo.GetAllAsync();
+                cases = await _repo.GetAllAsync(allowedCustomerIds);
             }
 
             // Apply additional filters

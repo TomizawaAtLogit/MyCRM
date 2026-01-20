@@ -15,4 +15,5 @@ public interface IUserRepository
     Task DeleteAsync(int id);
     Task<bool> AssignRoleAsync(int userId, int roleId);
     Task<bool> RemoveRoleAsync(int userId, int roleId);
+    Task<int[]?> GetAllowedCustomerIdsAsync(int userId);
 }

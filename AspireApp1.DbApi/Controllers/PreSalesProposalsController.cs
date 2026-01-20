@@ -40,25 +40,57 @@ namespace AspireApp1.DbApi.Controllers
         {
             IEnumerable<PreSalesProposal> proposals;
             
+            // Get current user and their allowed customer IDs
+            var (username, userId) = await GetCurrentUserInfoAsync();
+            
+            if (!userId.HasValue)
+            {
+                // If user is not found, return empty list
+                return Enumerable.Empty<PreSalesProposalDto>();
+            }
+            
+            var allowedCustomerIds = await _userRepo.GetAllowedCustomerIdsAsync(userId.Value);
+            
             if (customerId.HasValue)
             {
+                // Check if the requested customer is allowed
+                if (allowedCustomerIds != null && allowedCustomerIds.Length > 0 && !allowedCustomerIds.Contains(customerId.Value))
+                {
+                    // User doesn't have access to this customer
+                    return Enumerable.Empty<PreSalesProposalDto>();
+                }
                 proposals = await _repo.GetByCustomerIdAsync(customerId.Value);
             }
             else if (assignedToUserId.HasValue)
             {
                 proposals = await _repo.GetByAssignedUserIdAsync(assignedToUserId.Value);
+                // Apply coverage filter after getting by assigned user
+                if (allowedCustomerIds != null && allowedCustomerIds.Length > 0)
+                {
+                    proposals = proposals.Where(p => allowedCustomerIds.Contains(p.CustomerId));
+                }
             }
             else if (status.HasValue)
             {
                 proposals = await _repo.GetByStatusAsync(status.Value);
+                // Apply coverage filter after getting by status
+                if (allowedCustomerIds != null && allowedCustomerIds.Length > 0)
+                {
+                    proposals = proposals.Where(p => allowedCustomerIds.Contains(p.CustomerId));
+                }
             }
             else if (stage.HasValue)
             {
                 proposals = await _repo.GetByStageAsync(stage.Value);
+                // Apply coverage filter after getting by stage
+                if (allowedCustomerIds != null && allowedCustomerIds.Length > 0)
+                {
+                    proposals = proposals.Where(p => allowedCustomerIds.Contains(p.CustomerId));
+                }
             }
             else
             {
-                proposals = await _repo.GetAllAsync();
+                proposals = await _repo.GetAllAsync(allowedCustomerIds);
             }
 
             return proposals.Select(p => BuildDto(p));

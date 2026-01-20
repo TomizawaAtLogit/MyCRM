@@ -15,6 +15,28 @@ namespace AspireApp1.DbApi.Repositories
                 .AsNoTracking()
                 .ToListAsync();
 
+        public async Task<IEnumerable<RequirementDefinition>> GetAllAsync(int[]? allowedCustomerIds)
+        {
+            // If allowedCustomerIds is null, return all requirement definitions (unrestricted access)
+            if (allowedCustomerIds == null)
+            {
+                return await GetAllAsync();
+            }
+
+            // If allowedCustomerIds is empty, return no requirement definitions
+            if (allowedCustomerIds.Length == 0)
+            {
+                return Enumerable.Empty<RequirementDefinition>();
+            }
+
+            // Return only requirement definitions for allowed customers
+            return await _db.RequirementDefinitions
+                .Include(r => r.Customer)
+                .Where(r => allowedCustomerIds.Contains(r.CustomerId))
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<RequirementDefinition>> GetByCustomerIdAsync(int customerId) =>
             await _db.RequirementDefinitions
                 .Include(r => r.Customer)
