@@ -84,26 +84,26 @@ public class DashboardService : IDashboardService
 
         metric.TotalPreSalesProposals = await preSalesQuery.CountAsync();
         metric.ActivePreSalesProposals = await preSalesQuery
-            .Where(p => p.Status == PreSalesStatus.Active)
+            .Where(p => p.Status == PreSalesStatus.Pending || p.Status == PreSalesStatus.InReview || p.Status == PreSalesStatus.Approved)
             .CountAsync();
         
         metric.PreSalesProposalsByStageIdentification = await preSalesQuery
-            .Where(p => p.Stage == PreSalesStage.Identification)
+            .Where(p => p.Stage == PreSalesStage.InitialContact)
             .CountAsync();
         metric.PreSalesProposalsByStageQualification = await preSalesQuery
-            .Where(p => p.Stage == PreSalesStage.Qualification)
+            .Where(p => p.Stage == PreSalesStage.RequirementGathering)
             .CountAsync();
         metric.PreSalesProposalsByStageProposal = await preSalesQuery
-            .Where(p => p.Stage == PreSalesStage.Proposal)
+            .Where(p => p.Stage == PreSalesStage.ProposalDevelopment)
             .CountAsync();
         metric.PreSalesProposalsByStageNegotiation = await preSalesQuery
-            .Where(p => p.Stage == PreSalesStage.Negotiation)
+            .Where(p => p.Stage == PreSalesStage.NegotiationInProgress)
             .CountAsync();
         metric.PreSalesProposalsByStageClosedWon = await preSalesQuery
-            .Where(p => p.Stage == PreSalesStage.ClosedWon)
+            .Where(p => p.Stage == PreSalesStage.Won)
             .CountAsync();
         metric.PreSalesProposalsByStageClosedLost = await preSalesQuery
-            .Where(p => p.Stage == PreSalesStage.ClosedLost)
+            .Where(p => p.Stage == PreSalesStage.Lost)
             .CountAsync();
 
         // Case metrics (Do phase)
@@ -158,9 +158,9 @@ public class DashboardService : IDashboardService
             projectsQuery = projectsQuery.Where(p => customerIds.Contains(p.CustomerId));
 
         metric.TotalProjects = await projectsQuery.CountAsync();
-        metric.ActiveProjects = await projectsQuery.Where(p => p.Status == ProjectStatus.Active).CountAsync();
-        metric.CompletedProjects = await projectsQuery.Where(p => p.Status == ProjectStatus.Completed).CountAsync();
-        metric.OnHoldProjects = await projectsQuery.Where(p => p.Status == ProjectStatus.OnHold).CountAsync();
+        metric.ActiveProjects = await projectsQuery.Where(p => p.Status == ProjectStatus.Wip).CountAsync();
+        metric.CompletedProjects = await projectsQuery.Where(p => p.Status == ProjectStatus.Closed).CountAsync();
+        metric.OnHoldProjects = await projectsQuery.Where(p => p.Status == ProjectStatus.Pending).CountAsync();
         
         metric.ProjectCompletionRate = metric.TotalProjects > 0 
             ? (decimal)metric.CompletedProjects / metric.TotalProjects * 100 

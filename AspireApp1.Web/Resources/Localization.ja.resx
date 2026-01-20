@@ -256,39 +256,6 @@
   <data name="Closed Lost" xml:space="preserve">
     <value>失注</value>
   </data>
-  <data name="Open" xml:space="preserve">
-    <value>オープン</value>
-  </data>
-  <data name="In Progress" xml:space="preserve">
-    <value>進行中</value>
-  </data>
-  <data name="Resolved" xml:space="preserve">
-    <value>解決済み</value>
-  </data>
-  <data name="Closed" xml:space="preserve">
-    <value>クローズ</value>
-  </data>
-  <data name="Critical" xml:space="preserve">
-    <value>緊急</value>
-  </data>
-  <data name="High" xml:space="preserve">
-    <value>高</value>
-  </data>
-  <data name="Medium" xml:space="preserve">
-    <value>中</value>
-  </data>
-  <data name="Low" xml:space="preserve">
-    <value>低</value>
-  </data>
-  <data name="Active" xml:space="preserve">
-    <value>アクティブ</value>
-  </data>
-  <data name="Completed" xml:space="preserve">
-    <value>完了</value>
-  </data>
-  <data name="On Hold" xml:space="preserve">
-    <value>保留中</value>
-  </data>
   <data name="Pre-sales Pipeline by Stage" xml:space="preserve">
     <value>ステージ別プリセールスパイプライン</value>
   </data>

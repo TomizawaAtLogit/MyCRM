@@ -1,5 +1,3 @@
-using AspireApp1.DbApi.DTOs;
-
 namespace AspireApp1.Web;
 
 public class DashboardApiClient
@@ -36,3 +34,37 @@ public class DashboardApiClient
         return await _httpClient.PostAsync("/api/dashboard/snapshot", null);
     }
 }
+
+public record DashboardMetricDto(
+    DateTime SnapshotDate,
+    int? RoleId,
+    int? CustomerId,
+    int TotalPreSalesProposals,
+    int ActivePreSalesProposals,
+    int PreSalesProposalsByStageIdentification,
+    int PreSalesProposalsByStageQualification,
+    int PreSalesProposalsByStageProposal,
+    int PreSalesProposalsByStageNegotiation,
+    int PreSalesProposalsByStageClosedWon,
+    int PreSalesProposalsByStageClosedLost,
+    int TotalCases,
+    int OpenCases,
+    int InProgressCases,
+    int ResolvedCases,
+    int ClosedCases,
+    int CriticalPriorityCases,
+    int HighPriorityCases,
+    int MediumPriorityCases,
+    int LowPriorityCases,
+    decimal CaseResolutionRate,
+    decimal SlaComplianceRate,
+    decimal AverageResolutionTimeHours,
+    int CasesResolvedWithinSla,
+    int CasesResolvedOutsideSla,
+    int TotalProjects,
+    int ActiveProjects,
+    int CompletedProjects,
+    int OnHoldProjects,
+    decimal ProjectCompletionRate
+);
+

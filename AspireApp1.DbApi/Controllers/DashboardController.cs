@@ -29,9 +29,13 @@ public class DashboardController : AuditableControllerBase
     [HttpGet("current")]
     public async Task<ActionResult<DashboardMetricDto>> GetCurrentMetrics()
     {
-        var user = await GetCurrentUserAsync();
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        if (!userId.HasValue)
+            return Ok(new DashboardMetricDto()); // Empty metrics for users without valid ID
+
+        var user = await _userRepo.GetWithRolesAsync(userId.Value);
         if (user == null)
-            return Unauthorized();
+            return Ok(new DashboardMetricDto()); // Empty metrics
 
         // Get user's role with the highest priority (first role)
         var userRole = user.UserRoles.FirstOrDefault();
@@ -58,9 +62,13 @@ public class DashboardController : AuditableControllerBase
     [HttpGet("history")]
     public async Task<ActionResult<List<DashboardMetricDto>>> GetHistoricalMetrics([FromQuery] int days = 30)
     {
-        var user = await GetCurrentUserAsync();
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        if (!userId.HasValue)
+            return Ok(new List<DashboardMetricDto>()); // Empty metrics
+
+        var user = await _userRepo.GetWithRolesAsync(userId.Value);
         if (user == null)
-            return Unauthorized();
+            return Ok(new List<DashboardMetricDto>()); // Empty metrics
 
         var userRole = user.UserRoles.FirstOrDefault();
         if (userRole == null)

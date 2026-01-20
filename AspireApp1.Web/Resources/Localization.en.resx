@@ -256,39 +256,6 @@
   <data name="Closed Lost" xml:space="preserve">
     <value>Closed Lost</value>
   </data>
-  <data name="Open" xml:space="preserve">
-    <value>Open</value>
-  </data>
-  <data name="In Progress" xml:space="preserve">
-    <value>In Progress</value>
-  </data>
-  <data name="Resolved" xml:space="preserve">
-    <value>Resolved</value>
-  </data>
-  <data name="Closed" xml:space="preserve">
-    <value>Closed</value>
-  </data>
-  <data name="Critical" xml:space="preserve">
-    <value>Critical</value>
-  </data>
-  <data name="High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="Medium" xml:space="preserve">
-    <value>Medium</value>
-  </data>
-  <data name="Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="Active" xml:space="preserve">
-    <value>Active</value>
-  </data>
-  <data name="Completed" xml:space="preserve">
-    <value>Completed</value>
-  </data>
-  <data name="On Hold" xml:space="preserve">
-    <value>On Hold</value>
-  </data>
   <data name="Pre-sales Pipeline by Stage" xml:space="preserve">
     <value>Pre-sales Pipeline by Stage</value>
   </data>
