@@ -61,6 +61,8 @@
                                 <dd class="col-sm-8">@Localizer.GetString(selectedProjectDetails.Status.ToString())</dd>
                                 <dt class="col-sm-4">@Localizer.GetString("Created"):</dt>
                                 <dd class="col-sm-8">@selectedProjectDetails.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
+                                <dt class="col-sm-4">@Localizer.GetString("Project Reader"):</dt>
+                                <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(selectedProjectDetails.ProjectReader) ? "-" : selectedProjectDetails.ProjectReader)</dd>
                             </dl>
                         </div>
                         <div class="col-md-6">
@@ -191,6 +193,19 @@
                     <option value="Wip">WIP</option>
                     <option value="Pending">Pending</option>
                     <option value="Closed">Closed</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">@Localizer.GetString("Project Reader")</label>
+                <select class="form-select" value="@filterProjectReader" @onchange="OnProjectReaderFilterChanged">
+                    <option value="">@Localizer.GetString("All Readers")</option>
+                    @if (users != null)
+                    {
+                        @foreach (var u in users.Where(u => u.IsActive))
+                        {
+                            <option value="@u.DisplayName">@u.DisplayName</option>
+                        }
+                    }
                 </select>
             </div>
         </div>
@@ -1083,6 +1098,7 @@
     private string? loadError;
     private string filterCustomerId = "";
     private string filterStatus = "";
+    private string filterProjectReader = "";
     private bool isReadOnly = false;
     
     // Sorting
@@ -1175,7 +1191,8 @@
         {
             int? customerId = string.IsNullOrEmpty(filterCustomerId) ? null : int.Parse(filterCustomerId);
             ProjectStatus? status = string.IsNullOrEmpty(filterStatus) ? null : Enum.Parse<ProjectStatus>(filterStatus);
-            projects = await ProjectsApi.GetProjectsAsync(customerId, status);
+            string? projectReader = string.IsNullOrEmpty(filterProjectReader) ? null : filterProjectReader;
+            projects = await ProjectsApi.GetProjectsAsync(customerId, status, projectReader);
             loadError = null;
             await ApplyHighlightedProjectAsync();
             ApplySorting();
@@ -1249,6 +1266,12 @@
     private async Task OnStatusFilterChanged(ChangeEventArgs e)
     {
         filterStatus = e.Value?.ToString() ?? "";
+        await LoadAsync();
+    }
+
+    private async Task OnProjectReaderFilterChanged(ChangeEventArgs e)
+    {
+        filterProjectReader = e.Value?.ToString() ?? "";
         await LoadAsync();
     }
 

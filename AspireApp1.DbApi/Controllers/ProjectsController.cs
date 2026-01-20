@@ -25,7 +25,7 @@ namespace AspireApp1.DbApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<ProjectDto>> Get([FromQuery] int? customerId, [FromQuery] ProjectStatus? status)
+        public async Task<IEnumerable<ProjectDto>> Get([FromQuery] int? customerId, [FromQuery] ProjectStatus? status, [FromQuery] string? projectReader)
         {
             IEnumerable<Project> projects;
             
@@ -59,6 +59,12 @@ namespace AspireApp1.DbApi.Controllers
             if (status.HasValue)
             {
                 projects = projects.Where(p => p.Status == status.Value);
+            }
+
+            // Apply projectReader filter if provided
+            if (!string.IsNullOrEmpty(projectReader))
+            {
+                projects = projects.Where(p => !string.IsNullOrEmpty(p.ProjectReader) && p.ProjectReader == projectReader);
             }
 
             return projects.Select(p => new ProjectDto(

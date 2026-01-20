@@ -11,7 +11,7 @@ namespace AspireApp1.Web
             _http = httpClient;
         }
 
-        public async Task<ProjectDto[]> GetProjectsAsync(int? customerId = null, ProjectStatus? status = null, CancellationToken cancellationToken = default)
+        public async Task<ProjectDto[]> GetProjectsAsync(int? customerId = null, ProjectStatus? status = null, string? projectReader = null, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -23,6 +23,9 @@ namespace AspireApp1.Web
                 
                 if (status.HasValue)
                     queryParams.Add($"status={status.Value}");
+                
+                if (!string.IsNullOrEmpty(projectReader))
+                    queryParams.Add($"projectReader={Uri.EscapeDataString(projectReader)}");
                 
                 if (queryParams.Count > 0)
                     queryString = "?" + string.Join("&", queryParams);
