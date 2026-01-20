@@ -104,17 +104,20 @@
                                 <td>
                                     @if (isAdmin)
                                     {
-                                        <button class="btn btn-sm btn-primary me-1" 
+                                        <button class="btn btn-sm btn-outline-primary me-1" 
+                                                title="Edit user"
                                                 @onclick="() => ShowEditUserForm(user)">
-                                            Edit
+                                            <i class="bi bi-pencil"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-secondary me-1" 
+                                        <button class="btn btn-sm btn-outline-secondary me-1" 
+                                                title="Assign roles"
                                                 @onclick="() => ShowAssignRolesModal(user)">
-                                            Assign Roles
+                                            <i class="bi bi-shield-check"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-danger" 
+                                        <button class="btn btn-sm btn-outline-danger" 
+                                                title="Delete user"
                                                 @onclick="() => ShowDeleteUserConfirmation(user)">
-                                            Delete
+                                            <i class="bi bi-trash"></i>
                                         </button>
                                     }
                                     else
@@ -175,21 +178,25 @@
                                 <td>
                                     @if (isAdmin)
                                     {
-                                        <button class="btn btn-sm btn-info me-1" 
+                                        <button class="btn btn-sm btn-outline-info me-1" 
+                                                title="Page permissions"
                                                 @onclick="() => ShowPagePermissionsModal(role)">
-                                            Page Permissions
+                                            <i class="bi bi-file-lock"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-secondary me-1" 
+                                        <button class="btn btn-sm btn-outline-secondary me-1" 
+                                                title="Manage users"
                                                 @onclick="() => ShowManageUsersModal(role)">
-                                            Manage Users
+                                            <i class="bi bi-people"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-primary me-1" 
+                                        <button class="btn btn-sm btn-outline-primary me-1" 
+                                                title="Edit role"
                                                 @onclick="() => ShowEditRoleForm(role)">
-                                            Edit
+                                            <i class="bi bi-pencil"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-danger" 
+                                        <button class="btn btn-sm btn-outline-danger" 
+                                                title="Delete role"
                                                 @onclick="() => ShowDeleteRoleConfirmation(role)">
-                                            Delete
+                                            <i class="bi bi-trash"></i>
                                         </button>
                                     }
                                     else
@@ -531,8 +538,7 @@
     private HashSet<string> pagePermissions = new();
     private readonly List<string> availablePages = new()
     {
-        "Admin", "Projects", "Cases", "Audit", "PreSales", "Customers", "Orders",
-        "Support", "CaseTemplates", "SlaConfiguration"
+        "Admin", "Projects", "Cases", "Audit", "PreSales", "Customers", "Orders"
     };
 
     // Delete confirmation
@@ -979,9 +985,6 @@
             "PreSales" => "Pre-sales proposals and activities",
             "Customers" => "Customer information and management",
             "Orders" => "Customer orders and transactions",
-            "Support" => "Support dashboard and tools",
-            "CaseTemplates" => "Case template configuration",
-            "SlaConfiguration" => "SLA threshold settings",
             _ => "Access to " + page
         };
     }

@@ -60,12 +60,27 @@ public class AdminController : AuditableControllerBase
     }
 
     [HttpGet("users/by-username/{username}")]
-    public async Task<ActionResult<User>> GetUserByUsername(string username)
+    public async Task<ActionResult<object>> GetUserByUsername(string username)
     {
         var user = await _userRepo.GetWithRolesByUsernameAsync(username);
         if (user == null)
             return NotFound();
-        return user;
+        
+        return new
+        {
+            user.Id,
+            user.WindowsUsername,
+            user.DisplayName,
+            user.Email,
+            user.IsActive,
+            Roles = user.UserRoles.Select(ur => new
+            {
+                ur.Role.Id,
+                ur.Role.Name,
+                ur.Role.Description,
+                ur.Role.PagePermissions
+            }).ToList()
+        };
     }
 
     [HttpPost("users")]
