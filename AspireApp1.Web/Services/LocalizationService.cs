@@ -562,6 +562,22 @@ public class LocalizationService
             , ["PreSales"] = "プレセールス"
             , ["Customers"] = "顧客"
             , ["Orders"] = "注文"
+            // Coverage tab
+            , ["Coverage"] = "カバレッジ"
+            , ["Role Name"] = "ロール名"
+            , ["Coverage Count"] = "カバレッジ数"
+            , ["Manage coverage"] = "カバレッジを管理"
+            , ["All"] = "すべて"
+            , ["customers"] = "顧客"
+            , ["Manage Coverage for"] = "以下のカバレッジを管理"
+            , ["This role currently has access to"] = "このロールは現在"
+            , ["Assign specific customers to restrict visibility"] = "表示を制限するために特定の顧客を割り当ててください"
+            , ["This role has access to"] = "このロールがアクセスできる"
+            , ["specific customers"] = "特定の顧客"
+            , ["Unassign all to grant access to all customers"] = "すべての顧客へのアクセスを許可するには、すべてを割り当て解除してください"
+            , ["Customer Name"] = "顧客名"
+            , ["Contact Person"] = "担当者"
+            , ["Phone"] = "電話"
         }
     };
 

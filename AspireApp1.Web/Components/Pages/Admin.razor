@@ -37,7 +37,7 @@
             <a class="nav-link @(activeTab == "coverage" ? "active" : "")" 
                @onclick="@(() => SwitchTab("coverage"))" 
                style="cursor: pointer;">
-                Coverage
+                @Localizer.GetString("Coverage")
             </a>
         </li>
     </ul>
@@ -229,7 +229,7 @@
         {
             <div class="text-center">
                 <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                    <span class="visually-hidden">@Localizer.GetString("Loading...")</span>
                 </div>
             </div>
         }
@@ -239,11 +239,11 @@
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Role Name</th>
-                            <th>Description</th>
-                            <th>Coverage Count</th>
-                            <th>Actions</th>
+                            <th>@Localizer.GetString("ID")</th>
+                            <th>@Localizer.GetString("Role Name")</th>
+                            <th>@Localizer.GetString("Description")</th>
+                            <th>@Localizer.GetString("Coverage Count")</th>
+                            <th>@Localizer.GetString("Actions")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -256,25 +256,25 @@
                                 <td>
                                     @if (role.CoverageCount == 0)
                                     {
-                                        <span class="badge bg-success">All</span>
+                                        <span class="badge bg-success">@Localizer.GetString("All")</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-info">@role.CoverageCount customers</span>
+                                        <span class="badge bg-info">@role.CoverageCount @Localizer.GetString("customers")</span>
                                     }
                                 </td>
                                 <td>
                                     @if (isAdmin)
                                     {
                                         <button class="btn btn-sm btn-outline-primary me-1" 
-                                                title="Manage coverage"
+                                                title="@Localizer.GetString("Manage coverage")"
                                                 @onclick="() => ShowManageCoverageModal(role)">
                                             <i class="bi bi-building"></i>
                                         </button>
                                     }
                                     else
                                     {
-                                        <span class="text-muted">No permissions</span>
+                                        <span class="text-muted">@Localizer.GetString("No permissions")</span>
                                     }
                                 </td>
                             </tr>
@@ -293,25 +293,25 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Manage Coverage for @managingCoverageRole.Name</h5>
+                    <h5 class="modal-title">@Localizer.GetString("Manage Coverage for") @managingCoverageRole.Name</h5>
                     <button type="button" class="btn-close" @onclick="HideManageCoverageModal"></button>
                 </div>
                 <div class="modal-body">
                     <p class="text-muted mb-3">
                         @if (managingCoverageRole.CoverageCount == 0)
                         {
-                            <span>This role currently has access to <strong>All customers</strong>. Assign specific customers to restrict visibility.</span>
+                            <span>@Localizer.GetString("This role currently has access to") <strong>@Localizer.GetString("All customers")</strong>. @Localizer.GetString("Assign specific customers to restrict visibility")</span>
                         }
                         else
                         {
-                            <span>This role has access to @managingCoverageRole.CoverageCount specific customer(s). Unassign all to grant access to all customers.</span>
+                            <span>@Localizer.GetString("This role has access to") @managingCoverageRole.CoverageCount @Localizer.GetString("specific customers"). @Localizer.GetString("Unassign all to grant access to all customers")</span>
                         }
                     </p>
                     @if (loadingCoverage)
                     {
                         <div class="text-center">
                             <div class="spinner-border" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                                <span class="visually-hidden">@Localizer.GetString("Loading...")</span>
                             </div>
                         </div>
                     }
@@ -321,11 +321,11 @@
                             <table class="table table-sm">
                                 <thead>
                                     <tr>
-                                        <th>Assigned</th>
-                                        <th>Customer Name</th>
-                                        <th>Contact Person</th>
-                                        <th>Email</th>
-                                        <th>Phone</th>
+                                        <th>@Localizer.GetString("Assigned")</th>
+                                        <th>@Localizer.GetString("Customer Name")</th>
+                                        <th>@Localizer.GetString("Contact Person")</th>
+                                        <th>@Localizer.GetString("Email")</th>
+                                        <th>@Localizer.GetString("Phone")</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -352,7 +352,7 @@
                     }
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="HideManageCoverageModal">Close</button>
+                    <button type="button" class="btn btn-secondary" @onclick="HideManageCoverageModal">@Localizer.GetString("Close")</button>
                 </div>
             </div>
         </div>
