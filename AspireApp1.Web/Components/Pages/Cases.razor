@@ -1204,6 +1204,9 @@
     
     // Modal visibility
     private bool showCreateModal = false;
+    
+    // Current user ID for prioritizing assigned cases
+    private int? currentUserId = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -1212,6 +1215,7 @@
         editEditContext = new EditContext(editModel);
         isReadOnly = await AuthService.IsPageReadOnlyAsync("Cases");
         await LoadCustomersAsync();
+        await GetCurrentUserIdAsync();
         await LoadAsync();
     }
 
@@ -1315,30 +1319,36 @@
 
     private IEnumerable<CaseDto> ApplySorting(IEnumerable<CaseDto> items)
     {
+        // First, prioritize cases assigned to the current user
+        var prioritized = items
+            .OrderByDescending(c => c.AssignedToUserId == currentUserId)
+            .ThenByDescending(c => c.CreatedAt);
+        
+        // Then apply the user-selected sort column
         return sortColumn switch
         {
             CasesSortColumn.Customer => sortDescending
-                ? items.OrderByDescending(c => c.CustomerName ?? string.Empty)
-                : items.OrderBy(c => c.CustomerName ?? string.Empty),
+                ? prioritized.ThenByDescending(c => c.CustomerName ?? string.Empty)
+                : prioritized.ThenBy(c => c.CustomerName ?? string.Empty),
             CasesSortColumn.Status => sortDescending
-                ? items.OrderByDescending(c => c.Status.ToString())
-                : items.OrderBy(c => c.Status.ToString()),
+                ? prioritized.ThenByDescending(c => c.Status.ToString())
+                : prioritized.ThenBy(c => c.Status.ToString()),
             CasesSortColumn.Priority => sortDescending
-                ? items.OrderByDescending(c => c.Priority.ToString())
-                : items.OrderBy(c => c.Priority.ToString()),
+                ? prioritized.ThenByDescending(c => c.Priority.ToString())
+                : prioritized.ThenBy(c => c.Priority.ToString()),
             CasesSortColumn.IssueType => sortDescending
-                ? items.OrderByDescending(c => c.IssueType.ToString())
-                : items.OrderBy(c => c.IssueType.ToString()),
+                ? prioritized.ThenByDescending(c => c.IssueType.ToString())
+                : prioritized.ThenBy(c => c.IssueType.ToString()),
             CasesSortColumn.AssignedTo => sortDescending
-                ? items.OrderByDescending(c => c.AssignedToUserName ?? string.Empty)
-                : items.OrderBy(c => c.AssignedToUserName ?? string.Empty),
+                ? prioritized.ThenByDescending(c => c.AssignedToUserName ?? string.Empty)
+                : prioritized.ThenBy(c => c.AssignedToUserName ?? string.Empty),
             CasesSortColumn.DueDate => sortDescending
-                ? items.OrderByDescending(c => c.DueDate ?? DateTime.MinValue)
-                : items.OrderBy(c => c.DueDate ?? DateTime.MaxValue),
+                ? prioritized.ThenByDescending(c => c.DueDate ?? DateTime.MinValue)
+                : prioritized.ThenBy(c => c.DueDate ?? DateTime.MaxValue),
             CasesSortColumn.Created => sortDescending
-                ? items.OrderByDescending(c => c.CreatedAt)
-                : items.OrderBy(c => c.CreatedAt),
-            _ => items
+                ? prioritized.ThenByDescending(c => c.CreatedAt)
+                : prioritized.ThenBy(c => c.CreatedAt),
+            _ => prioritized
         };
     }
 
@@ -2086,6 +2096,58 @@
         {
             // If authentication fails, return the first active user as fallback
             return users?.FirstOrDefault(u => u.IsActive)?.DisplayName;
+        }
+    }
+    
+    private async Task GetCurrentUserIdAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            
+            if (user?.Identity?.IsAuthenticated == true && users != null)
+            {
+                // Try to find user by email
+                var email = user.FindFirst(c => c.Type.Contains("email") || c.Type.Contains("emailaddress"))?.Value;
+                if (!string.IsNullOrEmpty(email))
+                {
+                    var matchedUser = users.FirstOrDefault(u => u.Email?.Equals(email, StringComparison.OrdinalIgnoreCase) == true);
+                    if (matchedUser != null)
+                    {
+                        currentUserId = matchedUser.Id;
+                        return;
+                    }
+                }
+                
+                // Fallback: try to find by username
+                var username = user.Identity.Name;
+                if (!string.IsNullOrEmpty(username))
+                {
+                    var matchedUser = users.FirstOrDefault(u => u.WindowsUsername.Equals(username, StringComparison.OrdinalIgnoreCase));
+                    if (matchedUser != null)
+                    {
+                        currentUserId = matchedUser.Id;
+                        return;
+                    }
+                }
+            }
+            
+            // If no match found, use first active user
+            var firstActiveUser = users?.FirstOrDefault(u => u.IsActive);
+            if (firstActiveUser != null)
+            {
+                currentUserId = firstActiveUser.Id;
+            }
+        }
+        catch
+        {
+            // If authentication fails, use first active user
+            var firstActiveUser = users?.FirstOrDefault(u => u.IsActive);
+            if (firstActiveUser != null)
+            {
+                currentUserId = firstActiveUser.Id;
+            }
         }
     }
 }
