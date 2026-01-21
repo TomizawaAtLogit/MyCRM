@@ -31,6 +31,7 @@ namespace AspireApp1.DbApi.Data
         public DbSet<RequirementDefinition> RequirementDefinitions { get; set; } = null!;
         public DbSet<PreSalesProposal> PreSalesProposals { get; set; } = null!;
         public DbSet<PreSalesActivity> PreSalesActivities { get; set; } = null!;
+        public DbSet<DashboardMetric> DashboardMetrics { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -526,6 +527,50 @@ namespace AspireApp1.DbApi.Data
                 b.HasOne(x => x.PreSalesProposal).WithMany().HasForeignKey(x => x.PreSalesProposalId).OnDelete(DeleteBehavior.Cascade);
                 b.HasIndex(x => x.PreSalesProposalId);
                 b.HasIndex(x => x.ActivityDate);
+            });
+
+            modelBuilder.Entity<DashboardMetric>(b =>
+            {
+                b.ToTable("dashboard_metrics");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.SnapshotDate).HasColumnName("snapshot_date");
+                b.Property(x => x.RoleId).HasColumnName("role_id");
+                b.Property(x => x.CustomerId).HasColumnName("customer_id");
+                b.Property(x => x.TotalPreSalesProposals).HasColumnName("total_presales_proposals");
+                b.Property(x => x.ActivePreSalesProposals).HasColumnName("active_presales_proposals");
+                b.Property(x => x.PreSalesProposalsByStageIdentification).HasColumnName("presales_proposals_by_stage_identification");
+                b.Property(x => x.PreSalesProposalsByStageQualification).HasColumnName("presales_proposals_by_stage_qualification");
+                b.Property(x => x.PreSalesProposalsByStageProposal).HasColumnName("presales_proposals_by_stage_proposal");
+                b.Property(x => x.PreSalesProposalsByStageNegotiation).HasColumnName("presales_proposals_by_stage_negotiation");
+                b.Property(x => x.PreSalesProposalsByStageClosedWon).HasColumnName("presales_proposals_by_stage_closed_won");
+                b.Property(x => x.PreSalesProposalsByStageClosedLost).HasColumnName("presales_proposals_by_stage_closed_lost");
+                b.Property(x => x.TotalCases).HasColumnName("total_cases");
+                b.Property(x => x.OpenCases).HasColumnName("open_cases");
+                b.Property(x => x.InProgressCases).HasColumnName("in_progress_cases");
+                b.Property(x => x.ResolvedCases).HasColumnName("resolved_cases");
+                b.Property(x => x.ClosedCases).HasColumnName("closed_cases");
+                b.Property(x => x.CriticalPriorityCases).HasColumnName("critical_priority_cases");
+                b.Property(x => x.HighPriorityCases).HasColumnName("high_priority_cases");
+                b.Property(x => x.MediumPriorityCases).HasColumnName("medium_priority_cases");
+                b.Property(x => x.LowPriorityCases).HasColumnName("low_priority_cases");
+                b.Property(x => x.CaseResolutionRate).HasPrecision(5, 2).HasColumnName("case_resolution_rate");
+                b.Property(x => x.SlaComplianceRate).HasPrecision(5, 2).HasColumnName("sla_compliance_rate");
+                b.Property(x => x.AverageResolutionTimeHours).HasPrecision(10, 2).HasColumnName("average_resolution_time_hours");
+                b.Property(x => x.CasesResolvedWithinSla).HasColumnName("cases_resolved_within_sla");
+                b.Property(x => x.CasesResolvedOutsideSla).HasColumnName("cases_resolved_outside_sla");
+                b.Property(x => x.TotalProjects).HasColumnName("total_projects");
+                b.Property(x => x.ActiveProjects).HasColumnName("active_projects");
+                b.Property(x => x.CompletedProjects).HasColumnName("completed_projects");
+                b.Property(x => x.OnHoldProjects).HasColumnName("on_hold_projects");
+                b.Property(x => x.ProjectCompletionRate).HasPrecision(5, 2).HasColumnName("project_completion_rate");
+                b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
+                
+                b.HasOne(x => x.Role).WithMany().HasForeignKey(x => x.RoleId).OnDelete(DeleteBehavior.SetNull);
+                b.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.SetNull);
+                b.HasIndex(x => x.SnapshotDate);
+                b.HasIndex(x => x.RoleId);
+                b.HasIndex(x => x.CustomerId);
             });
         }
     }

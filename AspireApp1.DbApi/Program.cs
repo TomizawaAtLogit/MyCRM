@@ -77,6 +77,7 @@ builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 builder.Services.AddScoped<IRequirementDefinitionRepository, RequirementDefinitionRepository>();
 builder.Services.AddScoped<IPreSalesProposalRepository, PreSalesProposalRepository>();
 builder.Services.AddScoped<IPreSalesActivityRepository, PreSalesActivityRepository>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 // Add background service for audit log cleanup
 builder.Services.AddHostedService<AuditCleanupService>();
