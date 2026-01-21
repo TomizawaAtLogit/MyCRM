@@ -258,6 +258,7 @@ public class LocalizationService
             , ["Support case management"] = "Support case management"
             , ["System audit logs and history"] = "System audit logs and history"
             , ["Pre-sales proposals and activities"] = "Pre-sales proposals and activities"
+            , ["Dashboard overview and metrics"] = "Dashboard overview and metrics"
             , ["Customer information and management"] = "Customer information and management"
             , ["Customer orders and transactions"] = "Customer orders and transactions"
             , ["Success"] = "Success"
@@ -280,6 +281,7 @@ public class LocalizationService
             , ["Save"] = "Save"
             // Page names for permissions
             , ["Admin"] = "Admin"
+            , ["Dashboard"] = "Dashboard"
             , ["Projects"] = "Projects"
             , ["Cases"] = "Cases"
             , ["Audit"] = "Audit"
@@ -534,6 +536,7 @@ public class LocalizationService
             , ["Support case management"] = "サポートケース管理"
             , ["System audit logs and history"] = "システム監査ログと履歴"
             , ["Pre-sales proposals and activities"] = "プレセールス提案とアクティビティ"
+            , ["Dashboard overview and metrics"] = "ダッシュボードの概要と指標"
             , ["Customer information and management"] = "顧客情報と管理"
             , ["Customer orders and transactions"] = "顧客注文と取引"
             , ["Success"] = "成功"
@@ -556,6 +559,7 @@ public class LocalizationService
             , ["Save"] = "保存"
             // Page names for permissions
             , ["Admin"] = "管理"
+            , ["Dashboard"] = "ダッシュボード"
             , ["Projects"] = "プロジェクト"
             , ["Cases"] = "ケース"
             , ["Audit"] = "監査"

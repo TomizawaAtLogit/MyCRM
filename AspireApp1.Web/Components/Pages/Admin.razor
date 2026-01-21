@@ -684,7 +684,7 @@
     private Dictionary<string, string> pagePermissions = new(); // page -> permission level (None, ReadOnly, FullControl)
     private readonly List<string> availablePages = new()
     {
-        "Admin", "Projects", "Cases", "Audit", "PreSales", "Customers", "Orders"
+        "Admin", "Dashboard", "Projects", "Cases", "Audit", "PreSales", "Customers", "Orders"
     };
     private readonly List<string> permissionLevels = new()
     {
@@ -1164,6 +1164,7 @@
         return page switch
         {
             "Admin" => Localizer.GetString("User and role management"),
+            "Dashboard" => Localizer.GetString("Dashboard overview and metrics"),
             "Projects" => Localizer.GetString("Project management and tracking"),
             "Cases" => Localizer.GetString("Support case management"),
             "Audit" => Localizer.GetString("System audit logs and history"),
