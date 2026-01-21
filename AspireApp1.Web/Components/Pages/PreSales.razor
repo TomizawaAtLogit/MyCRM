@@ -402,16 +402,24 @@ else
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <label class="form-label">@Localizer.GetString("Requirement Definition")</label>
-                                <InputSelect class="form-select" @bind-Value="editingProposal.RequirementDefinitionId">
-                                    <option value="">-- @Localizer.GetString("Requirement Definition") --</option>
-                                    @if (requirements != null)
-                                    {
-                                        @foreach (var requirement in requirements)
+                                <div class="d-flex">
+                                    <InputSelect class="form-select flex-grow-1" @bind-Value="editingProposal.RequirementDefinitionId">
+                                        <option value="">-- @Localizer.GetString("Requirement Definition") --</option>
+                                        @if (requirements != null)
                                         {
-                                            <option value="@requirement.Id">@requirement.Title</option>
+                                            @foreach (var requirement in requirements)
+                                            {
+                                                <option value="@requirement.Id">@requirement.Title</option>
+                                            }
                                         }
+                                    </InputSelect>
+                                    @if (!isReadOnly)
+                                    {
+                                        <button class="btn btn-outline-secondary ms-2" type="button" @onclick="ShowCreateRequirementModal">
+                                            <i class="bi bi-plus-circle me-1"></i>@Localizer.GetString("Add")
+                                        </button>
                                     }
-                                </InputSelect>
+                                </div>
                             </div>
                         </div>
 
@@ -446,7 +454,7 @@ else
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">@Localizer.GetString("Assigned To")</label>
-                                <InputSelect TValue="int?" class="form-select" @bind-Value="editingProposal.AssignedToUserId">
+                                <InputSelect TValue="int?" class="form-select" @bind-Value="editingProposal.AssignedToUserId" @bind-Value:after="OnAssignedToChanged">
                                     <option value="">-- @Localizer.GetString("Unassigned") --</option>
                                     @if (users != null)
                                     {
@@ -486,6 +494,74 @@ else
                             <button type="submit" class="btn btn-primary">
                                 @(editingProposal.Id == 0 ? Localizer.GetString("Create Proposal") : Localizer.GetString("Save Proposal"))
                             </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* Requirement Definition Create Modal *@
+@if (showRequirementModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Localizer.GetString("Add Requirement Definition")</h5>
+                    <button type="button" class="btn-close" @onclick="HideRequirementModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="newRequirementModel" OnValidSubmit="SaveRequirementDefinition">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Title") *</label>
+                            <InputText class="form-control" @bind-Value="newRequirementModel.Title" />
+                            <ValidationMessage For="() => newRequirementModel.Title" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Description")</label>
+                            <InputTextArea class="form-control" rows="3" @bind-Value="newRequirementModel.Description" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Customer") *</label>
+                            <InputSelect class="form-select" @bind-Value="newRequirementModel.CustomerId">
+                                <option value="0">-- @Localizer.GetString("Customer") --</option>
+                                @if (customers != null)
+                                {
+                                    @foreach (var customer in customers)
+                                    {
+                                        <option value="@customer.Id">@customer.Name</option>
+                                    }
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="() => newRequirementModel.CustomerId" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Category")</label>
+                            <InputText class="form-control" @bind-Value="newRequirementModel.Category" />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Priority")</label>
+                                <InputText class="form-control" @bind-Value="newRequirementModel.Priority" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Status")</label>
+                                <InputText class="form-control" @bind-Value="newRequirementModel.Status" />
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="HideRequirementModal">@Localizer.GetString("Cancel")</button>
+                            <button type="submit" class="btn btn-primary">@Localizer.GetString("Create")</button>
                         </div>
                     </EditForm>
                 </div>

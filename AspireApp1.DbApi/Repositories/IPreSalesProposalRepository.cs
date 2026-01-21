@@ -11,6 +11,7 @@ namespace AspireApp1.DbApi.Repositories
         Task<IEnumerable<PreSalesProposal>> GetByStatusAsync(PreSalesStatus status);
         Task<IEnumerable<PreSalesProposal>> GetByStageAsync(PreSalesStage stage);
         Task<PreSalesProposal?> GetAsync(int id);
+        Task<PreSalesProposal?> GetAsyncForUpdateAsync(int id);
         Task<PreSalesProposal> AddAsync(PreSalesProposal entity);
         Task UpdateAsync(PreSalesProposal entity);
         Task DeleteAsync(int id);

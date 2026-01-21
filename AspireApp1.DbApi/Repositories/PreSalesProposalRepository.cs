@@ -85,6 +85,13 @@ namespace AspireApp1.DbApi.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.Id == id);
 
+        public async Task<PreSalesProposal?> GetAsyncForUpdateAsync(int id) =>
+            await _db.PreSalesProposals
+                .Include(p => p.Customer)
+                .Include(p => p.RequirementDefinition)
+                .Include(p => p.AssignedToUser)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
         public async Task<PreSalesProposal> AddAsync(PreSalesProposal entity)
         {
             _db.PreSalesProposals.Add(entity);

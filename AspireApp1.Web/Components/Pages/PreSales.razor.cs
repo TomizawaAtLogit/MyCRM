@@ -44,6 +44,22 @@ public class PreSalesBase : ComponentBase
     protected PreSalesProposalEditModel editingProposal = new();
     protected PreSalesProposalDto? selectedProposal;
 
+    // Requirement definition create modal state and model
+    protected bool showRequirementModal = false;
+    protected NewRequirementModel newRequirementModel = new();
+
+    public class NewRequirementModel
+    {
+        [Required]
+        public string Title { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a customer")]
+        public int CustomerId { get; set; }
+        public string? Category { get; set; }
+        public string? Priority { get; set; }
+        public string? Status { get; set; }
+    }
+
     protected string? filterCustomerId = "";
     protected string? filterStatus = "";
     protected string? filterStage = "";
@@ -380,6 +396,56 @@ public class PreSalesBase : ComponentBase
         filteredOrders = null;
     }
 
+    protected void ShowCreateRequirementModal()
+    {
+        if (editingProposal.CustomerId == 0)
+        {
+            ShowToast(Localizer.GetString("Please select a customer before adding requirement definition"), "danger");
+            return;
+        }
+        newRequirementModel = new NewRequirementModel { CustomerId = editingProposal.CustomerId };
+        showRequirementModal = true;
+    }
+
+    protected void HideRequirementModal()
+    {
+        showRequirementModal = false;
+        newRequirementModel = new NewRequirementModel();
+    }
+
+    protected async Task SaveRequirementDefinition()
+    {
+        try
+        {
+            var created = await RequirementsApi.CreateRequirementDefinitionAsync(
+                new CreateRequirementDefinitionDto(
+                    newRequirementModel.Title,
+                    string.IsNullOrWhiteSpace(newRequirementModel.Description) ? null : newRequirementModel.Description,
+                    newRequirementModel.CustomerId,
+                    newRequirementModel.Category,
+                    newRequirementModel.Priority,
+                    newRequirementModel.Status));
+
+            if (created != null)
+            {
+                ShowToast(Localizer.GetString("Requirement definition created"), "success");
+                // reload available requirement definitions and assign the new one to the proposal
+                requirements = await RequirementsApi.GetRequirementDefinitionsAsync();
+                editingProposal.RequirementDefinitionId = created.Id;
+                HideRequirementModal();
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                ShowToast(Localizer.GetString("Failed to create requirement definition"), "danger");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowToast(Localizer.GetString("Error creating requirement definition") + $": {ex.Message}", "danger");
+        }
+    }
+
     protected void OnProposalCustomerChanged()
     {
         // Clear order when customer changes (lifecycle hook)
@@ -406,6 +472,12 @@ public class PreSalesBase : ComponentBase
         showDetailsModal = false;
         selectedProposal = null;
         proposalActivities = null;
+    }
+
+    protected void OnAssignedToChanged()
+    {
+        // Lifecycle hook to ensure proper binding of AssignedToUserId
+        // No additional logic needed - just ensures binding completes
     }
 
     protected async Task SaveProposal()

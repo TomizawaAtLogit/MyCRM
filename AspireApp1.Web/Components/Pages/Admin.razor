@@ -333,7 +333,7 @@
                                     {
                                         var isAssigned = assignedCustomerIds.Contains(customer.Id);
                                         var customerId = customer.Id;
-                                        <tr key="@customerId">
+                                        <tr @key="customerId">
                                             <td>
                                                 <input class="form-check-input" type="checkbox" 
                                                        checked="@isAssigned"

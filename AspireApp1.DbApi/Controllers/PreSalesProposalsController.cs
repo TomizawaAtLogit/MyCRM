@@ -153,7 +153,7 @@ namespace AspireApp1.DbApi.Controllers
         {
             if (id != dto.Id) return BadRequest();
             
-            var existing = await _repo.GetAsync(id);
+            var existing = await _repo.GetAsyncForUpdateAsync(id);
             if (existing == null) return NotFound();
             
             // Validate CustomerOrderId belongs to CustomerId
@@ -190,22 +190,6 @@ namespace AspireApp1.DbApi.Controllers
             }
             
             await _repo.UpdateAsync(existing);
-            
-            // Auto-create activity entry for assignment changes
-            if (oldAssignedToUserId != dto.AssignedToUserId)
-            {
-                var activity = new PreSalesActivity
-                {
-                    PreSalesProposalId = id,
-                    ActivityDate = DateTime.UtcNow,
-                    Summary = "Assignment changed",
-                    ActivityType = "Assignment",
-                    PerformedBy = username,
-                    PreviousAssignedToUserId = oldAssignedToUserId,
-                    NewAssignedToUserId = dto.AssignedToUserId
-                };
-                await _activityRepo.AddAsync(activity);
-            }
             
             await _auditService.LogActionAsync(username, userId, "Update", "PreSalesProposal", id, existing);
             
