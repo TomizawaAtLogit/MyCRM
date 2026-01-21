@@ -91,6 +91,21 @@
 }
 else if (filteredProposals != null && filteredProposals.Any())
 {
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <span class="text-muted small">@GetPaginationInfo()</span>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            <label class="mb-0 me-2">@Localizer.GetString("Items per page"):</label>
+            <select class="form-select form-select-sm" style="width: auto;" @onchange="OnPageSizeChanged" value="@pageSize.ToString()">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+    </div>
+
     <div class="table-responsive">
         <table class="table table-hover">
             <thead>
@@ -108,7 +123,7 @@ else if (filteredProposals != null && filteredProposals.Any())
                 </tr>
             </thead>
             <tbody>
-                @foreach (var proposal in filteredProposals)
+                @foreach (var proposal in GetPaginatedProposals() ?? Array.Empty<PreSalesProposalDto>())
                 {
                     <tr>
                         <td class="text-center align-middle">
@@ -335,6 +350,24 @@ else if (filteredProposals != null && filteredProposals.Any())
                 }
             </tbody>
         </table>
+
+        <nav aria-label="Pagination" class="mt-3">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick="PreviousPage" disabled="@(currentPage <= 1)">@Localizer.GetString("Previous")</button>
+                </li>
+                @for (int i = 1; i <= GetTotalPages(); i++)
+                {
+                    var pageNum = i;
+                    <li class="page-item @(currentPage == pageNum ? "active" : "")">
+                        <button class="page-link" @onclick="() => GoToPage(pageNum)">@pageNum</button>
+                    </li>
+                }
+                <li class="page-item @(currentPage >= GetTotalPages() ? "disabled" : "")">
+                    <button class="page-link" @onclick="NextPage" disabled="@(currentPage >= GetTotalPages())">@Localizer.GetString("Next")</button>
+                </li>
+            </ul>
+        </nav>
     </div>
 }
 else

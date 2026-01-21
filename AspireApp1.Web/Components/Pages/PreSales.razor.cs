@@ -64,6 +64,12 @@ public class PreSalesBase : ComponentBase
     protected string? filterStatus = "";
     protected string? filterStage = "";
     protected string? filterAssignedToUserId = "";
+    
+    // Pagination
+    protected int currentPage = 1;
+    protected int pageSize = 25;
+    protected int totalCount = 0;
+    
     protected readonly Dictionary<int, bool> expandedProposals = new();
     protected readonly Dictionary<int, bool> proposalDescriptionExpanded = new();
     protected readonly Dictionary<int, string> proposalActiveTabs = new();
@@ -118,6 +124,10 @@ public class PreSalesBase : ComponentBase
         {
             filteredProposals = filteredProposals?.Where(p => p.AssignedToUserId == userId).ToArray();
         }
+        
+        // Update total count and reset to first page
+        totalCount = filteredProposals?.Length ?? 0;
+        currentPage = 1;
     }
 
     protected void OnCustomerFilterChanged(ChangeEventArgs e)
@@ -661,5 +671,60 @@ public class PreSalesBase : ComponentBase
         public DateTime? ExpectedCloseDate { get; set; }
 
         public string? Notes { get; set; }
+    }
+
+    protected PreSalesProposalDto[]? GetPaginatedProposals()
+    {
+        if (filteredProposals == null || filteredProposals.Length == 0)
+            return filteredProposals;
+
+        var startIndex = (currentPage - 1) * pageSize;
+        return filteredProposals.Skip(startIndex).Take(pageSize).ToArray();
+    }
+
+    protected int GetTotalPages()
+    {
+        if (totalCount == 0) return 1;
+        return (int)Math.Ceiling((double)totalCount / pageSize);
+    }
+
+    protected void GoToPage(int page)
+    {
+        var totalPages = GetTotalPages();
+        if (page >= 1 && page <= totalPages)
+        {
+            currentPage = page;
+        }
+    }
+
+    protected void NextPage()
+    {
+        if (currentPage < GetTotalPages())
+            currentPage++;
+    }
+
+    protected void PreviousPage()
+    {
+        if (currentPage > 1)
+            currentPage--;
+    }
+
+    protected void OnPageSizeChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var newSize) && newSize > 0)
+        {
+            pageSize = newSize;
+            currentPage = 1; // Reset to first page when changing page size
+        }
+    }
+
+    protected string GetPaginationInfo()
+    {
+        if (totalCount == 0)
+            return "0 items";
+
+        var startItem = (currentPage - 1) * pageSize + 1;
+        var endItem = Math.Min(currentPage * pageSize, totalCount);
+        return $"{startItem}-{endItem} of {totalCount} items";
     }
 }
