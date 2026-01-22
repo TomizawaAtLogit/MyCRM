@@ -16,6 +16,7 @@ public class PreSalesBase : ComponentBase
 {
     [Inject] protected PreSalesProposalsApiClient ProposalsApi { get; set; } = null!;
     [Inject] protected PreSalesActivitiesApiClient ActivitiesApi { get; set; } = null!;
+    [Inject] protected PreSalesWorkHoursApiClient WorkHoursApi { get; set; } = null!;
     [Inject] protected RequirementDefinitionsApiClient RequirementsApi { get; set; } = null!;
     [Inject] protected CustomerApiClient CustomersApi { get; set; } = null!;
     [Inject] protected OrderApiClient OrdersApi { get; set; } = null!;
@@ -80,6 +81,15 @@ public class PreSalesBase : ComponentBase
     protected readonly Dictionary<int, EditContext> activityCreateContexts = new();
     protected readonly Dictionary<int, bool> isProcessingActivity = new();
     protected readonly Dictionary<int, int?> editingActivityIds = new();
+
+    // Work hours state
+    protected readonly Dictionary<int, bool> loadingProposalWorkHours = new();
+    protected readonly Dictionary<int, PreSalesWorkHourDto[]> cachedProposalWorkHours = new();
+    protected readonly Dictionary<int, bool> showAddWorkHourForm = new();
+    protected readonly Dictionary<int, NewProposalWorkHourModel> newWorkHourModels = new();
+    protected readonly Dictionary<int, EditContext> workHourCreateContexts = new();
+    protected readonly Dictionary<int, bool> isProcessingWorkHour = new();
+    protected readonly Dictionary<int, int?> editingWorkHourIds = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -201,7 +211,15 @@ public class PreSalesBase : ComponentBase
 
         if (expandedProposals[proposalId])
         {
-            await LoadActivitiesIfNeededAsync(proposalId);
+            var activeTab = GetProposalTab(proposalId);
+            if (activeTab == "workhours")
+            {
+                await LoadWorkHoursIfNeededAsync(proposalId);
+            }
+            else
+            {
+                await LoadActivitiesIfNeededAsync(proposalId);
+            }
         }
     }
 
@@ -599,6 +617,15 @@ public class PreSalesBase : ComponentBase
         return proposalActiveTabs.TryGetValue(proposalId, out var tab) ? tab : "activities";
     }
 
+    protected async Task SetProposalTabAsync(int proposalId, string tab)
+    {
+        proposalActiveTabs[proposalId] = tab;
+        if (tab == "workhours")
+        {
+            await LoadWorkHoursIfNeededAsync(proposalId);
+        }
+    }
+
     protected void SetProposalTab(int proposalId, string tab)
     {
         proposalActiveTabs[proposalId] = tab;
@@ -726,5 +753,223 @@ public class PreSalesBase : ComponentBase
         var startItem = (currentPage - 1) * pageSize + 1;
         var endItem = Math.Min(currentPage * pageSize, totalCount);
         return $"{startItem}-{endItem} of {totalCount} items";
+    }
+
+    // Work hours methods
+    protected async Task<PreSalesWorkHourDto[]> LoadWorkHoursIfNeededAsync(int proposalId, bool forceRefresh = false)
+    {
+        if (!forceRefresh && cachedProposalWorkHours.TryGetValue(proposalId, out var cached))
+        {
+            return cached;
+        }
+
+        loadingProposalWorkHours[proposalId] = true;
+        try
+        {
+            var workHours = await WorkHoursApi.GetWorkHoursAsync(proposalId) ?? Array.Empty<PreSalesWorkHourDto>();
+            cachedProposalWorkHours[proposalId] = workHours;
+            return workHours;
+        }
+        catch (Exception ex)
+        {
+            cachedProposalWorkHours[proposalId] = Array.Empty<PreSalesWorkHourDto>();
+            ShowToast(Localizer.GetString("Error loading work hours") + $": {ex.Message}", "danger");
+            return Array.Empty<PreSalesWorkHourDto>();
+        }
+        finally
+        {
+            loadingProposalWorkHours[proposalId] = false;
+        }
+    }
+
+    protected bool IsProposalLoadingWorkHours(int proposalId)
+    {
+        return loadingProposalWorkHours.TryGetValue(proposalId, out var loading) && loading;
+    }
+
+    protected async Task ShowAddWorkHourFormAsync(int proposalId)
+    {
+        EnsureWorkHourModel(proposalId);
+        editingWorkHourIds[proposalId] = null;
+        showAddWorkHourForm[proposalId] = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected void HideAddWorkHourForm(int proposalId)
+    {
+        showAddWorkHourForm[proposalId] = false;
+        editingWorkHourIds[proposalId] = null;
+    }
+
+    protected void EnsureWorkHourModel(int proposalId)
+    {
+        if (!newWorkHourModels.ContainsKey(proposalId))
+        {
+            newWorkHourModels[proposalId] = new NewProposalWorkHourModel();
+            workHourCreateContexts[proposalId] = new EditContext(newWorkHourModels[proposalId]);
+        }
+        else if (!workHourCreateContexts.ContainsKey(proposalId))
+        {
+            workHourCreateContexts[proposalId] = new EditContext(newWorkHourModels[proposalId]);
+        }
+    }
+
+    protected void ResetWorkHourModel(int proposalId)
+    {
+        newWorkHourModels[proposalId] = new NewProposalWorkHourModel();
+        workHourCreateContexts[proposalId] = new EditContext(newWorkHourModels[proposalId]);
+    }
+
+    protected async Task StartEditWorkHour(int proposalId, PreSalesWorkHourDto workHour)
+    {
+        EnsureWorkHourModel(proposalId);
+        newWorkHourModels[proposalId] = new NewProposalWorkHourModel
+        {
+            Title = workHour.Title,
+            Description = workHour.Description,
+            NumberOfPeople = workHour.NumberOfPeople,
+            WorkingHours = workHour.WorkingHours,
+            HourlyWage = workHour.HourlyWage
+        };
+        workHourCreateContexts[proposalId] = new EditContext(newWorkHourModels[proposalId]);
+        editingWorkHourIds[proposalId] = workHour.Id;
+        showAddWorkHourForm[proposalId] = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected void CancelWorkHourEdit(int proposalId)
+    {
+        editingWorkHourIds[proposalId] = null;
+        showAddWorkHourForm[proposalId] = false;
+        ResetWorkHourModel(proposalId);
+    }
+
+    protected async Task SubmitWorkHourFormAsync(int proposalId)
+    {
+        if (!workHourCreateContexts.TryGetValue(proposalId, out var context) || !context.Validate())
+        {
+            ShowToast(Localizer.GetString("Please correct the validation errors"), "danger");
+            return;
+        }
+
+        if (!newWorkHourModels.TryGetValue(proposalId, out var model))
+        {
+            ShowToast(Localizer.GetString("Error creating work hour"), "danger");
+            return;
+        }
+
+        var editingId = editingWorkHourIds.TryGetValue(proposalId, out var id) ? id : null;
+        isProcessingWorkHour[proposalId] = true;
+        try
+        {
+            bool succeeded;
+            if (editingId.HasValue)
+            {
+                var dto = new UpdatePreSalesWorkHourDto(
+                    editingId.Value,
+                    proposalId,
+                    model.Title,
+                    string.IsNullOrWhiteSpace(model.Description) ? null : model.Description,
+                    model.NumberOfPeople,
+                    model.WorkingHours,
+                    model.HourlyWage);
+
+                succeeded = await WorkHoursApi.UpdateWorkHourAsync(dto);
+                ShowToast(Localizer.GetString(succeeded ? "Work hour updated successfully" : "Failed to update work hour"), succeeded ? "success" : "danger");
+            }
+            else
+            {
+                var dto = new CreatePreSalesWorkHourDto(
+                    proposalId,
+                    model.Title,
+                    string.IsNullOrWhiteSpace(model.Description) ? null : model.Description,
+                    model.NumberOfPeople,
+                    model.WorkingHours,
+                    model.HourlyWage);
+
+                var created = await WorkHoursApi.CreateWorkHourAsync(dto);
+                succeeded = created != null;
+                ShowToast(Localizer.GetString(succeeded ? "Work hour created successfully" : "Failed to create work hour"), succeeded ? "success" : "danger");
+            }
+
+            if (!succeeded)
+            {
+                return;
+            }
+
+            await LoadWorkHoursIfNeededAsync(proposalId, forceRefresh: true);
+            showAddWorkHourForm[proposalId] = false;
+            editingWorkHourIds[proposalId] = null;
+            ResetWorkHourModel(proposalId);
+        }
+        catch (Exception ex)
+        {
+            ShowToast(Localizer.GetString(editingId.HasValue ? "Error updating work hour" : "Error creating work hour") + $": {ex.Message}", "danger");
+        }
+        finally
+        {
+            isProcessingWorkHour[proposalId] = false;
+        }
+    }
+
+    protected async Task DeleteWorkHourAsync(int proposalId, int workHourId)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", Localizer.GetString("Confirm Delete Work Hour")))
+        {
+            return;
+        }
+
+        var success = await WorkHoursApi.DeleteWorkHourAsync(workHourId);
+        if (success)
+        {
+            ShowToast(Localizer.GetString("Work hour deleted successfully"), "success");
+            if (editingWorkHourIds.TryGetValue(proposalId, out var editingId) && editingId == workHourId)
+            {
+                editingWorkHourIds[proposalId] = null;
+                showAddWorkHourForm[proposalId] = false;
+                ResetWorkHourModel(proposalId);
+            }
+            await LoadWorkHoursIfNeededAsync(proposalId, forceRefresh: true);
+        }
+        else
+        {
+            ShowToast(Localizer.GetString("Error deleting work hour"), "danger");
+        }
+    }
+
+    protected decimal CalculateTotalEstimatedCost(int proposalId)
+    {
+        if (cachedProposalWorkHours.TryGetValue(proposalId, out var workHours))
+        {
+            return workHours.Sum(w => w.TotalCost);
+        }
+        return 0;
+    }
+
+    protected string FormatCurrency(decimal amount)
+    {
+        return $"¥{amount:N0}";
+    }
+
+    public class NewProposalWorkHourModel
+    {
+        [Required]
+        [MaxLength(500)]
+        public string Title { get; set; } = string.Empty;
+
+        [MaxLength(5000)]
+        public string? Description { get; set; }
+
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Number of people must be at least 1")]
+        public int NumberOfPeople { get; set; } = 1;
+
+        [Required]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Working hours must be greater than 0")]
+        public decimal WorkingHours { get; set; } = 1;
+
+        [Required]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Hourly wage must be greater than 0")]
+        public decimal HourlyWage { get; set; } = 0;
     }
 }
