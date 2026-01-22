@@ -47,7 +47,7 @@ namespace AspireApp1.DbApi.Controllers
                 // Apply coverage filter after getting by proposal
                 if (allowedCustomerIds != null && allowedCustomerIds.Length > 0)
                 {
-                    workHours = workHours.Where(w => w.PreSalesProposal != null && allowedCustomerIds.Contains(w.PreSalesProposal.CustomerId));
+                    workHours = workHours.Where(w => w.PreSalesProposal != null && allowedCustomerIds.Contains(w.PreSalesProposal.CustomerId)).ToList();
                 }
             }
             else
@@ -152,6 +152,8 @@ namespace AspireApp1.DbApi.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var workHour = await _repo.GetAsync(id);
+            if (workHour == null) return NotFound();
+            
             await _repo.DeleteAsync(id);
             
             var (username, userId) = await GetCurrentUserInfoAsync();
