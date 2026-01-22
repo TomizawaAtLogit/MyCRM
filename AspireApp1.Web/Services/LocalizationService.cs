@@ -141,6 +141,23 @@ public class LocalizationService
             ["To"] = "To",
             ["Edit Activity"] = "Edit Activity",
             ["Cancel"] = "Cancel"
+            // Work Hours
+            , ["Work Hours"] = "Work Hours"
+            , ["Estimated Work Hours"] = "Estimated Work Hours"
+            , ["Add Work Hour Entry"] = "Add Work Hour Entry"
+            , ["Edit Work Hour"] = "Edit Work Hour"
+            , ["New Work Hour"] = "New Work Hour"
+            , ["Number of People"] = "Number of People"
+            , ["Working Hours"] = "Working Hours"
+            , ["Hourly Wage (¥)"] = "Hourly Wage (¥)"
+            , ["Hourly Wage"] = "Hourly Wage"
+            , ["Save Work Hour"] = "Save Work Hour"
+            , ["Create Work Hour"] = "Create Work Hour"
+            , ["Loading work hours..."] = "Loading work hours..."
+            , ["No work hours yet."] = "No work hours yet."
+            , ["People"] = "People"
+            , ["Hours"] = "Hours"
+            , ["Total Cost"] = "Total Cost"
             // Pre-sales page
             , ["Pre-sales Proposals"] = "Pre-sales Proposals"
             , ["Create Proposal"] = "Create Proposal"
@@ -419,6 +436,23 @@ public class LocalizationService
             ["To"] = "終了",
             ["Edit Activity"] = "アクティビティを編集",
             ["Cancel"] = "キャンセル"
+            // Work Hours
+            , ["Work Hours"] = "作業時間"
+            , ["Estimated Work Hours"] = "推定作業時間"
+            , ["Add Work Hour Entry"] = "作業時間を追加"
+            , ["Edit Work Hour"] = "作業時間を編集"
+            , ["New Work Hour"] = "新規作業時間"
+            , ["Number of People"] = "人数"
+            , ["Working Hours"] = "作業時間"
+            , ["Hourly Wage (¥)"] = "時給（¥）"
+            , ["Hourly Wage"] = "時給"
+            , ["Save Work Hour"] = "作業時間を保存"
+            , ["Create Work Hour"] = "作業時間を作成"
+            , ["Loading work hours..."] = "作業時間を読み込み中..."
+            , ["No work hours yet."] = "作業時間がありません。"
+            , ["People"] = "人数"
+            , ["Hours"] = "時間"
+            , ["Total Cost"] = "合計費用"
             // Pre-sales page
             , ["Pre-sales Proposals"] = "プレセールス提案"
             , ["Create Proposal"] = "提案を作成"

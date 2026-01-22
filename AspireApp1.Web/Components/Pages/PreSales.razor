@@ -373,12 +373,14 @@ else if (filteredProposals != null && filteredProposals.Any())
                                                 <DataAnnotationsValidator />
                                                 <ValidationSummary />
                                                 <div class="row">
-                                                    <div class="col-md-6 mb-3">
+                                                    <div class="col-12 mb-3">
                                                         <label class="form-label">@Localizer.GetString("Title") *</label>
                                                         <InputText class="form-control" @bind-Value="model.Title" />
                                                         <ValidationMessage For="() => model.Title" />
                                                     </div>
-                                                    <div class="col-md-6 mb-3">
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-12 mb-3">
                                                         <label class="form-label">@Localizer.GetString("Description")</label>
                                                         <InputTextArea class="form-control" rows="2" @bind-Value="model.Description" />
                                                     </div>
@@ -391,12 +393,12 @@ else if (filteredProposals != null && filteredProposals.Any())
                                                     </div>
                                                     <div class="col-md-4 mb-3">
                                                         <label class="form-label">@Localizer.GetString("Working Hours") *</label>
-                                                        <InputNumber class="form-control" @bind-Value="model.WorkingHours" step="0.5" min="0.01" />
+                                                        <InputNumber class="form-control" @bind-Value="model.WorkingHours" step="1" min="1" />
                                                         <ValidationMessage For="() => model.WorkingHours" />
                                                     </div>
                                                     <div class="col-md-4 mb-3">
                                                         <label class="form-label">@Localizer.GetString("Hourly Wage (¥)") *</label>
-                                                        <InputNumber class="form-control" @bind-Value="model.HourlyWage" step="100" min="0.01" />
+                                                        <InputNumber class="form-control" @bind-Value="model.HourlyWage" step="1" min="1" />
                                                         <ValidationMessage For="() => model.HourlyWage" />
                                                     </div>
                                                 </div>
@@ -456,7 +458,7 @@ else if (filteredProposals != null && filteredProposals.Any())
                                                         <td>@workHour.Title</td>
                                                         <td class="small text-break">@(string.IsNullOrWhiteSpace(workHour.Description) ? "-" : workHour.Description)</td>
                                                         <td class="text-end">@workHour.NumberOfPeople</td>
-                                                        <td class="text-end">@workHour.WorkingHours.ToString("N2")</td>
+                                                        <td class="text-end">@workHour.WorkingHours</td>
                                                         <td class="text-end">@FormatCurrency(workHour.HourlyWage)</td>
                                                         <td class="text-end fw-bold">@FormatCurrency(workHour.TotalCost)</td>
                                                         <td>

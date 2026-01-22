@@ -87,9 +87,9 @@ namespace AspireApp1.Web
         string Title,
         string? Description,
         int NumberOfPeople,
-        decimal WorkingHours,
-        decimal HourlyWage,
-        decimal TotalCost,
+        int WorkingHours,
+        int HourlyWage,
+        int TotalCost,
         DateTime CreatedAt,
         DateTime? UpdatedAt);
 
@@ -99,10 +99,10 @@ namespace AspireApp1.Web
         string? Description = null,
         [Required] [Range(1, int.MaxValue, ErrorMessage = "Number of people must be at least 1")]
         int NumberOfPeople = 1,
-        [Required] [Range(0.01, double.MaxValue, ErrorMessage = "Working hours must be greater than 0")]
-        decimal WorkingHours = 1,
-        [Required] [Range(0.01, double.MaxValue, ErrorMessage = "Hourly wage must be greater than 0")]
-        decimal HourlyWage = 0);
+        [Required] [Range(1, int.MaxValue, ErrorMessage = "Working hours must be at least 1")]
+        int WorkingHours = 1,
+        [Required] [Range(1, int.MaxValue, ErrorMessage = "Hourly wage must be at least 1")]
+        int HourlyWage = 0);
 
     public record UpdatePreSalesWorkHourDto(
         int Id,
@@ -111,8 +111,8 @@ namespace AspireApp1.Web
         string? Description,
         [Required] [Range(1, int.MaxValue, ErrorMessage = "Number of people must be at least 1")]
         int NumberOfPeople,
-        [Required] [Range(0.01, double.MaxValue, ErrorMessage = "Working hours must be greater than 0")]
-        decimal WorkingHours,
-        [Required] [Range(0.01, double.MaxValue, ErrorMessage = "Hourly wage must be greater than 0")]
-        decimal HourlyWage);
+        [Required] [Range(1, int.MaxValue, ErrorMessage = "Working hours must be at least 1")]
+        int WorkingHours,
+        [Required] [Range(1, int.MaxValue, ErrorMessage = "Hourly wage must be at least 1")]
+        int HourlyWage);
 }

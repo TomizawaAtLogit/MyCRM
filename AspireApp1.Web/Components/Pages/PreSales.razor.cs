@@ -965,11 +965,11 @@ public class PreSalesBase : ComponentBase
         public int NumberOfPeople { get; set; } = 1;
 
         [Required]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Working hours must be greater than 0")]
-        public decimal WorkingHours { get; set; } = 1;
+        [Range(1, int.MaxValue, ErrorMessage = "Working hours must be at least 1")]
+        public int WorkingHours { get; set; } = 1;
 
         [Required]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Hourly wage must be greater than 0")]
-        public decimal HourlyWage { get; set; } = 0;
+        [Range(1, int.MaxValue, ErrorMessage = "Hourly wage must be at least 1")]
+        public int HourlyWage { get; set; } = 0;
     }
 }
