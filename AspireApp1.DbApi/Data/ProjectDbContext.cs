@@ -31,6 +31,7 @@ namespace AspireApp1.DbApi.Data
         public DbSet<RequirementDefinition> RequirementDefinitions { get; set; } = null!;
         public DbSet<PreSalesProposal> PreSalesProposals { get; set; } = null!;
         public DbSet<PreSalesActivity> PreSalesActivities { get; set; } = null!;
+        public DbSet<PreSalesWorkHour> PreSalesWorkHours { get; set; } = null!;
         public DbSet<DashboardMetric> DashboardMetrics { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -527,6 +528,24 @@ namespace AspireApp1.DbApi.Data
                 b.HasOne(x => x.PreSalesProposal).WithMany().HasForeignKey(x => x.PreSalesProposalId).OnDelete(DeleteBehavior.Cascade);
                 b.HasIndex(x => x.PreSalesProposalId);
                 b.HasIndex(x => x.ActivityDate);
+            });
+
+            modelBuilder.Entity<PreSalesWorkHour>(b =>
+            {
+                b.ToTable("presales_work_hours");
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id).HasColumnName("id");
+                b.Property(x => x.PreSalesProposalId).HasColumnName("presales_proposal_id");
+                b.Property(x => x.Title).IsRequired().HasMaxLength(500).HasColumnName("title");
+                b.Property(x => x.Description).HasMaxLength(5000).HasColumnName("description");
+                b.Property(x => x.NumberOfPeople).HasColumnName("number_of_people");
+                b.Property(x => x.WorkingHours).HasColumnName("working_hours").HasPrecision(18, 2);
+                b.Property(x => x.HourlyWage).HasColumnName("hourly_wage").HasPrecision(18, 2);
+                b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
+                b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                
+                b.HasOne(x => x.PreSalesProposal).WithMany().HasForeignKey(x => x.PreSalesProposalId).OnDelete(DeleteBehavior.Cascade);
+                b.HasIndex(x => x.PreSalesProposalId);
             });
 
             modelBuilder.Entity<DashboardMetric>(b =>

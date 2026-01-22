@@ -183,15 +183,23 @@ else if (filteredProposals != null && filteredProposals.Any())
                                         <li class="nav-item" role="presentation">
                                                 <button class="nav-link @(GetProposalTab(proposal.Id) == "activities" ? "active" : "")"
                                                     type="button"
-                                                    @onclick='@(() => SetProposalTab(proposal.Id, "activities"))'
+                                                    @onclick='@(async () => await SetProposalTabAsync(proposal.Id, "activities"))'
                                                     role="tab">
                                                 <span class="bi bi-calendar-event"></span> @Localizer.GetString("Activities")
                                             </button>
                                         </li>
                                         <li class="nav-item" role="presentation">
+                                                <button class="nav-link @(GetProposalTab(proposal.Id) == "workhours" ? "active" : "")"
+                                                    type="button"
+                                                    @onclick='@(async () => await SetProposalTabAsync(proposal.Id, "workhours"))'
+                                                    role="tab">
+                                                <span class="bi bi-clock-history"></span> @Localizer.GetString("Work Hours")
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
                                                 <button class="nav-link @(GetProposalTab(proposal.Id) == "files" ? "active" : "")"
                                                     type="button"
-                                                    @onclick='@(() => SetProposalTab(proposal.Id, "files"))'
+                                                    @onclick='@(async () => await SetProposalTabAsync(proposal.Id, "files"))'
                                                     role="tab">
                                                 <span class="bi bi-file-earmark-arrow-up"></span> @Localizer.GetString("Files")
                                             </button>
@@ -337,6 +345,148 @@ else if (filteredProposals != null && filteredProposals.Any())
                                     {
                                         <p class="text-muted mb-0">@Localizer.GetString("No activities yet.")</p>
                                     }
+                            }
+                            else if (GetProposalTab(proposal.Id) == "workhours")
+                            {
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">@Localizer.GetString("Estimated Work Hours")</h6>
+                                    @if (!isReadOnly)
+                                    {
+                                        <button class="btn btn-sm btn-primary" type="button" @onclick="async () => await ShowAddWorkHourFormAsync(proposal.Id)">
+                                            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>@Localizer.GetString("Add Work Hour Entry")
+                                        </button>
+                                    }
+                                </div>
+                                @if (showAddWorkHourForm.TryGetValue(proposal.Id, out var showWorkHourForm) && showWorkHourForm && newWorkHourModels.ContainsKey(proposal.Id) && workHourCreateContexts.ContainsKey(proposal.Id))
+                                {
+                                    var model = newWorkHourModels[proposal.Id];
+                                    var context = workHourCreateContexts[proposal.Id];
+                                    var isEditingWorkHour = editingWorkHourIds.TryGetValue(proposal.Id, out var editingWHId) && editingWHId.HasValue;
+                                    var isProcessing = isProcessingWorkHour.TryGetValue(proposal.Id, out var processing) && processing;
+                                    <div class="card mb-3">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">@Localizer.GetString(isEditingWorkHour ? "Edit Work Hour" : "New Work Hour")</h6>
+                                            <button class="btn btn-sm btn-secondary" type="button" @onclick="() => CancelWorkHourEdit(proposal.Id)">@Localizer.GetString("Cancel")</button>
+                                        </div>
+                                        <div class="card-body">
+                                            <EditForm EditContext="context" OnValidSubmit="async () => await SubmitWorkHourFormAsync(proposal.Id)">
+                                                <DataAnnotationsValidator />
+                                                <ValidationSummary />
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label class="form-label">@Localizer.GetString("Title") *</label>
+                                                        <InputText class="form-control" @bind-Value="model.Title" />
+                                                        <ValidationMessage For="() => model.Title" />
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label class="form-label">@Localizer.GetString("Description")</label>
+                                                        <InputTextArea class="form-control" rows="2" @bind-Value="model.Description" />
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-4 mb-3">
+                                                        <label class="form-label">@Localizer.GetString("Number of People") *</label>
+                                                        <InputNumber class="form-control" @bind-Value="model.NumberOfPeople" min="1" />
+                                                        <ValidationMessage For="() => model.NumberOfPeople" />
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label class="form-label">@Localizer.GetString("Working Hours") *</label>
+                                                        <InputNumber class="form-control" @bind-Value="model.WorkingHours" step="0.5" min="0.01" />
+                                                        <ValidationMessage For="() => model.WorkingHours" />
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label class="form-label">@Localizer.GetString("Hourly Wage (¥)") *</label>
+                                                        <InputNumber class="form-control" @bind-Value="model.HourlyWage" step="100" min="0.01" />
+                                                        <ValidationMessage For="() => model.HourlyWage" />
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6 offset-md-6">
+                                                        <button class="btn btn-primary w-100" type="submit" disabled="@isProcessing">
+                                                            @if (isProcessing)
+                                                            {
+                                                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>@Localizer.GetString(isEditingWorkHour ? "Saving..." : "Creating...")
+                                                            }
+                                                            else
+                                                            {
+                                                                @if (isEditingWorkHour)
+                                                                {
+                                                                    <i class="bi bi-pencil me-1" aria-hidden="true"></i>@Localizer.GetString("Save Work Hour")
+                                                                }
+                                                                else
+                                                                {
+                                                                    <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>@Localizer.GetString("Create Work Hour")
+                                                                }
+                                                            }
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </EditForm>
+                                        </div>
+                                    </div>
+                                }
+                                @if (IsProposalLoadingWorkHours(proposal.Id))
+                                {
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="spinner-border spinner-border-sm" role="status">
+                                            <span class="visually-hidden">@Localizer.GetString("Loading...")</span>
+                                        </div>
+                                        <span>@Localizer.GetString("Loading work hours...")</span>
+                                    </div>
+                                }
+                                else if (cachedProposalWorkHours.TryGetValue(proposal.Id, out var inlineWorkHours) && inlineWorkHours.Any())
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover mb-3">
+                                            <thead>
+                                                <tr>
+                                                    <th>@Localizer.GetString("Title")</th>
+                                                    <th>@Localizer.GetString("Description")</th>
+                                                    <th class="text-end">@Localizer.GetString("People")</th>
+                                                    <th class="text-end">@Localizer.GetString("Hours")</th>
+                                                    <th class="text-end">@Localizer.GetString("Hourly Wage")</th>
+                                                    <th class="text-end">@Localizer.GetString("Total Cost")</th>
+                                                    <th>@Localizer.GetString("Actions")</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var workHour in inlineWorkHours)
+                                                {
+                                                    <tr>
+                                                        <td>@workHour.Title</td>
+                                                        <td class="small text-break">@(string.IsNullOrWhiteSpace(workHour.Description) ? "-" : workHour.Description)</td>
+                                                        <td class="text-end">@workHour.NumberOfPeople</td>
+                                                        <td class="text-end">@workHour.WorkingHours.ToString("N2")</td>
+                                                        <td class="text-end">@FormatCurrency(workHour.HourlyWage)</td>
+                                                        <td class="text-end fw-bold">@FormatCurrency(workHour.TotalCost)</td>
+                                                        <td>
+                                                            @if (!isReadOnly)
+                                                            {
+                                                                <button class="btn btn-sm btn-outline-primary me-1" type="button" @onclick="async () => await StartEditWorkHour(proposal.Id, workHour)">
+                                                                    <i class="bi bi-pencil"></i>
+                                                                </button>
+                                                                <button class="btn btn-sm btn-outline-danger" type="button" @onclick="async () => await DeleteWorkHourAsync(proposal.Id, workHour.Id)">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </button>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="table-active">
+                                                    <th colspan="5" class="text-end">@Localizer.GetString("Total Estimated Cost")</th>
+                                                    <th class="text-end fw-bold fs-5">@FormatCurrency(CalculateTotalEstimatedCost(proposal.Id))</th>
+                                                    <th></th>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="text-muted mb-0">@Localizer.GetString("No work hours yet.")</p>
+                                }
                             }
                             else if (GetProposalTab(proposal.Id) == "files")
                             {
