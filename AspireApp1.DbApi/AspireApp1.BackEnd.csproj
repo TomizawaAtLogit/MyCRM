@@ -19,4 +19,7 @@
   <ItemGroup>
     <EmbeddedResource Remove="**/*.resx" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="SomeFolder/**/*.cs" />
+  </ItemGroup>
 </Project>
