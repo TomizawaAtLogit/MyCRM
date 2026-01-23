@@ -16,10 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AspireApp1.ServiceDefaults\AspireApp1.ServiceDefaults.csproj" />
   </ItemGroup>
-  <PropertyGroup>
-    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
-  </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="SomeFolder/**/*.cs" />
+    <EmbeddedResource Remove="**/*.resx" />
   </ItemGroup>
 </Project>
