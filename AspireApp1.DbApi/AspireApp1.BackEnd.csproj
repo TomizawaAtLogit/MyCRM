@@ -4,7 +4,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <EnableResourceGeneration>false</EnableResourceGeneration>
-    <EmbeddedResource Include="**/*.resx" Exclude="**/*.resx" />
     <GenerateResource>false</GenerateResource>
   </PropertyGroup>
   <ItemGroup>
