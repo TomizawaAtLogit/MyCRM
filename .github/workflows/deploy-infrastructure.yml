@@ -1,0 +1,67 @@
+name: Deploy Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+jobs:
+  deploy-infrastructure:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}-infrastructure
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+    - name: Set Environment Variables
+      run: |
+        if [ "${{ inputs.environment }}" == "production" ]; then
+          echo "RESOURCE_GROUP=rg-mycrm-production" >> $GITHUB_ENV
+          echo "LOCATION=eastus" >> $GITHUB_ENV
+        else
+          echo "RESOURCE_GROUP=rg-mycrm-staging" >> $GITHUB_ENV
+          echo "LOCATION=eastus" >> $GITHUB_ENV
+        fi
+        
+    - name: Create Resource Group
+      run: |
+        az group create \
+          --name ${{ env.RESOURCE_GROUP }} \
+          --location ${{ env.LOCATION }}
+          
+    - name: Deploy Infrastructure
+      run: |
+        az deployment group create \
+          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --template-file infrastructure/main.bicep \
+          --parameters environment=${{ inputs.environment }} \
+                       postgresAdminPassword="${{ secrets.POSTGRES_ADMIN_PASSWORD }}" \
+                       appInsightsConnectionString="${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}"
+          
+    - name: Configure VNet Peering (if required)
+      run: |
+        echo "Configure VNet peering with corporate network here if needed"
+        # az network vnet peering create ...
+        
+    - name: Output Deployment Information
+      run: |
+        echo "✅ Infrastructure deployment completed for ${{ inputs.environment }}"
+        az deployment group show \
+          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --name main \
+          --query properties.outputs

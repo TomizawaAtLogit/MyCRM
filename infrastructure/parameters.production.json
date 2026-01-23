@@ -1,0 +1,28 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "value": "production"
+    },
+    "location": {
+      "value": "eastus"
+    },
+    "postgresAdminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/{subscription-id}/resourceGroups/{keyvault-rg}/providers/Microsoft.KeyVault/vaults/{keyvault-name}"
+        },
+        "secretName": "postgres-admin-password"
+      }
+    },
+    "appInsightsConnectionString": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/{subscription-id}/resourceGroups/{keyvault-rg}/providers/Microsoft.KeyVault/vaults/{keyvault-name}"
+        },
+        "secretName": "app-insights-connection-string"
+      }
+    }
+  }
+}
