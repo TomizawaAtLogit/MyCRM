@@ -40,14 +40,14 @@ jobs:
       run: dotnet publish AspireApp1.Web/AspireApp1.FrontEnd.csproj -c Release -o ./publish/frontend
       
     - name: Upload Backend Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.4.3
       with:
         name: backend-app
         path: ./publish/backend
         retention-days: 7
         
     - name: Upload Frontend Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.4.3
       with:
         name: frontend-app
         path: ./publish/frontend
