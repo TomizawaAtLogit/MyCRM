@@ -21,7 +21,7 @@ on:
           - 'false'
 
 env:
-  DOTNET_VERSION: '10.0.x'
+  DOTNET_VERSION: '10.0.102'
   AZURE_RESOURCE_GROUP: 'rg-mycrm-production'
   AZURE_BACKEND_APP_NAME: 'app-mycrm-backend-prod'
   AZURE_FRONTEND_APP_NAME: 'app-mycrm-frontend-prod'

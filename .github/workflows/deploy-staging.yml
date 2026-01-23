@@ -13,10 +13,10 @@ on:
           - 'false'
 
 env:
-  DOTNET_VERSION: '10.0.x'
+  DOTNET_VERSION: '10.0.102'
   AZURE_RESOURCE_GROUP: 'rg-mycrm-staging'
   AZURE_BACKEND_APP_NAME: 'app-mycrm-backend-staging'
-  AZURE_FRONTEND_APP_NAME: 'app-mycrm-frontend-staging'
+  AZURE_FRONTEND_APP_NAME: 'app-mycrm-frontend-staging' 
 
 jobs:
   deploy-staging:
