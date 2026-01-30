@@ -146,10 +146,7 @@ html[data-theme="dark"] .bi {
     transition: transform 0.3s ease;
 }
 
-/* Rotate chevron when collapsed */
-.sidebar-collapse-checkbox:checked ~ * .chevron-icon {
-    transform: rotate(180deg);
-}
+
 
 html[data-theme="light"] .collapse-toggle span.bi {
     filter: brightness(0) saturate(100%) invert(15%);
@@ -163,10 +160,6 @@ html[data-theme="dark"] .collapse-toggle span.bi {
     transition: opacity 0.3s ease;
 }
 
-/* Hide brand name when collapsed */
-.sidebar-collapse-checkbox:checked ~ * .navbar-brand {
-    font-size: 0;
-}
 
 
 .nav-item {
@@ -225,17 +218,5 @@ html[data-theme="dark"] .collapse-toggle span.bi {
         transition: width 0.3s ease;
     }
 
-    /* Collapsed state - show only icons */
-    .sidebar-collapse-checkbox:checked ~ * .nav-scrollable .nav-text {
-        display: none;
-    }
 
-    .sidebar-collapse-checkbox:checked ~ * .nav-scrollable .bi {
-        margin-right: 0 !important;
-    }
-
-    .sidebar-collapse-checkbox:checked ~ * .nav-scrollable .nav-item ::deep a {
-        justify-content: center;
-        padding: 0 0.5rem;
-    }
 }

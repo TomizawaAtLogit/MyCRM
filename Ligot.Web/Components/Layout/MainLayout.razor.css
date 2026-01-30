@@ -75,6 +75,29 @@ main {
         width: 4rem;
     }
 
+    /* When collapsed: rotate chevron, hide brand text, and compact nav items */
+    .sidebar-collapse-checkbox:checked ~ .page .sidebar .chevron-icon {
+        transform: rotate(180deg);
+    }
+
+    .sidebar-collapse-checkbox:checked ~ .page .sidebar .navbar-brand {
+        font-size: 0;
+    }
+
+    .sidebar-collapse-checkbox:checked ~ .page .sidebar .nav-scrollable .nav-text {
+        display: none;
+    }
+
+    .sidebar-collapse-checkbox:checked ~ .page .sidebar .nav-scrollable .bi {
+        margin-right: 0 !important;
+    }
+
+    /* Ensure links center and compact when collapsed (use ::deep so child component internals are reached) */
+    .sidebar-collapse-checkbox:checked ~ .page .sidebar ::deep .nav-scrollable .nav-item ::deep a {
+        justify-content: center;
+        padding: 0 0.5rem;
+    }
+
     .top-row {
         position: sticky;
         top: 0;

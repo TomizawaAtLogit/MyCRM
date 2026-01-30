@@ -367,3 +367,4 @@ FileUploads/
 
 # Development settings with API keys
 Ligot.Web/appsettings.Development.json
+Ligot.Web/appsettings.json
