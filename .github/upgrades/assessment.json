@@ -33,12 +33,12 @@
   },
   "projects": [
     {
-      "path": "AspireApp1.ApiService\\AspireApp1.ApiService.csproj",
+      "path": "Ligot.ApiService\\Ligot.ApiService.csproj",
       "startingProject": true,
       "issues": 3,
       "storyPoints": 3,
       "properties": {
-        "appName": "AspireApp1.ApiService",
+        "appName": "Ligot.ApiService",
         "projectKind": "AspNetCore",
         "frameworks": [
           "net9.0"
@@ -62,7 +62,7 @@
         {
           "incidentId": "307d769b-4b9c-41cb-bf92-03c533a24e6c",
           "ruleId": "NuGet.0002",
-          "projectPath": "AspireApp1.ApiService\\AspireApp1.ApiService.csproj",
+          "projectPath": "Ligot.ApiService\\Ligot.ApiService.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -70,7 +70,7 @@
               "protected": "Microsoft.AspNetCore.OpenApi, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.OpenApi, and replace with new package Microsoft.AspNetCore.OpenApi 10.0.1"
             },
             "kind": "File",
-            "path": "AspireApp1.ApiService\\AspireApp1.ApiService.csproj",
+            "path": "Ligot.ApiService\\Ligot.ApiService.csproj",
             "snippet": "Microsoft.AspNetCore.OpenApi, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.OpenApi, and replace with new package Microsoft.AspNetCore.OpenApi 10.0.1",
             "protectedSnippet": "Microsoft.AspNetCore.OpenApi, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.OpenApi, and replace with new package Microsoft.AspNetCore.OpenApi 10.0.1",
             "label": "Microsoft.AspNetCore.OpenApi 9.0.0",
@@ -85,7 +85,7 @@
         {
           "incidentId": "8632934b-2798-47c1-8597-6bd2f6c4c9b5",
           "ruleId": "Project.0002",
-          "projectPath": "AspireApp1.ApiService\\AspireApp1.ApiService.csproj",
+          "projectPath": "Ligot.ApiService\\Ligot.ApiService.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -93,7 +93,7 @@
               "protected": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0"
             },
             "kind": "File",
-            "path": "AspireApp1.ApiService\\AspireApp1.ApiService.csproj",
+            "path": "Ligot.ApiService\\Ligot.ApiService.csproj",
             "snippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
             "protectedSnippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
             "properties": {
@@ -106,7 +106,7 @@
           "incidentId": "c29bf4b9-f08e-4824-926b-92edbb03dd4c",
           "ruleId": "Api.0003",
           "description": "Breaking change: Exception diagnostics are suppressed when IExceptionHandler.TryHandleAsync returns true ",
-          "projectPath": "AspireApp1.ApiService\\AspireApp1.ApiService.csproj",
+          "projectPath": "Ligot.ApiService\\Ligot.ApiService.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -114,7 +114,7 @@
               "protected": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder)"
             },
             "kind": "File",
-            "path": "AspireApp1.ApiService\\Program.cs",
+            "path": "Ligot.ApiService\\Program.cs",
             "snippet": "app.UseExceptionHandler();",
             "protectedSnippet": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder)",
             "label": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder)",
@@ -133,12 +133,12 @@
       "features": []
     },
     {
-      "path": "AspireApp1.AppHost\\AspireApp1.AppHost.csproj",
+      "path": "Ligot.AppHost\\Ligot.AppHost.csproj",
       "startingProject": true,
       "issues": 3,
       "storyPoints": 3,
       "properties": {
-        "appName": "AspireApp1.AppHost",
+        "appName": "Ligot.AppHost",
         "projectKind": "DotNetCoreApp",
         "frameworks": [
           "net9.0"
@@ -162,7 +162,7 @@
         {
           "incidentId": "5de9ffef-0789-40f4-9d3f-1946d6a68bfc",
           "ruleId": "NuGet.0002",
-          "projectPath": "AspireApp1.AppHost\\AspireApp1.AppHost.csproj",
+          "projectPath": "Ligot.AppHost\\Ligot.AppHost.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -170,7 +170,7 @@
               "protected": "Aspire.Hosting.AppHost, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Aspire.Hosting.AppHost, and replace with new package Aspire.Hosting.AppHost 13.1.0"
             },
             "kind": "File",
-            "path": "AspireApp1.AppHost\\AspireApp1.AppHost.csproj",
+            "path": "Ligot.AppHost\\Ligot.AppHost.csproj",
             "snippet": "Aspire.Hosting.AppHost, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Aspire.Hosting.AppHost, and replace with new package Aspire.Hosting.AppHost 13.1.0",
             "protectedSnippet": "Aspire.Hosting.AppHost, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Aspire.Hosting.AppHost, and replace with new package Aspire.Hosting.AppHost 13.1.0",
             "label": "Aspire.Hosting.AppHost 9.0.0",
@@ -185,7 +185,7 @@
         {
           "incidentId": "2ca22317-37c9-4164-95b9-a214849074c7",
           "ruleId": "NuGet.0005",
-          "projectPath": "AspireApp1.AppHost\\AspireApp1.AppHost.csproj",
+          "projectPath": "Ligot.AppHost\\Ligot.AppHost.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -193,7 +193,7 @@
               "protected": "Aspire.Hosting.AppHost, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Aspire.Hosting.AppHost, and replace with new package Aspire.Hosting.AppHost, 13.1.0"
             },
             "kind": "File",
-            "path": "AspireApp1.AppHost\\AspireApp1.AppHost.csproj",
+            "path": "Ligot.AppHost\\Ligot.AppHost.csproj",
             "snippet": "Aspire.Hosting.AppHost, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Aspire.Hosting.AppHost, and replace with new package Aspire.Hosting.AppHost, 13.1.0",
             "protectedSnippet": "Aspire.Hosting.AppHost, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Aspire.Hosting.AppHost, and replace with new package Aspire.Hosting.AppHost, 13.1.0",
             "label": "Aspire.Hosting.AppHost 9.0.0",
@@ -208,7 +208,7 @@
         {
           "incidentId": "d70c8f3a-d46c-4f75-bdcb-bcf4606592b9",
           "ruleId": "Project.0002",
-          "projectPath": "AspireApp1.AppHost\\AspireApp1.AppHost.csproj",
+          "projectPath": "Ligot.AppHost\\Ligot.AppHost.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -216,7 +216,7 @@
               "protected": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0"
             },
             "kind": "File",
-            "path": "AspireApp1.AppHost\\AspireApp1.AppHost.csproj",
+            "path": "Ligot.AppHost\\Ligot.AppHost.csproj",
             "snippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
             "protectedSnippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
             "properties": {
@@ -229,12 +229,12 @@
       "features": []
     },
     {
-      "path": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+      "path": "Ligot.DbApi\\Ligot.BackEnd.csproj",
       "startingProject": true,
       "issues": 3,
       "storyPoints": 5,
       "properties": {
-        "appName": "AspireApp1.BackEnd",
+        "appName": "Ligot.BackEnd",
         "projectKind": "AspNetCore",
         "frameworks": [
           "net9.0"
@@ -258,7 +258,7 @@
         {
           "incidentId": "f3beaad3-d249-43b0-825e-4cc11d4d56fc",
           "ruleId": "NuGet.0002",
-          "projectPath": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+          "projectPath": "Ligot.DbApi\\Ligot.BackEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -266,7 +266,7 @@
               "protected": "Microsoft.EntityFrameworkCore.Design, 8.0.12\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.EntityFrameworkCore.Design, and replace with new package Microsoft.EntityFrameworkCore.Design 10.0.1"
             },
             "kind": "File",
-            "path": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+            "path": "Ligot.DbApi\\Ligot.BackEnd.csproj",
             "snippet": "Microsoft.EntityFrameworkCore.Design, 8.0.12\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.EntityFrameworkCore.Design, and replace with new package Microsoft.EntityFrameworkCore.Design 10.0.1",
             "protectedSnippet": "Microsoft.EntityFrameworkCore.Design, 8.0.12\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.EntityFrameworkCore.Design, and replace with new package Microsoft.EntityFrameworkCore.Design 10.0.1",
             "label": "Microsoft.EntityFrameworkCore.Design 8.0.12",
@@ -281,7 +281,7 @@
         {
           "incidentId": "a683137d-a104-41b8-95fa-26e6a7e2b2f5",
           "ruleId": "NuGet.0002",
-          "projectPath": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+          "projectPath": "Ligot.DbApi\\Ligot.BackEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -289,7 +289,7 @@
               "protected": "Microsoft.EntityFrameworkCore.Tools, 8.0.12\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.EntityFrameworkCore.Tools, and replace with new package Microsoft.EntityFrameworkCore.Tools 10.0.1"
             },
             "kind": "File",
-            "path": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+            "path": "Ligot.DbApi\\Ligot.BackEnd.csproj",
             "snippet": "Microsoft.EntityFrameworkCore.Tools, 8.0.12\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.EntityFrameworkCore.Tools, and replace with new package Microsoft.EntityFrameworkCore.Tools 10.0.1",
             "protectedSnippet": "Microsoft.EntityFrameworkCore.Tools, 8.0.12\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.EntityFrameworkCore.Tools, and replace with new package Microsoft.EntityFrameworkCore.Tools 10.0.1",
             "label": "Microsoft.EntityFrameworkCore.Tools 8.0.12",
@@ -304,7 +304,7 @@
         {
           "incidentId": "1046f1a0-c2bd-4601-bfae-b7c27d225a13",
           "ruleId": "NuGet.0002",
-          "projectPath": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+          "projectPath": "Ligot.DbApi\\Ligot.BackEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -312,7 +312,7 @@
               "protected": "Microsoft.AspNetCore.Authentication.Negotiate, 8.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.Authentication.Negotiate, and replace with new package Microsoft.AspNetCore.Authentication.Negotiate 10.0.1"
             },
             "kind": "File",
-            "path": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+            "path": "Ligot.DbApi\\Ligot.BackEnd.csproj",
             "snippet": "Microsoft.AspNetCore.Authentication.Negotiate, 8.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.Authentication.Negotiate, and replace with new package Microsoft.AspNetCore.Authentication.Negotiate 10.0.1",
             "protectedSnippet": "Microsoft.AspNetCore.Authentication.Negotiate, 8.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.Authentication.Negotiate, and replace with new package Microsoft.AspNetCore.Authentication.Negotiate 10.0.1",
             "label": "Microsoft.AspNetCore.Authentication.Negotiate 8.0.0",
@@ -327,7 +327,7 @@
         {
           "incidentId": "6fd28e0c-3015-43b0-a7f3-db3158c6fd07",
           "ruleId": "Project.0002",
-          "projectPath": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+          "projectPath": "Ligot.DbApi\\Ligot.BackEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -335,7 +335,7 @@
               "protected": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0"
             },
             "kind": "File",
-            "path": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+            "path": "Ligot.DbApi\\Ligot.BackEnd.csproj",
             "snippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
             "protectedSnippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
             "properties": {
@@ -348,7 +348,7 @@
           "incidentId": "a7d653ef-176c-4cc0-9bb0-13a0bda1de7e",
           "ruleId": "Api.0003",
           "description": "Breaking change: Exception diagnostics are suppressed when IExceptionHandler.TryHandleAsync returns true ",
-          "projectPath": "AspireApp1.DbApi\\AspireApp1.BackEnd.csproj",
+          "projectPath": "Ligot.DbApi\\Ligot.BackEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -356,7 +356,7 @@
               "protected": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.String)"
             },
             "kind": "File",
-            "path": "AspireApp1.DbApi\\Program.cs",
+            "path": "Ligot.DbApi\\Program.cs",
             "snippet": "app.UseExceptionHandler(\u0022/error\u0022);",
             "protectedSnippet": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.String)",
             "label": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.String)",
@@ -375,12 +375,12 @@
       "features": []
     },
     {
-      "path": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+      "path": "Ligot.Web\\Ligot.FrontEnd.csproj",
       "startingProject": true,
       "issues": 3,
       "storyPoints": 38,
       "properties": {
-        "appName": "AspireApp1.FrontEnd",
+        "appName": "Ligot.FrontEnd",
         "projectKind": "AspNetCore",
         "frameworks": [
           "net9.0"
@@ -404,7 +404,7 @@
         {
           "incidentId": "ed937071-9680-4eef-b73d-5747d3f4de86",
           "ruleId": "NuGet.0002",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -412,7 +412,7 @@
               "protected": "Microsoft.AspNetCore.Authentication.Negotiate, 8.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.Authentication.Negotiate, and replace with new package Microsoft.AspNetCore.Authentication.Negotiate 10.0.1"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+            "path": "Ligot.Web\\Ligot.FrontEnd.csproj",
             "snippet": "Microsoft.AspNetCore.Authentication.Negotiate, 8.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.Authentication.Negotiate, and replace with new package Microsoft.AspNetCore.Authentication.Negotiate 10.0.1",
             "protectedSnippet": "Microsoft.AspNetCore.Authentication.Negotiate, 8.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.AspNetCore.Authentication.Negotiate, and replace with new package Microsoft.AspNetCore.Authentication.Negotiate 10.0.1",
             "label": "Microsoft.AspNetCore.Authentication.Negotiate 8.0.0",
@@ -427,7 +427,7 @@
         {
           "incidentId": "618f7404-6011-4c88-86c8-a4e7e2a36c47",
           "ruleId": "Project.0002",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -435,7 +435,7 @@
               "protected": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+            "path": "Ligot.Web\\Ligot.FrontEnd.csproj",
             "snippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
             "protectedSnippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
             "properties": {
@@ -448,7 +448,7 @@
           "incidentId": "08d3d350-30da-4e27-a424-129220cb6668",
           "ruleId": "Api.0003",
           "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -456,7 +456,7 @@
               "protected": "T:System.Net.Http.HttpContent"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\ProjectActivityApiClient.cs",
+            "path": "Ligot.Web\\ProjectActivityApiClient.cs",
             "snippet": "return await res.Content.ReadFromJsonAsync\u003CProjectActivityDto\u003E(ct);",
             "protectedSnippet": "T:System.Net.Http.HttpContent",
             "label": "T:System.Net.Http.HttpContent",
@@ -475,7 +475,7 @@
           "incidentId": "ede6d9a2-8687-4a97-8992-087be5460d79",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -483,7 +483,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\ProjectActivityApiClient.cs",
+            "path": "Ligot.Web\\ProjectActivityApiClient.cs",
             "snippet": "query.Add($\u0022activityType={Uri.EscapeDataString(activityType)}\u0022);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -502,7 +502,7 @@
           "incidentId": "e4b9541c-8928-4e63-89d2-e110d61ecfee",
           "ruleId": "Api.0003",
           "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -510,7 +510,7 @@
               "protected": "T:System.Net.Http.HttpContent"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\CustomerApiClient.cs",
+            "path": "Ligot.Web\\CustomerApiClient.cs",
             "snippet": "return await res.Content.ReadFromJsonAsync\u003CCustomerOrderDto\u003E(ct);",
             "protectedSnippet": "T:System.Net.Http.HttpContent",
             "label": "T:System.Net.Http.HttpContent",
@@ -529,7 +529,7 @@
           "incidentId": "20a85253-ace3-4611-8b47-d8cd2ccee7cb",
           "ruleId": "Api.0003",
           "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -537,7 +537,7 @@
               "protected": "T:System.Net.Http.HttpContent"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\CustomerApiClient.cs",
+            "path": "Ligot.Web\\CustomerApiClient.cs",
             "snippet": "return await res.Content.ReadFromJsonAsync\u003CCustomerSystemDto\u003E(ct);",
             "protectedSnippet": "T:System.Net.Http.HttpContent",
             "label": "T:System.Net.Http.HttpContent",
@@ -556,7 +556,7 @@
           "incidentId": "60761887-7b13-4534-81b7-83846c08f7c0",
           "ruleId": "Api.0003",
           "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -564,7 +564,7 @@
               "protected": "T:System.Net.Http.HttpContent"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\CustomerApiClient.cs",
+            "path": "Ligot.Web\\CustomerApiClient.cs",
             "snippet": "return await res.Content.ReadFromJsonAsync\u003CCustomerSiteDto\u003E(ct);",
             "protectedSnippet": "T:System.Net.Http.HttpContent",
             "label": "T:System.Net.Http.HttpContent",
@@ -583,7 +583,7 @@
           "incidentId": "c911d79f-77a6-4de4-8709-dc09c96bda55",
           "ruleId": "Api.0003",
           "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -591,7 +591,7 @@
               "protected": "T:System.Net.Http.HttpContent"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\CustomerApiClient.cs",
+            "path": "Ligot.Web\\CustomerApiClient.cs",
             "snippet": "return await res.Content.ReadFromJsonAsync\u003CCustomerDatabaseDto\u003E(ct);",
             "protectedSnippet": "T:System.Net.Http.HttpContent",
             "label": "T:System.Net.Http.HttpContent",
@@ -610,7 +610,7 @@
           "incidentId": "8d0301cc-cfb8-4a54-8e6c-fbcd0e7db1d2",
           "ruleId": "Api.0003",
           "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -618,7 +618,7 @@
               "protected": "T:System.Net.Http.HttpContent"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\CustomerApiClient.cs",
+            "path": "Ligot.Web\\CustomerApiClient.cs",
             "snippet": "return await res.Content.ReadFromJsonAsync\u003CCustomerDto\u003E(ct);",
             "protectedSnippet": "T:System.Net.Http.HttpContent",
             "label": "T:System.Net.Http.HttpContent",
@@ -637,7 +637,7 @@
           "incidentId": "359f767d-dffc-4c0d-b5e6-0b844d4ba6ca",
           "ruleId": "Api.0003",
           "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -645,7 +645,7 @@
               "protected": "T:System.Net.Http.HttpContent"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\ProjectsApiClient.cs",
+            "path": "Ligot.Web\\ProjectsApiClient.cs",
             "snippet": "return await res.Content.ReadFromJsonAsync\u003CProjectDto\u003E(cancellationToken: cancellationToken);",
             "protectedSnippet": "T:System.Net.Http.HttpContent",
             "label": "T:System.Net.Http.HttpContent",
@@ -664,7 +664,7 @@
           "incidentId": "8455da3b-233a-4f37-95c4-63811e557ce3",
           "ruleId": "Api.0003",
           "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -672,7 +672,7 @@
               "protected": "T:System.Net.Http.HttpContent"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\AdminApiClient.cs",
+            "path": "Ligot.Web\\AdminApiClient.cs",
             "snippet": "return await res.Content.ReadFromJsonAsync\u003CRoleDto\u003E(ct);",
             "protectedSnippet": "T:System.Net.Http.HttpContent",
             "label": "T:System.Net.Http.HttpContent",
@@ -691,7 +691,7 @@
           "incidentId": "90481c06-e3fb-4497-8048-a30dd63fec1a",
           "ruleId": "Api.0003",
           "description": "Breaking change - Streaming HTTP responses enabled by default in browser HTTP clients ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -699,7 +699,7 @@
               "protected": "T:System.Net.Http.HttpContent"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\AdminApiClient.cs",
+            "path": "Ligot.Web\\AdminApiClient.cs",
             "snippet": "return await res.Content.ReadFromJsonAsync\u003CUserDto\u003E(ct);",
             "protectedSnippet": "T:System.Net.Http.HttpContent",
             "label": "T:System.Net.Http.HttpContent",
@@ -718,7 +718,7 @@
           "incidentId": "d3b508cf-4ab4-4460-9617-e4b69116caa1",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -726,7 +726,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\AdminApiClient.cs",
+            "path": "Ligot.Web\\AdminApiClient.cs",
             "snippet": "return await _http.GetFromJsonAsync\u003CUserDto\u003E($\u0022/api/admin/users/by-username/{Uri.EscapeDataString(username)}\u0022, ct);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -745,7 +745,7 @@
           "incidentId": "8027978a-35e4-49d1-9855-c3bc89e1f009",
           "ruleId": "Api.0003",
           "description": "Breaking change: Exception diagnostics are suppressed when IExceptionHandler.TryHandleAsync returns true ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -753,7 +753,7 @@
               "protected": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.String,System.Boolean)"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "app.UseExceptionHandler(\u0022/Error\u0022, createScopeForErrors: true);",
             "protectedSnippet": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.String,System.Boolean)",
             "label": "M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.String,System.Boolean)",
@@ -772,7 +772,7 @@
           "incidentId": "70f98e96-e258-4a7e-8f53-d454f4ffe8f4",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -780,7 +780,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -799,7 +799,7 @@
           "incidentId": "18672a14-4f25-4162-bc57-bba8a969eaf6",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -807,7 +807,7 @@
               "protected": "M:System.Uri.#ctor(System.String)"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
             "protectedSnippet": "M:System.Uri.#ctor(System.String)",
             "label": "M:System.Uri.#ctor(System.String)",
@@ -826,7 +826,7 @@
           "incidentId": "3315acc5-5982-4c48-8caf-1a0fcd0f40d8",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -834,7 +834,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -853,7 +853,7 @@
           "incidentId": "e219d830-dca1-4c70-967c-7999ca8e3351",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -861,7 +861,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(dbApiBase);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -880,7 +880,7 @@
           "incidentId": "14383d7d-f1ba-4ace-a768-07abdbaeb163",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -888,7 +888,7 @@
               "protected": "M:System.Uri.#ctor(System.String)"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(dbApiBase);",
             "protectedSnippet": "M:System.Uri.#ctor(System.String)",
             "label": "M:System.Uri.#ctor(System.String)",
@@ -907,7 +907,7 @@
           "incidentId": "ed704256-ad83-4ce8-995b-0cb76f2f1a74",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -915,7 +915,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(dbApiBase);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -934,7 +934,7 @@
           "incidentId": "4d4baa81-05f3-403b-a297-ee2ef1ab4f88",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -942,7 +942,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -961,7 +961,7 @@
           "incidentId": "9127bfdb-b1d9-4eac-a10e-e60b37f8b02e",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -969,7 +969,7 @@
               "protected": "M:System.Uri.#ctor(System.String)"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
             "protectedSnippet": "M:System.Uri.#ctor(System.String)",
             "label": "M:System.Uri.#ctor(System.String)",
@@ -988,7 +988,7 @@
           "incidentId": "36acff1a-f24d-4153-bca5-9ba2394f1111",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -996,7 +996,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -1015,7 +1015,7 @@
           "incidentId": "09c49f8d-333e-4b64-ae47-04ab88567f8a",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1023,7 +1023,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(dbApiBase);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -1042,7 +1042,7 @@
           "incidentId": "fff04fb6-bc0e-435c-a7ea-0faf569c7874",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1050,7 +1050,7 @@
               "protected": "M:System.Uri.#ctor(System.String)"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(dbApiBase);",
             "protectedSnippet": "M:System.Uri.#ctor(System.String)",
             "label": "M:System.Uri.#ctor(System.String)",
@@ -1069,7 +1069,7 @@
           "incidentId": "eb9a0a78-3e1a-4dfe-ad5c-ceacbb059e7f",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1077,7 +1077,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(dbApiBase);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -1096,7 +1096,7 @@
           "incidentId": "5133299a-4fd5-4c77-8fb0-63e30d089881",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1104,7 +1104,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -1123,7 +1123,7 @@
           "incidentId": "b711d559-cf30-436a-bac4-4d8c18e8f1ac",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1131,7 +1131,7 @@
               "protected": "M:System.Uri.#ctor(System.String)"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
             "protectedSnippet": "M:System.Uri.#ctor(System.String)",
             "label": "M:System.Uri.#ctor(System.String)",
@@ -1150,7 +1150,7 @@
           "incidentId": "9137acc1-f877-4b48-a080-8b2b331f0423",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1158,7 +1158,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -1177,7 +1177,7 @@
           "incidentId": "0a61a491-e997-463d-8128-af1dbd611eb1",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1185,7 +1185,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(dbApiBase);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -1204,7 +1204,7 @@
           "incidentId": "d9380099-3521-43f7-8717-c96777511a74",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1212,7 +1212,7 @@
               "protected": "M:System.Uri.#ctor(System.String)"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(dbApiBase);",
             "protectedSnippet": "M:System.Uri.#ctor(System.String)",
             "label": "M:System.Uri.#ctor(System.String)",
@@ -1231,7 +1231,7 @@
           "incidentId": "3f6a3d9e-d21a-47ea-8f24-5890d779992f",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1239,7 +1239,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(dbApiBase);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -1258,7 +1258,7 @@
           "incidentId": "a2167cef-b9b9-462f-b8b8-ae38fc0db72c",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1266,7 +1266,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -1285,7 +1285,7 @@
           "incidentId": "c25c8b34-8152-4e3d-a2f5-f85f7436bdb2",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1293,7 +1293,7 @@
               "protected": "M:System.Uri.#ctor(System.String)"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
             "protectedSnippet": "M:System.Uri.#ctor(System.String)",
             "label": "M:System.Uri.#ctor(System.String)",
@@ -1312,7 +1312,7 @@
           "incidentId": "f6f5537b-313a-4ca2-a916-d32d845358a4",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1320,7 +1320,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(\u0022https\u002Bhttp://dbapi\u0022);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -1339,7 +1339,7 @@
           "incidentId": "d9ce75a4-5023-411f-a35b-dfb45a59f2df",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1347,7 +1347,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(dbApiBase);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -1366,7 +1366,7 @@
           "incidentId": "ce0068d5-73ad-400a-b43f-eddc0065cc85",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1374,7 +1374,7 @@
               "protected": "M:System.Uri.#ctor(System.String)"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(dbApiBase);",
             "protectedSnippet": "M:System.Uri.#ctor(System.String)",
             "label": "M:System.Uri.#ctor(System.String)",
@@ -1393,7 +1393,7 @@
           "incidentId": "d14c4478-5c35-406a-b2f3-e1f96de9d89e",
           "ruleId": "Api.0003",
           "description": "Breaking change: URI length limits removed ",
-          "projectPath": "AspireApp1.Web\\AspireApp1.FrontEnd.csproj",
+          "projectPath": "Ligot.Web\\Ligot.FrontEnd.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1401,7 +1401,7 @@
               "protected": "T:System.Uri"
             },
             "kind": "File",
-            "path": "AspireApp1.Web\\Program.cs",
+            "path": "Ligot.Web\\Program.cs",
             "snippet": "client.BaseAddress = new(dbApiBase);",
             "protectedSnippet": "T:System.Uri",
             "label": "T:System.Uri",
@@ -1420,12 +1420,12 @@
       "features": []
     },
     {
-      "path": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+      "path": "Ligot.ServiceDefaults\\Ligot.ServiceDefaults.csproj",
       "startingProject": true,
       "issues": 3,
       "storyPoints": 6,
       "properties": {
-        "appName": "AspireApp1.ServiceDefaults",
+        "appName": "Ligot.ServiceDefaults",
         "projectKind": "ClassLibrary",
         "frameworks": [
           "net9.0"
@@ -1449,7 +1449,7 @@
         {
           "incidentId": "872d31de-cfd1-41ef-afb3-46715f254056",
           "ruleId": "NuGet.0002",
-          "projectPath": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+          "projectPath": "Ligot.ServiceDefaults\\Ligot.ServiceDefaults.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1457,7 +1457,7 @@
               "protected": "Microsoft.Extensions.Http.Resilience, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.Extensions.Http.Resilience, and replace with new package Microsoft.Extensions.Http.Resilience 10.1.0"
             },
             "kind": "File",
-            "path": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+            "path": "Ligot.ServiceDefaults\\Ligot.ServiceDefaults.csproj",
             "snippet": "Microsoft.Extensions.Http.Resilience, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.Extensions.Http.Resilience, and replace with new package Microsoft.Extensions.Http.Resilience 10.1.0",
             "protectedSnippet": "Microsoft.Extensions.Http.Resilience, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.Extensions.Http.Resilience, and replace with new package Microsoft.Extensions.Http.Resilience 10.1.0",
             "label": "Microsoft.Extensions.Http.Resilience 9.0.0",
@@ -1472,7 +1472,7 @@
         {
           "incidentId": "0f359bff-ade5-433f-92da-cfb63b393eed",
           "ruleId": "NuGet.0002",
-          "projectPath": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+          "projectPath": "Ligot.ServiceDefaults\\Ligot.ServiceDefaults.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1480,7 +1480,7 @@
               "protected": "Microsoft.Extensions.ServiceDiscovery, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.Extensions.ServiceDiscovery, and replace with new package Microsoft.Extensions.ServiceDiscovery 10.1.0"
             },
             "kind": "File",
-            "path": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+            "path": "Ligot.ServiceDefaults\\Ligot.ServiceDefaults.csproj",
             "snippet": "Microsoft.Extensions.ServiceDiscovery, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.Extensions.ServiceDiscovery, and replace with new package Microsoft.Extensions.ServiceDiscovery 10.1.0",
             "protectedSnippet": "Microsoft.Extensions.ServiceDiscovery, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Microsoft.Extensions.ServiceDiscovery, and replace with new package Microsoft.Extensions.ServiceDiscovery 10.1.0",
             "label": "Microsoft.Extensions.ServiceDiscovery 9.0.0",
@@ -1495,7 +1495,7 @@
         {
           "incidentId": "84acdec1-8bf8-4574-8c02-a8cb88732d14",
           "ruleId": "NuGet.0002",
-          "projectPath": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+          "projectPath": "Ligot.ServiceDefaults\\Ligot.ServiceDefaults.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1503,7 +1503,7 @@
               "protected": "OpenTelemetry.Instrumentation.AspNetCore, 1.9.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove OpenTelemetry.Instrumentation.AspNetCore, and replace with new package OpenTelemetry.Instrumentation.AspNetCore 1.14.0"
             },
             "kind": "File",
-            "path": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+            "path": "Ligot.ServiceDefaults\\Ligot.ServiceDefaults.csproj",
             "snippet": "OpenTelemetry.Instrumentation.AspNetCore, 1.9.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove OpenTelemetry.Instrumentation.AspNetCore, and replace with new package OpenTelemetry.Instrumentation.AspNetCore 1.14.0",
             "protectedSnippet": "OpenTelemetry.Instrumentation.AspNetCore, 1.9.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove OpenTelemetry.Instrumentation.AspNetCore, and replace with new package OpenTelemetry.Instrumentation.AspNetCore 1.14.0",
             "label": "OpenTelemetry.Instrumentation.AspNetCore 1.9.0",
@@ -1518,7 +1518,7 @@
         {
           "incidentId": "3893b6a7-0a2c-473a-8f92-62ede3c698a0",
           "ruleId": "NuGet.0002",
-          "projectPath": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+          "projectPath": "Ligot.ServiceDefaults\\Ligot.ServiceDefaults.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1526,7 +1526,7 @@
               "protected": "OpenTelemetry.Instrumentation.Http, 1.9.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove OpenTelemetry.Instrumentation.Http, and replace with new package OpenTelemetry.Instrumentation.Http 1.14.0"
             },
             "kind": "File",
-            "path": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+            "path": "Ligot.ServiceDefaults\\Ligot.ServiceDefaults.csproj",
             "snippet": "OpenTelemetry.Instrumentation.Http, 1.9.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove OpenTelemetry.Instrumentation.Http, and replace with new package OpenTelemetry.Instrumentation.Http 1.14.0",
             "protectedSnippet": "OpenTelemetry.Instrumentation.Http, 1.9.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove OpenTelemetry.Instrumentation.Http, and replace with new package OpenTelemetry.Instrumentation.Http 1.14.0",
             "label": "OpenTelemetry.Instrumentation.Http 1.9.0",
@@ -1541,7 +1541,7 @@
         {
           "incidentId": "303279cf-6231-4ad8-81ac-f728bacd77cf",
           "ruleId": "NuGet.0005",
-          "projectPath": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+          "projectPath": "Ligot.ServiceDefaults\\Ligot.ServiceDefaults.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1549,7 +1549,7 @@
               "protected": "Microsoft.Extensions.ServiceDiscovery, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Microsoft.Extensions.ServiceDiscovery, and replace with new package Microsoft.Extensions.ServiceDiscovery, 10.1.0"
             },
             "kind": "File",
-            "path": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+            "path": "Ligot.ServiceDefaults\\Ligot.ServiceDefaults.csproj",
             "snippet": "Microsoft.Extensions.ServiceDiscovery, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Microsoft.Extensions.ServiceDiscovery, and replace with new package Microsoft.Extensions.ServiceDiscovery, 10.1.0",
             "protectedSnippet": "Microsoft.Extensions.ServiceDiscovery, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Microsoft.Extensions.ServiceDiscovery, and replace with new package Microsoft.Extensions.ServiceDiscovery, 10.1.0",
             "label": "Microsoft.Extensions.ServiceDiscovery 9.0.0",
@@ -1564,7 +1564,7 @@
         {
           "incidentId": "5e58b506-3cc8-4fa7-a19b-f4850a3621dd",
           "ruleId": "Project.0002",
-          "projectPath": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+          "projectPath": "Ligot.ServiceDefaults\\Ligot.ServiceDefaults.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1572,7 +1572,7 @@
               "protected": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0"
             },
             "kind": "File",
-            "path": "AspireApp1.ServiceDefaults\\AspireApp1.ServiceDefaults.csproj",
+            "path": "Ligot.ServiceDefaults\\Ligot.ServiceDefaults.csproj",
             "snippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
             "protectedSnippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
             "properties": {
@@ -1585,12 +1585,12 @@
       "features": []
     },
     {
-      "path": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+      "path": "Ligot.Tests\\Ligot.Tests.csproj",
       "startingProject": true,
       "issues": 4,
       "storyPoints": 4,
       "properties": {
-        "appName": "AspireApp1.Tests",
+        "appName": "Ligot.Tests",
         "projectKind": "DotNetCoreApp",
         "frameworks": [
           "net9.0"
@@ -1614,7 +1614,7 @@
         {
           "incidentId": "b9c4fd57-bd1c-45b2-9810-bd0749af7e13",
           "ruleId": "NuGet.0002",
-          "projectPath": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+          "projectPath": "Ligot.Tests\\Ligot.Tests.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1622,7 +1622,7 @@
               "protected": "Aspire.Hosting.Testing, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Aspire.Hosting.Testing, and replace with new package Aspire.Hosting.Testing 13.1.0"
             },
             "kind": "File",
-            "path": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+            "path": "Ligot.Tests\\Ligot.Tests.csproj",
             "snippet": "Aspire.Hosting.Testing, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Aspire.Hosting.Testing, and replace with new package Aspire.Hosting.Testing 13.1.0",
             "protectedSnippet": "Aspire.Hosting.Testing, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nRemove Aspire.Hosting.Testing, and replace with new package Aspire.Hosting.Testing 13.1.0",
             "label": "Aspire.Hosting.Testing 9.0.0",
@@ -1637,7 +1637,7 @@
         {
           "incidentId": "7fa45ca1-5ca3-437b-9aeb-8826d7afd7a4",
           "ruleId": "NuGet.0005",
-          "projectPath": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+          "projectPath": "Ligot.Tests\\Ligot.Tests.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1645,7 +1645,7 @@
               "protected": "Aspire.Hosting.Testing, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Aspire.Hosting.Testing, and replace with new package Aspire.Hosting.Testing, 13.1.0"
             },
             "kind": "File",
-            "path": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+            "path": "Ligot.Tests\\Ligot.Tests.csproj",
             "snippet": "Aspire.Hosting.Testing, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Aspire.Hosting.Testing, and replace with new package Aspire.Hosting.Testing, 13.1.0",
             "protectedSnippet": "Aspire.Hosting.Testing, 9.0.0\n\n\u30EC\u30B3\u30E1\u30F3\u30C7\u30FC\u30B7\u30E7\u30F3\uFF1A\n\nThis version is out of support and is no longer maintained. Please upgrade to the latest version. See our support policy for details: https://aka.ms/dotent/aspire/support\nRemove Aspire.Hosting.Testing, and replace with new package Aspire.Hosting.Testing, 13.1.0",
             "label": "Aspire.Hosting.Testing 9.0.0",
@@ -1660,7 +1660,7 @@
         {
           "incidentId": "91bb434f-aef2-4117-9bc6-bbb7f10395c1",
           "ruleId": "Project.0002",
-          "projectPath": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+          "projectPath": "Ligot.Tests\\Ligot.Tests.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1668,7 +1668,7 @@
               "protected": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0"
             },
             "kind": "File",
-            "path": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+            "path": "Ligot.Tests\\Ligot.Tests.csproj",
             "snippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
             "protectedSnippet": "\u73FE\u5728\u306E\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net9.0\n\u63A8\u5968\u3055\u308C\u308B\u30BF\u30FC\u30B2\u30C3\u30C8 \u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF: net10.0",
             "properties": {
@@ -1681,7 +1681,7 @@
           "incidentId": "5928a7bf-1da8-4adb-bbdc-1f05b2f3bb34",
           "ruleId": "Api.0002",
           "description": "Breaking change: New TimeSpan.From*() overloads that take integers ",
-          "projectPath": "AspireApp1.Tests\\AspireApp1.Tests.csproj",
+          "projectPath": "Ligot.Tests\\Ligot.Tests.csproj",
           "state": "Active",
           "location": {
             "snippetModel": {
@@ -1689,7 +1689,7 @@
               "protected": "M:System.TimeSpan.FromSeconds(System.Int64)"
             },
             "kind": "File",
-            "path": "AspireApp1.Tests\\WebTests.cs",
+            "path": "Ligot.Tests\\WebTests.cs",
             "snippet": "await resourceNotificationService.WaitForResourceAsync(\u0022webfrontend\u0022, KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(30));",
             "protectedSnippet": "M:System.TimeSpan.FromSeconds(System.Int64)",
             "label": "M:System.TimeSpan.FromSeconds(System.Int64)",

@@ -1,6 +1,6 @@
-# AspireApp1 ✅
+# Ligot ✅
 
-**AspireApp1** is a sample/production-ready .NET web application used for project management scenarios. It contains backend APIs, a web frontend, a database API using EF Core with PostgreSQL, and CI/CD automation for deploying to Azure.
+**Ligot** is a sample/production-ready .NET web application used for project management scenarios. It contains backend APIs, a web frontend, a database API using EF Core with PostgreSQL, and CI/CD automation for deploying to Azure.
 
 ---
 
@@ -25,7 +25,7 @@ Prerequisites:
 
 ```bash
 git clone <repo-url>
-cd AspireApp1
+cd Ligot
 ```
 
 2. Start local Postgres + Adminer (provided):
@@ -47,20 +47,20 @@ dotnet build
 
 ```bash
 # add migration
-dotnet ef migrations add InitialCreate --project AspireApp1.DbApi --startup-project AspireApp1.AppHost --context ProjectDbContext
+dotnet ef migrations add InitialCreate --project Ligot.DbApi --startup-project Ligot.AppHost --context ProjectDbContext
 # apply migration
-dotnet ef database update --project AspireApp1.DbApi --startup-project AspireApp1.AppHost --context ProjectDbContext
+dotnet ef database update --project Ligot.DbApi --startup-project Ligot.AppHost --context ProjectDbContext
 ```
 
 5. Run the application (AppHost):
 
 ```bash
-dotnet run --project AspireApp1.AppHost
+dotnet run --project Ligot.AppHost
 ```
 
 Visit the frontend or health endpoints as configured by your environment.
 
-> Note: Connection strings are configured in `AspireApp1.DbApi/appsettings.json` and may be overridden via user secrets or environment variables in `AspireApp1.AppHost`.
+> Note: Connection strings are configured in `Ligot.DbApi/appsettings.json` and may be overridden via user secrets or environment variables in `Ligot.AppHost`.
 
 ---
 
@@ -72,7 +72,7 @@ Run unit and integration tests with:
 dotnet test
 ```
 
-Test projects live in `AspireApp1.Tests`.
+Test projects live in `Ligot.Tests`.
 
 ---
 
@@ -89,7 +89,7 @@ This repository includes GitHub Actions workflows for infrastructure deployment 
 
 - `QUICK-START.md` — Fast path for Azure CI/CD setup and first deployment
 - `DEPLOYMENT.md` — Detailed deployment and operations guidance
-- `AspireApp1.DbApi/README.md` — Database-specific dev notes and EF steps
+- `Ligot.DbApi/README.md` — Database-specific dev notes and EF steps
 - `docker-compose.postgres.yml` — Local Postgres + Adminer for development
 
 ---
@@ -108,3 +108,4 @@ See `LICENSE.txt` in the repository root for license details.
 ---
 
 If you want, I can add badges (build / test / license), or expand the README with architecture diagrams and contributor guidelines. 💡
+

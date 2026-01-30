@@ -12,8 +12,8 @@ This ensures consistent permission enforcement across the entire application, in
 
 ### 1. **PreSales Page** 
 **Files:** 
-- `AspireApp1.Web/Components/Pages/PreSales.razor.cs`
-- `AspireApp1.Web/Components/Pages/PreSales.razor`
+- `Ligot.Web/Components/Pages/PreSales.razor.cs`
+- `Ligot.Web/Components/Pages/PreSales.razor`
 
 **Changes:**
 - Added `AuthorizationService` injection to PreSalesBase class
@@ -26,7 +26,7 @@ This ensures consistent permission enforcement across the entire application, in
   - ℹ️ View Details button - always visible
 
 ### 2. **SiteTab Component**
-**File:** `AspireApp1.Web/Components/Pages/SiteTab.razor`
+**File:** `Ligot.Web/Components/Pages/SiteTab.razor`
 
 **Changes:**
 - Added `[Parameter] public bool IsReadOnly { get; set; } = false;` parameter
@@ -36,7 +36,7 @@ This ensures consistent permission enforcement across the entire application, in
   - ✅ Delete button (trash icon)
 
 ### 3. **SystemTab Component**
-**File:** `AspireApp1.Web/Components/Pages/SystemTab.razor`
+**File:** `Ligot.Web/Components/Pages/SystemTab.razor`
 
 **Changes:**
 - Added `[Parameter] public bool IsReadOnly { get; set; } = false;` parameter
@@ -49,7 +49,7 @@ This ensures consistent permission enforcement across the entire application, in
   - ✅ Delete Component button (trash icon)
 
 ### 4. **OrderTab Component**
-**File:** `AspireApp1.Web/Components/Pages/OrderTab.razor`
+**File:** `Ligot.Web/Components/Pages/OrderTab.razor`
 
 **Changes:**
 - Added `[Parameter] public bool IsReadOnly { get; set; } = false;` parameter (from initial implementation)
@@ -59,7 +59,7 @@ This ensures consistent permission enforcement across the entire application, in
   - ✅ Delete button (trash icon)
 
 ### 5. **Customers Page**
-**File:** `AspireApp1.Web/Components/Pages/Customers.razor`
+**File:** `Ligot.Web/Components/Pages/Customers.razor`
 
 **Changes:**
 - Updated SiteTab component call to pass `IsReadOnly="isReadOnly"`
@@ -121,11 +121,11 @@ PreSales.razor (isReadOnly)
 
 ## Files Modified
 
-1. `AspireApp1.Web/Components/Pages/PreSales.razor.cs` - Added AuthService and isReadOnly field
-2. `AspireApp1.Web/Components/Pages/PreSales.razor` - Hide buttons when readonly
-3. `AspireApp1.Web/Components/Pages/SiteTab.razor` - Added IsReadOnly parameter and button hiding
-4. `AspireApp1.Web/Components/Pages/SystemTab.razor` - Added IsReadOnly parameter and button hiding
-5. `AspireApp1.Web/Components/Pages/Customers.razor` - Pass IsReadOnly to tab components
+1. `Ligot.Web/Components/Pages/PreSales.razor.cs` - Added AuthService and isReadOnly field
+2. `Ligot.Web/Components/Pages/PreSales.razor` - Hide buttons when readonly
+3. `Ligot.Web/Components/Pages/SiteTab.razor` - Added IsReadOnly parameter and button hiding
+4. `Ligot.Web/Components/Pages/SystemTab.razor` - Added IsReadOnly parameter and button hiding
+5. `Ligot.Web/Components/Pages/Customers.razor` - Pass IsReadOnly to tab components
 
 ## Implementation Pattern
 
@@ -180,3 +180,4 @@ public bool IsReadOnly { get; set; } = false;
 ✅ PreSales page + tabs
 
 All CRUD operations now respect ReadOnly permission visibility.
+

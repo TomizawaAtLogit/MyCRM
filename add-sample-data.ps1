@@ -26,7 +26,7 @@ INSERT INTO project_activities (project_id, activity_date, summary, description,
 "@
 
 try {
-    $sampleData | docker exec -i aspireapp1-postgres-1 psql -U postgres -d aspire_db
+    $sampleData | docker exec -i Ligot-postgres-1 psql -U postgres -d aspire_db
     
     Write-Host "`nSample data added successfully!" -ForegroundColor Green
     Write-Host "  - 2 customers" -ForegroundColor White
@@ -38,3 +38,4 @@ catch {
     Write-Host "Error: $_" -ForegroundColor Red
     exit 1
 }
+

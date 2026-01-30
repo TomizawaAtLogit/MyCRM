@@ -5,7 +5,7 @@
 **Status**: Pre-existing issue (not related to CI/CD implementation)
 
 **Description**:
-When building the `AspireApp1.DbApi/AspireApp1.BackEnd.csproj` project with a clean build (no cached obj/bin directories), the following error occurs:
+When building the `Ligot.DbApi/Ligot.BackEnd.csproj` project with a clean build (no cached obj/bin directories), the following error occurs:
 
 ```
 error MSB3552: Resource file "**/*.resx" cannot be found.
@@ -35,7 +35,7 @@ This issue should be investigated and resolved separately from the CI/CD impleme
 The GitHub Actions workflows will need to be tested with the actual Azure environment. If this build error persists in the GitHub Actions runners, one of the recommended solutions above should be applied before running the CI/CD pipelines.
 
 **Related Files**:
-- `AspireApp1.DbApi/AspireApp1.BackEnd.csproj`
+- `Ligot.DbApi/Ligot.BackEnd.csproj`
 - `.github/workflows/ci-build.yml`
 - `.github/workflows/deploy-staging.yml`
 - `.github/workflows/deploy-production.yml`
@@ -52,3 +52,4 @@ The GitHub Actions workflows will need to be tested with the actual Azure enviro
 1. Test the CI/CD workflows in the actual Azure/GitHub Actions environment
 2. If the error persists there, apply one of the recommended fixes
 3. Document the solution once found
+

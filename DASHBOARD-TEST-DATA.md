@@ -26,14 +26,14 @@ Executes the SQL script and provides a summary of what was added.
 ### Quick Start
 Run the PowerShell script from the repository root:
 ```powershell
-cd c:\Users\tomizawa\source\repos\AspireApp1
+cd c:\Users\tomizawa\source\repos\Ligot
 .\add-dashboard-test-data.ps1
 ```
 
 ### Manual SQL Execution
 If you prefer to run the SQL directly:
 ```powershell
-Get-Content .\add-dashboard-test-data.sql | docker exec -i aspireapp1-postgres-1 psql -U postgres -d aspire_db
+Get-Content .\add-dashboard-test-data.sql | docker exec -i Ligot-postgres-1 psql -U postgres -d aspire_db
 ```
 
 ## Data Added
@@ -101,7 +101,7 @@ The dashboard summary cards will now show:
 
 ## Viewing the Data
 
-1. Start the application: `dotnet run` from `AspireApp1.AppHost`
+1. Start the application: `dotnet run` from `Ligot.AppHost`
 2. Navigate to `/dashboard` route
 3. You should see all four PDCA charts populated with data
 
@@ -123,3 +123,4 @@ DELETE FROM presales_proposals WHERE title IN ('E-commerce Platform Inquiry', ..
 - Customer foreign keys are satisfied by using existing customer IDs
 - Project activities use subqueries to find the correct project IDs dynamically
 - The data is suitable for testing dashboard rendering, filtering, and calculations
+

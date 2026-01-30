@@ -41,17 +41,17 @@ jobs:
         
     - name: Restore and Build
       run: |
-        dotnet restore AspireApp1.sln
-        dotnet build AspireApp1.sln --no-restore --configuration Release
+        dotnet restore Ligot.sln
+        dotnet build Ligot.sln --no-restore --configuration Release
         
     - name: Run Tests
-      run: dotnet test AspireApp1.sln --no-build --configuration Release --verbosity normal
+      run: dotnet test Ligot.sln --no-build --configuration Release --verbosity normal
         
     - name: Publish Backend
-      run: dotnet publish AspireApp1.DbApi/AspireApp1.BackEnd.csproj -c Release -o ./publish/backend
+      run: dotnet publish Ligot.DbApi/Ligot.BackEnd.csproj -c Release -o ./publish/backend
       
     - name: Publish Frontend
-      run: dotnet publish AspireApp1.Web/AspireApp1.FrontEnd.csproj -c Release -o ./publish/frontend
+      run: dotnet publish Ligot.Web/Ligot.FrontEnd.csproj -c Release -o ./publish/frontend
       
     - name: Upload Backend Artifact
       uses: actions/upload-artifact@v4.4.3
@@ -113,7 +113,7 @@ jobs:
       if: inputs.run_migrations == 'true'
       run: |
         dotnet tool install --global dotnet-ef
-        dotnet ef database update --project AspireApp1.DbApi/AspireApp1.BackEnd.csproj --startup-project AspireApp1.DbApi/AspireApp1.BackEnd.csproj --connection "${{ secrets.PRODUCTION_DB_CONNECTION_STRING }}"
+        dotnet ef database update --project Ligot.DbApi/Ligot.BackEnd.csproj --startup-project Ligot.DbApi/Ligot.BackEnd.csproj --connection "${{ secrets.PRODUCTION_DB_CONNECTION_STRING }}"
       env:
         ConnectionStrings__DefaultConnection: ${{ secrets.PRODUCTION_DB_CONNECTION_STRING }}
         
@@ -166,3 +166,4 @@ jobs:
         echo "✅ Production deployment completed successfully"
         echo "Backend: https://${{ env.AZURE_BACKEND_APP_NAME }}.azurewebsites.net"
         echo "Frontend: https://${{ env.AZURE_FRONTEND_APP_NAME }}.azurewebsites.net"
+

@@ -20,7 +20,7 @@ You need a Google Maps API key to use this feature. Follow these steps to obtain
 
 ### Development Environment
 
-1. Copy `AspireApp1.Web/appsettings.Development.json.template` to `AspireApp1.Web/appsettings.Development.json`
+1. Copy `Ligot.Web/appsettings.Development.json.template` to `Ligot.Web/appsettings.Development.json`
 2. Replace `YOUR_DEVELOPMENT_GOOGLE_MAPS_API_KEY_HERE` with your actual API key:
 
 ```json
@@ -36,7 +36,7 @@ You need a Google Maps API key to use this feature. Follow these steps to obtain
 ### Production Environment
 
 1. Set the Google Maps API key as an environment variable or in your production configuration
-2. Update `AspireApp1.Web/appsettings.json` or use secrets management:
+2. Update `Ligot.Web/appsettings.json` or use secrets management:
 
 ```json
 {
@@ -100,3 +100,4 @@ These fields store the geographic coordinates of each site.
 - Bulk coordinate updates for existing sites
 - Multiple marker display option
 - Custom map styles and themes
+

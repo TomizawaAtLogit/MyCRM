@@ -16,7 +16,7 @@ $sqlContent = Get-Content $sqlFile -Raw
 
 try {
     # Execute the SQL file
-    $sqlContent | docker exec -i aspireapp1-postgres-1 psql -U postgres -d aspire_db
+    $sqlContent | docker exec -i Ligot-postgres-1 psql -U postgres -d aspire_db
     
     Write-Host ""
     Write-Host "Dashboard test data added successfully!" -ForegroundColor Green
@@ -50,3 +50,4 @@ catch {
     Write-Host "Error executing SQL: $_" -ForegroundColor Red
     exit 1
 }
+

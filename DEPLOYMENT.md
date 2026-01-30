@@ -18,8 +18,8 @@ This document describes the deployment process for the MyCRM application to Azur
 ### Infrastructure Components
 
 - **Azure App Services**: Hosts both frontend and backend applications
-  - Backend API (AspireApp1.BackEnd)
-  - Frontend Web App (AspireApp1.FrontEnd)
+  - Backend API (Ligot.BackEnd)
+  - Frontend Web App (Ligot.FrontEnd)
 - **Azure PostgreSQL Flexible Server**: Database with automated backups
 - **Azure Blob Storage**: File storage for uploads with private endpoints
 - **Application Insights**: Monitoring and telemetry
@@ -73,8 +73,8 @@ Configure the following secrets in your GitHub repository:
 2. Install Docker for local PostgreSQL
 3. Clone the repository
 4. Run `docker-compose -f docker-compose.postgres.yml up -d`
-5. Run database migrations: `dotnet ef database update --project AspireApp1.DbApi`
-6. Start the application: `dotnet run --project AspireApp1.AppHost`
+5. Run database migrations: `dotnet ef database update --project Ligot.DbApi`
+6. Start the application: `dotnet run --project Ligot.AppHost`
 
 ## Initial Setup
 
@@ -121,8 +121,8 @@ Run initial migrations manually for the first deployment:
 ```bash
 # From your local development environment with VPN connected
 dotnet ef database update \
-  --project AspireApp1.DbApi/AspireApp1.BackEnd.csproj \
-  --startup-project AspireApp1.DbApi/AspireApp1.BackEnd.csproj \
+  --project Ligot.DbApi/Ligot.BackEnd.csproj \
+  --startup-project Ligot.DbApi/Ligot.BackEnd.csproj \
   --connection "Host=psql-mycrm-production.postgres.database.azure.com;..."
 ```
 
@@ -205,7 +205,7 @@ Non-breaking changes can be deployed automatically:
 - Adding new stored procedures
 
 **Process**:
-1. Create migration locally: `dotnet ef migrations add MigrationName --project AspireApp1.DbApi`
+1. Create migration locally: `dotnet ef migrations add MigrationName --project Ligot.DbApi`
 2. Commit and push to repository
 3. Deploy with `run_migrations: true`
 
@@ -233,7 +233,7 @@ Before deploying migrations to production:
 1. **Test locally**: Run migration against local database
 2. **Review SQL**: Check generated SQL for potential issues
    ```bash
-   dotnet ef migrations script --project AspireApp1.DbApi
+   dotnet ef migrations script --project Ligot.DbApi
    ```
 3. **Test in staging**: Deploy to staging first
 4. **Backup production**: Verify automated backups are current
@@ -276,7 +276,7 @@ This will:
 
 1. **For non-destructive migrations**: Apply reverse migration
    ```bash
-   dotnet ef database update PreviousMigrationName --project AspireApp1.DbApi
+   dotnet ef database update PreviousMigrationName --project Ligot.DbApi
    ```
 
 2. **For destructive migrations**: Restore from backup
@@ -340,8 +340,8 @@ See [RUNBOOKS/ALERTS-AND-ESCALATION.md](RUNBOOKS/ALERTS-AND-ESCALATION.md) for d
 # - Test failures
 
 # Solution: Fix issues locally and push again
-dotnet build AspireApp1.sln
-dotnet test AspireApp1.sln
+dotnet build Ligot.sln
+dotnet test Ligot.sln
 ```
 
 #### Deployment Timeout
@@ -397,13 +397,13 @@ az postgres flexible-server firewall-rule list \
 
 ```bash
 # Check migration status
-dotnet ef migrations list --project AspireApp1.DbApi
+dotnet ef migrations list --project Ligot.DbApi
 
 # Roll back to previous migration
-dotnet ef database update PreviousMigrationName --project AspireApp1.DbApi
+dotnet ef database update PreviousMigrationName --project Ligot.DbApi
 
 # Create rollback migration
-dotnet ef migrations add RollbackMigrationName --project AspireApp1.DbApi
+dotnet ef migrations add RollbackMigrationName --project Ligot.DbApi
 ```
 
 ### Network Access Issues
@@ -469,3 +469,4 @@ For deployment issues:
 - [RUNBOOKS/ALERTS-AND-ESCALATION.md](RUNBOOKS/ALERTS-AND-ESCALATION.md) - Alert handling procedures
 - [Infrastructure as Code](infrastructure/main.bicep) - Bicep template
 - [GitHub Actions Workflows](.github/workflows/) - All workflow definitions
+

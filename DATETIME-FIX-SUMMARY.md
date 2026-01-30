@@ -58,4 +58,5 @@ Refresh your browser at https://localhost:7030 and the calendar should now displ
 
 ## File Changed
 
-- **AspireApp1.DbApi/Program.cs** - Added Npgsql.EnableLegacyTimestampBehavior switch
+- **Ligot.DbApi/Program.cs** - Added Npgsql.EnableLegacyTimestampBehavior switch
+

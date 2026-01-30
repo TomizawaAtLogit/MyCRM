@@ -16,12 +16,12 @@ This document provides a comprehensive overview of the projects and their depend
 - [Projects Relationship Graph](#projects-relationship-graph)
 - [Project Details](#project-details)
 
-  - [AspireApp1.ApiService\AspireApp1.ApiService.csproj](#aspireapp1apiserviceaspireapp1apiservicecsproj)
-  - [AspireApp1.AppHost\AspireApp1.AppHost.csproj](#aspireapp1apphostaspireapp1apphostcsproj)
-  - [AspireApp1.DbApi\AspireApp1.BackEnd.csproj](#aspireapp1dbapiaspireapp1backendcsproj)
-  - [AspireApp1.ServiceDefaults\AspireApp1.ServiceDefaults.csproj](#aspireapp1servicedefaultsaspireapp1servicedefaultscsproj)
-  - [AspireApp1.Tests\AspireApp1.Tests.csproj](#aspireapp1testsaspireapp1testscsproj)
-  - [AspireApp1.Web\AspireApp1.FrontEnd.csproj](#aspireapp1webaspireapp1frontendcsproj)
+  - [Ligot.ApiService\Ligot.ApiService.csproj](#LigotapiserviceLigotapiservicecsproj)
+  - [Ligot.AppHost\Ligot.AppHost.csproj](#LigotapphostLigotapphostcsproj)
+  - [Ligot.DbApi\Ligot.BackEnd.csproj](#LigotdbapiLigotbackendcsproj)
+  - [Ligot.ServiceDefaults\Ligot.ServiceDefaults.csproj](#LigotservicedefaultsLigotservicedefaultscsproj)
+  - [Ligot.Tests\Ligot.Tests.csproj](#LigottestsLigottestscsproj)
+  - [Ligot.Web\Ligot.FrontEnd.csproj](#LigotwebLigotfrontendcsproj)
 
 
 ## Executive Summary
@@ -42,12 +42,12 @@ This document provides a comprehensive overview of the projects and their depend
 
 | Project | Target Framework | Difficulty | Package Issues | API Issues | Est. LOC Impact | Description |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| [AspireApp1.ApiService\AspireApp1.ApiService.csproj](#aspireapp1apiserviceaspireapp1apiservicecsproj) | net9.0 | 🟢 Low | 1 | 1 | 1+ | AspNetCore, Sdk Style = True |
-| [AspireApp1.AppHost\AspireApp1.AppHost.csproj](#aspireapp1apphostaspireapp1apphostcsproj) | net9.0 | 🟢 Low | 2 | 0 |  | DotNetCoreApp, Sdk Style = True |
-| [AspireApp1.DbApi\AspireApp1.BackEnd.csproj](#aspireapp1dbapiaspireapp1backendcsproj) | net9.0 | 🟢 Low | 3 | 1 | 1+ | AspNetCore, Sdk Style = True |
-| [AspireApp1.ServiceDefaults\AspireApp1.ServiceDefaults.csproj](#aspireapp1servicedefaultsaspireapp1servicedefaultscsproj) | net9.0 | 🟢 Low | 5 | 0 |  | ClassLibrary, Sdk Style = True |
-| [AspireApp1.Tests\AspireApp1.Tests.csproj](#aspireapp1testsaspireapp1testscsproj) | net9.0 | 🟢 Low | 2 | 1 | 1+ | DotNetCoreApp, Sdk Style = True |
-| [AspireApp1.Web\AspireApp1.FrontEnd.csproj](#aspireapp1webaspireapp1frontendcsproj) | net9.0 | 🟢 Low | 1 | 36 | 36+ | AspNetCore, Sdk Style = True |
+| [Ligot.ApiService\Ligot.ApiService.csproj](#LigotapiserviceLigotapiservicecsproj) | net9.0 | 🟢 Low | 1 | 1 | 1+ | AspNetCore, Sdk Style = True |
+| [Ligot.AppHost\Ligot.AppHost.csproj](#LigotapphostLigotapphostcsproj) | net9.0 | 🟢 Low | 2 | 0 |  | DotNetCoreApp, Sdk Style = True |
+| [Ligot.DbApi\Ligot.BackEnd.csproj](#LigotdbapiLigotbackendcsproj) | net9.0 | 🟢 Low | 3 | 1 | 1+ | AspNetCore, Sdk Style = True |
+| [Ligot.ServiceDefaults\Ligot.ServiceDefaults.csproj](#LigotservicedefaultsLigotservicedefaultscsproj) | net9.0 | 🟢 Low | 5 | 0 |  | ClassLibrary, Sdk Style = True |
+| [Ligot.Tests\Ligot.Tests.csproj](#LigottestsLigottestscsproj) | net9.0 | 🟢 Low | 2 | 1 | 1+ | DotNetCoreApp, Sdk Style = True |
+| [Ligot.Web\Ligot.FrontEnd.csproj](#LigotwebLigotfrontendcsproj) | net9.0 | 🟢 Low | 1 | 36 | 36+ | AspNetCore, Sdk Style = True |
 
 ### Package Compatibility
 
@@ -72,22 +72,22 @@ This document provides a comprehensive overview of the projects and their depend
 
 | Package | Current Version | Suggested Version | Projects | Description |
 | :--- | :---: | :---: | :--- | :--- |
-| Aspire.Hosting.AppHost | 9.0.0 | 13.1.0 | [AspireApp1.AppHost.csproj](#aspireapp1apphostaspireapp1apphostcsproj) | NuGet パッケージのアップグレードをおすすめします |
-| Aspire.Hosting.Testing | 9.0.0 | 13.1.0 | [AspireApp1.Tests.csproj](#aspireapp1testsaspireapp1testscsproj) | NuGet パッケージのアップグレードをおすすめします |
-| Microsoft.AspNetCore.Authentication.Negotiate | 8.0.0 | 10.0.1 | [AspireApp1.BackEnd.csproj](#aspireapp1dbapiaspireapp1backendcsproj)<br/>[AspireApp1.FrontEnd.csproj](#aspireapp1webaspireapp1frontendcsproj) | NuGet パッケージのアップグレードをおすすめします |
-| Microsoft.AspNetCore.OpenApi | 9.0.0 | 10.0.1 | [AspireApp1.ApiService.csproj](#aspireapp1apiserviceaspireapp1apiservicecsproj) | NuGet パッケージのアップグレードをおすすめします |
-| Microsoft.EntityFrameworkCore.Design | 8.0.12 | 10.0.1 | [AspireApp1.BackEnd.csproj](#aspireapp1dbapiaspireapp1backendcsproj) | NuGet パッケージのアップグレードをおすすめします |
-| Microsoft.EntityFrameworkCore.Tools | 8.0.12 | 10.0.1 | [AspireApp1.BackEnd.csproj](#aspireapp1dbapiaspireapp1backendcsproj) | NuGet パッケージのアップグレードをおすすめします |
-| Microsoft.Extensions.Http.Resilience | 9.0.0 | 10.1.0 | [AspireApp1.ServiceDefaults.csproj](#aspireapp1servicedefaultsaspireapp1servicedefaultscsproj) | NuGet パッケージのアップグレードをおすすめします |
-| Microsoft.Extensions.ServiceDiscovery | 9.0.0 | 10.1.0 | [AspireApp1.ServiceDefaults.csproj](#aspireapp1servicedefaultsaspireapp1servicedefaultscsproj) | NuGet パッケージのアップグレードをおすすめします |
-| MSTest | 3.4.3 |  | [AspireApp1.Tests.csproj](#aspireapp1testsaspireapp1testscsproj) | ✅Compatible |
-| Npgsql.EntityFrameworkCore.PostgreSQL | 8.0.8 |  | [AspireApp1.BackEnd.csproj](#aspireapp1dbapiaspireapp1backendcsproj) | ✅Compatible |
-| OpenTelemetry.Exporter.OpenTelemetryProtocol | 1.9.0 |  | [AspireApp1.ServiceDefaults.csproj](#aspireapp1servicedefaultsaspireapp1servicedefaultscsproj) | ✅Compatible |
-| OpenTelemetry.Extensions.Hosting | 1.9.0 |  | [AspireApp1.ServiceDefaults.csproj](#aspireapp1servicedefaultsaspireapp1servicedefaultscsproj) | ✅Compatible |
-| OpenTelemetry.Instrumentation.AspNetCore | 1.9.0 | 1.14.0 | [AspireApp1.ServiceDefaults.csproj](#aspireapp1servicedefaultsaspireapp1servicedefaultscsproj) | NuGet パッケージのアップグレードをおすすめします |
-| OpenTelemetry.Instrumentation.Http | 1.9.0 | 1.14.0 | [AspireApp1.ServiceDefaults.csproj](#aspireapp1servicedefaultsaspireapp1servicedefaultscsproj) | NuGet パッケージのアップグレードをおすすめします |
-| OpenTelemetry.Instrumentation.Runtime | 1.9.0 |  | [AspireApp1.ServiceDefaults.csproj](#aspireapp1servicedefaultsaspireapp1servicedefaultscsproj) | ✅Compatible |
-| Swashbuckle.AspNetCore | 6.5.0 |  | [AspireApp1.BackEnd.csproj](#aspireapp1dbapiaspireapp1backendcsproj) | ✅Compatible |
+| Aspire.Hosting.AppHost | 9.0.0 | 13.1.0 | [Ligot.AppHost.csproj](#LigotapphostLigotapphostcsproj) | NuGet パッケージのアップグレードをおすすめします |
+| Aspire.Hosting.Testing | 9.0.0 | 13.1.0 | [Ligot.Tests.csproj](#LigottestsLigottestscsproj) | NuGet パッケージのアップグレードをおすすめします |
+| Microsoft.AspNetCore.Authentication.Negotiate | 8.0.0 | 10.0.1 | [Ligot.BackEnd.csproj](#LigotdbapiLigotbackendcsproj)<br/>[Ligot.FrontEnd.csproj](#LigotwebLigotfrontendcsproj) | NuGet パッケージのアップグレードをおすすめします |
+| Microsoft.AspNetCore.OpenApi | 9.0.0 | 10.0.1 | [Ligot.ApiService.csproj](#LigotapiserviceLigotapiservicecsproj) | NuGet パッケージのアップグレードをおすすめします |
+| Microsoft.EntityFrameworkCore.Design | 8.0.12 | 10.0.1 | [Ligot.BackEnd.csproj](#LigotdbapiLigotbackendcsproj) | NuGet パッケージのアップグレードをおすすめします |
+| Microsoft.EntityFrameworkCore.Tools | 8.0.12 | 10.0.1 | [Ligot.BackEnd.csproj](#LigotdbapiLigotbackendcsproj) | NuGet パッケージのアップグレードをおすすめします |
+| Microsoft.Extensions.Http.Resilience | 9.0.0 | 10.1.0 | [Ligot.ServiceDefaults.csproj](#LigotservicedefaultsLigotservicedefaultscsproj) | NuGet パッケージのアップグレードをおすすめします |
+| Microsoft.Extensions.ServiceDiscovery | 9.0.0 | 10.1.0 | [Ligot.ServiceDefaults.csproj](#LigotservicedefaultsLigotservicedefaultscsproj) | NuGet パッケージのアップグレードをおすすめします |
+| MSTest | 3.4.3 |  | [Ligot.Tests.csproj](#LigottestsLigottestscsproj) | ✅Compatible |
+| Npgsql.EntityFrameworkCore.PostgreSQL | 8.0.8 |  | [Ligot.BackEnd.csproj](#LigotdbapiLigotbackendcsproj) | ✅Compatible |
+| OpenTelemetry.Exporter.OpenTelemetryProtocol | 1.9.0 |  | [Ligot.ServiceDefaults.csproj](#LigotservicedefaultsLigotservicedefaultscsproj) | ✅Compatible |
+| OpenTelemetry.Extensions.Hosting | 1.9.0 |  | [Ligot.ServiceDefaults.csproj](#LigotservicedefaultsLigotservicedefaultscsproj) | ✅Compatible |
+| OpenTelemetry.Instrumentation.AspNetCore | 1.9.0 | 1.14.0 | [Ligot.ServiceDefaults.csproj](#LigotservicedefaultsLigotservicedefaultscsproj) | NuGet パッケージのアップグレードをおすすめします |
+| OpenTelemetry.Instrumentation.Http | 1.9.0 | 1.14.0 | [Ligot.ServiceDefaults.csproj](#LigotservicedefaultsLigotservicedefaultscsproj) | NuGet パッケージのアップグレードをおすすめします |
+| OpenTelemetry.Instrumentation.Runtime | 1.9.0 |  | [Ligot.ServiceDefaults.csproj](#LigotservicedefaultsLigotservicedefaultscsproj) | ✅Compatible |
+| Swashbuckle.AspNetCore | 6.5.0 |  | [Ligot.BackEnd.csproj](#LigotdbapiLigotbackendcsproj) | ✅Compatible |
 
 ## Top API Migration Challenges
 
@@ -116,12 +116,12 @@ Legend:
 
 ```mermaid
 flowchart LR
-    P1["<b>📦&nbsp;AspireApp1.AppHost.csproj</b><br/><small>net9.0</small>"]
-    P2["<b>📦&nbsp;AspireApp1.ServiceDefaults.csproj</b><br/><small>net9.0</small>"]
-    P3["<b>📦&nbsp;AspireApp1.ApiService.csproj</b><br/><small>net9.0</small>"]
-    P4["<b>📦&nbsp;AspireApp1.FrontEnd.csproj</b><br/><small>net9.0</small>"]
-    P5["<b>📦&nbsp;AspireApp1.Tests.csproj</b><br/><small>net9.0</small>"]
-    P6["<b>📦&nbsp;AspireApp1.BackEnd.csproj</b><br/><small>net9.0</small>"]
+    P1["<b>📦&nbsp;Ligot.AppHost.csproj</b><br/><small>net9.0</small>"]
+    P2["<b>📦&nbsp;Ligot.ServiceDefaults.csproj</b><br/><small>net9.0</small>"]
+    P3["<b>📦&nbsp;Ligot.ApiService.csproj</b><br/><small>net9.0</small>"]
+    P4["<b>📦&nbsp;Ligot.FrontEnd.csproj</b><br/><small>net9.0</small>"]
+    P5["<b>📦&nbsp;Ligot.Tests.csproj</b><br/><small>net9.0</small>"]
+    P6["<b>📦&nbsp;Ligot.BackEnd.csproj</b><br/><small>net9.0</small>"]
     P1 --> P3
     P1 --> P4
     P1 --> P6
@@ -129,19 +129,19 @@ flowchart LR
     P4 --> P2
     P5 --> P1
     P6 --> P2
-    click P1 "#aspireapp1apphostaspireapp1apphostcsproj"
-    click P2 "#aspireapp1servicedefaultsaspireapp1servicedefaultscsproj"
-    click P3 "#aspireapp1apiserviceaspireapp1apiservicecsproj"
-    click P4 "#aspireapp1webaspireapp1frontendcsproj"
-    click P5 "#aspireapp1testsaspireapp1testscsproj"
-    click P6 "#aspireapp1dbapiaspireapp1backendcsproj"
+    click P1 "#LigotapphostLigotapphostcsproj"
+    click P2 "#LigotservicedefaultsLigotservicedefaultscsproj"
+    click P3 "#LigotapiserviceLigotapiservicecsproj"
+    click P4 "#LigotwebLigotfrontendcsproj"
+    click P5 "#LigottestsLigottestscsproj"
+    click P6 "#LigotdbapiLigotbackendcsproj"
 
 ```
 
 ## Project Details
 
-<a id="aspireapp1apiserviceaspireapp1apiservicecsproj"></a>
-### AspireApp1.ApiService\AspireApp1.ApiService.csproj
+<a id="LigotapiserviceLigotapiservicecsproj"></a>
+### Ligot.ApiService\Ligot.ApiService.csproj
 
 #### Project Info
 
@@ -165,16 +165,16 @@ Legend:
 ```mermaid
 flowchart TB
     subgraph upstream["Dependants (1)"]
-        P1["<b>📦&nbsp;AspireApp1.AppHost.csproj</b><br/><small>net9.0</small>"]
-        click P1 "#aspireapp1apphostaspireapp1apphostcsproj"
+        P1["<b>📦&nbsp;Ligot.AppHost.csproj</b><br/><small>net9.0</small>"]
+        click P1 "#LigotapphostLigotapphostcsproj"
     end
-    subgraph current["AspireApp1.ApiService.csproj"]
-        MAIN["<b>📦&nbsp;AspireApp1.ApiService.csproj</b><br/><small>net9.0</small>"]
-        click MAIN "#aspireapp1apiserviceaspireapp1apiservicecsproj"
+    subgraph current["Ligot.ApiService.csproj"]
+        MAIN["<b>📦&nbsp;Ligot.ApiService.csproj</b><br/><small>net9.0</small>"]
+        click MAIN "#LigotapiserviceLigotapiservicecsproj"
     end
     subgraph downstream["Dependencies (1"]
-        P2["<b>📦&nbsp;AspireApp1.ServiceDefaults.csproj</b><br/><small>net9.0</small>"]
-        click P2 "#aspireapp1servicedefaultsaspireapp1servicedefaultscsproj"
+        P2["<b>📦&nbsp;Ligot.ServiceDefaults.csproj</b><br/><small>net9.0</small>"]
+        click P2 "#LigotservicedefaultsLigotservicedefaultscsproj"
     end
     P1 --> MAIN
     MAIN --> P2
@@ -191,8 +191,8 @@ flowchart TB
 | ✅ Compatible | 30 |  |
 | ***Total APIs Analyzed*** | ***31*** |  |
 
-<a id="aspireapp1apphostaspireapp1apphostcsproj"></a>
-### AspireApp1.AppHost\AspireApp1.AppHost.csproj
+<a id="LigotapphostLigotapphostcsproj"></a>
+### Ligot.AppHost\Ligot.AppHost.csproj
 
 #### Project Info
 
@@ -216,20 +216,20 @@ Legend:
 ```mermaid
 flowchart TB
     subgraph upstream["Dependants (1)"]
-        P5["<b>📦&nbsp;AspireApp1.Tests.csproj</b><br/><small>net9.0</small>"]
-        click P5 "#aspireapp1testsaspireapp1testscsproj"
+        P5["<b>📦&nbsp;Ligot.Tests.csproj</b><br/><small>net9.0</small>"]
+        click P5 "#LigottestsLigottestscsproj"
     end
-    subgraph current["AspireApp1.AppHost.csproj"]
-        MAIN["<b>📦&nbsp;AspireApp1.AppHost.csproj</b><br/><small>net9.0</small>"]
-        click MAIN "#aspireapp1apphostaspireapp1apphostcsproj"
+    subgraph current["Ligot.AppHost.csproj"]
+        MAIN["<b>📦&nbsp;Ligot.AppHost.csproj</b><br/><small>net9.0</small>"]
+        click MAIN "#LigotapphostLigotapphostcsproj"
     end
     subgraph downstream["Dependencies (3"]
-        P3["<b>📦&nbsp;AspireApp1.ApiService.csproj</b><br/><small>net9.0</small>"]
-        P4["<b>📦&nbsp;AspireApp1.FrontEnd.csproj</b><br/><small>net9.0</small>"]
-        P6["<b>📦&nbsp;AspireApp1.BackEnd.csproj</b><br/><small>net9.0</small>"]
-        click P3 "#aspireapp1apiserviceaspireapp1apiservicecsproj"
-        click P4 "#aspireapp1webaspireapp1frontendcsproj"
-        click P6 "#aspireapp1dbapiaspireapp1backendcsproj"
+        P3["<b>📦&nbsp;Ligot.ApiService.csproj</b><br/><small>net9.0</small>"]
+        P4["<b>📦&nbsp;Ligot.FrontEnd.csproj</b><br/><small>net9.0</small>"]
+        P6["<b>📦&nbsp;Ligot.BackEnd.csproj</b><br/><small>net9.0</small>"]
+        click P3 "#LigotapiserviceLigotapiservicecsproj"
+        click P4 "#LigotwebLigotfrontendcsproj"
+        click P6 "#LigotdbapiLigotbackendcsproj"
     end
     P5 --> MAIN
     MAIN --> P3
@@ -248,8 +248,8 @@ flowchart TB
 | ✅ Compatible | 49 |  |
 | ***Total APIs Analyzed*** | ***49*** |  |
 
-<a id="aspireapp1dbapiaspireapp1backendcsproj"></a>
-### AspireApp1.DbApi\AspireApp1.BackEnd.csproj
+<a id="LigotdbapiLigotbackendcsproj"></a>
+### Ligot.DbApi\Ligot.BackEnd.csproj
 
 #### Project Info
 
@@ -273,16 +273,16 @@ Legend:
 ```mermaid
 flowchart TB
     subgraph upstream["Dependants (1)"]
-        P1["<b>📦&nbsp;AspireApp1.AppHost.csproj</b><br/><small>net9.0</small>"]
-        click P1 "#aspireapp1apphostaspireapp1apphostcsproj"
+        P1["<b>📦&nbsp;Ligot.AppHost.csproj</b><br/><small>net9.0</small>"]
+        click P1 "#LigotapphostLigotapphostcsproj"
     end
-    subgraph current["AspireApp1.BackEnd.csproj"]
-        MAIN["<b>📦&nbsp;AspireApp1.BackEnd.csproj</b><br/><small>net9.0</small>"]
-        click MAIN "#aspireapp1dbapiaspireapp1backendcsproj"
+    subgraph current["Ligot.BackEnd.csproj"]
+        MAIN["<b>📦&nbsp;Ligot.BackEnd.csproj</b><br/><small>net9.0</small>"]
+        click MAIN "#LigotdbapiLigotbackendcsproj"
     end
     subgraph downstream["Dependencies (1"]
-        P2["<b>📦&nbsp;AspireApp1.ServiceDefaults.csproj</b><br/><small>net9.0</small>"]
-        click P2 "#aspireapp1servicedefaultsaspireapp1servicedefaultscsproj"
+        P2["<b>📦&nbsp;Ligot.ServiceDefaults.csproj</b><br/><small>net9.0</small>"]
+        click P2 "#LigotservicedefaultsLigotservicedefaultscsproj"
     end
     P1 --> MAIN
     MAIN --> P2
@@ -299,8 +299,8 @@ flowchart TB
 | ✅ Compatible | 2208 |  |
 | ***Total APIs Analyzed*** | ***2209*** |  |
 
-<a id="aspireapp1servicedefaultsaspireapp1servicedefaultscsproj"></a>
-### AspireApp1.ServiceDefaults\AspireApp1.ServiceDefaults.csproj
+<a id="LigotservicedefaultsLigotservicedefaultscsproj"></a>
+### Ligot.ServiceDefaults\Ligot.ServiceDefaults.csproj
 
 #### Project Info
 
@@ -324,16 +324,16 @@ Legend:
 ```mermaid
 flowchart TB
     subgraph upstream["Dependants (3)"]
-        P3["<b>📦&nbsp;AspireApp1.ApiService.csproj</b><br/><small>net9.0</small>"]
-        P4["<b>📦&nbsp;AspireApp1.FrontEnd.csproj</b><br/><small>net9.0</small>"]
-        P6["<b>📦&nbsp;AspireApp1.BackEnd.csproj</b><br/><small>net9.0</small>"]
-        click P3 "#aspireapp1apiserviceaspireapp1apiservicecsproj"
-        click P4 "#aspireapp1webaspireapp1frontendcsproj"
-        click P6 "#aspireapp1dbapiaspireapp1backendcsproj"
+        P3["<b>📦&nbsp;Ligot.ApiService.csproj</b><br/><small>net9.0</small>"]
+        P4["<b>📦&nbsp;Ligot.FrontEnd.csproj</b><br/><small>net9.0</small>"]
+        P6["<b>📦&nbsp;Ligot.BackEnd.csproj</b><br/><small>net9.0</small>"]
+        click P3 "#LigotapiserviceLigotapiservicecsproj"
+        click P4 "#LigotwebLigotfrontendcsproj"
+        click P6 "#LigotdbapiLigotbackendcsproj"
     end
-    subgraph current["AspireApp1.ServiceDefaults.csproj"]
-        MAIN["<b>📦&nbsp;AspireApp1.ServiceDefaults.csproj</b><br/><small>net9.0</small>"]
-        click MAIN "#aspireapp1servicedefaultsaspireapp1servicedefaultscsproj"
+    subgraph current["Ligot.ServiceDefaults.csproj"]
+        MAIN["<b>📦&nbsp;Ligot.ServiceDefaults.csproj</b><br/><small>net9.0</small>"]
+        click MAIN "#LigotservicedefaultsLigotservicedefaultscsproj"
     end
     P3 --> MAIN
     P4 --> MAIN
@@ -351,8 +351,8 @@ flowchart TB
 | ✅ Compatible | 102 |  |
 | ***Total APIs Analyzed*** | ***102*** |  |
 
-<a id="aspireapp1testsaspireapp1testscsproj"></a>
-### AspireApp1.Tests\AspireApp1.Tests.csproj
+<a id="LigottestsLigottestscsproj"></a>
+### Ligot.Tests\Ligot.Tests.csproj
 
 #### Project Info
 
@@ -375,13 +375,13 @@ Legend:
 
 ```mermaid
 flowchart TB
-    subgraph current["AspireApp1.Tests.csproj"]
-        MAIN["<b>📦&nbsp;AspireApp1.Tests.csproj</b><br/><small>net9.0</small>"]
-        click MAIN "#aspireapp1testsaspireapp1testscsproj"
+    subgraph current["Ligot.Tests.csproj"]
+        MAIN["<b>📦&nbsp;Ligot.Tests.csproj</b><br/><small>net9.0</small>"]
+        click MAIN "#LigottestsLigottestscsproj"
     end
     subgraph downstream["Dependencies (1"]
-        P1["<b>📦&nbsp;AspireApp1.AppHost.csproj</b><br/><small>net9.0</small>"]
-        click P1 "#aspireapp1apphostaspireapp1apphostcsproj"
+        P1["<b>📦&nbsp;Ligot.AppHost.csproj</b><br/><small>net9.0</small>"]
+        click P1 "#LigotapphostLigotapphostcsproj"
     end
     MAIN --> P1
 
@@ -397,8 +397,8 @@ flowchart TB
 | ✅ Compatible | 64 |  |
 | ***Total APIs Analyzed*** | ***65*** |  |
 
-<a id="aspireapp1webaspireapp1frontendcsproj"></a>
-### AspireApp1.Web\AspireApp1.FrontEnd.csproj
+<a id="LigotwebLigotfrontendcsproj"></a>
+### Ligot.Web\Ligot.FrontEnd.csproj
 
 #### Project Info
 
@@ -422,16 +422,16 @@ Legend:
 ```mermaid
 flowchart TB
     subgraph upstream["Dependants (1)"]
-        P1["<b>📦&nbsp;AspireApp1.AppHost.csproj</b><br/><small>net9.0</small>"]
-        click P1 "#aspireapp1apphostaspireapp1apphostcsproj"
+        P1["<b>📦&nbsp;Ligot.AppHost.csproj</b><br/><small>net9.0</small>"]
+        click P1 "#LigotapphostLigotapphostcsproj"
     end
-    subgraph current["AspireApp1.FrontEnd.csproj"]
-        MAIN["<b>📦&nbsp;AspireApp1.FrontEnd.csproj</b><br/><small>net9.0</small>"]
-        click MAIN "#aspireapp1webaspireapp1frontendcsproj"
+    subgraph current["Ligot.FrontEnd.csproj"]
+        MAIN["<b>📦&nbsp;Ligot.FrontEnd.csproj</b><br/><small>net9.0</small>"]
+        click MAIN "#LigotwebLigotfrontendcsproj"
     end
     subgraph downstream["Dependencies (1"]
-        P2["<b>📦&nbsp;AspireApp1.ServiceDefaults.csproj</b><br/><small>net9.0</small>"]
-        click P2 "#aspireapp1servicedefaultsaspireapp1servicedefaultscsproj"
+        P2["<b>📦&nbsp;Ligot.ServiceDefaults.csproj</b><br/><small>net9.0</small>"]
+        click P2 "#LigotservicedefaultsLigotservicedefaultscsproj"
     end
     P1 --> MAIN
     MAIN --> P2
@@ -447,4 +447,5 @@ flowchart TB
 | 🔵 Behavioral change | 36 | Low - Behavioral changes that may require testing at runtime |
 | ✅ Compatible | 7219 |  |
 | ***Total APIs Analyzed*** | ***7255*** |  |
+
 

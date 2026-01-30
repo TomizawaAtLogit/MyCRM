@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 
 Write-Host "Stopping Aspire app if running..." -ForegroundColor Yellow
 # Stop any running Aspire processes
-Get-Process | Where-Object { $_.ProcessName -like "*AspireApp1*" -or $_.ProcessName -eq "dotnet" } | Where-Object { $_.Path -like "*AspireApp1*" } | Stop-Process -Force -ErrorAction SilentlyContinue
+Get-Process | Where-Object { $_.ProcessName -like "*Ligot*" -or $_.ProcessName -eq "dotnet" } | Where-Object { $_.Path -like "*Ligot*" } | Stop-Process -Force -ErrorAction SilentlyContinue
 
 Write-Host "Recreating PostgreSQL database using Docker..." -ForegroundColor Cyan
 
@@ -13,7 +13,7 @@ Write-Host "Recreating PostgreSQL database using Docker..." -ForegroundColor Cya
 $dbName = "aspire_db"
 $dbUser = "postgres"
 $dbPassword = "postgrespw"
-$containerName = "aspireapp1-postgres-1"
+$containerName = "Ligot-postgres-1"
 
 try {
     # Check if Docker container is running
@@ -81,7 +81,7 @@ INSERT INTO user_roles (user_id, role_id) VALUES (1, 1);
     Write-Host "  - 1 admin user" -ForegroundColor White
     
     Write-Host "`nYou can now start the Aspire app:" -ForegroundColor Yellow
-    Write-Host "  cd AspireApp1.AppHost" -ForegroundColor White
+    Write-Host "  cd Ligot.AppHost" -ForegroundColor White
     Write-Host "  dotnet run" -ForegroundColor White
 }
 catch {
@@ -89,3 +89,4 @@ catch {
     Write-Host "Make sure Docker is running and the PostgreSQL container is available." -ForegroundColor Yellow
     exit 1
 }
+

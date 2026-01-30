@@ -37,10 +37,10 @@ The dashboard metrics are **calculated on-demand** and **not automatically sched
 
 | File | Purpose |
 |------|---------|
-| [AspireApp1.DbApi/Controllers/DashboardController.cs](AspireApp1.DbApi/Controllers/DashboardController.cs) | API endpoints for dashboard operations |
-| [AspireApp1.DbApi/Services/DashboardService.cs](AspireApp1.DbApi/Services/DashboardService.cs) | Business logic for calculating metrics |
-| [AspireApp1.Web/Components/Pages/Dashboard.razor](AspireApp1.Web/Components/Pages/Dashboard.razor) | Frontend dashboard page |
-| [AspireApp1.Web/DashboardApiClient.cs](AspireApp1.Web/DashboardApiClient.cs) | API client for frontend |
+| [Ligot.DbApi/Controllers/DashboardController.cs](Ligot.DbApi/Controllers/DashboardController.cs) | API endpoints for dashboard operations |
+| [Ligot.DbApi/Services/DashboardService.cs](Ligot.DbApi/Services/DashboardService.cs) | Business logic for calculating metrics |
+| [Ligot.Web/Components/Pages/Dashboard.razor](Ligot.Web/Components/Pages/Dashboard.razor) | Frontend dashboard page |
+| [Ligot.Web/DashboardApiClient.cs](Ligot.Web/DashboardApiClient.cs) | API client for frontend |
 
 ---
 
@@ -143,3 +143,4 @@ Based on your concern about night-time data collection:
 - Do you want to enable automatic nightly snapshots?
 - Do you want to trigger manual snapshots from the UI?
 - Do you need to adjust when/how snapshots are created?
+
