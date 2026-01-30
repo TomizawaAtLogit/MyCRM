@@ -141,14 +141,14 @@ Run initial database setup:
 
 # For Staging
 dotnet ef database update \
-  --project AspireApp1.DbApi/AspireApp1.BackEnd.csproj \
-  --startup-project AspireApp1.DbApi/AspireApp1.BackEnd.csproj \
+  --project Ligot.DbApi/Ligot.BackEnd.csproj \
+  --startup-project Ligot.DbApi/Ligot.BackEnd.csproj \
   --connection "$STAGING_CONNECTION"
 
 # For Production (after staging is verified)
 dotnet ef database update \
-  --project AspireApp1.DbApi/AspireApp1.BackEnd.csproj \
-  --startup-project AspireApp1.DbApi/AspireApp1.BackEnd.csproj \
+  --project Ligot.DbApi/Ligot.BackEnd.csproj \
+  --startup-project Ligot.DbApi/Ligot.BackEnd.csproj \
   --connection "$PRODUCTION_CONNECTION"
 ```
 
@@ -283,3 +283,4 @@ You've successfully completed the setup when:
 **Congratulations!** Your Azure CI/CD pipeline is now ready for use. 🎉
 
 For ongoing operations, refer to `DEPLOYMENT.md` and `RUNBOOKS/ALERTS-AND-ESCALATION.md`.
+

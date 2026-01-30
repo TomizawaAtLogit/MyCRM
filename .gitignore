@@ -366,4 +366,4 @@ FodyWeavers.xsd
 FileUploads/
 
 # Development settings with API keys
-AspireApp1.Web/appsettings.Development.json
+Ligot.Web/appsettings.Development.json

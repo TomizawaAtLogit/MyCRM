@@ -35,7 +35,7 @@ This implementation adds Google Maps functionality to the Customers page, allowi
 ### 4. Configuration & Security
 - **API Key Configuration**: Added to `appsettings.json` with placeholder
 - **Template File**: Created `appsettings.Development.json.template` for developer setup
-- **Gitignore**: Added specific ignore rule for `AspireApp1.Web/appsettings.Development.json`
+- **Gitignore**: Added specific ignore rule for `Ligot.Web/appsettings.Development.json`
 - **Documentation**: Created comprehensive `GOOGLE_MAPS_SETUP.md`
 
 ## How It Works
@@ -83,12 +83,12 @@ See `GOOGLE_MAPS_SETUP.md` for detailed setup instructions.
 ## Files Changed
 ```
 .gitignore
-AspireApp1.DbApi/
+Ligot.DbApi/
   ├── Controllers/CustomersController.cs
   ├── DTOs/CustomerDTOs.cs
   ├── Migrations/20260115054913_AddSiteCoordinates.cs
   └── Models/CustomerSite.cs
-AspireApp1.Web/
+Ligot.Web/
   ├── Components/
   │   ├── App.razor
   │   └── Pages/SiteTab.razor
@@ -120,3 +120,4 @@ If you encounter issues:
 2. Check browser console for JavaScript errors
 3. Ensure Maps JavaScript API is enabled in Google Cloud Console
 4. Review `GOOGLE_MAPS_SETUP.md` for troubleshooting tips
+

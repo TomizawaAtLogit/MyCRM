@@ -33,7 +33,7 @@ You were getting "Access Denied" on the Admin page even after setting "Full acce
 Your existing database still has the old permission format. You need to update it with one of these methods:
 
 #### Option A: Using SQL (Recommended)
-Run the following SQL commands against your `aspireapp1` database:
+Run the following SQL commands against your `Ligot` database:
 
 ```sql
 -- Admin role - full control on everything
@@ -64,14 +64,14 @@ SELECT "Name", "PagePermissions" FROM "Roles" ORDER BY "Name";
 Run: `FIX-PERMISSIONS-FORMAT.sql`
 
 #### Option C: Delete and recreate (If starting fresh)
-- Delete the `aspireapp1` database
+- Delete the `Ligot` database
 - Restart the application - it will recreate the database with the new format
 
 ### Step 2: Restart the Application
 
 After updating the database, restart your Aspire application:
 ```bash
-dotnet run --project AspireApp1.AppHost
+dotnet run --project Ligot.AppHost
 ```
 
 ### Step 3: Test Access
@@ -103,12 +103,12 @@ New format:  "Admin:FullControl,Projects:ReadOnly,Customers:None"
 
 ## Files Modified
 
-- `AspireApp1.Web/Components/Pages/Admin.razor` - UI improvements
-- `AspireApp1.Web/Services/AuthorizationService.cs` - Permission parsing
-- `AspireApp1.DbApi/Authorization/AdminPolicyHandler.cs` - Permission checking
-- `AspireApp1.DbApi/Authorization/PreSalesPolicyHandler.cs` - Permission checking
-- `AspireApp1.DbApi/Controllers/AuditsController.cs` - Permission checking
-- `AspireApp1.DbApi/Program.cs` - Default role initialization
+- `Ligot.Web/Components/Pages/Admin.razor` - UI improvements
+- `Ligot.Web/Services/AuthorizationService.cs` - Permission parsing
+- `Ligot.DbApi/Authorization/AdminPolicyHandler.cs` - Permission checking
+- `Ligot.DbApi/Authorization/PreSalesPolicyHandler.cs` - Permission checking
+- `Ligot.DbApi/Controllers/AuditsController.cs` - Permission checking
+- `Ligot.DbApi/Program.cs` - Default role initialization
 
 ## Files Created (For Reference)
 
@@ -135,3 +135,4 @@ If you continue to experience access issues, check:
 1. Database was updated with new permission format
 2. Your user has a role with "Admin:FullControl" permission
 3. Application was restarted after database changes
+

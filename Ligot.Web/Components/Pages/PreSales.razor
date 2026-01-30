@@ -1,0 +1,865 @@
+@page "/presales"
+@rendermode InteractiveServer
+@using Ligot.Web
+@using Ligot.Web.Services
+@using System.ComponentModel.DataAnnotations
+@inherits Ligot.Web.Components.Pages.PreSalesBase
+
+<PageTitle>@Localizer.GetString("Pre-sales Proposals")</PageTitle>
+
+<PageAccessGuard PageName="PreSales">
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">@Localizer.GetString("Pre-sales Proposals")</h1>
+    @if (!isReadOnly)
+    {
+        <button class="btn btn-primary" @onclick="ShowCreateModal">
+            <i class="bi bi-plus-circle me-2"></i>@Localizer.GetString("Create Proposal")
+        </button>
+    }
+</div>
+
+@if (showToast && !string.IsNullOrEmpty(toastMessage))
+{
+    <div class="alert @(toastType == "success" ? "alert-success" : "alert-danger") alert-dismissible fade show" role="alert">
+        @toastMessage
+        <button type="button" class="btn-close" @onclick="() => showToast = false"></button>
+    </div>
+}
+
+<div class="row mb-3">
+    <div class="col-md-3">
+        <label class="form-label">@Localizer.GetString("Customer")</label>
+        <select class="form-select" value="@filterCustomerId" @onchange="OnCustomerFilterChanged">
+            <option value="">@Localizer.GetString("All Customers")</option>
+            @if (customers != null)
+            {
+                @foreach (var customer in customers)
+                {
+                    <option value="@customer.Id">@customer.Name</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">@Localizer.GetString("Status")</label>
+        <select class="form-select" value="@filterStatus" @onchange="OnStatusFilterChanged">
+            <option value="">@Localizer.GetString("All Statuses")</option>
+            <option value="Draft">@GetStatusLabel(PreSalesStatus.Draft)</option>
+            <option value="InReview">@GetStatusLabel(PreSalesStatus.InReview)</option>
+            <option value="Pending">@GetStatusLabel(PreSalesStatus.Pending)</option>
+            <option value="Approved">@GetStatusLabel(PreSalesStatus.Approved)</option>
+            <option value="Rejected">@GetStatusLabel(PreSalesStatus.Rejected)</option>
+            <option value="Closed">@GetStatusLabel(PreSalesStatus.Closed)</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">@Localizer.GetString("Stage")</label>
+        <select class="form-select" value="@filterStage" @onchange="OnStageFilterChanged">
+            <option value="">@Localizer.GetString("All Stages")</option>
+            <option value="InitialContact">@GetStageLabel(PreSalesStage.InitialContact)</option>
+            <option value="RequirementGathering">@GetStageLabel(PreSalesStage.RequirementGathering)</option>
+            <option value="ProposalDevelopment">@GetStageLabel(PreSalesStage.ProposalDevelopment)</option>
+            <option value="PresentationScheduled">@GetStageLabel(PreSalesStage.PresentationScheduled)</option>
+            <option value="NegotiationInProgress">@GetStageLabel(PreSalesStage.NegotiationInProgress)</option>
+            <option value="AwaitingDecision">@GetStageLabel(PreSalesStage.AwaitingDecision)</option>
+            <option value="Won">@GetStageLabel(PreSalesStage.Won)</option>
+            <option value="Lost">@GetStageLabel(PreSalesStage.Lost)</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">@Localizer.GetString("Assigned To")</label>
+        <select class="form-select" value="@filterAssignedToUserId" @onchange="OnAssignedToFilterChanged">
+            <option value="">@Localizer.GetString("All Users")</option>
+            @if (users != null)
+            {
+                @foreach (var user in users.Where(u => u.IsActive))
+                {
+                    <option value="@user.Id">@user.DisplayName</option>
+                }
+            }
+        </select>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">@Localizer.GetString("Loading...")</span>
+        </div>
+    </div>
+}
+else if (filteredProposals != null && filteredProposals.Any())
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <span class="text-muted small">@GetPaginationInfo()</span>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            <label class="mb-0 me-2">@Localizer.GetString("Items per page"):</label>
+            <select class="form-select form-select-sm" style="width: auto;" @onchange="OnPageSizeChanged" value="@pageSize.ToString()">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th class="text-center" style="width: 48px;"></th>
+                    <th>@Localizer.GetString("Title")</th>
+                    <th>@Localizer.GetString("Customer")</th>
+                    <th>@Localizer.GetString("Status")</th>
+                    <th>@Localizer.GetString("Stage")</th>
+                    <th>@Localizer.GetString("Assigned To")</th>
+                    <th>@Localizer.GetString("Estimated Value")</th>
+                    <th>@Localizer.GetString("Probability")</th>
+                    <th>@Localizer.GetString("Expected Close")</th>
+                    <th>@Localizer.GetString("Actions")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var proposal in GetPaginatedProposals() ?? Array.Empty<PreSalesProposalDto>())
+                {
+                    <tr>
+                        <td class="text-center align-middle">
+                            <button class="btn btn-link btn-chevron" @onclick="() => ToggleProposalExpansionAsync(proposal.Id)" type="button" aria-label="@Localizer.GetString("Activities")">
+                                <i class="bi @(expandedProposals.ContainsKey(proposal.Id) && expandedProposals[proposal.Id] ? "bi-chevron-down" : "bi-chevron-right")"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <strong>@proposal.Title</strong>
+                            @if (!string.IsNullOrWhiteSpace(proposal.Description))
+                            {
+                                var description = proposal.Description;
+                                var isExpanded = proposalDescriptionExpanded.TryGetValue(proposal.Id, out var expanded) && expanded;
+                                var needsToggle = description.Length > 120;
+                                <div class="small text-muted mt-1">
+                                    <span>@(isExpanded || !needsToggle ? description : Truncate(description, 120))</span>
+                                    @if (needsToggle)
+                                    {
+                                        <button type="button" class="btn btn-link btn-sm p-0 ms-2" @onclick="() => ToggleProposalDescription(proposal.Id)">
+                                            @(isExpanded ? Localizer.GetString("Hide") : Localizer.GetString("View"))
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        </td>
+                        <td>@proposal.CustomerName</td>
+                        <td><span class="badge bg-@GetStatusBadgeColor(proposal.Status)">@GetStatusLabel(proposal.Status)</span></td>
+                        <td><span class="badge bg-secondary">@GetStageLabel(proposal.Stage)</span></td>
+                        <td>@proposal.AssignedToUserName</td>
+                        <td>@(proposal.EstimatedValue?.ToString("C") ?? "-")</td>
+                        <td>@(proposal.ProbabilityPercentage?.ToString() + "%" ?? "-")</td>
+                        <td>@(proposal.ExpectedCloseDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                        <td>
+                            @if (!isReadOnly)
+                            {
+                                <button class="btn btn-sm btn-outline-primary" type="button" @onclick="() => ShowEditModal(proposal)" aria-label="@Localizer.GetString("Edit Proposal")">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            }
+                            <button class="btn btn-sm btn-outline-info" type="button" @onclick="() => ShowDetailsModal(proposal)" aria-label="@Localizer.GetString("View Proposal Details")">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            @if (!isReadOnly)
+                            {
+                                <button class="btn btn-sm btn-outline-danger" type="button" @onclick="() => DeleteProposal(proposal.Id)" aria-label="@Localizer.GetString("Delete Proposal")">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                    @if (expandedProposals.ContainsKey(proposal.Id) && expandedProposals[proposal.Id])
+                    {
+                        <tr>
+                            <td colspan="10" class="p-0 border-top-0">
+                                <div class="presales-activities-panel px-4 py-3">
+                                    <ul class="nav nav-tabs mb-3" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                                <button class="nav-link @(GetProposalTab(proposal.Id) == "activities" ? "active" : "")"
+                                                    type="button"
+                                                    @onclick='@(async () => await SetProposalTabAsync(proposal.Id, "activities"))'
+                                                    role="tab">
+                                                <span class="bi bi-calendar-event"></span> @Localizer.GetString("Activities")
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                                <button class="nav-link @(GetProposalTab(proposal.Id) == "workhours" ? "active" : "")"
+                                                    type="button"
+                                                    @onclick='@(async () => await SetProposalTabAsync(proposal.Id, "workhours"))'
+                                                    role="tab">
+                                                <span class="bi bi-clock-history"></span> @Localizer.GetString("Work Hours")
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                                <button class="nav-link @(GetProposalTab(proposal.Id) == "files" ? "active" : "")"
+                                                    type="button"
+                                                    @onclick='@(async () => await SetProposalTabAsync(proposal.Id, "files"))'
+                                                    role="tab">
+                                                <span class="bi bi-file-earmark-arrow-up"></span> @Localizer.GetString("Files")
+                                            </button>
+                                        </li>
+                                    </ul>
+                                    @if (GetProposalTab(proposal.Id) == "activities")
+                                    {
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="mb-0">@Localizer.GetString("Activities")</h6>
+                                            @if (!isReadOnly)
+                                            {
+                                                <button class="btn btn-sm btn-primary" type="button" @onclick="async () => await ShowAddActivityFormAsync(proposal.Id)">
+                                                    <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>@Localizer.GetString("Add New Activity")
+                                                </button>
+                                            }
+                                        </div>
+                                    @if (showAddActivityForm.TryGetValue(proposal.Id, out var showActivityForm) && showActivityForm && newActivityModels.ContainsKey(proposal.Id) && activityCreateContexts.ContainsKey(proposal.Id))
+                                    {
+                                        var model = newActivityModels[proposal.Id];
+                                        var context = activityCreateContexts[proposal.Id];
+                                        var isEditingActivity = editingActivityIds.TryGetValue(proposal.Id, out var editingId) && editingId.HasValue;
+                                        var isProcessing = isProcessingActivity.TryGetValue(proposal.Id, out var processing) && processing;
+                                        <div class="card mb-3">
+                                            <div class="card-header d-flex justify-content-between align-items-center">
+                                                <h6 class="mb-0">@Localizer.GetString(isEditingActivity ? "Edit Activity" : "New Activity")</h6>
+                                                <button class="btn btn-sm btn-secondary" type="button" @onclick="() => CancelActivityEdit(proposal.Id)">@Localizer.GetString("Cancel")</button>
+                                            </div>
+                                            <div class="card-body">
+                                                <EditForm EditContext="context" OnValidSubmit="async () => await SubmitActivityFormAsync(proposal.Id)">
+                                                    <DataAnnotationsValidator />
+                                                    <ValidationSummary />
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">@Localizer.GetString("Activity Date") *</label>
+                                                            <InputDate class="form-control" @bind-Value="model.ActivityDate" />
+                                                            <ValidationMessage For="() => model.ActivityDate" />
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">@Localizer.GetString("Summary") *</label>
+                                                            <InputText class="form-control" @bind-Value="model.Summary" />
+                                                            <ValidationMessage For="() => model.Summary" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">@Localizer.GetString("Description")</label>
+                                                        <InputTextArea class="form-control" rows="3" @bind-Value="model.Description" />
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">@Localizer.GetString("Next Action")</label>
+                                                            <InputText class="form-control" @bind-Value="model.NextAction" />
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">@Localizer.GetString("Performed By")</label>
+                                                            <InputSelect TValue="string?" class="form-select" @bind-Value="model.PerformedBy">
+                                                                @if (users != null)
+                                                                {
+                                                                    @foreach (var user in users.Where(u => u.IsActive))
+                                                                    {
+                                                                        <option value="@user.DisplayName">@user.DisplayName</option>
+                                                                    }
+                                                                }
+                                                            </InputSelect>
+                                                            <ValidationMessage For="() => model.PerformedBy" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 offset-md-6 mb-3">
+                                                            <label class="form-label">&nbsp;</label>
+                                                            <button class="btn btn-primary w-100" type="submit" disabled="@isProcessing">
+                                                                @if (isProcessing)
+                                                                {
+                                                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>@Localizer.GetString(isEditingActivity ? "Saving..." : "Creating...")
+                                                                }
+                                                                else
+                                                                {
+                                                                    @if (isEditingActivity)
+                                                                    {
+                                                                        <i class="bi bi-pencil me-1" aria-hidden="true"></i>@Localizer.GetString("Save Activity")
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>@Localizer.GetString("Create Activity")
+                                                                    }
+                                                                }
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </EditForm>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (IsProposalLoadingActivities(proposal.Id))
+                                    {
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="spinner-border spinner-border-sm" role="status">
+                                                <span class="visually-hidden">@Localizer.GetString("Loading...")</span>
+                                            </div>
+                                            <span>@Localizer.GetString("Loading activities...")</span>
+                                        </div>
+                                    }
+                                    else if (cachedProposalActivities.TryGetValue(proposal.Id, out var inlineActivities) && inlineActivities.Any())
+                                    {
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-hover mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>@Localizer.GetString("Date")</th>
+                                                        <th>@Localizer.GetString("Summary")</th>
+                                                        <th>@Localizer.GetString("Description")</th>
+                                                        <th>@Localizer.GetString("Next Action")</th>
+                                                        <th>@Localizer.GetString("Performed By")</th>
+                                                        <th>@Localizer.GetString("Actions")</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var activity in inlineActivities)
+                                                    {
+                                                        <tr>
+                                                            <td class="small">@activity.ActivityDate.ToLocalTime().ToString("g")</td>
+                                                            <td>@activity.Summary</td>
+                                                            <td class="small text-break">@(string.IsNullOrWhiteSpace(activity.Description) ? "-" : activity.Description)</td>
+                                                            <td class="small">@(string.IsNullOrWhiteSpace(activity.NextAction) ? "-" : activity.NextAction)</td>
+                                                            <td class="small">@(string.IsNullOrWhiteSpace(activity.PerformedBy) ? "-" : activity.PerformedBy)</td>
+                                                            <td>
+                                                                @if (!isReadOnly)
+                                                                {
+                                                                    <button class="btn btn-sm btn-outline-primary me-1" type="button" @onclick="async () => await StartEditActivity(proposal.Id, activity)">
+                                                                        <i class="bi bi-pencil"></i>
+                                                                    </button>
+                                                                    <button class="btn btn-sm btn-outline-danger" type="button" @onclick="async () => await DeleteActivityAsync(proposal.Id, activity.Id)">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </button>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted mb-0">@Localizer.GetString("No activities yet.")</p>
+                                    }
+                            }
+                            else if (GetProposalTab(proposal.Id) == "workhours")
+                            {
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">@Localizer.GetString("Estimated Work Hours")</h6>
+                                    @if (!isReadOnly)
+                                    {
+                                        <button class="btn btn-sm btn-primary" type="button" @onclick="async () => await ShowAddWorkHourFormAsync(proposal.Id)">
+                                            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>@Localizer.GetString("Add Work Hour Entry")
+                                        </button>
+                                    }
+                                </div>
+                                @if (showAddWorkHourForm.TryGetValue(proposal.Id, out var showWorkHourForm) && showWorkHourForm && newWorkHourModels.ContainsKey(proposal.Id) && workHourCreateContexts.ContainsKey(proposal.Id))
+                                {
+                                    var model = newWorkHourModels[proposal.Id];
+                                    var context = workHourCreateContexts[proposal.Id];
+                                    var isEditingWorkHour = editingWorkHourIds.TryGetValue(proposal.Id, out var editingWHId) && editingWHId.HasValue;
+                                    var isProcessing = isProcessingWorkHour.TryGetValue(proposal.Id, out var processing) && processing;
+                                    <div class="card mb-3">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">@Localizer.GetString(isEditingWorkHour ? "Edit Work Hour" : "New Work Hour")</h6>
+                                            <button class="btn btn-sm btn-secondary" type="button" @onclick="() => CancelWorkHourEdit(proposal.Id)">@Localizer.GetString("Cancel")</button>
+                                        </div>
+                                        <div class="card-body">
+                                            <EditForm EditContext="context" OnValidSubmit="async () => await SubmitWorkHourFormAsync(proposal.Id)">
+                                                <DataAnnotationsValidator />
+                                                <ValidationSummary />
+                                                <div class="row">
+                                                    <div class="col-12 mb-3">
+                                                        <label class="form-label">@Localizer.GetString("Title") *</label>
+                                                        <InputText class="form-control" @bind-Value="model.Title" />
+                                                        <ValidationMessage For="() => model.Title" />
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-12 mb-3">
+                                                        <label class="form-label">@Localizer.GetString("Description")</label>
+                                                        <InputTextArea class="form-control" rows="2" @bind-Value="model.Description" />
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-4 mb-3">
+                                                        <label class="form-label">@Localizer.GetString("Number of People") *</label>
+                                                        <InputNumber class="form-control" @bind-Value="model.NumberOfPeople" min="1" />
+                                                        <ValidationMessage For="() => model.NumberOfPeople" />
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label class="form-label">@Localizer.GetString("Working Hours") *</label>
+                                                        <InputNumber class="form-control" @bind-Value="model.WorkingHours" step="1" min="1" />
+                                                        <ValidationMessage For="() => model.WorkingHours" />
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label class="form-label">@Localizer.GetString("Hourly Wage (¥)") *</label>
+                                                        <InputNumber class="form-control" @bind-Value="model.HourlyWage" step="1" min="1" />
+                                                        <ValidationMessage For="() => model.HourlyWage" />
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6 offset-md-6">
+                                                        <button class="btn btn-primary w-100" type="submit" disabled="@isProcessing">
+                                                            @if (isProcessing)
+                                                            {
+                                                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>@Localizer.GetString(isEditingWorkHour ? "Saving..." : "Creating...")
+                                                            }
+                                                            else
+                                                            {
+                                                                @if (isEditingWorkHour)
+                                                                {
+                                                                    <i class="bi bi-pencil me-1" aria-hidden="true"></i>@Localizer.GetString("Save Work Hour")
+                                                                }
+                                                                else
+                                                                {
+                                                                    <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>@Localizer.GetString("Create Work Hour")
+                                                                }
+                                                            }
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </EditForm>
+                                        </div>
+                                    </div>
+                                }
+                                @if (IsProposalLoadingWorkHours(proposal.Id))
+                                {
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="spinner-border spinner-border-sm" role="status">
+                                            <span class="visually-hidden">@Localizer.GetString("Loading...")</span>
+                                        </div>
+                                        <span>@Localizer.GetString("Loading work hours...")</span>
+                                    </div>
+                                }
+                                else if (cachedProposalWorkHours.TryGetValue(proposal.Id, out var inlineWorkHours) && inlineWorkHours.Any())
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover mb-3">
+                                            <thead>
+                                                <tr>
+                                                    <th>@Localizer.GetString("Title")</th>
+                                                    <th>@Localizer.GetString("Description")</th>
+                                                    <th class="text-end">@Localizer.GetString("People")</th>
+                                                    <th class="text-end">@Localizer.GetString("Hours")</th>
+                                                    <th class="text-end">@Localizer.GetString("Hourly Wage")</th>
+                                                    <th class="text-end">@Localizer.GetString("Total Cost")</th>
+                                                    <th>@Localizer.GetString("Actions")</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var workHour in inlineWorkHours)
+                                                {
+                                                    <tr>
+                                                        <td>@workHour.Title</td>
+                                                        <td class="small text-break">@(string.IsNullOrWhiteSpace(workHour.Description) ? "-" : workHour.Description)</td>
+                                                        <td class="text-end">@workHour.NumberOfPeople</td>
+                                                        <td class="text-end">@workHour.WorkingHours</td>
+                                                        <td class="text-end">@FormatCurrency(workHour.HourlyWage)</td>
+                                                        <td class="text-end fw-bold">@FormatCurrency(workHour.TotalCost)</td>
+                                                        <td>
+                                                            @if (!isReadOnly)
+                                                            {
+                                                                <button class="btn btn-sm btn-outline-primary me-1" type="button" @onclick="async () => await StartEditWorkHour(proposal.Id, workHour)">
+                                                                    <i class="bi bi-pencil"></i>
+                                                                </button>
+                                                                <button class="btn btn-sm btn-outline-danger" type="button" @onclick="async () => await DeleteWorkHourAsync(proposal.Id, workHour.Id)">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </button>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="table-active">
+                                                    <th colspan="5" class="text-end">@Localizer.GetString("Total Estimated Cost")</th>
+                                                    <th class="text-end fw-bold fs-5">@FormatCurrency(CalculateTotalEstimatedCost(proposal.Id))</th>
+                                                    <th></th>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="text-muted mb-0">@Localizer.GetString("No work hours yet.")</p>
+                                }
+                            }
+                            else if (GetProposalTab(proposal.Id) == "files")
+                            {
+                                <FileManager EntityType="PreSalesProposal" EntityId="@proposal.Id" isReadOnly="@isReadOnly" />
+                            }
+                        }
+                        </div>
+                    </td>
+                </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+        <nav aria-label="Pagination" class="mt-3">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick="PreviousPage" disabled="@(currentPage <= 1)">@Localizer.GetString("Previous")</button>
+                </li>
+                @for (int i = 1; i <= GetTotalPages(); i++)
+                {
+                    var pageNum = i;
+                    <li class="page-item @(currentPage == pageNum ? "active" : "")">
+                        <button class="page-link" @onclick="() => GoToPage(pageNum)">@pageNum</button>
+                    </li>
+                }
+                <li class="page-item @(currentPage >= GetTotalPages() ? "disabled" : "")">
+                    <button class="page-link" @onclick="NextPage" disabled="@(currentPage >= GetTotalPages())">@Localizer.GetString("Next")</button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        @Localizer.GetString("No proposals found. Create one to get started!")
+    </div>
+}
+
+@* Create/Edit Modal *@
+@if (showModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(editingProposal.Id == 0 ? Localizer.GetString("Create Proposal") : Localizer.GetString("Edit Proposal"))</h5>
+                    <button type="button" class="btn-close" @onclick="HideModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="editingProposal" OnValidSubmit="SaveProposal">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Title") *</label>
+                            <InputText class="form-control" @bind-Value="editingProposal.Title" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Description")</label>
+                            <InputTextArea class="form-control" rows="3" @bind-Value="editingProposal.Description" />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Customer") *</label>
+                                <InputSelect class="form-select" @bind-Value="editingProposal.CustomerId" @bind-Value:after="OnProposalCustomerChanged">
+                                    <option value="0">-- @Localizer.GetString("Customer") --</option>
+                                    @if (customers != null)
+                                    {
+                                        @foreach (var customer in customers)
+                                        {
+                                            <option value="@customer.Id">@customer.Name</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Customer Order")</label>
+                                <InputSelect TValue="int?" class="form-select" @bind-Value="editingProposal.CustomerOrderId" disabled="@(editingProposal.CustomerId == 0)">
+                                    <option value="">-- @Localizer.GetString("None") --</option>
+                                    @if (filteredOrders != null)
+                                    {
+                                        @foreach (var order in filteredOrders)
+                                        {
+                                            <option value="@order.Id">@order.OrderNumber - @order.ContractType</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">@Localizer.GetString("Requirement Definition")</label>
+                                <div class="d-flex">
+                                    <InputSelect class="form-select flex-grow-1" @bind-Value="editingProposal.RequirementDefinitionId">
+                                        <option value="">-- @Localizer.GetString("Requirement Definition") --</option>
+                                        @if (requirements != null)
+                                        {
+                                            @foreach (var requirement in requirements)
+                                            {
+                                                <option value="@requirement.Id">@requirement.Title</option>
+                                            }
+                                        }
+                                    </InputSelect>
+                                    @if (!isReadOnly)
+                                    {
+                                        <button class="btn btn-outline-secondary ms-2" type="button" @onclick="ShowCreateRequirementModal">
+                                            <i class="bi bi-plus-circle me-1"></i>@Localizer.GetString("Add")
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Status")</label>
+                                <InputSelect class="form-select" @bind-Value="editingProposal.Status">
+                                    <option value="@PreSalesStatus.Draft">@GetStatusLabel(PreSalesStatus.Draft)</option>
+                                    <option value="@PreSalesStatus.InReview">@GetStatusLabel(PreSalesStatus.InReview)</option>
+                                    <option value="@PreSalesStatus.Pending">@GetStatusLabel(PreSalesStatus.Pending)</option>
+                                    <option value="@PreSalesStatus.Approved">@GetStatusLabel(PreSalesStatus.Approved)</option>
+                                    <option value="@PreSalesStatus.Rejected">@GetStatusLabel(PreSalesStatus.Rejected)</option>
+                                    <option value="@PreSalesStatus.Closed">@GetStatusLabel(PreSalesStatus.Closed)</option>
+                                </InputSelect>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Stage")</label>
+                                <InputSelect class="form-select" @bind-Value="editingProposal.Stage">
+                                    <option value="@PreSalesStage.InitialContact">@GetStageLabel(PreSalesStage.InitialContact)</option>
+                                    <option value="@PreSalesStage.RequirementGathering">@GetStageLabel(PreSalesStage.RequirementGathering)</option>
+                                    <option value="@PreSalesStage.ProposalDevelopment">@GetStageLabel(PreSalesStage.ProposalDevelopment)</option>
+                                    <option value="@PreSalesStage.PresentationScheduled">@GetStageLabel(PreSalesStage.PresentationScheduled)</option>
+                                    <option value="@PreSalesStage.NegotiationInProgress">@GetStageLabel(PreSalesStage.NegotiationInProgress)</option>
+                                    <option value="@PreSalesStage.AwaitingDecision">@GetStageLabel(PreSalesStage.AwaitingDecision)</option>
+                                    <option value="@PreSalesStage.Won">@GetStageLabel(PreSalesStage.Won)</option>
+                                    <option value="@PreSalesStage.Lost">@GetStageLabel(PreSalesStage.Lost)</option>
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Assigned To")</label>
+                                <InputSelect TValue="int?" class="form-select" @bind-Value="editingProposal.AssignedToUserId" @bind-Value:after="OnAssignedToChanged">
+                                    <option value="">-- @Localizer.GetString("Unassigned") --</option>
+                                    @if (users != null)
+                                    {
+                                        @foreach (var user in users.Where(u => u.IsActive))
+                                        {
+                                            <option value="@user.Id">@user.DisplayName</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Expected Close Date")</label>
+                                <InputDate class="form-control" @bind-Value="editingProposal.ExpectedCloseDate" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Estimated Value")</label>
+                                <InputNumber class="form-control" @bind-Value="editingProposal.EstimatedValue" />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Probability (%)")</label>
+                                <InputNumber class="form-control" @bind-Value="editingProposal.ProbabilityPercentage" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Notes")</label>
+                            <InputTextArea class="form-control" rows="3" @bind-Value="editingProposal.Notes" />
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="HideModal">@Localizer.GetString("Cancel")</button>
+                            <button type="submit" class="btn btn-primary">
+                                @(editingProposal.Id == 0 ? Localizer.GetString("Create Proposal") : Localizer.GetString("Save Proposal"))
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* Requirement Definition Create Modal *@
+@if (showRequirementModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Localizer.GetString("Add Requirement Definition")</h5>
+                    <button type="button" class="btn-close" @onclick="HideRequirementModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="newRequirementModel" OnValidSubmit="SaveRequirementDefinition">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Title") *</label>
+                            <InputText class="form-control" @bind-Value="newRequirementModel.Title" />
+                            <ValidationMessage For="() => newRequirementModel.Title" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Description")</label>
+                            <InputTextArea class="form-control" rows="3" @bind-Value="newRequirementModel.Description" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Customer") *</label>
+                            <InputSelect class="form-select" @bind-Value="newRequirementModel.CustomerId">
+                                <option value="0">-- @Localizer.GetString("Customer") --</option>
+                                @if (customers != null)
+                                {
+                                    @foreach (var customer in customers)
+                                    {
+                                        <option value="@customer.Id">@customer.Name</option>
+                                    }
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="() => newRequirementModel.CustomerId" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer.GetString("Category")</label>
+                            <InputText class="form-control" @bind-Value="newRequirementModel.Category" />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Priority")</label>
+                                <InputText class="form-control" @bind-Value="newRequirementModel.Priority" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@Localizer.GetString("Status")</label>
+                                <InputText class="form-control" @bind-Value="newRequirementModel.Status" />
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="HideRequirementModal">@Localizer.GetString("Cancel")</button>
+                            <button type="submit" class="btn btn-primary">@Localizer.GetString("Create")</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* Details Modal *@
+@if (showDetailsModal && selectedProposal != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Localizer.GetString("Proposal Details") - @selectedProposal.Title</h5>
+                    <button type="button" class="btn-close" @onclick="HideDetailsModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">@Localizer.GetString("ID"):</dt>
+                                <dd class="col-sm-8">@selectedProposal.Id</dd>
+
+                                <dt class="col-sm-4">@Localizer.GetString("Customer"):</dt>
+                                <dd class="col-sm-8">@selectedProposal.CustomerName</dd>
+
+                                <dt class="col-sm-4">@Localizer.GetString("Status"):</dt>
+                                <dd class="col-sm-8"><span class="badge bg-@GetStatusBadgeColor(selectedProposal.Status)">@GetStatusLabel(selectedProposal.Status)</span></dd>
+
+                                <dt class="col-sm-4">@Localizer.GetString("Stage"):</dt>
+                                <dd class="col-sm-8"><span class="badge bg-secondary">@GetStageLabel(selectedProposal.Stage)</span></dd>
+
+                                <dt class="col-sm-4">@Localizer.GetString("Assigned To"):</dt>
+                                <dd class="col-sm-8">@(selectedProposal.AssignedToUserName ?? Localizer.GetString("Unassigned"))</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-5">@Localizer.GetString("Estimated Value"):</dt>
+                                <dd class="col-sm-7">@(selectedProposal.EstimatedValue?.ToString("C") ?? "-")</dd>
+
+                                <dt class="col-sm-5">@Localizer.GetString("Probability"):</dt>
+                                <dd class="col-sm-7">@(selectedProposal.ProbabilityPercentage?.ToString() + "%" ?? "-")</dd>
+
+                                <dt class="col-sm-5">@Localizer.GetString("Expected Close"):</dt>
+                                <dd class="col-sm-7">@(selectedProposal.ExpectedCloseDate?.ToString("yyyy-MM-dd") ?? "-")</dd>
+
+                                <dt class="col-sm-5">@Localizer.GetString("Created"):</dt>
+                                <dd class="col-sm-7">@selectedProposal.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+
+                                <dt class="col-sm-5">@Localizer.GetString("Updated"):</dt>
+                                <dd class="col-sm-7">@(selectedProposal.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(selectedProposal.Description))
+                    {
+                        <div class="mt-3">
+                            <h6>@Localizer.GetString("Description"):</h6>
+                            <p>@selectedProposal.Description</p>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(selectedProposal.Notes))
+                    {
+                        <div class="mt-3">
+                            <h6>@Localizer.GetString("Notes"):</h6>
+                            <p>@selectedProposal.Notes</p>
+                        </div>
+                    }
+
+                    <div class="mt-4">
+                        <h6>@Localizer.GetString("Activities")</h6>
+                        @if (proposalActivities != null && proposalActivities.Any())
+                        {
+                            <div class="list-group">
+                                @foreach (var activity in proposalActivities)
+                                {
+                                    <div class="list-group-item d-flex align-items-start justify-content-between">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">@activity.Summary</h6>
+                                                <small>@activity.ActivityDate.ToString("yyyy-MM-dd HH:mm")</small>
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(activity.Description))
+                                            {
+                                                <p class="mb-1">@activity.Description</p>
+                                            }
+                                            <small>@activity.ActivityType - @activity.PerformedBy</small>
+                                        </div>
+                                        <span class="text-muted ms-3 d-flex align-items-center">
+                                            <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                                            <span class="visually-hidden">@Localizer.GetString("Read Activity Details")</span>
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">@Localizer.GetString("No activities yet.")</p>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideDetailsModal">@Localizer.GetString("Close")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+</PageAccessGuard>
+

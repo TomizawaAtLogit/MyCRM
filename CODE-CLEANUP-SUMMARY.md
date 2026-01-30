@@ -22,21 +22,21 @@ Deleted unnecessary files created during implementation:
 - `UPDATE-PERMISSIONS-INSTRUCTIONS.ps1` - Temporary instructions
 
 ### 3. **Fixed Missing Using Statements** ✅
-- Added `using AspireApp1.DbApi.Authorization;` to AuditsController.cs
+- Added `using Ligot.DbApi.Authorization;` to AuditsController.cs
 - Ensures PagePermissionHelper is properly accessible
 
 ## Files Modified
 
 ### Core Refactoring
-- **New File:** `AspireApp1.DbApi/Authorization/PagePermissionHelper.cs`
+- **New File:** `Ligot.DbApi/Authorization/PagePermissionHelper.cs`
   - Centralized permission checking utility
   - Single static method for all permission level checks
   - Handles both new and legacy permission formats
 
 ### Updated to Use Helper
-- `AspireApp1.DbApi/Authorization/AdminPolicyHandler.cs`
-- `AspireApp1.DbApi/Authorization/PreSalesPolicyHandler.cs`
-- `AspireApp1.DbApi/Controllers/AuditsController.cs`
+- `Ligot.DbApi/Authorization/AdminPolicyHandler.cs`
+- `Ligot.DbApi/Authorization/PreSalesPolicyHandler.cs`
+- `Ligot.DbApi/Controllers/AuditsController.cs`
 
 ## Code Quality Improvements
 
@@ -75,3 +75,4 @@ Authorization Flow:
 └─ AuthorizationService (Frontend)
    └─ Parses permissions for UI display
 ```
+

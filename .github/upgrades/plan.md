@@ -1,4 +1,4 @@
-# .NET 10.0 Upgrade Plan - AspireApp1
+# .NET 10.0 Upgrade Plan - Ligot
 
 ## Table of Contents
 
@@ -20,17 +20,17 @@
 
 ### Scenario Description
 
-Upgrade the **AspireApp1** solution from **.NET 9.0** to **.NET 10.0 (Long Term Support)**. This .NET Aspire-based solution consists of 6 projects including frontend (Blazor), backend API, service defaults, orchestration host, API service, and test projects.
+Upgrade the **Ligot** solution from **.NET 9.0** to **.NET 10.0 (Long Term Support)**. This .NET Aspire-based solution consists of 6 projects including frontend (Blazor), backend API, service defaults, orchestration host, API service, and test projects.
 
 ### Scope
 
 **Projects Affected:** 6 projects
-- AspireApp1.ServiceDefaults (Shared service configuration)
-- AspireApp1.ApiService (API service layer)
-- AspireApp1.BackEnd (DbApi - Backend API with EF Core)
-- AspireApp1.FrontEnd (Web - Blazor frontend with Windows Authentication)
-- AspireApp1.AppHost (Aspire orchestration host)
-- AspireApp1.Tests (Test project)
+- Ligot.ServiceDefaults (Shared service configuration)
+- Ligot.ApiService (API service layer)
+- Ligot.BackEnd (DbApi - Backend API with EF Core)
+- Ligot.FrontEnd (Web - Blazor frontend with Windows Authentication)
+- Ligot.AppHost (Aspire orchestration host)
+- Ligot.Tests (Test project)
 
 **Current State:** All projects targeting net9.0
 
@@ -56,7 +56,7 @@ Upgrade the **AspireApp1** solution from **.NET 9.0** to **.NET 10.0 (Long Term 
 
 **Justification:**
 - Small project count (6 projects)
-- Low dependency depth (2 levels: ServiceDefaults Å® Apps Å® AppHost Å® Tests)
+- Low dependency depth (2 levels: ServiceDefaults ÔøΩÔøΩ Apps ÔøΩÔøΩ AppHost ÔøΩÔøΩ Tests)
 - No circular dependencies
 - All projects currently on modern .NET 9.0
 - All projects rated Low difficulty (??)
@@ -85,10 +85,10 @@ Upgrade the **AspireApp1** solution from **.NET 9.0** to **.NET 10.0 (Long Term 
 - ? 0 Binary incompatible changes
 
 **Package Updates:**
-- ?? Aspire packages: 9.0.0 Å® 13.1.0 (major version jump, well-documented upgrade path)
-- ?? Entity Framework Core: 8.0.12 Å® 10.0.1
-- ?? ASP.NET Core Authentication: 8.0.0 Å® 10.0.1
-- ?? OpenTelemetry instrumentation: 1.9.0 Å® 1.14.0
+- ?? Aspire packages: 9.0.0 ÔøΩÔøΩ 13.1.0 (major version jump, well-documented upgrade path)
+- ?? Entity Framework Core: 8.0.12 ÔøΩÔøΩ 10.0.1
+- ?? ASP.NET Core Authentication: 8.0.0 ÔøΩÔøΩ 10.0.1
+- ?? OpenTelemetry instrumentation: 1.9.0 ÔøΩÔøΩ 1.14.0
 - ? 6 packages already compatible (MSTest, Npgsql.EF, OpenTelemetry core packages, Swashbuckle)
 
 ### Iteration Strategy
@@ -161,7 +161,7 @@ This ordering ensures that if issues arise, they're detected at the appropriate 
 ### Execution Approach
 
 **Single Atomic Operation:**
-1. Update all 6 project files (TargetFramework: net9.0 Å® net10.0)
+1. Update all 6 project files (TargetFramework: net9.0 ÔøΩÔøΩ net10.0)
 2. Update all package references across all projects simultaneously
 3. Restore dependencies (`dotnet restore`)
 4. Build entire solution (`dotnet build`)
@@ -190,27 +190,27 @@ The entire upgrade appears as a single cohesive change rather than project-by-pr
 
 ### Dependency Graph Summary
 
-The AspireApp1 solution follows a classic .NET Aspire architecture pattern with clear dependency layers:
+The Ligot solution follows a classic .NET Aspire architecture pattern with clear dependency layers:
 
 ```
 Layer 0 (Foundation):
-  Ñ§Ñü AspireApp1.ServiceDefaults (no dependencies)
+  ÔøΩÔøΩÔøΩÔøΩ Ligot.ServiceDefaults (no dependencies)
 
 Layer 1 (Application Services):
-  Ñ•Ñü AspireApp1.ApiService Å® ServiceDefaults
-  Ñ•Ñü AspireApp1.BackEnd Å® ServiceDefaults
-  Ñ§Ñü AspireApp1.FrontEnd Å® ServiceDefaults
+  ÔøΩÔøΩÔøΩÔøΩ Ligot.ApiService ÔøΩÔøΩ ServiceDefaults
+  ÔøΩÔøΩÔøΩÔøΩ Ligot.BackEnd ÔøΩÔøΩ ServiceDefaults
+  ÔøΩÔøΩÔøΩÔøΩ Ligot.FrontEnd ÔøΩÔøΩ ServiceDefaults
 
 Layer 2 (Orchestration):
-  Ñ§Ñü AspireApp1.AppHost Å® ApiService, BackEnd, FrontEnd
+  ÔøΩÔøΩÔøΩÔøΩ Ligot.AppHost ÔøΩÔøΩ ApiService, BackEnd, FrontEnd
 
 Layer 3 (Testing):
-  Ñ§Ñü AspireApp1.Tests Å® AppHost
+  ÔøΩÔøΩÔøΩÔøΩ Ligot.Tests ÔøΩÔøΩ AppHost
 ```
 
 **Dependency Characteristics:**
 - **No circular dependencies** ?
-- **Maximum depth:** 3 levels (Tests Å® AppHost Å® Services Å® ServiceDefaults)
+- **Maximum depth:** 3 levels (Tests ÔøΩÔøΩ AppHost ÔøΩÔøΩ Services ÔøΩÔøΩ ServiceDefaults)
 - **Widest layer:** 3 projects (Layer 1 - all application services)
 - **Critical path:** ServiceDefaults is the foundation for all application projects
 
@@ -227,14 +227,14 @@ For All-At-Once strategy, all projects are upgraded simultaneously as a single a
 ### Critical Dependencies
 
 **Foundation Project:**
-- **AspireApp1.ServiceDefaults** is consumed by 3 projects (ApiService, BackEnd, FrontEnd)
+- **Ligot.ServiceDefaults** is consumed by 3 projects (ApiService, BackEnd, FrontEnd)
 - Contains shared service configuration, telemetry, resilience, and service discovery
 - No external project dependencies (only NuGet packages)
 - **Must upgrade successfully** as all application services depend on it
 
 **Orchestration Project:**
-- **AspireApp1.AppHost** orchestrates all 3 application services
-- Uses Aspire.Hosting.AppHost package (9.0.0 Å® 13.1.0 major version jump)
+- **Ligot.AppHost** orchestrates all 3 application services
+- Uses Aspire.Hosting.AppHost package (9.0.0 ÔøΩÔøΩ 13.1.0 major version jump)
 - Critical for development/testing experience
 
 **Application Services:**
@@ -252,7 +252,7 @@ For All-At-Once strategy, all projects are upgraded simultaneously as a single a
 
 ## Project-by-Project Migration Plans
 
-### Project: AspireApp1.ServiceDefaults
+### Project: Ligot.ServiceDefaults
 
 **Current State:**
 - Target Framework: net9.0
@@ -274,7 +274,7 @@ For All-At-Once strategy, all projects are upgraded simultaneously as a single a
 - No project dependencies to wait for
 
 #### 2. Framework Update
-Update `AspireApp1.ServiceDefaults\AspireApp1.ServiceDefaults.csproj`:
+Update `Ligot.ServiceDefaults\Ligot.ServiceDefaults.csproj`:
 ```xml
 <TargetFramework>net10.0</TargetFramework>
 ```
@@ -313,7 +313,7 @@ Update `AspireApp1.ServiceDefaults\AspireApp1.ServiceDefaults.csproj`:
 
 ---
 
-### Project: AspireApp1.ApiService
+### Project: Ligot.ApiService
 
 **Current State:**
 - Target Framework: net9.0
@@ -335,7 +335,7 @@ Update `AspireApp1.ServiceDefaults\AspireApp1.ServiceDefaults.csproj`:
 - **ServiceDefaults** must be upgraded first (dependency)
 
 #### 2. Framework Update
-Update `AspireApp1.ApiService\AspireApp1.ApiService.csproj`:
+Update `Ligot.ApiService\Ligot.ApiService.csproj`:
 ```xml
 <TargetFramework>net10.0</TargetFramework>
 ```
@@ -375,7 +375,7 @@ Update `AspireApp1.ApiService\AspireApp1.ApiService.csproj`:
 
 ---
 
-### Project: AspireApp1.BackEnd (DbApi)
+### Project: Ligot.BackEnd (DbApi)
 
 **Current State:**
 - Target Framework: net9.0
@@ -389,8 +389,8 @@ Update `AspireApp1.ApiService\AspireApp1.ApiService.csproj`:
 
 **Target State:**
 - Target Framework: net10.0
-- Entity Framework Core packages updated: 8.0.12 Å® 10.0.1 (2 major versions)
-- Authentication package updated: 8.0.0 Å® 10.0.1
+- Entity Framework Core packages updated: 8.0.12 ÔøΩÔøΩ 10.0.1 (2 major versions)
+- Authentication package updated: 8.0.0 ÔøΩÔøΩ 10.0.1
 
 **Migration Steps:**
 
@@ -399,7 +399,7 @@ Update `AspireApp1.ApiService\AspireApp1.ApiService.csproj`:
 - PostgreSQL database accessible for testing
 
 #### 2. Framework Update
-Update `AspireApp1.DbApi\AspireApp1.BackEnd.csproj`:
+Update `Ligot.DbApi\Ligot.BackEnd.csproj`:
 ```xml
 <TargetFramework>net10.0</TargetFramework>
 ```
@@ -423,7 +423,7 @@ Update `AspireApp1.DbApi\AspireApp1.BackEnd.csproj`:
 - **Action:** Test exception handling scenarios at runtime
 
 **Entity Framework Core (Attention Required):**
-- **EF Core 8 Å® 10** is a 2-major-version jump
+- **EF Core 8 ÔøΩÔøΩ 10** is a 2-major-version jump
 - **Potential Issues:**
   - Migration compatibility (may need regeneration)
   - Query behavior changes
@@ -457,7 +457,7 @@ Update `AspireApp1.DbApi\AspireApp1.BackEnd.csproj`:
 
 ---
 
-### Project: AspireApp1.FrontEnd (Web)
+### Project: Ligot.FrontEnd (Web)
 
 **Current State:**
 - Target Framework: net9.0
@@ -471,7 +471,7 @@ Update `AspireApp1.DbApi\AspireApp1.BackEnd.csproj`:
 
 **Target State:**
 - Target Framework: net10.0
-- Authentication package updated: 8.0.0 Å® 10.0.1
+- Authentication package updated: 8.0.0 ÔøΩÔøΩ 10.0.1
 - All API client code validated (36 `System.Uri` and `HttpContent` behavioral changes)
 
 **Migration Steps:**
@@ -480,7 +480,7 @@ Update `AspireApp1.DbApi\AspireApp1.BackEnd.csproj`:
 - **ServiceDefaults** must be upgraded first (dependency)
 
 #### 2. Framework Update
-Update `AspireApp1.Web\AspireApp1.FrontEnd.csproj`:
+Update `Ligot.Web\Ligot.FrontEnd.csproj`:
 ```xml
 <TargetFramework>net10.0</TargetFramework>
 ```
@@ -548,7 +548,7 @@ Update `AspireApp1.Web\AspireApp1.FrontEnd.csproj`:
 
 ---
 
-### Project: AspireApp1.AppHost
+### Project: Ligot.AppHost
 
 **Current State:**
 - Target Framework: net9.0
@@ -562,7 +562,7 @@ Update `AspireApp1.Web\AspireApp1.FrontEnd.csproj`:
 
 **Target State:**
 - Target Framework: net10.0
-- Aspire.Hosting.AppHost: 9.0.0 Å® 13.1.0 (major version jump)
+- Aspire.Hosting.AppHost: 9.0.0 ÔøΩÔøΩ 13.1.0 (major version jump)
 
 **Migration Steps:**
 
@@ -570,7 +570,7 @@ Update `AspireApp1.Web\AspireApp1.FrontEnd.csproj`:
 - **ApiService, BackEnd, FrontEnd** must all be upgraded first (dependencies)
 
 #### 2. Framework Update
-Update `AspireApp1.AppHost\AspireApp1.AppHost.csproj`:
+Update `Ligot.AppHost\Ligot.AppHost.csproj`:
 ```xml
 <TargetFramework>net10.0</TargetFramework>
 ```
@@ -582,7 +582,7 @@ Update `AspireApp1.AppHost\AspireApp1.AppHost.csproj`:
 | Aspire.Hosting.AppHost | 9.0.0 | 13.1.0 | .NET 10 compatibility; out of support; **major version jump** |
 | Aspire.Hosting.Testing | 9.0.0 | 13.1.0 | .NET 10 compatibility; out of support; **major version jump** |
 
-**?? IMPORTANT:** Aspire 9.0 Å® 13.1 is a **major version upgrade** (4 minor versions). Expect:
+**?? IMPORTANT:** Aspire 9.0 ÔøΩÔøΩ 13.1 is a **major version upgrade** (4 minor versions). Expect:
 - API changes in resource configuration
 - New features and capabilities
 - Potential deprecations
@@ -627,7 +627,7 @@ Update `AspireApp1.AppHost\AspireApp1.AppHost.csproj`:
 
 ---
 
-### Project: AspireApp1.Tests
+### Project: Ligot.Tests
 
 **Current State:**
 - Target Framework: net9.0
@@ -641,7 +641,7 @@ Update `AspireApp1.AppHost\AspireApp1.AppHost.csproj`:
 
 **Target State:**
 - Target Framework: net10.0
-- Aspire.Hosting.Testing: 9.0.0 Å® 13.1.0
+- Aspire.Hosting.Testing: 9.0.0 ÔøΩÔøΩ 13.1.0
 - Source incompatibility fixed
 
 **Migration Steps:**
@@ -650,7 +650,7 @@ Update `AspireApp1.AppHost\AspireApp1.AppHost.csproj`:
 - **AppHost** must be upgraded first (dependency)
 
 #### 2. Framework Update
-Update `AspireApp1.Tests\AspireApp1.Tests.csproj`:
+Update `Ligot.Tests\Ligot.Tests.csproj`:
 ```xml
 <TargetFramework>net10.0</TargetFramework>
 ```
@@ -683,7 +683,7 @@ Update `AspireApp1.Tests\AspireApp1.Tests.csproj`:
 #### 5. Code Modifications
 
 **Required Fix:**
-Update `AspireApp1.Tests\WebTests.cs`, line 21:
+Update `Ligot.Tests\WebTests.cs`, line 21:
 ```csharp
 // Before:
 TimeSpan.FromSeconds(30)
@@ -779,9 +779,9 @@ TimeSpan.FromSeconds(30.0)
 - **API:** `System.TimeSpan.FromSeconds(Int64)`
 - **Change:** Method changed from accepting `Int64` to requiring `double` in .NET 10
 - **Severity:** High (compilation error)
-- **Affected Projects:** AspireApp1.Tests
+- **Affected Projects:** Ligot.Tests
 - **Occurrences:** 1
-- **Location:** `AspireApp1.Tests\WebTests.cs`, line 21
+- **Location:** `Ligot.Tests\WebTests.cs`, line 21
 
 **Current Code:**
 ```csharp
@@ -808,7 +808,7 @@ TimeSpan.FromSeconds((double)30)
 - **API:** `System.Uri` type and constructors
 - **Change:** URL parsing, validation, and encoding behavior may differ in .NET 10
 - **Severity:** Low-Medium (runtime behavior change)
-- **Affected Projects:** AspireApp1.FrontEnd
+- **Affected Projects:** Ligot.FrontEnd
 - **Occurrences:** 18
 
 **Affected Locations:**
@@ -838,7 +838,7 @@ TimeSpan.FromSeconds((double)30)
 - **API:** `System.Net.Http.HttpContent.ReadFromJsonAsync<T>`
 - **Change:** JSON deserialization behavior may differ in .NET 10
 - **Severity:** Low (runtime behavior change)
-- **Affected Projects:** AspireApp1.FrontEnd
+- **Affected Projects:** Ligot.FrontEnd
 - **Occurrences:** 9
 
 **Affected Locations:**
@@ -866,7 +866,7 @@ return await res.Content.ReadFromJsonAsync<T>(ct);
 - **API:** `Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler`
 - **Change:** Exception handling pipeline behavior may differ in .NET 10
 - **Severity:** Low (runtime behavior change)
-- **Affected Projects:** AspireApp1.ApiService, AspireApp1.BackEnd, AspireApp1.FrontEnd
+- **Affected Projects:** Ligot.ApiService, Ligot.BackEnd, Ligot.FrontEnd
 - **Occurrences:** 3
 
 **Affected Locations:**
@@ -885,9 +885,9 @@ return await res.Content.ReadFromJsonAsync<T>(ct);
 
 ### Aspire-Specific Breaking Changes
 
-#### ?? Aspire.Hosting.AppHost 9.0 Å® 13.1 (Major Version Jump)
+#### ?? Aspire.Hosting.AppHost 9.0 ÔøΩÔøΩ 13.1 (Major Version Jump)
 - **Severity:** Medium (API changes likely)
-- **Affected Projects:** AspireApp1.AppHost, AspireApp1.Tests
+- **Affected Projects:** Ligot.AppHost, Ligot.Tests
 - **Impact:** Resource builder API changes, configuration method updates, new features
 
 **Potential Changes:**
@@ -912,9 +912,9 @@ return await res.Content.ReadFromJsonAsync<T>(ct);
 
 ### Entity Framework Core Breaking Changes
 
-#### ?? EF Core 8.0 Å® 10.0 (2 Major Versions Jump)
+#### ?? EF Core 8.0 ÔøΩÔøΩ 10.0 (2 Major Versions Jump)
 - **Severity:** Low-Medium (migration compatibility, query behavior)
-- **Affected Projects:** AspireApp1.BackEnd
+- **Affected Projects:** Ligot.BackEnd
 - **Impact:** Database migrations, query behavior, database provider compatibility
 
 **Potential Issues:**
@@ -926,16 +926,16 @@ return await res.Content.ReadFromJsonAsync<T>(ct);
 1. **Test Migrations:** Apply existing migrations to test database
 2. **Test CRUD Operations:** Verify all database operations work
 3. **If Migration Errors Occur:**
-   - Regenerate migrations: `dotnet ef migrations add RegenerateMigrations --project AspireApp1.DbApi`
-   - Review EF Core 9 Å® 10 breaking changes: [EF Core Breaking Changes](https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-10.0/breaking-changes)
+   - Regenerate migrations: `dotnet ef migrations add RegenerateMigrations --project Ligot.DbApi`
+   - Review EF Core 9 ÔøΩÔøΩ 10 breaking changes: [EF Core Breaking Changes](https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-10.0/breaking-changes)
 
 ---
 
 ### No Breaking Changes
 
 **These projects have NO expected breaking changes:**
-- ? AspireApp1.ServiceDefaults (0 API issues)
-- ? AspireApp1.AppHost (0 API issues; Aspire package update is separate concern)
+- ? Ligot.ServiceDefaults (0 API issues)
+- ? Ligot.AppHost (0 API issues; Aspire package update is separate concern)
 
 ---
 
@@ -991,7 +991,7 @@ Testing follows the All-At-Once strategy: upgrade all projects, then test the en
 #### Phase 2.1: ServiceDefaults (Foundation)
 **When:** After solution builds
 **Tests:**
-- [ ] Project builds independently: `dotnet build AspireApp1.ServiceDefaults`
+- [ ] Project builds independently: `dotnet build Ligot.ServiceDefaults`
 - [ ] No warnings generated
 - [ ] Package restore succeeds
 
@@ -1002,19 +1002,19 @@ Testing follows the All-At-Once strategy: upgrade all projects, then test the en
 #### Phase 2.2: Application Services (Parallel Validation)
 
 **ApiService:**
-- [ ] Project builds: `dotnet build AspireApp1.ApiService`
+- [ ] Project builds: `dotnet build Ligot.ApiService`
 - [ ] No compilation warnings
 - [ ] OpenAPI endpoints configured correctly
 
 **BackEnd (DbApi):**
-- [ ] Project builds: `dotnet build AspireApp1.DbApi`
+- [ ] Project builds: `dotnet build Ligot.DbApi`
 - [ ] Database connection string configured
-- [ ] EF Core migrations apply: `dotnet ef database update --project AspireApp1.DbApi`
+- [ ] EF Core migrations apply: `dotnet ef database update --project Ligot.DbApi`
 - [ ] No migration errors
 - [ ] Swagger/OpenAPI endpoint accessible
 
 **FrontEnd (Web):**
-- [ ] Project builds: `dotnet build AspireApp1.Web`
+- [ ] Project builds: `dotnet build Ligot.Web`
 - [ ] Blazor components compile without errors
 - [ ] Windows Authentication configured
 
@@ -1025,7 +1025,7 @@ Testing follows the All-At-Once strategy: upgrade all projects, then test the en
 #### Phase 2.3: AppHost (Orchestration)
 **When:** After all application services validated
 **Tests:**
-- [ ] Project builds: `dotnet build AspireApp1.AppHost`
+- [ ] Project builds: `dotnet build Ligot.AppHost`
 - [ ] No Aspire API compilation errors
 - [ ] All project references resolve
 
@@ -1036,7 +1036,7 @@ Testing follows the All-At-Once strategy: upgrade all projects, then test the en
 #### Phase 2.4: Tests
 **When:** After AppHost validated
 **Tests:**
-- [ ] Project builds: `dotnet build AspireApp1.Tests`
+- [ ] Project builds: `dotnet build Ligot.Tests`
 - [ ] `TimeSpan.FromSeconds` fix applied correctly
 - [ ] Test project compiles without errors
 
@@ -1052,7 +1052,7 @@ Testing follows the All-At-Once strategy: upgrade all projects, then test the en
 **Process:** Launch AppHost and verify all services start
 
 **Tests:**
-- [ ] Launch AppHost: `dotnet run --project AspireApp1.AppHost`
+- [ ] Launch AppHost: `dotnet run --project Ligot.AppHost`
 - [ ] Aspire dashboard accessible (typically http://localhost:15888)
 - [ ] All 3 services appear in dashboard:
   - [ ] ApiService
@@ -1118,7 +1118,7 @@ Testing follows the All-At-Once strategy: upgrade all projects, then test the en
 **Objective:** Run all MSTest test projects
 
 **Process:**
-1. Run tests: `dotnet test AspireApp1.Tests`
+1. Run tests: `dotnet test Ligot.Tests`
 2. Review test results
 
 **Tests:**
@@ -1168,7 +1168,7 @@ Testing follows the All-At-Once strategy: upgrade all projects, then test the en
 
 ### Level 6: Entity Framework Core Validation
 
-**Objective:** Verify EF Core 8 Å® 10 upgrade doesn't break database operations
+**Objective:** Verify EF Core 8 ÔøΩÔøΩ 10 upgrade doesn't break database operations
 
 **Test Cases:**
 - [ ] Existing migrations apply without errors
@@ -1195,16 +1195,16 @@ Testing follows the All-At-Once strategy: upgrade all projects, then test the en
 
 **Sequential Execution (dependency-based):**
 1. ? **Compilation** - Must pass before proceeding
-2. ? **Project-Level Validation** - Validate in dependency order (ServiceDefaults Å® Services Å® AppHost Å® Tests)
+2. ? **Project-Level Validation** - Validate in dependency order (ServiceDefaults ÔøΩÔøΩ Services ÔøΩÔøΩ AppHost ÔøΩÔøΩ Tests)
 3. ? **Integration Testing** - Launch Aspire stack
 4. ? **Automated Tests** - Run MSTest suite
 5. ? **Behavioral Validation** - Test all 38 behavioral changes
 6. ? **EF Core Validation** - Verify database operations
 
 **Stop Conditions:**
-- If compilation fails Å® Fix errors before proceeding to runtime tests
-- If Aspire fails to launch Å® Fix orchestration before testing services
-- If automated tests fail Å® Investigate failures before considering upgrade complete
+- If compilation fails ÔøΩÔøΩ Fix errors before proceeding to runtime tests
+- If Aspire fails to launch ÔøΩÔøΩ Fix orchestration before testing services
+- If automated tests fail ÔøΩÔøΩ Investigate failures before considering upgrade complete
 
 ---
 
@@ -1213,8 +1213,8 @@ Testing follows the All-At-Once strategy: upgrade all projects, then test the en
 | Test Level | Tests | Must Pass Before |
 |------------|-------|------------------|
 | **Compilation** | 4 checks | Proceeding to runtime |
-| **Project-Level** | 6 projects Å~ ~3 checks | Integration testing |
-| **Integration** | Aspire orchestration + 4 services Å~ ~5 checks | Automated tests |
+| **Project-Level** | 6 projects ÔøΩ~ ~3 checks | Integration testing |
+| **Integration** | Aspire orchestration + 4 services ÔøΩ~ ~5 checks | Automated tests |
 | **Automated Tests** | MSTest suite | Behavioral validation |
 | **Behavioral Changes** | 30+ runtime checks | Considering complete |
 | **EF Core** | 10+ database checks | Considering complete |
@@ -1265,21 +1265,21 @@ Upgrade solution to .NET 10.0
 - Update all 6 projects from net9.0 to net10.0
 - Update 10 NuGet packages to .NET 10-compatible versions
 - Fix TimeSpan.FromSeconds source incompatibility in Tests
-- Aspire packages: 9.0.0 Å® 13.1.0 (major version jump)
-- Entity Framework Core: 8.0.12 Å® 10.0.1
+- Aspire packages: 9.0.0 ÔøΩÔøΩ 13.1.0 (major version jump)
+- Entity Framework Core: 8.0.12 ÔøΩÔøΩ 10.0.1
 - All compilation errors resolved
 - All tests passing
 
 Projects upgraded:
-- AspireApp1.ServiceDefaults
-- AspireApp1.ApiService
-- AspireApp1.BackEnd
-- AspireApp1.FrontEnd
-- AspireApp1.AppHost
-- AspireApp1.Tests
+- Ligot.ServiceDefaults
+- Ligot.ApiService
+- Ligot.BackEnd
+- Ligot.FrontEnd
+- Ligot.AppHost
+- Ligot.Tests
 
 Breaking changes addressed:
-- TimeSpan.FromSeconds(Int64) Å® TimeSpan.FromSeconds(double) in WebTests.cs
+- TimeSpan.FromSeconds(Int64) ÔøΩÔøΩ TimeSpan.FromSeconds(double) in WebTests.cs
 - 38 behavioral changes validated (System.Uri, HttpContent, ExceptionHandler)
 ```
 
@@ -1329,14 +1329,14 @@ Verify .NET 10 upgrade and address runtime issues
 ### File Change Scope
 
 **Files Expected to Change:**
-- `AspireApp1.ServiceDefaults/AspireApp1.ServiceDefaults.csproj`
-- `AspireApp1.ApiService/AspireApp1.ApiService.csproj`
-- `AspireApp1.DbApi/AspireApp1.BackEnd.csproj`
-- `AspireApp1.Web/AspireApp1.FrontEnd.csproj`
-- `AspireApp1.AppHost/AspireApp1.AppHost.csproj`
-- `AspireApp1.Tests/AspireApp1.Tests.csproj`
-- `AspireApp1.Tests/WebTests.cs` (TimeSpan fix)
-- Possibly: `AspireApp1.AppHost/Program.cs` (if Aspire API changed)
+- `Ligot.ServiceDefaults/Ligot.ServiceDefaults.csproj`
+- `Ligot.ApiService/Ligot.ApiService.csproj`
+- `Ligot.DbApi/Ligot.BackEnd.csproj`
+- `Ligot.Web/Ligot.FrontEnd.csproj`
+- `Ligot.AppHost/Ligot.AppHost.csproj`
+- `Ligot.Tests/Ligot.Tests.csproj`
+- `Ligot.Tests/WebTests.cs` (TimeSpan fix)
+- Possibly: `Ligot.AppHost/Program.cs` (if Aspire API changed)
 
 **Files NOT Expected to Change:**
 - Solution file (`.sln`) - no changes needed
@@ -1352,13 +1352,13 @@ Verify .NET 10 upgrade and address runtime issues
 
 **PR Title:**
 ```
-Upgrade AspireApp1 solution to .NET 10.0 (All-At-Once)
+Upgrade Ligot solution to .NET 10.0 (All-At-Once)
 ```
 
 **PR Description Template:**
 ```markdown
 ## Overview
-Upgrade entire AspireApp1 solution from .NET 9.0 to .NET 10.0 using All-At-Once strategy.
+Upgrade entire Ligot solution from .NET 9.0 to .NET 10.0 using All-At-Once strategy.
 
 ## Changes
 - **Projects Upgraded:** 6 (ServiceDefaults, ApiService, BackEnd, FrontEnd, AppHost, Tests)
@@ -1377,12 +1377,12 @@ Upgrade entire AspireApp1 solution from .NET 9.0 to .NET 10.0 using All-At-Once 
 - [x] Exception handling tested
 
 ## Package Updates
-- Aspire.Hosting.AppHost: 9.0.0 Å® 13.1.0
-- Entity Framework Core: 8.0.12 Å® 10.0.1
+- Aspire.Hosting.AppHost: 9.0.0 ÔøΩÔøΩ 13.1.0
+- Entity Framework Core: 8.0.12 ÔøΩÔøΩ 10.0.1
 - All other packages updated to target versions
 
 ## Breaking Changes
-- Fixed: TimeSpan.FromSeconds(Int64) Å® TimeSpan.FromSeconds(double) in WebTests.cs
+- Fixed: TimeSpan.FromSeconds(Int64) ÔøΩÔøΩ TimeSpan.FromSeconds(double) in WebTests.cs
 - Validated: 38 behavioral changes (System.Uri, HttpContent, ExceptionHandler)
 
 ## Risks
@@ -1424,7 +1424,7 @@ Upgrade entire AspireApp1 solution from .NET 9.0 to .NET 10.0 using All-At-Once 
 
 **Squash Commit Message:**
 ```
-Upgrade AspireApp1 solution to .NET 10.0 (#PR_NUMBER)
+Upgrade Ligot solution to .NET 10.0 (#PR_NUMBER)
 
 Upgraded all 6 projects from .NET 9.0 to .NET 10.0 using All-At-Once strategy.
 
@@ -1667,4 +1667,5 @@ Tested: Entire Aspire solution builds, runs, and functions correctly with .NET 1
 ? Solution running successfully on .NET 10.0 in all environments
 ? No outstanding issues or technical debt from upgrade
 
-**?? Congratulations! AspireApp1 successfully upgraded to .NET 10.0!**
+**?? Congratulations! Ligot successfully upgraded to .NET 10.0!**
+

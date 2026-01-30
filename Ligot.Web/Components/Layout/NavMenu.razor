@@ -1,0 +1,126 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@inject LocalizationService Localizer
+@inject AuthorizationService AuthorizationService
+@implements IDisposable
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Ligot</a>
+        <label for="sidebar-collapse-toggle" class="collapse-toggle" title="Toggle menu">
+            <span class="bi bi-chevron-left chevron-icon"></span>
+        </label>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Home")</span>
+            </NavLink>
+        </div>
+
+        @if (IsVisible("Dashboard"))
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="dashboard">
+                    <span class="bi bi-bar-chart-fill me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Dashboard")</span>
+                </NavLink>
+            </div>
+        }
+
+        @if (IsVisible("Projects"))
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="projects">
+                    <span class="bi bi-kanban-fill me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Projects")</span>
+                </NavLink>
+            </div>
+        }
+
+        @if (IsVisible("Cases"))
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="cases">
+                    <span class="bi bi-clipboard-check-fill me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Cases")</span>
+                </NavLink>
+            </div>
+        }
+
+        @if (IsVisible("PreSales"))
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="presales">
+                    <span class="bi bi-briefcase-fill me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Pre-sales")</span>
+                </NavLink>
+            </div>
+        }
+
+        @if (IsVisible("Customers"))
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="customers">
+                    <span class="bi bi-people-fill me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Customers")</span>
+                </NavLink>
+            </div>
+        }
+
+        @if (IsVisible("Orders"))
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="orders">
+                    <span class="bi bi-file-earmark-text-fill me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Orders")</span>
+                </NavLink>
+            </div>
+        }
+
+        @if (IsVisible("Audit"))
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="audit">
+                    <span class="bi bi-clock-history me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Audit")</span>
+                </NavLink>
+            </div>
+        }
+
+        @if (IsVisible("Admin"))
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin">
+                    <span class="bi bi-shield-lock-fill me-2" aria-hidden="true"></span><span class="nav-text">@Localizer.GetString("Admin")</span>
+                </NavLink>
+            </div>
+        }
+    </nav>
+</div>
+
+@code {
+    private HashSet<string> visiblePages = new(StringComparer.OrdinalIgnoreCase);
+
+    protected override async Task OnInitializedAsync()
+    {
+        Localizer.OnLanguageChanged += OnLanguageChanged;
+        await LoadPermissionsAsync();
+    }
+
+    private async Task LoadPermissionsAsync()
+    {
+        var perms = await AuthorizationService.GetUserPagePermissionsAsync();
+        visiblePages = new HashSet<string>(perms, StringComparer.OrdinalIgnoreCase);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private bool IsVisible(string pageKey) => visiblePages.Contains(pageKey);
+
+    private async void OnLanguageChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Localizer.OnLanguageChanged -= OnLanguageChanged;
+    }
+}

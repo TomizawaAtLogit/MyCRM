@@ -7,7 +7,7 @@ Implemented a system-wide solution to hide create, edit, and delete buttons when
 ## What Was Changed
 
 ### 1. **Backend - Authorization Service** 
-**File:** `AspireApp1.Web/Services/AuthorizationService.cs`
+**File:** `Ligot.Web/Services/AuthorizationService.cs`
 
 Added a new method `IsPageReadOnlyAsync()` that:
 - Checks if the current user has ReadOnly (not FullControl) permission for a specific page
@@ -24,7 +24,7 @@ public async Task<bool> IsPageReadOnlyAsync(string pageName)
 
 ### 2. **Pages Updated with Button Hiding**
 
-#### **Orders.razor** (`AspireApp1.Web/Components/Pages/Orders.razor`)
+#### **Orders.razor** (`Ligot.Web/Components/Pages/Orders.razor`)
 - Added `AuthorizationService` injection
 - Added `isReadOnly` field loaded during initialization
 - Hidden buttons when readonly:
@@ -33,7 +33,7 @@ public async Task<bool> IsPageReadOnlyAsync(string pageName)
   - ✅ Delete button (trash icon in table)
   - ℹ️ View Details button (eye icon) - always visible
 
-#### **Projects.razor** (`AspireApp1.Web/Components/Pages/Projects.razor`)
+#### **Projects.razor** (`Ligot.Web/Components/Pages/Projects.razor`)
 - Added `AuthorizationService` injection
 - Added `isReadOnly` field loaded during initialization
 - Hidden buttons when readonly:
@@ -42,7 +42,7 @@ public async Task<bool> IsPageReadOnlyAsync(string pageName)
   - ✅ Delete button (trash icon in table)
   - ℹ️ View Details button (eye icon) - always visible
 
-#### **Cases.razor** (`AspireApp1.Web/Components/Pages/Cases.razor`)
+#### **Cases.razor** (`Ligot.Web/Components/Pages/Cases.razor`)
 - Added `AuthorizationService` injection
 - Added `isReadOnly` field loaded during initialization
 - Hidden buttons when readonly:
@@ -51,7 +51,7 @@ public async Task<bool> IsPageReadOnlyAsync(string pageName)
   - ✅ Delete button (trash icon in table)
   - ℹ️ View Details button (eye icon) - always visible
 
-#### **Customers.razor** (`AspireApp1.Web/Components/Pages/Customers.razor`)
+#### **Customers.razor** (`Ligot.Web/Components/Pages/Customers.razor`)
 - Added `AuthorizationService` injection
 - Added `isReadOnly` field loaded during initialization
 - Hidden buttons when readonly:
@@ -60,7 +60,7 @@ public async Task<bool> IsPageReadOnlyAsync(string pageName)
   - ✅ Delete button (trash icon)
   - Passes `IsReadOnly` parameter to OrderTab sub-component
 
-#### **OrderTab.razor** (`AspireApp1.Web/Components/Pages/OrderTab.razor`)
+#### **OrderTab.razor** (`Ligot.Web/Components/Pages/OrderTab.razor`)
 - Added `IsReadOnly` parameter (receives from parent Customers component)
 - Hidden buttons when readonly:
   - ✅ Add Order form and toggle button
@@ -146,12 +146,12 @@ Examples: `"Orders:ReadOnly"`, `"Projects:FullControl"`, `"Cases:None"`
 
 ## Files Modified
 
-1. `AspireApp1.Web/Services/AuthorizationService.cs` - Added `IsPageReadOnlyAsync()` method
-2. `AspireApp1.Web/Components/Pages/Orders.razor` - Hide buttons when readonly
-3. `AspireApp1.Web/Components/Pages/Projects.razor` - Hide buttons when readonly
-4. `AspireApp1.Web/Components/Pages/Cases.razor` - Hide buttons when readonly
-5. `AspireApp1.Web/Components/Pages/Customers.razor` - Hide buttons when readonly
-6. `AspireApp1.Web/Components/Pages/OrderTab.razor` - Added IsReadOnly parameter
+1. `Ligot.Web/Services/AuthorizationService.cs` - Added `IsPageReadOnlyAsync()` method
+2. `Ligot.Web/Components/Pages/Orders.razor` - Hide buttons when readonly
+3. `Ligot.Web/Components/Pages/Projects.razor` - Hide buttons when readonly
+4. `Ligot.Web/Components/Pages/Cases.razor` - Hide buttons when readonly
+5. `Ligot.Web/Components/Pages/Customers.razor` - Hide buttons when readonly
+6. `Ligot.Web/Components/Pages/OrderTab.razor` - Added IsReadOnly parameter
 
 ## Future Enhancements
 
@@ -161,3 +161,4 @@ Consider applying similar changes to other pages/components:
 - Any other pages with create/edit/delete operations
 
 The pattern is consistent and can be easily replicated.
+

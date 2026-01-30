@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AspireApp1.DbApi;
-using AspireApp1.DbApi.Data;
-using AspireApp1.DbApi.Models;
+using Ligot.DbApi;
+using Ligot.DbApi.Data;
+using Ligot.DbApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 class Program
@@ -114,3 +114,4 @@ class Program
         }
     }
 }
+
