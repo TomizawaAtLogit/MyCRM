@@ -1,0 +1,54 @@
+name: CI - Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '10.0.102'
+  SOLUTION_FILE: 'AspireApp1.sln'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.SOLUTION_FILE }}
+      
+    - name: Build solution
+      run: dotnet build ${{ env.SOLUTION_FILE }} --no-restore --configuration Release
+      
+    - name: Run tests
+      run: dotnet test ${{ env.SOLUTION_FILE }} --no-build --configuration Release --verbosity normal
+      
+    - name: Publish Backend API
+      run: dotnet publish AspireApp1.DbApi/AspireApp1.BackEnd.csproj -c Release -o ./publish/backend
+      
+    - name: Publish Frontend
+      run: dotnet publish AspireApp1.Web/AspireApp1.FrontEnd.csproj -c Release -o ./publish/frontend
+      
+    - name: Upload Backend Artifact
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: backend-app
+        path: ./publish/backend
+        retention-days: 7
+        
+    - name: Upload Frontend Artifact
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: frontend-app
+        path: ./publish/frontend
+        retention-days: 7

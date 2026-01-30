@@ -1,0 +1,80 @@
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      reason:
+        description: 'Reason for rollback'
+        required: true
+
+env:
+  DOTNET_VERSION: '10.0.x'
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}-rollback-approval
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+    - name: Set Environment Variables
+      run: |
+        if [ "${{ inputs.environment }}" == "production" ]; then
+          echo "AZURE_RESOURCE_GROUP=rg-mycrm-production" >> $GITHUB_ENV
+          echo "AZURE_BACKEND_APP_NAME=app-mycrm-backend-prod" >> $GITHUB_ENV
+          echo "AZURE_FRONTEND_APP_NAME=app-mycrm-frontend-prod" >> $GITHUB_ENV
+        else
+          echo "AZURE_RESOURCE_GROUP=rg-mycrm-staging" >> $GITHUB_ENV
+          echo "AZURE_BACKEND_APP_NAME=app-mycrm-backend-staging" >> $GITHUB_ENV
+          echo "AZURE_FRONTEND_APP_NAME=app-mycrm-frontend-staging" >> $GITHUB_ENV
+        fi
+        
+    - name: Record Rollback Reason
+      run: |
+        echo "🔄 Rolling back ${{ inputs.environment }} environment"
+        echo "Reason: ${{ inputs.reason }}"
+        echo "Initiated by: ${{ github.actor }}"
+        echo "Timestamp: $(date -u)"
+        
+    - name: Swap Backend Production to Staging (Rollback)
+      run: |
+        az webapp deployment slot swap \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --name ${{ env.AZURE_BACKEND_APP_NAME }} \
+          --slot production \
+          --target-slot staging
+          
+    - name: Swap Frontend Production to Staging (Rollback)
+      run: |
+        az webapp deployment slot swap \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --name ${{ env.AZURE_FRONTEND_APP_NAME }} \
+          --slot production \
+          --target-slot staging
+          
+    - name: Health Check After Rollback
+      run: |
+        echo "Waiting for services to be ready after rollback..."
+        sleep 30
+        curl -f https://${{ env.AZURE_BACKEND_APP_NAME }}.azurewebsites.net/health || exit 1
+        curl -f https://${{ env.AZURE_FRONTEND_APP_NAME }}.azurewebsites.net/health || exit 1
+        
+    - name: Notify Rollback Complete
+      run: |
+        echo "✅ Rollback completed successfully for ${{ inputs.environment }}"
+        echo "Previous production code is now in staging slot"
+        echo "Current production code has been restored"

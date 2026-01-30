@@ -1,0 +1,94 @@
+name: Deploy to Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_migrations:
+        description: 'Run database migrations'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  DOTNET_VERSION: '10.0.102'
+  AZURE_RESOURCE_GROUP: 'rg-mycrm-staging'
+  AZURE_BACKEND_APP_NAME: 'app-mycrm-backend-staging'
+  AZURE_FRONTEND_APP_NAME: 'app-mycrm-frontend-staging' 
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+    - name: Restore and Build
+      run: |
+        dotnet restore AspireApp1.sln
+        dotnet build AspireApp1.sln --no-restore --configuration Release
+        
+    - name: Run Database Migrations (if enabled)
+      if: inputs.run_migrations == 'true'
+      run: |
+        dotnet tool install --global dotnet-ef
+        dotnet ef database update --project AspireApp1.DbApi/AspireApp1.BackEnd.csproj --startup-project AspireApp1.DbApi/AspireApp1.BackEnd.csproj --connection "${{ secrets.STAGING_DB_CONNECTION_STRING }}"
+      env:
+        ConnectionStrings__DefaultConnection: ${{ secrets.STAGING_DB_CONNECTION_STRING }}
+        
+    - name: Publish Backend
+      run: dotnet publish AspireApp1.DbApi/AspireApp1.BackEnd.csproj -c Release -o ./publish/backend
+      
+    - name: Publish Frontend
+      run: dotnet publish AspireApp1.Web/AspireApp1.FrontEnd.csproj -c Release -o ./publish/frontend
+      
+    - name: Deploy Backend to Staging Slot
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: ${{ env.AZURE_BACKEND_APP_NAME }}
+        slot-name: 'staging'
+        package: ./publish/backend
+        
+    - name: Deploy Frontend to Staging Slot
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: ${{ env.AZURE_FRONTEND_APP_NAME }}
+        slot-name: 'staging'
+        package: ./publish/frontend
+        
+    - name: Swap Backend Staging to Production
+      run: |
+        az webapp deployment slot swap \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --name ${{ env.AZURE_BACKEND_APP_NAME }} \
+          --slot staging \
+          --target-slot production
+          
+    - name: Swap Frontend Staging to Production
+      run: |
+        az webapp deployment slot swap \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --name ${{ env.AZURE_FRONTEND_APP_NAME }} \
+          --slot staging \
+          --target-slot production
+          
+    - name: Health Check
+      run: |
+        echo "Waiting for services to be ready..."
+        sleep 30
+        curl -f https://${{ env.AZURE_BACKEND_APP_NAME }}.azurewebsites.net/health || exit 1
+        curl -f https://${{ env.AZURE_FRONTEND_APP_NAME }}.azurewebsites.net/health || exit 1
