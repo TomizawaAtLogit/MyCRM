@@ -1,4 +1,5 @@
 var builder = DistributedApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("appsettings.Development.Local.json", optional: true, reloadOnChange: true);
 
 var apiService = builder.AddProject<Projects.Ligot_ApiService>("apiservice");
 var dbApiService = builder.AddProject<Projects.Ligot_BackEnd>("dbapi");

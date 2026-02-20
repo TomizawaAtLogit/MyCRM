@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.Negotiate;
 
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("appsettings.Development.Local.json", optional: true, reloadOnChange: true);
 
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();

@@ -366,6 +366,8 @@ FodyWeavers.xsd
 FileUploads/
 
 # Development settings with API keys
+**/appsettings.Development.Local.json
 Ligot.Web/appsettings.Development.json
 Ligot.Web/appsettings.json
 Development/
+.env
