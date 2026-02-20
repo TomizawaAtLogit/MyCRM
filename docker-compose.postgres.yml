@@ -8,8 +8,10 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgrespw
       POSTGRES_DB: aspire_db
+    # Postgres 18+ expects a single mount at /var/lib/postgresql so the image
+    # can create versioned subdirectories (e.g. /var/lib/postgresql/18/docker)
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql
     ports:
       - "5432:5432"
 

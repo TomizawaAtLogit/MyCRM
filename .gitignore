@@ -375,3 +375,4 @@ Development/
 # Postgres backup files
 tmp/*
 ligot_db_data-backup.tgz
+aspireapp1_db_data-backup.tgz
