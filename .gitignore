@@ -371,3 +371,7 @@ Ligot.Web/appsettings.Development.json
 Ligot.Web/appsettings.json
 Development/
 .env
+
+# Postgres backup files
+tmp/*
+ligot_db_data-backup.tgz
