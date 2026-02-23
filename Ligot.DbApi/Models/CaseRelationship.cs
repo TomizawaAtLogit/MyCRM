@@ -9,6 +9,7 @@ public class CaseRelationship
     public string? Notes { get; set; }
     public string? CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public bool ActiveFlg { get; set; } = true;
 
     // Navigation properties
     public Case SourceCase { get; set; } = null!;

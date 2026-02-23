@@ -14,6 +14,7 @@ public class CaseActivity
     public int? NewAssignedToUserId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+    public bool ActiveFlg { get; set; } = true;
 
     // Navigation properties
     public Case Case { get; set; } = null!;

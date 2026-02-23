@@ -9,6 +9,7 @@ public class System
     public string? Description { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
+    public bool ActiveFlg { get; set; } = true;
 
     // Navigation properties
     public Customer Customer { get; set; } = null!;

@@ -89,6 +89,7 @@ namespace Ligot.DbApi.Data
                 b.Property(x => x.Address).HasMaxLength(500).HasColumnName("address");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                b.Property(x => x.ActiveFlg).HasColumnName("active_flg");
                 
                 b.HasMany(x => x.Databases).WithOne(x => x.Customer).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
                 b.HasMany(x => x.Sites).WithOne(x => x.Customer).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
@@ -130,6 +131,7 @@ namespace Ligot.DbApi.Data
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
                 b.HasIndex(x => x.CustomerId);
+                b.Property(x => x.ActiveFlg).HasColumnName("active_flg");
             });
 
             modelBuilder.Entity<CustomerSystem>(b =>
@@ -150,6 +152,7 @@ namespace Ligot.DbApi.Data
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
                 b.HasIndex(x => x.CustomerId);
+                b.Property(x => x.ActiveFlg).HasColumnName("active_flg");
             });
 
             modelBuilder.Entity<Models.System>(b =>
@@ -163,10 +166,11 @@ namespace Ligot.DbApi.Data
                 b.Property(x => x.Description).HasColumnName("description");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
-                
+                b.Property(x => x.ActiveFlg).HasColumnName("active_flg");
                 b.HasOne(x => x.Customer).WithMany(x => x.Systems).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
                 b.HasMany(x => x.Components).WithOne(x => x.System).HasForeignKey(x => x.SystemId).OnDelete(DeleteBehavior.Cascade);
                 b.HasIndex(x => x.CustomerId);
+                
             });
 
             modelBuilder.Entity<SystemComponent>(b =>
@@ -204,6 +208,7 @@ namespace Ligot.DbApi.Data
                 b.Property(x => x.Description).HasColumnName("description");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                b.Property(x => x.ActiveFlg).HasColumnName("active_flg");
                 b.HasIndex(x => x.CustomerId);
                 b.HasIndex(x => x.OrderNumber);
             });
@@ -240,6 +245,7 @@ namespace Ligot.DbApi.Data
                 b.Property(x => x.IsActive).HasColumnName("is_active");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                b.Property(x => x.ActiveFlg).HasColumnName("active_flg");
                 b.HasIndex(x => x.WindowsUsername).IsUnique();
             });
 
@@ -358,7 +364,7 @@ namespace Ligot.DbApi.Data
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
                 b.Property(x => x.FirstResponseAt).HasColumnName("first_response_at");
                 b.Property(x => x.SlaDeadline).HasColumnName("sla_deadline");
-                
+                b.Property(x => x.ActiveFlg).HasColumnName("active_flg");
                 b.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
                 b.HasOne(x => x.System).WithMany().HasForeignKey(x => x.SystemId).OnDelete(DeleteBehavior.SetNull);
                 b.HasOne(x => x.SystemComponent).WithMany().HasForeignKey(x => x.SystemComponentId).OnDelete(DeleteBehavior.SetNull);
@@ -394,7 +400,7 @@ namespace Ligot.DbApi.Data
                 b.Property(x => x.NewAssignedToUserId).HasColumnName("new_assigned_to_user_id");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
-                
+                b.Property(x => x.ActiveFlg).HasColumnName("active_flg");
                 b.HasOne(x => x.Case).WithMany().HasForeignKey(x => x.CaseId).OnDelete(DeleteBehavior.Cascade);
                 b.HasIndex(x => x.CaseId);
                 b.HasIndex(x => x.ActivityDate);
@@ -411,7 +417,7 @@ namespace Ligot.DbApi.Data
                 b.Property(x => x.Notes).HasMaxLength(2000).HasColumnName("notes");
                 b.Property(x => x.CreatedBy).HasMaxLength(200).HasColumnName("created_by");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
-                
+                b.Property(x => x.ActiveFlg).HasColumnName("active_flg");
                 b.HasOne(x => x.SourceCase).WithMany().HasForeignKey(x => x.SourceCaseId).OnDelete(DeleteBehavior.Cascade);
                 b.HasOne(x => x.RelatedCase).WithMany().HasForeignKey(x => x.RelatedCaseId).OnDelete(DeleteBehavior.Restrict);
                 b.HasIndex(x => x.SourceCaseId);

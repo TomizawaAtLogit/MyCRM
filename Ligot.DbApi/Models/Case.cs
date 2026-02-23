@@ -20,6 +20,7 @@ namespace Ligot.DbApi.Models
         public DateTime? ClosedAt { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
+        public bool ActiveFlg { get; set; } = true;
 
         // SLA tracking
         public DateTime? FirstResponseAt { get; set; }

@@ -15,6 +15,7 @@ public class CustomerSite
     public double? Longitude { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+    public bool ActiveFlg { get; set; } = true;
 
     // Navigation property
     public Customer Customer { get; set; } = null!;
