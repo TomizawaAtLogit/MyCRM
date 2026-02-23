@@ -364,7 +364,6 @@ namespace Ligot.DbApi.Data
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
                 b.Property(x => x.FirstResponseAt).HasColumnName("first_response_at");
                 b.Property(x => x.SlaDeadline).HasColumnName("sla_deadline");
-                b.Property(x => x.ActiveFlg).HasColumnName("active_flg");
                 b.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
                 b.HasOne(x => x.System).WithMany().HasForeignKey(x => x.SystemId).OnDelete(DeleteBehavior.SetNull);
                 b.HasOne(x => x.SystemComponent).WithMany().HasForeignKey(x => x.SystemComponentId).OnDelete(DeleteBehavior.SetNull);
