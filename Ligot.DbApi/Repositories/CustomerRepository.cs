@@ -20,21 +20,16 @@ public class CustomerRepository : ICustomerRepository
 
     public async Task<IEnumerable<Customer>> GetAllAsync(int[]? allowedCustomerIds, bool includeInactive = false)
     {
-        // If allowedCustomerIds is null, return all customers (unrestricted access)
-        if (allowedCustomerIds == null)
-        {
-            return await GetAllAsync();
-        }
-
         // If allowedCustomerIds is empty, return no customers
-        if (allowedCustomerIds.Length == 0)
+        if (allowedCustomerIds != null && allowedCustomerIds.Length == 0)
         {
             return Enumerable.Empty<Customer>();
         }
 
-        // Return only customers in the allowed list
-        var query = _db.Customers
-            .Where(c => allowedCustomerIds.Contains(c.Id));
+        // Build query — null means unrestricted access (no customer ID filter)
+        var query = allowedCustomerIds == null
+            ? _db.Customers.AsQueryable()
+            : _db.Customers.Where(c => allowedCustomerIds.Contains(c.Id));
 
         if (!includeInactive)
             query = query.Where(c => c.ActiveFlg);
