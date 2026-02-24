@@ -11,7 +11,8 @@ public record CustomerDto(
     string? Email, 
     string? Phone, 
     string? Address, 
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    bool ActiveFlg = true);
 
 public record CustomerWithChildrenDto(
     int Id,
@@ -205,11 +206,12 @@ public class CustomerApiClient
     }
 
     // Customer operations
-    public async Task<CustomerDto[]> GetCustomersAsync(CancellationToken ct = default)
+    public async Task<CustomerDto[]> GetCustomersAsync(bool includeInactive = false, CancellationToken ct = default)
     {
         try
         {
-            return await _http.GetFromJsonAsync<CustomerDto[]>("/api/customers", ct) 
+            var url = includeInactive ? "/api/customers?includeInactive=true" : "/api/customers";
+            return await _http.GetFromJsonAsync<CustomerDto[]>(url, ct) 
                    ?? Array.Empty<CustomerDto>();
         }
         catch (HttpRequestException)

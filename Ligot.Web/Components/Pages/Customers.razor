@@ -32,6 +32,12 @@
                     </button>
                 }
             </div>
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="showInactiveSwitch"
+                       checked="@showInactive"
+                       @onchange="ToggleInactiveAsync" />
+                <label class="form-check-label" for="showInactiveSwitch">@Localizer.GetString("Show disabled")</label>
+            </div>
         }
     </div>
     @if (selectedCustomerDetails != null)
@@ -70,11 +76,17 @@
                         c.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
                         (c.ContactPerson != null && c.ContactPerson.Contains(searchQuery, StringComparison.OrdinalIgnoreCase))))
                     {
-                        <button type="button" class="list-group-item list-group-item-action text-start @(selectedCustomer?.Id == customer.Id ? "active" : "")"
+                        <button type="button" class="list-group-item list-group-item-action text-start @(selectedCustomer?.Id == customer.Id ? "active" : "") @(!customer.ActiveFlg ? "text-muted" : "")"
                            @onclick="() => SelectCustomer(customer.Id)">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">@customer.Name</h5>
-                                <small>@customer.CreatedAt.ToShortDateString()</small>
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <h5 class="mb-1 @(!customer.ActiveFlg ? "text-decoration-line-through" : "")">@customer.Name</h5>
+                                <div class="d-flex align-items-center gap-2">
+                                    @if (!customer.ActiveFlg)
+                                    {
+                                        <span class="badge bg-secondary">@Localizer.GetString("Disabled")</span>
+                                    }
+                                    <small>@customer.CreatedAt.ToShortDateString()</small>
+                                </div>
                             </div>
                             @if (!string.IsNullOrEmpty(customer.ContactPerson))
                             {
@@ -298,6 +310,7 @@
     private string? deleteErrorMessage;
     private bool isReadOnly = false;
     private string searchQuery = string.Empty;
+    private bool showInactive = false;
     
     private NewCustomerModel newCustomer = new();
     private EditContext? createEditContext;
@@ -336,7 +349,13 @@
 
     private async Task LoadCustomersAsync()
     {
-        customers = await CustomerApi.GetCustomersAsync();
+        customers = await CustomerApi.GetCustomersAsync(showInactive);
+    }
+
+    private async Task ToggleInactiveAsync(ChangeEventArgs e)
+    {
+        showInactive = (bool)(e.Value ?? false);
+        await LoadCustomersAsync();
     }
 
     private async Task SelectCustomer(int id)

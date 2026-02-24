@@ -22,7 +22,7 @@ public class CustomersController : AuditableControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<Customer>> Get()
+    public async Task<IEnumerable<Customer>> Get([FromQuery] bool includeInactive = false)
     {
         // Get current user and their allowed customer IDs
         var (username, userId) = await GetCurrentUserInfoAsync();
@@ -34,7 +34,7 @@ public class CustomersController : AuditableControllerBase
         }
         
         var allowedCustomerIds = await _userRepo.GetAllowedCustomerIdsAsync(userId.Value);
-        return await _repo.GetAllAsync(allowedCustomerIds);
+        return await _repo.GetAllAsync(allowedCustomerIds, includeInactive);
     }
 
     [HttpGet("all")]

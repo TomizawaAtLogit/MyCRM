@@ -18,7 +18,7 @@ public class CustomerRepository : ICustomerRepository
         return await _db.Customers.AsNoTracking().OrderBy(c => c.Name).ToListAsync();
     }
 
-    public async Task<IEnumerable<Customer>> GetAllAsync(int[]? allowedCustomerIds)
+    public async Task<IEnumerable<Customer>> GetAllAsync(int[]? allowedCustomerIds, bool includeInactive = false)
     {
         // If allowedCustomerIds is null, return all customers (unrestricted access)
         if (allowedCustomerIds == null)
@@ -33,8 +33,13 @@ public class CustomerRepository : ICustomerRepository
         }
 
         // Return only customers in the allowed list
-        return await _db.Customers
-            .Where(c => allowedCustomerIds.Contains(c.Id))
+        var query = _db.Customers
+            .Where(c => allowedCustomerIds.Contains(c.Id));
+
+        if (!includeInactive)
+            query = query.Where(c => c.ActiveFlg);
+
+        return await query
             .AsNoTracking()
             .OrderBy(c => c.Name)
             .ToListAsync();
