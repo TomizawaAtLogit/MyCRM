@@ -259,27 +259,29 @@ else
                             </div>
                         </div>
                         <div class="row g-3 mt-2">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label class="form-label">@Localizer.GetString("Start Date")</label>
                                 <InputDate class="form-control" @bind-Value="editingOrder.StartDate" />
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label class="form-label">@Localizer.GetString("End Date")</label>
                                 <InputDate class="form-control" @bind-Value="editingOrder.EndDate" />
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">@Localizer.GetString("Billing Frequency")</label>
-                                <InputText class="form-control" @bind-Value="editingOrder.BillingFrequency" />
                             </div>
                         </div>
                         <div class="row g-3 mt-2">
                             <div class="col-md-6">
+                                <label class="form-label">@Localizer.GetString("Billing Frequency")</label>
+                                <InputText class="form-control" @bind-Value="editingOrder.BillingFrequency" />
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label">@Localizer.GetString("Contract Value")</label>
                                 <InputNumber class="form-control" @bind-Value="editingOrder.ContractValue" />
                             </div>
-                            <div class="col-md-6">
+                        </div>
+                        <div class="row g-3 mt-2">
+                            <div class="col-12">
                                 <label class="form-label">@Localizer.GetString("Description")</label>
-                                <InputTextArea class="form-control" rows="3" @bind-Value="editingOrder.Description" />
+                                <InputTextArea class="form-control" rows="5" @bind-Value="editingOrder.Description" />
                             </div>
                         </div>
                         <div class="modal-footer mt-3">
