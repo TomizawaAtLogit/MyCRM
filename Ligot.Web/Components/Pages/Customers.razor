@@ -18,7 +18,22 @@
 
 <PageAccessGuard PageName="Customers">
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>@Localizer.GetString("Customers")</h1>
+    <div class="d-flex align-items-center gap-3">
+        <h1 class="mb-0">@Localizer.GetString("Customers")</h1>
+        @if (selectedCustomerDetails == null)
+        {
+            <div class="input-group" style="width: 260px;">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" placeholder="@Localizer.GetString("Search customers...")" @bind="searchQuery" @bind:event="oninput" />
+                @if (!string.IsNullOrEmpty(searchQuery))
+                {
+                    <button class="btn btn-outline-secondary" type="button" @onclick="() => searchQuery = string.Empty">
+                        <i class="bi bi-x"></i>
+                    </button>
+                }
+            </div>
+        }
+    </div>
     @if (selectedCustomerDetails != null)
     {
         <button class="btn btn-secondary" @onclick="ClearSelection">
@@ -50,7 +65,10 @@
             else
             {
                 <div class="list-group">
-                    @foreach (var customer in customers)
+                    @foreach (var customer in customers.Where(c =>
+                        string.IsNullOrEmpty(searchQuery) ||
+                        c.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                        (c.ContactPerson != null && c.ContactPerson.Contains(searchQuery, StringComparison.OrdinalIgnoreCase))))
                     {
                         <button type="button" class="list-group-item list-group-item-action text-start @(selectedCustomer?.Id == customer.Id ? "active" : "")"
                            @onclick="() => SelectCustomer(customer.Id)">
@@ -279,6 +297,7 @@
     private string activeTab = "sites";
     private string? deleteErrorMessage;
     private bool isReadOnly = false;
+    private string searchQuery = string.Empty;
     
     private NewCustomerModel newCustomer = new();
     private EditContext? createEditContext;
