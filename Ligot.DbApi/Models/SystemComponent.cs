@@ -13,6 +13,7 @@ public class SystemComponent
     public string? Description { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
+    public bool ActiveFlg { get; set; } = true;
 
     // Navigation property
     public System System { get; set; } = null!;

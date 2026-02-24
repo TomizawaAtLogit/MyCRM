@@ -188,6 +188,7 @@ namespace Ligot.DbApi.Data
                 b.Property(x => x.Description).HasColumnName("description");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+                b.Property(x => x.ActiveFlg).HasColumnName("active_flg");
                 b.HasIndex(x => x.SystemId);
                 b.HasIndex(x => x.SerialNumber);
             });
@@ -544,8 +545,8 @@ namespace Ligot.DbApi.Data
                 b.Property(x => x.Title).IsRequired().HasMaxLength(500).HasColumnName("title");
                 b.Property(x => x.Description).HasMaxLength(5000).HasColumnName("description");
                 b.Property(x => x.NumberOfPeople).HasColumnName("number_of_people");
-                b.Property(x => x.WorkingHours).HasColumnName("working_hours").HasPrecision(18, 2);
-                b.Property(x => x.HourlyWage).HasColumnName("hourly_wage").HasPrecision(18, 2);
+                b.Property(x => x.WorkingHours).HasColumnName("working_hours");
+                b.Property(x => x.HourlyWage).HasColumnName("hourly_wage");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
                 
