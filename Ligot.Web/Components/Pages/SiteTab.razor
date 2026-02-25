@@ -12,40 +12,76 @@
         }
         else
         {
-            <div class="table-responsive">
-                <table class="table table-sm table-hover">
-                    <thead>
-                        <tr>
-                            <th>Site Name</th>
-                            <th>Description</th>
-                            <th>Contact</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var site in Sites)
+            <div class="accordion accordion-flush" id="sitesAccordion">
+                @foreach (var site in Sites)
+                {
+                    var collapseId = $"siteCollapse_{site.Id}";
+                    var isExpanded = expandedSiteIds.Contains(site.Id);
+                    <div class="accordion-item border mb-1 rounded">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button @(isExpanded ? "" : "collapsed") py-2 rounded"
+                                    type="button"
+                                    @onclick="() => ToggleSite(site)">
+                                <div class="d-flex align-items-center gap-2 w-100 me-2">
+                                    <i class="bi bi-geo-alt-fill text-primary flex-shrink-0"></i>
+                                    <span class="fw-semibold">@site.SiteName</span>
+                                    @if (!string.IsNullOrEmpty(site.ContactPerson))
+                                    {
+                                        <span class="text-muted small ms-auto me-2 d-none d-sm-inline">@site.ContactPerson</span>
+                                    }
+                                    @if (selectedSite?.Id == site.Id)
+                                    {
+                                        <span class="badge bg-primary ms-auto">Selected</span>
+                                    }
+                                </div>
+                            </button>
+                        </h2>
+                        @if (isExpanded)
                         {
-                            <tr class="@(selectedSite?.Id == site.Id ? "table-active" : "")" 
-                                style="cursor: pointer;"
-                                @onclick="() => SelectSite(site)">
-                                <td>@site.SiteName</td>
-                                <td>@site.Description</td>
-                                <td>@site.ContactPerson</td>
-                                <td>
+                            <div class="accordion-body py-2">
+                                <div class="row g-2 small">
+                                    @if (!string.IsNullOrEmpty(site.Address) || !string.IsNullOrEmpty(site.PostCode))
+                                    {
+                                        <div class="col-12">
+                                            <i class="bi bi-house me-1 text-muted"></i>
+                                            @site.Address@(!string.IsNullOrEmpty(site.PostCode) ? $" {site.PostCode}" : "")
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(site.ContactPerson))
+                                    {
+                                        <div class="col-sm-6">
+                                            <i class="bi bi-person me-1 text-muted"></i>@site.ContactPerson
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(site.Phone))
+                                    {
+                                        <div class="col-sm-6">
+                                            <i class="bi bi-telephone me-1 text-muted"></i>@site.Phone
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(site.Description))
+                                    {
+                                        <div class="col-12 text-muted fst-italic" style="white-space: pre-wrap;">@NormalizeNewlines(site.Description)</div>
+                                    }
+                                </div>
+                                <div class="mt-2 d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => SelectSite(site)">
+                                        <i class="bi bi-map me-1"></i>Show on Map
+                                    </button>
                                     @if (!IsReadOnly)
                                     {
-                                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEdit(site)" @onclick:stopPropagation="true">
-                                            <i class="bi bi-pencil"></i>
+                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => StartEdit(site)">
+                                            <i class="bi bi-pencil me-1"></i>Edit
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(site.Id)" @onclick:stopPropagation="true">
-                                            <i class="bi bi-trash"></i>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(site.Id)">
+                                            <i class="bi bi-trash me-1"></i>Delete
                                         </button>
                                     }
-                                </td>
-                            </tr>
+                                </div>
+                            </div>
                         }
-                    </tbody>
-                </table>
+                    </div>
+                }
             </div>
         }
     </div>
@@ -114,7 +150,7 @@
 
 <!-- Edit Site Modal -->
 <div class="modal fade" id="editSiteModal" tabindex="-1" aria-labelledby="editSiteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editSiteModalLabel">Edit Site</h5>
@@ -146,7 +182,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Description</label>
-                        <InputTextArea @bind-Value="editSite.Description" class="form-control" rows="3" />
+                        <InputTextArea @bind-Value="editSite.Description" class="form-control" rows="8" style="resize: vertical; min-height: 160px;" />
                     </div>
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary" disabled="@isEditingSite">
@@ -184,6 +220,15 @@
     private bool isEditingSite = false;
     private CustomerSiteDto? selectedSite = null;
     private bool mapInitialized = false;
+    private HashSet<int> expandedSiteIds = new();
+
+    private async Task ToggleSite(CustomerSiteDto site)
+    {
+        if (expandedSiteIds.Contains(site.Id))
+            expandedSiteIds.Remove(site.Id);
+        else
+            expandedSiteIds.Add(site.Id);
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -325,6 +370,17 @@
         {
             isEditingSite = false;
         }
+    }
+
+    private string NormalizeNewlines(string? text)
+    {
+        if (string.IsNullOrEmpty(text)) return string.Empty;
+        // Handle literal "\r\n" or "\n" strings stored in the DB as well as real newline chars
+        return text
+            .Replace("\\r\\n", "\n")
+            .Replace("\\n", "\n")
+            .Replace("\r\n", "\n")
+            .Replace("\r", "\n");
     }
 
     class NewSiteModel
