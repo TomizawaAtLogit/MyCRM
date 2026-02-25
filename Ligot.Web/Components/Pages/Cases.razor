@@ -628,11 +628,12 @@
                                                                     <td>@activity.Summary</td>
                                                                     @{
                                                                         var activityDescription = activity.Description ?? string.Empty;
+                                                                        var activityDescriptionDisplay = StripBrTags(activityDescription);
                                                                         var activityNeedsToggle = activityDescription.Length > 120;
                                                                         var activityIsExpanded = activityDescriptionExpanded.ContainsKey(activity.Id) && activityDescriptionExpanded[activity.Id];
                                                                     }
                                                                     <td class="small" style="white-space: pre-wrap; word-break: break-word;">
-                                                                        <span>@(activityIsExpanded || !activityNeedsToggle ? activityDescription : Truncate(activityDescription, 120))</span>
+                                                                        <span>@(activityIsExpanded || !activityNeedsToggle ? activityDescriptionDisplay : Truncate(activityDescriptionDisplay, 120))</span>
                                                                         @if (activityNeedsToggle)
                                                                         {
                                                                             <button type="button" class="btn btn-link btn-sm p-0 ms-2"
@@ -1196,7 +1197,7 @@
                                             </div>
                                             @if (!string.IsNullOrWhiteSpace(activity.Description))
                                             {
-                                                <p class="mb-1 text-muted">@activity.Description</p>
+                                                <p class="mb-1 text-muted" style="white-space: pre-wrap;">@StripBrTags(activity.Description)</p>
                                             }
                                             <small>
                                                 @if (!string.IsNullOrWhiteSpace(activity.NextAction))
@@ -1669,6 +1670,12 @@
     {
         if (string.IsNullOrEmpty(s)) return string.Empty;
         return s.Length <= length ? s : s.Substring(0, length) + "...";
+    }
+
+    private static string StripBrTags(string? s)
+    {
+        if (string.IsNullOrEmpty(s)) return string.Empty;
+        return System.Text.RegularExpressions.Regex.Replace(s, @"<br\s*/?>\s*", "\n", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Trim();
     }
 
     private async Task OnCustomerFilterChanged(ChangeEventArgs e)
