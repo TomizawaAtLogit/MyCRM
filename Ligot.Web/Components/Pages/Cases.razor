@@ -1557,36 +1557,31 @@
 
     private IEnumerable<CaseDto> ApplySorting(IEnumerable<CaseDto> items)
     {
-        // First, prioritize cases assigned to the current user
-        var prioritized = items
-            .OrderByDescending(c => c.AssignedToUserId == currentUserId)
-            .ThenByDescending(c => c.CreatedAt);
-        
-        // Then apply the user-selected sort column
+        // Apply the user-selected sort column as the primary sort, with CreatedAt as a tiebreaker
         return sortColumn switch
         {
             CasesSortColumn.Customer => sortDescending
-                ? prioritized.ThenByDescending(c => c.CustomerName ?? string.Empty)
-                : prioritized.ThenBy(c => c.CustomerName ?? string.Empty),
+                ? items.OrderByDescending(c => c.CustomerName ?? string.Empty).ThenByDescending(c => c.CreatedAt)
+                : items.OrderBy(c => c.CustomerName ?? string.Empty).ThenByDescending(c => c.CreatedAt),
             CasesSortColumn.Status => sortDescending
-                ? prioritized.ThenByDescending(c => c.Status.ToString())
-                : prioritized.ThenBy(c => c.Status.ToString()),
+                ? items.OrderByDescending(c => c.Status.ToString()).ThenByDescending(c => c.CreatedAt)
+                : items.OrderBy(c => c.Status.ToString()).ThenByDescending(c => c.CreatedAt),
             CasesSortColumn.Priority => sortDescending
-                ? prioritized.ThenByDescending(c => c.Priority.ToString())
-                : prioritized.ThenBy(c => c.Priority.ToString()),
+                ? items.OrderByDescending(c => c.Priority.ToString()).ThenByDescending(c => c.CreatedAt)
+                : items.OrderBy(c => c.Priority.ToString()).ThenByDescending(c => c.CreatedAt),
             CasesSortColumn.IssueType => sortDescending
-                ? prioritized.ThenByDescending(c => c.IssueType.ToString())
-                : prioritized.ThenBy(c => c.IssueType.ToString()),
+                ? items.OrderByDescending(c => c.IssueType.ToString()).ThenByDescending(c => c.CreatedAt)
+                : items.OrderBy(c => c.IssueType.ToString()).ThenByDescending(c => c.CreatedAt),
             CasesSortColumn.AssignedTo => sortDescending
-                ? prioritized.ThenByDescending(c => c.AssignedToUserName ?? string.Empty)
-                : prioritized.ThenBy(c => c.AssignedToUserName ?? string.Empty),
+                ? items.OrderByDescending(c => c.AssignedToUserName ?? string.Empty).ThenByDescending(c => c.CreatedAt)
+                : items.OrderBy(c => c.AssignedToUserName ?? string.Empty).ThenByDescending(c => c.CreatedAt),
             CasesSortColumn.DueDate => sortDescending
-                ? prioritized.ThenByDescending(c => c.DueDate ?? DateTime.MinValue)
-                : prioritized.ThenBy(c => c.DueDate ?? DateTime.MaxValue),
+                ? items.OrderByDescending(c => c.DueDate ?? DateTime.MinValue).ThenByDescending(c => c.CreatedAt)
+                : items.OrderBy(c => c.DueDate ?? DateTime.MaxValue).ThenByDescending(c => c.CreatedAt),
             CasesSortColumn.Created => sortDescending
-                ? prioritized.ThenByDescending(c => c.CreatedAt)
-                : prioritized.ThenBy(c => c.CreatedAt),
-            _ => prioritized
+                ? items.OrderByDescending(c => c.CreatedAt)
+                : items.OrderBy(c => c.CreatedAt),
+            _ => items.OrderByDescending(c => c.CreatedAt)
         };
     }
 
