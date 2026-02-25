@@ -149,6 +149,34 @@ namespace Ligot.DbApi.Repositories
                 .CountAsync();
         }
 
+        public async Task<Dictionary<int, int>> GetOpenRelatedCasesCountBatchAsync(int[] caseIds)
+        {
+            if (caseIds.Length == 0)
+                return new Dictionary<int, int>();
+
+            // For each caseId, count distinct related cases (in either direction) that are not closed
+            var relationships = await _db.CaseRelationships
+                .Where(cr => caseIds.Contains(cr.SourceCaseId) || caseIds.Contains(cr.RelatedCaseId))
+                .ToListAsync();
+
+            var openCaseIds = await _db.Cases
+                .Where(c => c.Status != CaseStatus.Closed)
+                .Select(c => c.Id)
+                .ToHashSetAsync();
+
+            var result = new Dictionary<int, int>();
+            foreach (var id in caseIds)
+            {
+                var relatedIds = relationships
+                    .Where(cr => cr.SourceCaseId == id || cr.RelatedCaseId == id)
+                    .Select(cr => cr.SourceCaseId == id ? cr.RelatedCaseId : cr.SourceCaseId)
+                    .Distinct()
+                    .Count(relatedId => openCaseIds.Contains(relatedId));
+                result[id] = relatedIds;
+            }
+            return result;
+        }
+
         public async Task<int[]> BulkUpdateAssignmentAsync(int[] caseIds, int? assignedToUserId)
         {
             var cases = await _db.Cases.Where(c => caseIds.Contains(c.Id)).ToListAsync();

@@ -71,10 +71,19 @@
                 <label class="form-label">@Localizer.GetString("Status")</label>
                 <select class="form-select" value="@filterStatus" @onchange="OnStatusFilterChanged">
                     <option value="">@Localizer.GetString("All Statuses")</option>
-                    <option value="Open">@Localizer.GetString("Open")</option>
-                    <option value="InProgress">@Localizer.GetString("In Progress")</option>
-                    <option value="Pending">@Localizer.GetString("Pending")</option>
-                    <option value="Resolved">@Localizer.GetString("Resolved")</option>
+                    <option value="without_closed">@Localizer.GetString("All Except Closed")</option>
+                    <option value="SupportCenter">@Localizer.GetString("Support Center")</option>
+                    <option value="LogIT">@Localizer.GetString("Log IT")</option>
+                    <option value="Customer_handling">@Localizer.GetString("Customer Handling")</option>
+                    <option value="Manufacturer">@Localizer.GetString("Manufacturer")</option>
+                    <option value="Waiting_for_work">@Localizer.GetString("Waiting for Work")</option>
+                    <option value="In_observation_period">@Localizer.GetString("In Observation Period")</option>
+                    <option value="SC_high">@Localizer.GetString("SC High")</option>
+                    <option value="SC_medium">@Localizer.GetString("SC Medium")</option>
+                    <option value="SC_low">@Localizer.GetString("SC Low")</option>
+                    <option value="LogIT_high">@Localizer.GetString("LogIT High")</option>
+                    <option value="LogIT_medium">@Localizer.GetString("LogIT Medium")</option>
+                    <option value="LogIT_low">@Localizer.GetString("LogIT Low")</option>
                     <option value="Closed">@Localizer.GetString("Closed")</option>
                 </select>
             </div>
@@ -244,7 +253,7 @@
                     @foreach (var c in GetPaginatedCases() ?? Array.Empty<CaseDto>())
                     {
                         var isOverdue = c.DueDate.HasValue && c.DueDate.Value < DateTime.UtcNow && 
-                                       (c.Status == CaseStatus.Open || c.Status == CaseStatus.InProgress);
+                                       c.Status != CaseStatus.Closed;
                         <tr class="@(isOverdue ? "table-danger" : "")">
                             <td style="vertical-align: middle;">
                                 <button class="btn btn-link btn-chevron" @onclick="() => ToggleCaseExpansionAsync(c.Id)">
@@ -276,21 +285,53 @@
                             </td>
                             <td>@c.CustomerName</td>
                             <td>
-                                @if (c.Status == CaseStatus.Open)
+                                @if (c.Status == CaseStatus.SupportCenter)
                                 {
-                                    <span class="badge bg-primary">@Localizer.GetString("Open")</span>
+                                    <span class="badge bg-primary">@Localizer.GetString("Support Center")</span>
                                 }
-                                else if (c.Status == CaseStatus.InProgress)
+                                else if (c.Status == CaseStatus.LogIT)
                                 {
-                                    <span class="badge bg-info">@Localizer.GetString("In Progress")</span>
+                                    <span class="badge bg-info text-dark">@Localizer.GetString("Log IT")</span>
                                 }
-                                else if (c.Status == CaseStatus.Pending)
+                                else if (c.Status == CaseStatus.Customer_handling)
                                 {
-                                    <span class="badge bg-warning text-dark">@Localizer.GetString("Pending")</span>
+                                    <span class="badge bg-warning text-dark">@Localizer.GetString("Customer Handling")</span>
                                 }
-                                else if (c.Status == CaseStatus.Resolved)
+                                else if (c.Status == CaseStatus.Manufacturer)
                                 {
-                                    <span class="badge bg-success">@Localizer.GetString("Resolved")</span>
+                                    <span class="badge bg-info text-dark">@Localizer.GetString("Manufacturer")</span>
+                                }
+                                else if (c.Status == CaseStatus.Waiting_for_work)
+                                {
+                                    <span class="badge bg-warning text-dark">@Localizer.GetString("Waiting for Work")</span>
+                                }
+                                else if (c.Status == CaseStatus.In_observation_period)
+                                {
+                                    <span class="badge bg-success">@Localizer.GetString("In Observation Period")</span>
+                                }
+                                else if (c.Status == CaseStatus.SC_high)
+                                {
+                                    <span class="badge bg-danger">@Localizer.GetString("SC High")</span>
+                                }
+                                else if (c.Status == CaseStatus.SC_medium)
+                                {
+                                    <span class="badge bg-warning text-dark">@Localizer.GetString("SC Medium")</span>
+                                }
+                                else if (c.Status == CaseStatus.SC_low)
+                                {
+                                    <span class="badge bg-info text-dark">@Localizer.GetString("SC Low")</span>
+                                }
+                                else if (c.Status == CaseStatus.LogIT_high)
+                                {
+                                    <span class="badge bg-danger">@Localizer.GetString("LogIT High")</span>
+                                }
+                                else if (c.Status == CaseStatus.LogIT_medium)
+                                {
+                                    <span class="badge bg-warning text-dark">@Localizer.GetString("LogIT Medium")</span>
+                                }
+                                else if (c.Status == CaseStatus.LogIT_low)
+                                {
+                                    <span class="badge bg-info text-dark">@Localizer.GetString("LogIT Low")</span>
                                 }
                                 else if (c.Status == CaseStatus.Closed)
                                 {
@@ -699,11 +740,36 @@
                     <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
                         <button class="page-link" @onclick="PreviousPage" disabled="@(currentPage <= 1)">@Localizer.GetString("Previous")</button>
                     </li>
-                    @for (int i = 1; i <= GetTotalPages(); i++)
+                    @{
+                        var totalPages = GetTotalPages();
+                        var windowStart = Math.Max(1, currentPage - 2);
+                        var windowEnd = Math.Min(totalPages, currentPage + 2);
+                    }
+                    @if (windowStart > 1)
+                    {
+                        <li class="page-item">
+                            <button class="page-link" @onclick="() => GoToPage(1)">1</button>
+                        </li>
+                        @if (windowStart > 2)
+                        {
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        }
+                    }
+                    @for (int i = windowStart; i <= windowEnd; i++)
                     {
                         var pageNum = i;
                         <li class="page-item @(currentPage == pageNum ? "active" : "")">
                             <button class="page-link" @onclick="() => GoToPage(pageNum)">@pageNum</button>
+                        </li>
+                    }
+                    @if (windowEnd < totalPages)
+                    {
+                        @if (windowEnd < totalPages - 1)
+                        {
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        }
+                        <li class="page-item">
+                            <button class="page-link" @onclick="() => GoToPage(totalPages)">@totalPages</button>
                         </li>
                     }
                     <li class="page-item @(currentPage >= GetTotalPages() ? "disabled" : "")">
@@ -809,10 +875,18 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">@Localizer.GetString("Status")</label>
                                 <InputSelect @bind-Value="newCase.Status" class="form-select">
-                                    <option value="@CaseStatus.Open">@Localizer.GetString("Open")</option>
-                                    <option value="@CaseStatus.InProgress">@Localizer.GetString("In Progress")</option>
-                                    <option value="@CaseStatus.Pending">@Localizer.GetString("Pending")</option>
-                                    <option value="@CaseStatus.Resolved">@Localizer.GetString("Resolved")</option>
+                                    <option value="@CaseStatus.SupportCenter">@Localizer.GetString("Support Center")</option>
+                                    <option value="@CaseStatus.LogIT">@Localizer.GetString("Log IT")</option>
+                                    <option value="@CaseStatus.Customer_handling">@Localizer.GetString("Customer Handling")</option>
+                                    <option value="@CaseStatus.Manufacturer">@Localizer.GetString("Manufacturer")</option>
+                                    <option value="@CaseStatus.Waiting_for_work">@Localizer.GetString("Waiting for Work")</option>
+                                    <option value="@CaseStatus.In_observation_period">@Localizer.GetString("In Observation Period")</option>
+                                    <option value="@CaseStatus.SC_high">@Localizer.GetString("SC High")</option>
+                                    <option value="@CaseStatus.SC_medium">@Localizer.GetString("SC Medium")</option>
+                                    <option value="@CaseStatus.SC_low">@Localizer.GetString("SC Low")</option>
+                                    <option value="@CaseStatus.LogIT_high">@Localizer.GetString("LogIT High")</option>
+                                    <option value="@CaseStatus.LogIT_medium">@Localizer.GetString("LogIT Medium")</option>
+                                    <option value="@CaseStatus.LogIT_low">@Localizer.GetString("LogIT Low")</option>
                                     <option value="@CaseStatus.Closed">@Localizer.GetString("Closed")</option>
                                 </InputSelect>
                             </div>
@@ -940,10 +1014,18 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">@Localizer.GetString("Status")</label>
                                 <InputSelect @bind-Value="editModel.Status" class="form-select">
-                                    <option value="@CaseStatus.Open">@Localizer.GetString("Open")</option>
-                                    <option value="@CaseStatus.InProgress">@Localizer.GetString("In Progress")</option>
-                                    <option value="@CaseStatus.Pending">@Localizer.GetString("Pending")</option>
-                                    <option value="@CaseStatus.Resolved">@Localizer.GetString("Resolved")</option>
+                                    <option value="@CaseStatus.SupportCenter">@Localizer.GetString("Support Center")</option>
+                                    <option value="@CaseStatus.LogIT">@Localizer.GetString("Log IT")</option>
+                                    <option value="@CaseStatus.Customer_handling">@Localizer.GetString("Customer Handling")</option>
+                                    <option value="@CaseStatus.Manufacturer">@Localizer.GetString("Manufacturer")</option>
+                                    <option value="@CaseStatus.Waiting_for_work">@Localizer.GetString("Waiting for Work")</option>
+                                    <option value="@CaseStatus.In_observation_period">@Localizer.GetString("In Observation Period")</option>
+                                    <option value="@CaseStatus.SC_high">@Localizer.GetString("SC High")</option>
+                                    <option value="@CaseStatus.SC_medium">@Localizer.GetString("SC Medium")</option>
+                                    <option value="@CaseStatus.SC_low">@Localizer.GetString("SC Low")</option>
+                                    <option value="@CaseStatus.LogIT_high">@Localizer.GetString("LogIT High")</option>
+                                    <option value="@CaseStatus.LogIT_medium">@Localizer.GetString("LogIT Medium")</option>
+                                    <option value="@CaseStatus.LogIT_low">@Localizer.GetString("LogIT Low")</option>
                                     <option value="@CaseStatus.Closed">@Localizer.GetString("Closed")</option>
                                 </InputSelect>
                             </div>
@@ -965,15 +1047,11 @@
                         </div>
 
                         @* Resolution notes (conditional) *@
-                        @if (editModel.Status == CaseStatus.Resolved || editModel.Status == CaseStatus.Closed)
+                        @if (editModel.Status == CaseStatus.Closed)
                         {
                             <div class="mb-3">
-                                <label class="form-label">@Localizer.GetString("Resolution Notes") @(editModel.Status == CaseStatus.Resolved ? "*" : "")</label>
+                                <label class="form-label">@Localizer.GetString("Resolution Notes")</label>
                                 <InputTextArea @bind-Value="editModel.ResolutionNotes" class="form-control" rows="3" />
-                                @if (editModel.Status == CaseStatus.Resolved && string.IsNullOrWhiteSpace(editModel.ResolutionNotes))
-                                {
-                                    <div class="text-danger small mt-1">Resolution notes are required when resolving a case.</div>
-                                }
                             </div>
                         }
 
@@ -1283,7 +1361,7 @@
     private OrderWithCustomerDto[]? filteredOrders;
     private string? loadError;
     private string filterCustomerId = "";
-    private string filterStatus = "";
+    private string filterStatus = "without_closed";
     private string filterPriority = "";
     private string filterAssignedToUserId = "";
     private bool isReadOnly = false;
@@ -1392,7 +1470,7 @@
         try
         {
             int? customerId = string.IsNullOrEmpty(filterCustomerId) ? null : int.Parse(filterCustomerId);
-            CaseStatus? status = string.IsNullOrEmpty(filterStatus) ? null : Enum.Parse<CaseStatus>(filterStatus);
+            CaseStatus? status = (string.IsNullOrEmpty(filterStatus) || filterStatus == "without_closed") ? null : Enum.Parse<CaseStatus>(filterStatus);
             int? assignedToUserId = string.IsNullOrEmpty(filterAssignedToUserId) ? null : int.Parse(filterAssignedToUserId);
             CasePriority? priority = string.IsNullOrEmpty(filterPriority) ? null : Enum.Parse<CasePriority>(filterPriority);
             // fetch base set from API using the primary filters
@@ -1416,6 +1494,11 @@
         }
 
         IEnumerable<CaseDto> q = allCases;
+
+        if (filterStatus == "without_closed")
+        {
+            q = q.Where(c => c.Status != CaseStatus.Closed);
+        }
 
         if (!string.IsNullOrWhiteSpace(filterTitle))
         {
@@ -1676,13 +1759,6 @@
         if (editEditContext != null && !editEditContext.Validate())
         {
             ShowToast("Please correct the validation errors", "danger");
-            return;
-        }
-        
-        // Enforce resolution notes for Resolved status
-        if (editModel.Status == CaseStatus.Resolved && string.IsNullOrWhiteSpace(editModel.ResolutionNotes))
-        {
-            ShowToast("Resolution notes are required when resolving a case", "danger");
             return;
         }
 
@@ -2160,7 +2236,7 @@
         [Required] public string Title { get; set; } = string.Empty; 
         public string? Description { get; set; }
         [Required] public int CustomerId { get; set; }
-        public CaseStatus Status { get; set; } = CaseStatus.Open;
+        public CaseStatus Status { get; set; } = CaseStatus.SupportCenter;
         public CasePriority Priority { get; set; } = CasePriority.Medium;
         public IssueType IssueType { get; set; } = IssueType.Question;
         public int? AssignedToUserId { get; set; }
@@ -2174,7 +2250,7 @@
         [Required] public string Title { get; set; } = string.Empty; 
         public string? Description { get; set; }
         [Required] public int CustomerId { get; set; }
-        public CaseStatus Status { get; set; } = CaseStatus.Open;
+        public CaseStatus Status { get; set; } = CaseStatus.SupportCenter;
         public CasePriority Priority { get; set; } = CasePriority.Medium;
         public IssueType IssueType { get; set; } = IssueType.Question;
         public int? AssignedToUserId { get; set; }

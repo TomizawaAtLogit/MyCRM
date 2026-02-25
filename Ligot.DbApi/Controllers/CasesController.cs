@@ -116,10 +116,20 @@ namespace Ligot.DbApi.Controllers
             var casesList = cases.ToList();
             var dtos = new List<CaseDto>();
 
+            // Preload all SLA configs once (avoid N+1)
+            var allSlaConfigs = (await _slaRepo.GetAllAsync())
+                .Where(s => s.IsActive)
+                .ToDictionary(s => s.Priority);
+
+            // Preload all open related case counts in a single batch query (avoid N+1)
+            var caseIds = casesList.Select(c => c.Id).ToArray();
+            var openRelatedCounts = await _repo.GetOpenRelatedCasesCountBatchAsync(caseIds);
+
             foreach (var c in casesList)
             {
-                var slaConfig = await _slaRepo.GetByPriorityAsync(c.Priority);
-                var dto = await BuildCaseDtoAsync(c, slaConfig);
+                allSlaConfigs.TryGetValue(c.Priority, out var slaConfig);
+                var openRelatedCount = openRelatedCounts.TryGetValue(c.Id, out var cnt) ? cnt : 0;
+                var dto = BuildCaseDto(c, slaConfig, openRelatedCount);
                 
                 if (includeSlaBreached && !dto.IsResponseSlaBreached && !dto.IsResolutionSlaBreached)
                     continue;
@@ -133,13 +143,21 @@ namespace Ligot.DbApi.Controllers
         [HttpGet("overdue")]
         public async Task<IEnumerable<CaseDto>> GetOverdue()
         {
-            var cases = await _repo.GetOverdueCasesAsync();
+            var cases = (await _repo.GetOverdueCasesAsync()).ToList();
             var dtos = new List<CaseDto>();
-            
+
+            var allSlaConfigs = (await _slaRepo.GetAllAsync())
+                .Where(s => s.IsActive)
+                .ToDictionary(s => s.Priority);
+
+            var caseIds = cases.Select(c => c.Id).ToArray();
+            var openRelatedCounts = await _repo.GetOpenRelatedCasesCountBatchAsync(caseIds);
+
             foreach (var c in cases)
             {
-                var slaConfig = await _slaRepo.GetByPriorityAsync(c.Priority);
-                dtos.Add(await BuildCaseDtoAsync(c, slaConfig));
+                allSlaConfigs.TryGetValue(c.Priority, out var slaConfig);
+                var openRelatedCount = openRelatedCounts.TryGetValue(c.Id, out var cnt) ? cnt : 0;
+                dtos.Add(BuildCaseDto(c, slaConfig, openRelatedCount));
             }
             
             return dtos;
@@ -155,7 +173,8 @@ namespace Ligot.DbApi.Controllers
             await _auditService.LogActionAsync(username, userId, "Read", "Case", id, c);
             
             var slaConfig = await _slaRepo.GetByPriorityAsync(c.Priority);
-            return await BuildCaseDtoAsync(c, slaConfig);
+            var openRelatedCount = await _repo.GetOpenRelatedCasesCountAsync(c.Id);
+            return BuildCaseDto(c, slaConfig, openRelatedCount);
         }
 
         [HttpPost]
@@ -187,7 +206,8 @@ namespace Ligot.DbApi.Controllers
             if (result == null) return NotFound();
             
             var slaConfig = await _slaRepo.GetByPriorityAsync(result.Priority);
-            return CreatedAtAction(nameof(Get), new { id = created.Id }, await BuildCaseDtoAsync(result, slaConfig));
+            var openRelatedCount = await _repo.GetOpenRelatedCasesCountAsync(result.Id);
+            return CreatedAtAction(nameof(Get), new { id = created.Id }, BuildCaseDto(result, slaConfig, openRelatedCount));
         }
 
         [HttpPut("{id}")]
@@ -341,7 +361,7 @@ namespace Ligot.DbApi.Controllers
             );
         }
 
-        private async Task<CaseDto> BuildCaseDtoAsync(Case c, SlaThreshold? slaConfig)
+        private CaseDto BuildCaseDto(Case c, SlaThreshold? slaConfig, int openRelatedCasesCount)
         {
             var responseTimeSlaMinutes = slaConfig?.ResponseTimeHours * 60;
             var resolutionTimeSlaMinutes = slaConfig?.ResolutionTimeHours * 60;
@@ -365,8 +385,6 @@ namespace Ligot.DbApi.Controllers
                     slaDeadline = resolutionDeadline;
                 }
             }
-            
-            var openRelatedCasesCount = await _repo.GetOpenRelatedCasesCountAsync(c.Id);
             
             return new CaseDto(
                 c.Id,

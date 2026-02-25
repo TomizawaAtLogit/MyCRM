@@ -15,6 +15,7 @@ namespace Ligot.DbApi.Repositories
         Task<(int? previousAssignedToUserId, CaseStatus previousStatus)> UpdateAsync(Case caseEntity);
         Task DeleteAsync(int id);
         Task<int> GetOpenRelatedCasesCountAsync(int caseId);
+        Task<Dictionary<int, int>> GetOpenRelatedCasesCountBatchAsync(int[] caseIds);
         Task<int[]> BulkUpdateAssignmentAsync(int[] caseIds, int? assignedToUserId);
         Task<int[]> BulkUpdateStatusAsync(int[] caseIds, CaseStatus status);
     }

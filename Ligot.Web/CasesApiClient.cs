@@ -136,7 +136,7 @@ namespace Ligot.Web
         string Title,
         string? Description,
         int CustomerId,
-        CaseStatus Status = CaseStatus.Open,
+        CaseStatus Status = CaseStatus.SupportCenter,
         CasePriority Priority = CasePriority.Medium,
         IssueType IssueType = IssueType.Question,
         int? AssignedToUserId = null,
@@ -158,11 +158,19 @@ namespace Ligot.Web
 
     public enum CaseStatus
     {
-        Open,
-        InProgress,
-        Pending,
-        Resolved,
-        Closed
+        SupportCenter,
+        LogIT,
+        Closed,
+        Customer_handling,
+        Manufacturer,
+        Waiting_for_work,
+        In_observation_period,
+        SC_high,
+        SC_medium,
+        SC_low,
+        LogIT_high,
+        LogIT_medium,
+        LogIT_low
     }
 
     public enum CasePriority
