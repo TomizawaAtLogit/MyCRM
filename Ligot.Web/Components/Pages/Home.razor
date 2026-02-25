@@ -173,9 +173,6 @@ else if (viewMode == "gantt")
                 <div class="d-flex align-items-center gap-3">
                     <h4 class="mb-0">@GetGanttPeriodTitle()</h4>
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-sm @(ganttPeriod == "daily" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetGanttPeriod("daily")'>
-                            @Localizer.GetString("Daily")
-                        </button>
                         <button type="button" class="btn btn-sm @(ganttPeriod == "weekly" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetGanttPeriod("weekly")'>
                             @Localizer.GetString("Weekly")
                         </button>
@@ -954,7 +951,6 @@ else
     {
         return ganttPeriod switch
         {
-            "daily" => ganttStartDate.ToString("MMMM d, yyyy"),
             "weekly" => $"{Localizer.GetString("Week of")} {ganttStartDate.ToString("MMM d, yyyy")}",
             "monthly" => ganttStartDate.ToString("MMMM yyyy"),
             "yearly" => $"{Localizer.GetString("Year of")} {ganttStartDate.Year}",
@@ -994,7 +990,6 @@ else
     {
         ganttAnchorDate = ganttPeriod switch
         {
-            "daily" => ganttAnchorDate.AddDays(direction),
             "weekly" => ganttAnchorDate.AddDays(7 * direction),
             "monthly" => ganttAnchorDate.AddMonths(direction),
             "yearly" => ganttAnchorDate.AddYears(direction),
@@ -1006,7 +1001,6 @@ else
     {
         return period switch
         {
-            "daily" => date.Date,
             "weekly" => GetMondayOfWeek(date),
             "monthly" => new DateTime(date.Year, date.Month, 1),
             "yearly" => new DateTime(date.Year, 1, 1),
@@ -1018,7 +1012,6 @@ else
     {
         return ganttPeriod switch
         {
-            "daily" => (ganttStartDate, ganttStartDate.AddDays(1).AddSeconds(-1)),
             "weekly" => (ganttStartDate, ganttStartDate.AddDays(7).AddSeconds(-1)),
             "monthly" => (ganttStartDate, ganttStartDate.AddMonths(1).AddSeconds(-1)),
             "yearly" => (ganttStartDate, ganttStartDate.AddYears(1).AddSeconds(-1)),
@@ -1111,15 +1104,6 @@ else
 
         switch (ganttPeriod)
         {
-            case "daily":
-                // Show hours for daily view
-                for (int hour = 0; hour < 24; hour++)
-                {
-                    var hourLabel = hour + 1;
-                    columns.Add(new GanttColumn { Date = startDate.AddHours(hour), Label = hourLabel.ToString(CultureInfo.InvariantCulture) });
-                }
-                break;
-
             case "weekly":
                 // Show days for weekly view
                 for (int day = 0; day < 7; day++)
