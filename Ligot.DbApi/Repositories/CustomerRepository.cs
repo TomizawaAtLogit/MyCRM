@@ -287,8 +287,20 @@ public class CustomerRepository : ICustomerRepository
 
     public async Task UpdateSystemComponentAsync(SystemComponent component)
     {
-        component.UpdatedAt = DateTime.UtcNow;
-        _db.SystemComponents.Update(component);
+        // FindAsync returns the already-tracked entity if it was loaded earlier (e.g. via Include),
+        // preventing the "another instance with the same key" EF Core tracking conflict.
+        var existing = await _db.SystemComponents.FindAsync(component.Id)
+            ?? throw new InvalidOperationException($"SystemComponent {component.Id} not found");
+
+        existing.ComponentType = component.ComponentType;
+        existing.Manufacturer = component.Manufacturer;
+        existing.Model = component.Model;
+        existing.SerialNumber = component.SerialNumber;
+        existing.Location = component.Location;
+        existing.WarrantyExpiration = component.WarrantyExpiration;
+        existing.Description = component.Description;
+        existing.UpdatedAt = DateTime.UtcNow;
+
         await _db.SaveChangesAsync();
     }
 

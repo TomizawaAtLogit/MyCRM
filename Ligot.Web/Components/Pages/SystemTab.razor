@@ -100,6 +100,10 @@
                                                         <td>@component.Location</td>
                                                         <td>@(component.WarrantyExpiration?.ToShortDateString() ?? "-")</td>
                                                         <td>
+                                                            <button class="btn btn-sm btn-outline-info me-1"
+                                                                    @onclick="() => ShowComponentDetails(component)">
+                                                                <i class="bi bi-eye"></i>
+                                                            </button>
                                                             @if (!IsReadOnly)
                                                             {
                                                                 <button class="btn btn-sm btn-outline-primary me-1" 
@@ -262,7 +266,7 @@
 
 <!-- Edit System Modal -->
 <div class="modal fade" id="editSystemModal" tabindex="-1" aria-labelledby="editSystemModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editSystemModalLabel">Edit System</h5>
@@ -302,7 +306,7 @@
 
 <!-- Edit Component Modal -->
 <div class="modal fade" id="editComponentModal" tabindex="-1" aria-labelledby="editComponentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editComponentModalLabel">Edit Component</h5>
@@ -312,39 +316,45 @@
                 <EditForm Model="editComponent" OnValidSubmit="UpdateComponentAsync">
                     <DataAnnotationsValidator />
                     <ValidationSummary class="text-danger" />
-                    <div class="mb-3">
-                        <label class="form-label">Component Type</label>
-                        <InputText @bind-Value="editComponent.ComponentType" class="form-control" />
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Component Type</label>
+                            <InputText @bind-Value="editComponent.ComponentType" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Manufacturer</label>
+                            <InputText @bind-Value="editComponent.Manufacturer" class="form-control" />
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Manufacturer</label>
-                        <InputText @bind-Value="editComponent.Manufacturer" class="form-control" />
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Model</label>
+                            <InputText @bind-Value="editComponent.Model" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Serial Number</label>
+                            <InputText @bind-Value="editComponent.SerialNumber" class="form-control" />
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Model</label>
-                        <InputText @bind-Value="editComponent.Model" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Serial Number</label>
-                        <InputText @bind-Value="editComponent.SerialNumber" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Location</label>
-                        <InputSelect @bind-Value="editComponent.Location" class="form-control">
-                            <option value="">Select a site...</option>
-                            @foreach (var site in Sites)
-                            {
-                                <option value="@site.SiteName">@site.SiteName</option>
-                            }
-                        </InputSelect>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Warranty Expiration</label>
-                        <InputDate @bind-Value="editComponent.WarrantyExpiration" class="form-control" />
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Location</label>
+                            <InputSelect @bind-Value="editComponent.Location" class="form-control">
+                                <option value="">Select a site...</option>
+                                @foreach (var site in Sites)
+                                {
+                                    <option value="@site.SiteName">@site.SiteName</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Warranty Expiration</label>
+                            <InputDate @bind-Value="editComponent.WarrantyExpiration" class="form-control" />
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Description</label>
-                        <InputTextArea @bind-Value="editComponent.Description" class="form-control" rows="3" />
+                        <InputTextArea @bind-Value="editComponent.Description" class="form-control" rows="6" />
                     </div>
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary" disabled="@isEditingComponent">
@@ -362,6 +372,46 @@
     </div>
 </div>
 
+@if (selectedComponent != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Component Details</h5>
+                    <button type="button" class="btn-close" @onclick="HideComponentDetails"></button>
+                </div>
+                <div class="modal-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Component Type</dt>
+                        <dd class="col-sm-7">@selectedComponent.ComponentType</dd>
+                        <dt class="col-sm-5">Manufacturer</dt>
+                        <dd class="col-sm-7">@(selectedComponent.Manufacturer ?? "-")</dd>
+                        <dt class="col-sm-5">Model</dt>
+                        <dd class="col-sm-7">@(selectedComponent.Model ?? "-")</dd>
+                        <dt class="col-sm-5">Serial Number</dt>
+                        <dd class="col-sm-7">@(selectedComponent.SerialNumber ?? "-")</dd>
+                        <dt class="col-sm-5">Location</dt>
+                        <dd class="col-sm-7">@(selectedComponent.Location ?? "-")</dd>
+                        <dt class="col-sm-5">Warranty Expiration</dt>
+                        <dd class="col-sm-7">@(selectedComponent.WarrantyExpiration?.ToShortDateString() ?? "-")</dd>
+                    </dl>
+                    @if (!string.IsNullOrWhiteSpace(selectedComponent.Description))
+                    {
+                        <div class="mt-3">
+                            <h6>Description</h6>
+                            <p class="mb-0 ms-3">@((MarkupString)selectedComponent.Description)</p>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideComponentDetails">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter, EditorRequired]
     public int CustomerId { get; set; }
@@ -377,6 +427,8 @@
 
     [Parameter]
     public bool IsReadOnly { get; set; } = false;
+
+    private SystemComponentDto? selectedComponent;
 
     // Toast notification
     private string? toastMessage;
@@ -497,6 +549,16 @@
     private void SelectSystemForComponent(int systemId)
     {
         selectedSystemId = systemId;
+    }
+
+    private void ShowComponentDetails(SystemComponentDto component)
+    {
+        selectedComponent = component;
+    }
+
+    private void HideComponentDetails()
+    {
+        selectedComponent = null;
     }
 
     private async Task StartEditSystem(SystemDto system)
