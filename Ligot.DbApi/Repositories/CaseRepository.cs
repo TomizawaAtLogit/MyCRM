@@ -92,7 +92,7 @@ namespace Ligot.DbApi.Repositories
                 .Include(c => c.CustomerOrder)
                 .Include(c => c.AssignedToUser)
                 .Where(c => c.DueDate.HasValue && c.DueDate.Value < DateTime.UtcNow && 
-                           (c.Status == CaseStatus.Open || c.Status == CaseStatus.InProgress))
+                           (c.Status == CaseStatus.SupportCenter || c.Status == CaseStatus.LogIT))
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -117,7 +117,7 @@ namespace Ligot.DbApi.Repositories
         {
             var existing = await _db.Cases.AsNoTracking().FirstOrDefaultAsync(c => c.Id == caseEntity.Id);
             var previousAssignedToUserId = existing?.AssignedToUserId;
-            var previousStatus = existing?.Status ?? CaseStatus.Open;
+            var previousStatus = existing?.Status ?? CaseStatus.SupportCenter;
             
             _db.Cases.Update(caseEntity);
             await _db.SaveChangesAsync();
@@ -145,7 +145,7 @@ namespace Ligot.DbApi.Repositories
                       relatedId => relatedId,
                       c => c.Id,
                       (relatedId, c) => c)
-                .Where(c => c.Status != CaseStatus.Closed && c.Status != CaseStatus.Resolved)
+                .Where(c => c.Status != CaseStatus.Closed)
                 .CountAsync();
         }
 
@@ -169,7 +169,7 @@ namespace Ligot.DbApi.Repositories
                 c.Status = status;
                 c.UpdatedAt = DateTime.UtcNow;
                 
-                if (status == CaseStatus.Resolved || status == CaseStatus.Closed)
+                if (status == CaseStatus.Closed)
                 {
                     if (!c.ResolvedAt.HasValue)
                         c.ResolvedAt = DateTime.UtcNow;

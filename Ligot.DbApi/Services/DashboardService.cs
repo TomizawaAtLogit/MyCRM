@@ -112,9 +112,8 @@ public class DashboardService : IDashboardService
             casesQuery = casesQuery.Where(c => customerIds.Contains(c.CustomerId));
 
         metric.TotalCases = await casesQuery.CountAsync();
-        metric.OpenCases = await casesQuery.Where(c => c.Status == CaseStatus.Open).CountAsync();
-        metric.InProgressCases = await casesQuery.Where(c => c.Status == CaseStatus.InProgress).CountAsync();
-        metric.ResolvedCases = await casesQuery.Where(c => c.Status == CaseStatus.Resolved).CountAsync();
+        metric.OpenCases = await casesQuery.Where(c => c.Status == CaseStatus.SupportCenter).CountAsync();
+        metric.InProgressCases = await casesQuery.Where(c => c.Status == CaseStatus.LogIT).CountAsync();
         metric.ClosedCases = await casesQuery.Where(c => c.Status == CaseStatus.Closed).CountAsync();
         
         metric.CriticalPriorityCases = await casesQuery.Where(c => c.Priority == CasePriority.Critical).CountAsync();

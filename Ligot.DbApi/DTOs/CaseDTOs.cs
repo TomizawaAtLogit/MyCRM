@@ -44,7 +44,7 @@ public record CreateCaseDto(
     int? SystemComponentId,
     int? CustomerSiteId,
     int? CustomerOrderId,
-    CaseStatus Status = CaseStatus.Open,
+    CaseStatus Status = CaseStatus.SupportCenter,
     CasePriority Priority = CasePriority.Medium,
     IssueType IssueType = IssueType.Question,
     int? AssignedToUserId = null,

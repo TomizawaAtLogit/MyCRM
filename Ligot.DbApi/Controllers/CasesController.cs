@@ -110,7 +110,7 @@ namespace Ligot.DbApi.Controllers
             {
                 var now = DateTime.UtcNow;
                 cases = cases.Where(c => c.DueDate.HasValue && c.DueDate.Value < now && 
-                                        (c.Status == CaseStatus.Open || c.Status == CaseStatus.InProgress));
+                                        (c.Status == CaseStatus.SupportCenter || c.Status == CaseStatus.LogIT));
             }
 
             var casesList = cases.ToList();
@@ -219,13 +219,13 @@ namespace Ligot.DbApi.Controllers
             existing.UpdatedAt = DateTime.UtcNow;
             
             // Auto-set FirstResponseAt if status changes from Open
-            if (existing.FirstResponseAt == null && oldStatus == CaseStatus.Open && dto.Status != CaseStatus.Open)
+            if (existing.FirstResponseAt == null && oldStatus == CaseStatus.SupportCenter && dto.Status != CaseStatus.SupportCenter)
             {
                 existing.FirstResponseAt = DateTime.UtcNow;
             }
             
             // Auto-set ResolvedAt and ClosedAt
-            if ((dto.Status == CaseStatus.Resolved || dto.Status == CaseStatus.Closed) && existing.ResolvedAt == null)
+            if ((dto.Status == CaseStatus.Closed) && existing.ResolvedAt == null)
             {
                 existing.ResolvedAt = DateTime.UtcNow;
             }
@@ -350,7 +350,7 @@ namespace Ligot.DbApi.Controllers
             var isResolutionSlaBreached = false;
             DateTime? slaDeadline = null;
             
-            if (c.Status == CaseStatus.Open || c.Status == CaseStatus.InProgress)
+            if (c.Status == CaseStatus.SupportCenter || c.Status == CaseStatus.LogIT)
             {
                 if (responseTimeSlaMinutes.HasValue)
                 {

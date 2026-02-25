@@ -10,7 +10,7 @@ namespace Ligot.DbApi.Models
         public int? SystemComponentId { get; set; }
         public int? CustomerSiteId { get; set; }
         public int? CustomerOrderId { get; set; }
-        public CaseStatus Status { get; set; } = CaseStatus.Open;
+        public CaseStatus Status { get; set; } = CaseStatus.SupportCenter;
         public CasePriority Priority { get; set; } = CasePriority.Medium;
         public IssueType IssueType { get; set; } = IssueType.Question;
         public int? AssignedToUserId { get; set; }
