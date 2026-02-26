@@ -1366,6 +1366,10 @@
     private string filterPriority = "";
     private string filterAssignedToUserId = "";
     private bool isReadOnly = false;
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "title")]
+    public string? TitleQueryFilter { get; set; }
     
     // Pagination
     private int currentPage = 1;
@@ -1446,6 +1450,10 @@
         isReadOnly = await AuthService.IsPageReadOnlyAsync("Cases");
         await LoadCustomersAsync();
         await GetCurrentUserIdAsync();
+        if (!string.IsNullOrWhiteSpace(TitleQueryFilter))
+        {
+            filterTitle = TitleQueryFilter;
+        }
         await LoadAsync();
     }
 

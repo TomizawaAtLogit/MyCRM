@@ -383,15 +383,31 @@ else
                             </div>
                         </div>
                     }
-                    else if (!string.IsNullOrWhiteSpace(selectedEntry.PerformedBy))
+                    else
                     {
-                        <div class="mb-3">
-                            <strong>@Localizer.GetString("Performed By")</strong>
-                            <p class="mb-0">@selectedEntry.PerformedBy</p>
-                        </div>
+                        @if (selectedEntry.CaseStatus.HasValue)
+                        {
+                            <div class="mb-3">
+                                <strong>@Localizer.GetString("Status")</strong>
+                                <span class="badge @GetCaseStatusBadgeClass(selectedEntry.CaseStatus.Value) ms-2">@GetCaseStatusLabel(selectedEntry.CaseStatus.Value)</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(selectedEntry.PerformedBy))
+                        {
+                            <div class="mb-3">
+                                <strong>@Localizer.GetString("Performed By")</strong>
+                                <p class="mb-0">@selectedEntry.PerformedBy</p>
+                            </div>
+                        }
                     }
                 </div>
                 <div class="modal-footer">
+                    @if (selectedEntry.CaseId.HasValue)
+                    {
+                        <a href="/cases?title=@Uri.EscapeDataString(selectedEntry.CaseTitle ?? "")" class="btn btn-outline-primary me-auto" @onclick="CloseEntryDetails">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>@Localizer.GetString("Go to Case")
+                        </a>
+                    }
                     <button type="button" class="btn btn-secondary" @onclick="CloseEntryDetails">@Localizer.GetString("Close")</button>
                 </div>
             </div>
@@ -522,21 +538,19 @@ else
             var startDate = new DateTime(currentDate.Year, currentDate.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
-            List<ProjectActivityDto> rawActivities;
+            List<CalendarEntry> entries;
             if (scheduleType == "project")
             {
-                rawActivities = (await ProjectActivityApi.SearchAsync(startDate, endDate, ct: ct)).ToList();
+                var rawActivities = (await ProjectActivityApi.SearchAsync(startDate, endDate, ct: ct)).ToList();
+                var activitiesToShow = activeProjectFilterId.HasValue
+                    ? rawActivities.Where(a => a.ProjectId == activeProjectFilterId.Value).ToList()
+                    : rawActivities;
+                entries = activitiesToShow.Select(CalendarEntry.FromActivity).ToList();
             }
             else
             {
-                rawActivities = await BuildCaseActivitiesAsync(startDate, endDate, ct);
+                entries = await BuildCaseActivitiesAsync(startDate, endDate, ct);
             }
-
-            var activitiesToShow = activeProjectFilterId.HasValue
-                ? rawActivities.Where(a => a.ProjectId == activeProjectFilterId.Value).ToList()
-                : rawActivities;
-
-            var entries = activitiesToShow.Select(CalendarEntry.FromActivity).ToList();
 
             if (activeProjectFilterId.HasValue && IsTasksView)
             {
@@ -565,46 +579,26 @@ else
         }
     }
 
-    private async Task<List<ProjectActivityDto>> BuildCaseActivitiesAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
+    private async Task<List<CalendarEntry>> BuildCaseActivitiesAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
     {
         var cases = await CasesApi.GetCasesAsync(cancellationToken: cancellationToken);
         var caseList = cases ?? Array.Empty<CaseDto>();
-        var list = new List<ProjectActivityDto>();
+        var list = new List<CalendarEntry>();
 
         foreach (var c in caseList)
         {
             if (c.CreatedAt.Date >= startDate.Date && c.CreatedAt.Date <= endDate.Date)
             {
-                list.Add(new ProjectActivityDto(
-                    Id: c.Id,
-                    ProjectId: 0,
-                    ActivityDate: c.CreatedAt,
-                    Summary: $"Case: {c.Title} (Created)",
-                    Description: c.Description,
-                    NextAction: null,
-                    ActivityType: "case-created",
-                    PerformedBy: c.AssignedToUserName,
-                    ProjectName: c.CustomerName
-                ));
+                list.Add(CalendarEntry.FromCase(c, c.CreatedAt, $"Case: {c.Title} (Created)", "case-created"));
             }
 
             if (c.DueDate.HasValue && c.DueDate.Value.Date >= startDate.Date && c.DueDate.Value.Date <= endDate.Date)
             {
-                list.Add(new ProjectActivityDto(
-                    Id: c.Id,
-                    ProjectId: 0,
-                    ActivityDate: c.DueDate.Value,
-                    Summary: $"Case: {c.Title} (Due)",
-                    Description: c.Description,
-                    NextAction: null,
-                    ActivityType: "case-due",
-                    PerformedBy: c.AssignedToUserName,
-                    ProjectName: c.CustomerName
-                ));
+                list.Add(CalendarEntry.FromCase(c, c.DueDate.Value, $"Case: {c.Title} (Due)", "case-due"));
             }
         }
 
-        return list.OrderBy(a => a.ActivityDate).ToList();
+        return list.OrderBy(a => a.Date).ToList();
     }
 
     private bool TaskDateInRange(ProjectTaskDto task, DateTime startDate, DateTime endDate)
@@ -779,6 +773,39 @@ else
             var activity when activity.Equals("case-created", StringComparison.OrdinalIgnoreCase) => "bg-info",
             var activity when activity.Equals("case-due", StringComparison.OrdinalIgnoreCase) => "bg-warning text-dark",
             _ => "bg-secondary"
+        };
+    }
+
+    private string GetCaseStatusLabel(CaseStatus status)
+    {
+        return status switch
+        {
+            CaseStatus.SupportCenter => "Support Center",
+            CaseStatus.LogIT => "LogIT",
+            CaseStatus.Closed => "Closed",
+            CaseStatus.Customer_handling => "Customer Handling",
+            CaseStatus.Manufacturer => "Manufacturer",
+            CaseStatus.Waiting_for_work => "Waiting for Work",
+            CaseStatus.In_observation_period => "In Observation",
+            CaseStatus.SC_high => "SC High",
+            CaseStatus.SC_medium => "SC Medium",
+            CaseStatus.SC_low => "SC Low",
+            CaseStatus.LogIT_high => "LogIT High",
+            CaseStatus.LogIT_medium => "LogIT Medium",
+            CaseStatus.LogIT_low => "LogIT Low",
+            _ => status.ToString()
+        };
+    }
+
+    private string GetCaseStatusBadgeClass(CaseStatus status)
+    {
+        return status switch
+        {
+            CaseStatus.Closed => "bg-secondary",
+            CaseStatus.SC_high or CaseStatus.LogIT_high => "bg-danger",
+            CaseStatus.SC_medium or CaseStatus.LogIT_medium => "bg-warning text-dark",
+            CaseStatus.SC_low or CaseStatus.LogIT_low => "bg-success",
+            _ => "bg-info text-dark"
         };
     }
 
@@ -1050,21 +1077,19 @@ else
         {
             var (startDate, endDate) = GetGanttDateRange();
 
-            List<ProjectActivityDto> rawActivities;
+            List<CalendarEntry> entries;
             if (scheduleType == "project")
             {
-                rawActivities = (await ProjectActivityApi.SearchAsync(startDate, endDate, ct: ct)).ToList();
+                var rawActivities = (await ProjectActivityApi.SearchAsync(startDate, endDate, ct: ct)).ToList();
+                var activitiesToShow = activeProjectFilterId.HasValue
+                    ? rawActivities.Where(a => a.ProjectId == activeProjectFilterId.Value).ToList()
+                    : rawActivities;
+                entries = activitiesToShow.Select(CalendarEntry.FromActivity).ToList();
             }
             else
             {
-                rawActivities = await BuildCaseActivitiesAsync(startDate, endDate, ct);
+                entries = await BuildCaseActivitiesAsync(startDate, endDate, ct);
             }
-
-            var activitiesToShow = activeProjectFilterId.HasValue
-                ? rawActivities.Where(a => a.ProjectId == activeProjectFilterId.Value).ToList()
-                : rawActivities;
-
-            var entries = activitiesToShow.Select(CalendarEntry.FromActivity).ToList();
 
             if (activeProjectFilterId.HasValue && IsTasksView)
             {
@@ -1215,6 +1240,9 @@ else
         public string? PerformedBy { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public int? CaseId { get; set; }
+        public CaseStatus? CaseStatus { get; set; }
+        public string? CaseTitle { get; set; }
 
         public static CalendarEntry FromActivity(ProjectActivityDto activity)
         {
@@ -1229,6 +1257,23 @@ else
                 EntryKind = "activity",
                 NextAction = activity.NextAction,
                 PerformedBy = activity.PerformedBy
+            };
+        }
+
+        public static CalendarEntry FromCase(CaseDto c, DateTime activityDate, string summary, string activityType)
+        {
+            return new CalendarEntry
+            {
+                Date = activityDate.ToLocalTime(),
+                Summary = summary,
+                Description = c.Description,
+                ProjectName = c.CustomerName,
+                ActivityType = activityType,
+                EntryKind = "activity",
+                PerformedBy = c.AssignedToUserName,
+                CaseId = c.Id,
+                CaseStatus = c.Status,
+                CaseTitle = c.Title
             };
         }
 
