@@ -449,12 +449,13 @@ else
     private bool IsTasksView =>
         activeProjectFilterId.HasValue && string.Equals(activeProjectFilterView, "tasks", StringComparison.OrdinalIgnoreCase);
 
-    private bool hasProjectsAccess = true;
+    private bool hasProjectsAccess = false;
 
     protected override async Task OnInitializedAsync()
     {
         Localizer.OnLanguageChanged += OnLanguageChanged;
         Navigation.LocationChanged += OnLocationChanged;
+        await AuthService.RefreshUserPermissionsAsync();
         hasProjectsAccess = await AuthService.HasPageAccessAsync("Projects");
         if (!hasProjectsAccess && scheduleType == "project")
         {
