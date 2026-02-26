@@ -80,15 +80,17 @@ main {
         transform: rotate(180deg);
     }
 
-    .sidebar-collapse-checkbox:checked ~ .page .sidebar .navbar-brand {
-        font-size: 0;
+    .sidebar-collapse-checkbox:checked ~ .page .sidebar ::deep .navbar-brand {
+        max-width: 0;
+        opacity: 0;
+        padding: 0;
     }
 
-    .sidebar-collapse-checkbox:checked ~ .page .sidebar .nav-scrollable .nav-text {
+    .sidebar-collapse-checkbox:checked ~ .page .sidebar ::deep .nav-scrollable .nav-text {
         display: none;
     }
 
-    .sidebar-collapse-checkbox:checked ~ .page .sidebar .nav-scrollable .bi {
+    .sidebar-collapse-checkbox:checked ~ .page .sidebar ::deep .nav-scrollable .bi {
         margin-right: 0 !important;
     }
 

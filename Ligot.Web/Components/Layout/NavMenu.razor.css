@@ -23,6 +23,10 @@
 
 .navbar-brand {
     font-size: 1.1rem;
+    max-width: 200px;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: max-width 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
 }
 
 /* Ensure brand text is visible in light theme */
@@ -140,15 +144,11 @@ html[data-theme="dark"] .bi {
 }
 
 .collapse-toggle .chevron-icon {
-    width: 1.75rem;
-    height: 1.75rem;
+    font-size: 1.25rem;
+    line-height: 1;
     margin-right: 0;
     transition: transform 0.3s ease;
-    object-fit: contain;
-}
-
-.collapse-toggle .fold-icon {
-    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.75);
 }
 
 .navbar-brand {
