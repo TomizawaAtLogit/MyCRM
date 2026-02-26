@@ -497,10 +497,11 @@
                                     @foreach (var user in users.Where(u => !hideInactiveInModal || u.IsActive).OrderByDescending(u => u.Roles?.Any(r => r.Id == managingRole.Id) ?? false))
                                     {
                                         var isAssigned = user.Roles?.Any(r => r.Id == managingRole.Id) ?? false;
-                                        <tr class="@(!user.IsActive ? "table-secondary text-muted" : "")">
+                                        <tr @key="user.Id" class="@(!user.IsActive ? "table-secondary text-muted" : "")">
                                             <td>
                                                 <input class="form-check-input" type="checkbox" 
                                                        checked="@isAssigned"
+                                                       disabled="@processingRoleChange"
                                                        @onchange="(e) => ToggleRole(user.Id, managingRole.Id, (bool)e.Value!)">
                                             </td>
                                             <td>@user.WindowsUsername</td>
