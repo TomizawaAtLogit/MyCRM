@@ -8,6 +8,7 @@
 @inject CustomerApiClient CustomerApi
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject LocalizationService Localizer
+@inject AuthorizationService AuthService
 @implements IDisposable
 
 <PageTitle>@Localizer.GetString("Admin") - @Localizer.GetString("User and role management")</PageTitle>
@@ -47,9 +48,12 @@
     {
         <div class="row mb-3">
             <div class="col">
-                <button type="button" class="btn btn-primary" @onclick="ShowCreateUserForm">
-                    <span class="bi bi-plus-square-fill me-2"></span>@Localizer.GetString("Create User")
-                </button>
+                @if (isAdmin)
+                {
+                    <button type="button" class="btn btn-primary" @onclick="ShowCreateUserForm">
+                        <span class="bi bi-plus-square-fill me-2"></span>@Localizer.GetString("Create User")
+                    </button>
+                }
                 <div class="form-check form-switch d-inline-block ms-3">
                     <input class="form-check-input" type="checkbox" id="showInactiveUsers" 
                            @bind="showInactiveUsers" @bind:after="LoadUsers">
@@ -130,6 +134,17 @@
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     }
+                                    else if (isControlMyself)
+                                    {
+                                        @if (user.Id == currentUserId)
+                                        {
+                                            <button class="btn btn-sm btn-outline-primary me-1" 
+                                                    title="@Localizer.GetString("Edit user")"
+                                                    @onclick="() => ShowEditUserForm(user)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        }
+                                    }
                                     else
                                     {
                                         <span class="text-muted">@Localizer.GetString("No permissions")</span>
@@ -148,9 +163,12 @@
     {
         <div class="row mb-3">
             <div class="col">
-                <button type="button" class="btn btn-primary" @onclick="ShowCreateRoleForm">
-                    <span class="bi bi-plus-square-fill me-2"></span>@Localizer.GetString("Create Role")
-                </button>
+                @if (isAdmin)
+                {
+                    <button type="button" class="btn btn-primary" @onclick="ShowCreateRoleForm">
+                        <span class="bi bi-plus-square-fill me-2"></span>@Localizer.GetString("Create Role")
+                    </button>
+                }
             </div>
         </div>
 
@@ -207,6 +225,14 @@
                                                 title="@Localizer.GetString("Delete role")"
                                                 @onclick="() => ShowDeleteRoleConfirmation(role)">
                                             <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
+                                    else if (isControlMyself)
+                                    {
+                                        <button class="btn btn-sm btn-outline-secondary me-1" 
+                                                title="@Localizer.GetString("View users")"
+                                                @onclick="() => ShowManageUsersModal(role)">
+                                            <i class="bi bi-people"></i>
                                         </button>
                                     }
                                     else
@@ -501,7 +527,7 @@
                                             <td>
                                                 <input class="form-check-input" type="checkbox" 
                                                        checked="@isAssigned"
-                                                       disabled="@processingRoleChange"
+                                                       disabled="@(processingRoleChange || (isControlMyself && user.Id != currentUserId))"
                                                        @onchange="(e) => ToggleRole(user.Id, managingRole.Id, (bool)e.Value!)">
                                             </td>
                                             <td>@user.WindowsUsername</td>
@@ -603,6 +629,10 @@
                                             @onchange="(e) => ChangePagePermission(pageName, (string)e.Value!)">
                                         <option value="None" selected="@(currentPermission == "None")">@Localizer.GetString("No - No access")</option>
                                         <option value="ReadOnly" selected="@(currentPermission == "ReadOnly")">@Localizer.GetString("Read only - View only")</option>
+                                        @if (pageName == "Admin")
+                                        {
+                                            <option value="ControlMyself" selected="@(currentPermission == "ControlMyself")">@Localizer.GetString("Control Myself - Edit own account only")</option>
+                                        }
                                         <option value="FullControl" selected="@(currentPermission == "FullControl")">@Localizer.GetString("Full Control - Full access")</option>
                                     </select>
                                 </div>
@@ -663,6 +693,9 @@
     private string activeTab = "users";
     private bool loading = true;
     private bool isAdmin = false;
+    private bool isControlMyself = false;
+    private int currentUserId = 0;
+    private string adminPermissionLevel = "FullControl";
     private bool showInactiveUsers = false;
 
     // Users
@@ -699,7 +732,7 @@
     };
     private readonly List<string> permissionLevels = new()
     {
-        "None", "ReadOnly", "FullControl"
+        "None", "ReadOnly", "ControlMyself", "FullControl"
     };
 
     // Coverage management
@@ -737,14 +770,11 @@
 
     private async Task CheckAdminPermission()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        
-        // Since this page is protected by [Authorize(Policy = "AdminOnly")],
-        // anyone who can access it is already an admin
-        // Backend API enforces actual admin permissions
-        // FOR LOCAL DEVELOPMENT: Always true when authentication is disabled
-        isAdmin = true; // user.Identity?.IsAuthenticated == true;
+        adminPermissionLevel = await AuthService.GetPagePermissionLevelAsync("Admin");
+        var currentUser = await AuthService.GetCurrentUserAsync();
+        currentUserId = currentUser?.Id ?? 0;
+        isAdmin = adminPermissionLevel == "FullControl";
+        isControlMyself = adminPermissionLevel == "ControlMyself";
     }
 
     private async Task LoadData()

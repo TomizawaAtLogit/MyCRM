@@ -108,6 +108,57 @@ public class AuthorizationService
     }
 
     /// <summary>
+    /// Get the highest permission level for the current user on a specific page.
+    /// Returns: "FullControl", "ControlMyself", "ReadOnly", or "None"
+    /// Priority order: FullControl > ControlMyself > ReadOnly > None
+    /// </summary>
+    public async Task<string> GetPagePermissionLevelAsync(string pageName)
+    {
+        await EnsureUserLoadedAsync();
+
+        if (_currentUser == null)
+        {
+            // Dev mode unauthenticated access – grant full control so the page works
+            return _allowUnauthenticatedAccess ? "FullControl" : "None";
+        }
+
+        if (_currentUser.Roles == null)
+            return "None";
+
+        static int Priority(string level) => level switch
+        {
+            "FullControl"   => 3,
+            "ControlMyself" => 2,
+            "ReadOnly"      => 1,
+            _               => 0
+        };
+
+        string highest = "None";
+
+        foreach (var role in _currentUser.Roles)
+        {
+            if (string.IsNullOrEmpty(role.PagePermissions)) continue;
+
+            foreach (var perm in role.PagePermissions.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var trimmed = perm.Trim();
+                var parts    = trimmed.Split(':');
+                var permPage  = parts[0].Trim();
+                var permLevel = parts.Length > 1 ? parts[1].Trim() : "FullControl";
+
+                if (permPage.Equals(pageName, StringComparison.OrdinalIgnoreCase) &&
+                    Priority(permLevel) > Priority(highest))
+                {
+                    highest = permLevel;
+                    if (highest == "FullControl") return "FullControl"; // can't go higher
+                }
+            }
+        }
+
+        return highest;
+    }
+
+    /// <summary>
     /// Get all pages the current user has access to
     /// </summary>
     public async Task<IReadOnlySet<string>> GetUserPagePermissionsAsync()

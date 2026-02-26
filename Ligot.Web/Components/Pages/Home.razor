@@ -9,6 +9,7 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 @inject LocalizationService Localizer
+@inject AuthorizationService AuthService
 @implements IDisposable
 
 <PageTitle>@Localizer.GetString("Home")</PageTitle>
@@ -18,9 +19,12 @@
         <h1>@Localizer.GetString("Activity Calendar")</h1>
         <div class="d-flex">
             <div class="btn-group me-2" role="group">
+            @if (hasProjectsAccess)
+            {
             <button type="button" class="btn @(scheduleType == "project" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetScheduleType("project")'>
                 <i class="bi bi-folder"></i> @Localizer.GetString("Projects")
             </button>
+            }
             <button type="button" class="btn @(scheduleType == "case" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetScheduleType("case")'>
                 <i class="bi bi-briefcase"></i> @Localizer.GetString("Cases")
             </button>
@@ -445,10 +449,17 @@ else
     private bool IsTasksView =>
         activeProjectFilterId.HasValue && string.Equals(activeProjectFilterView, "tasks", StringComparison.OrdinalIgnoreCase);
 
+    private bool hasProjectsAccess = true;
+
     protected override async Task OnInitializedAsync()
     {
         Localizer.OnLanguageChanged += OnLanguageChanged;
         Navigation.LocationChanged += OnLocationChanged;
+        hasProjectsAccess = await AuthService.HasPageAccessAsync("Projects");
+        if (!hasProjectsAccess && scheduleType == "project")
+        {
+            scheduleType = "case";
+        }
         ApplyQueryParameters();
         await LoadCalendarEntriesForMonth();
     }
@@ -500,7 +511,11 @@ else
 
         if (scheduleTypeOverriddenByQuery && query.TryGetValue("scheduleType", out var scheduleValues) && !string.IsNullOrWhiteSpace(scheduleValues))
         {
-            scheduleType = scheduleValues!;
+            var requestedType = scheduleValues.ToString();
+            if (requestedType != "project" || hasProjectsAccess)
+            {
+                scheduleType = requestedType;
+            }
         }
     }
 
@@ -688,6 +703,10 @@ else
             var stored = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "calendarScheduleType");
             if (!string.IsNullOrWhiteSpace(stored) && !string.Equals(stored, scheduleType, StringComparison.OrdinalIgnoreCase))
             {
+                if (stored == "project" && !hasProjectsAccess)
+                {
+                    return;
+                }
                 scheduleType = stored;
                 await LoadCalendarEntriesForMonth();
             }
