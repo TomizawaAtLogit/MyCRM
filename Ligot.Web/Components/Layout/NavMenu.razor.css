@@ -140,20 +140,15 @@ html[data-theme="dark"] .bi {
 }
 
 .collapse-toggle .chevron-icon {
-    width: 1rem;
-    height: 1rem;
+    width: 1.75rem;
+    height: 1.75rem;
     margin-right: 0;
     transition: transform 0.3s ease;
+    object-fit: contain;
 }
 
-
-
-html[data-theme="light"] .collapse-toggle span.bi {
-    filter: brightness(0) saturate(100%) invert(15%);
-}
-
-html[data-theme="dark"] .collapse-toggle span.bi {
-    filter: none;
+.collapse-toggle .fold-icon {
+    border-radius: 4px;
 }
 
 .navbar-brand {
