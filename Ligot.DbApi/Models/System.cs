@@ -10,6 +10,13 @@ public class System
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public bool ActiveFlg { get; set; } = true;
+    public DateTime? ContractDate { get; set; }
+    public DateTime? ExpirationDate { get; set; }
+    public string? ReceptionHours { get; set; }
+    public bool? AutomaticRenewal { get; set; }
+    public string? OnsiteHours { get; set; }
+    public string? HealthCheck { get; set; }
+    public string? PowerMaintenance { get; set; }
 
     // Navigation properties
     public Customer Customer { get; set; } = null!;
