@@ -7,6 +7,17 @@ namespace Ligot.DbApi.Data
     {
         public ProjectDbContext(DbContextOptions<ProjectDbContext> options) : base(options) { }
 
+        // Explicitly map all DateTime/DateTime? properties to "timestamp with time zone" so the
+        // EF Core runtime model is consistent with the migration snapshots regardless of whether
+        // Npgsql.EnableLegacyTimestampBehavior is set. Without this, the legacy switch makes
+        // Npgsql infer "timestamp without time zone" at runtime, which causes a
+        // PendingModelChangesWarning (thrown as an error in EF Core 9+).
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.Properties<DateTime>().HaveColumnType("timestamp with time zone");
+            configurationBuilder.Properties<DateTime?>().HaveColumnType("timestamp with time zone");
+        }
+
         public DbSet<Project> Projects { get; set; } = null!;
         public DbSet<ProjectTask> ProjectTasks { get; set; } = null!;
         public DbSet<Customer> Customers { get; set; } = null!;
