@@ -30,7 +30,7 @@
                     var badgeClass = componentCount > 0 ? "bg-primary" : "bg-warning";
                     
                     <div class="accordion-item">
-                        <h2 class="accordion-header d-flex align-items-center position-relative" id="heading-@system.Id" style="padding-right: 110px;">
+                        <h2 class="accordion-header d-flex align-items-center position-relative" id="heading-@system.Id" style="padding-right: 150px;">
                             <button class="accordion-button flex-grow-1" type="button" data-bs-toggle="collapse" 
                                     data-bs-target="#@accordionId" aria-expanded="true" aria-controls="@accordionId">
                                 <span class="me-2">@system.SystemName</span>
@@ -41,6 +41,11 @@
                                 }
                             </button>
                             <div class="position-absolute end-0 top-50 translate-middle-y me-2" style="z-index: 1050;">
+                                <button class="btn btn-sm btn-outline-info me-1"
+                                        @onclick="() => ShowSystemDetails(system)"
+                                        @onclick:stopPropagation="true">
+                                    <i class="bi bi-eye"></i>
+                                </button>
                                 @if (!IsReadOnly)
                                 {
                                     <button class="btn btn-sm btn-outline-primary me-1" 
@@ -504,12 +509,82 @@
                     {
                         <div class="mt-3">
                             <h6>Description</h6>
-                            <p class="mb-0 ms-3">@((MarkupString)selectedComponent.Description)</p>
+                            <p class="mb-0 ms-3">@FormatDescription(selectedComponent.Description!)</p>
                         </div>
                     }
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @onclick="HideComponentDetails">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (selectedSystem != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">System Details</h5>
+                    <button type="button" class="btn-close" @onclick="HideSystemDetails"></button>
+                </div>
+                <div class="modal-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">System Name</dt>
+                        <dd class="col-sm-7">@selectedSystem.SystemName</dd>
+                        @if (selectedSystem.InstallationDate.HasValue)
+                        {
+                            <dt class="col-sm-5">Installation Date</dt>
+                            <dd class="col-sm-7">@selectedSystem.InstallationDate.Value.ToShortDateString()</dd>
+                        }
+                        @if (selectedSystem.ContractDate.HasValue)
+                        {
+                            <dt class="col-sm-5">Contract Date</dt>
+                            <dd class="col-sm-7">@selectedSystem.ContractDate.Value.ToShortDateString()</dd>
+                        }
+                        @if (selectedSystem.ExpirationDate.HasValue)
+                        {
+                            <dt class="col-sm-5">Expiration Date</dt>
+                            <dd class="col-sm-7">@selectedSystem.ExpirationDate.Value.ToShortDateString()</dd>
+                        }
+                        @if (selectedSystem.ReceptionHours != null)
+                        {
+                            <dt class="col-sm-5">Reception Hours</dt>
+                            <dd class="col-sm-7">@selectedSystem.ReceptionHours</dd>
+                        }
+                        @if (selectedSystem.OnsiteHours != null)
+                        {
+                            <dt class="col-sm-5">Onsite Hours</dt>
+                            <dd class="col-sm-7">@selectedSystem.OnsiteHours</dd>
+                        }
+                        @if (selectedSystem.HealthCheck != null)
+                        {
+                            <dt class="col-sm-5">Health Check</dt>
+                            <dd class="col-sm-7">@selectedSystem.HealthCheck</dd>
+                        }
+                        @if (selectedSystem.PowerMaintenance != null)
+                        {
+                            <dt class="col-sm-5">Power Maintenance</dt>
+                            <dd class="col-sm-7">@selectedSystem.PowerMaintenance</dd>
+                        }
+                        @if (selectedSystem.AutomaticRenewal.HasValue)
+                        {
+                            <dt class="col-sm-5">Automatic Renewal</dt>
+                            <dd class="col-sm-7">@(selectedSystem.AutomaticRenewal.Value ? "Yes" : "No")</dd>
+                        }
+                    </dl>
+                    @if (!string.IsNullOrWhiteSpace(selectedSystem.Description))
+                    {
+                        <div class="mt-3">
+                            <h6>Description</h6>
+                            <p class="mb-0 ms-3">@FormatDescription(selectedSystem.Description!)</p>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideSystemDetails">Close</button>
                 </div>
             </div>
         </div>
@@ -533,6 +608,7 @@
     public bool IsReadOnly { get; set; } = false;
 
     private SystemComponentDto? selectedComponent;
+    private SystemDto? selectedSystem;
 
     // Toast notification
     private string? toastMessage;
@@ -670,6 +746,27 @@
     private void HideComponentDetails()
     {
         selectedComponent = null;
+    }
+
+    private void ShowSystemDetails(SystemDto system)
+    {
+        selectedSystem = system;
+    }
+
+    private void HideSystemDetails()
+    {
+        selectedSystem = null;
+    }
+
+    private static MarkupString FormatDescription(string description)
+    {
+        var lines = System.Text.RegularExpressions.Regex.Split(description, @"<br\s*/?>", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (lines.Length <= 1) return new MarkupString(description);
+        var sb = new System.Text.StringBuilder();
+        sb.Append(lines[0]);
+        foreach (var line in lines.Skip(1))
+            sb.Append($"<br><span class=\"ms-4 d-inline-block\">{line}</span>");
+        return new MarkupString(sb.ToString());
     }
 
     private async Task StartEditSystem(SystemDto system)

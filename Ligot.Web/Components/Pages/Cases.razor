@@ -756,14 +756,18 @@
                                                 <div class="calendar-header">Fri</div>
                                                 <div class="calendar-header">Sat</div>
                                                 <div class="calendar-header">Sun</div>
-                                                @foreach (var day in GetCaseCalendarDays(c.Id))
+                                                @foreach (var day in GetCaseCalendarDays(c.Id, c.DueDate))
                                                 {
                                                     <div class="calendar-cell @(day.IsCurrentMonth ? string.Empty : "other-month") @(day.IsToday ? "today" : string.Empty)">
                                                         <div class="calendar-day-number">@day.Date.Day</div>
-                                                        <div class="calendar-activities @(!day.Entries.Any() ? "empty" : "")">
+                                                        <div class="calendar-activities @(!day.Entries.Any() && !day.IsDueDate ? "empty" : "")">
+                                                            @if (day.IsDueDate)
+                                                            {
+                                                                <div class="fw-bold text-danger small">@Localizer.GetString("Due Date")</div>
+                                                            }
                                                             @foreach (var entry in day.Entries)
                                                             {
-                                                                <div class="calendar-activity activity-primary" title="@entry.Description">
+                                                                <div class="calendar-activity activity-primary" title="@StripBrTags(entry.Description)">
                                                                     @entry.Summary
                                                                 </div>
                                                             }
@@ -1900,7 +1904,19 @@
     private DateTime GetCaseCalendarMonth(int caseId)
     {
         if (!caseCalendarMonths.ContainsKey(caseId))
-            caseCalendarMonths[caseId] = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        {
+            DateTime defaultMonth;
+            if (caseActivities.TryGetValue(caseId, out var activities) && activities != null && activities.Any())
+            {
+                var latest = activities.Max(a => a.ActivityDate);
+                defaultMonth = new DateTime(latest.Year, latest.Month, 1);
+            }
+            else
+            {
+                defaultMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            }
+            caseCalendarMonths[caseId] = defaultMonth;
+        }
         return caseCalendarMonths[caseId];
     }
 
@@ -1914,7 +1930,7 @@
         caseCalendarMonths[caseId] = GetCaseCalendarMonth(caseId).AddMonths(1);
     }
 
-    private List<CaseCalendarDay> GetCaseCalendarDays(int caseId)
+    private List<CaseCalendarDay> GetCaseCalendarDays(int caseId, DateTime? dueDate = null)
     {
         var month = GetCaseCalendarMonth(caseId);
         var firstDay = new DateTime(month.Year, month.Month, 1);
@@ -1922,6 +1938,7 @@
         if (dayOfWeek == 0) dayOfWeek = 7; // Convert Sunday (0) to 7 for Monday-first grid (Mon=1 … Sun=7)
         var startDate = firstDay.AddDays(-(dayOfWeek - 1));
         var activities = caseActivities.ContainsKey(caseId) ? caseActivities[caseId] : null;
+        var dueDateLocal = dueDate.HasValue ? dueDate.Value.ToLocalTime().Date : (DateTime?)null;
         var days = new List<CaseCalendarDay>();
         for (int i = 0; i < 42; i++) // 6 weeks × 7 days
         {
@@ -1934,6 +1951,7 @@
                 Date = date,
                 IsCurrentMonth = date.Month == month.Month && date.Year == month.Year,
                 IsToday = date.Date == DateTime.Today,
+                IsDueDate = dueDateLocal.HasValue && date.Date == dueDateLocal.Value,
                 Entries = entries
             });
         }
@@ -1945,6 +1963,7 @@
         public DateTime Date { get; set; }
         public bool IsCurrentMonth { get; set; }
         public bool IsToday { get; set; }
+        public bool IsDueDate { get; set; }
         public List<CaseActivityDto> Entries { get; set; } = new();
     }
     
