@@ -402,6 +402,14 @@
                                                     <span class="bi bi-file-earmark-arrow-up"></span> @Localizer.GetString("Files")
                                                 </button>
                                             </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link @(GetCaseTab(c.Id) == "calendar" ? "active" : "")"
+                                                        type="button"
+                                                        @onclick="@(() => SetCaseTab(c.Id, "calendar"))"
+                                                        role="tab">
+                                                    <span class="bi bi-calendar3"></span> @Localizer.GetString("Calendar")
+                                                </button>
+                                            </li>
                                         </ul>
 
                                         @if (GetCaseTab(c.Id) == "activities")
@@ -727,6 +735,42 @@
                                         else if (GetCaseTab(c.Id) == "files")
                                         {
                                             <FileManager EntityType="Case" EntityId="@c.Id" isReadOnly="@isReadOnly" />
+                                        }
+                                        else if (GetCaseTab(c.Id) == "calendar")
+                                        {
+                                            var calMonth = GetCaseCalendarMonth(c.Id);
+                                            <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+                                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => PreviousCaseCalendarMonth(c.Id)">
+                                                    <i class="bi bi-chevron-left"></i> @Localizer.GetString("Previous")
+                                                </button>
+                                                <strong>@calMonth.ToString("MMMM yyyy")</strong>
+                                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => NextCaseCalendarMonth(c.Id)">
+                                                    @Localizer.GetString("Next") <i class="bi bi-chevron-right"></i>
+                                                </button>
+                                            </div>
+                                            <div class="calendar-grid">
+                                                <div class="calendar-header">Mon</div>
+                                                <div class="calendar-header">Tue</div>
+                                                <div class="calendar-header">Wed</div>
+                                                <div class="calendar-header">Thu</div>
+                                                <div class="calendar-header">Fri</div>
+                                                <div class="calendar-header">Sat</div>
+                                                <div class="calendar-header">Sun</div>
+                                                @foreach (var day in GetCaseCalendarDays(c.Id))
+                                                {
+                                                    <div class="calendar-cell @(day.IsCurrentMonth ? string.Empty : "other-month") @(day.IsToday ? "today" : string.Empty)">
+                                                        <div class="calendar-day-number">@day.Date.Day</div>
+                                                        <div class="calendar-activities @(!day.Entries.Any() ? "empty" : "")">
+                                                            @foreach (var entry in day.Entries)
+                                                            {
+                                                                <div class="calendar-activity activity-primary" title="@entry.Description">
+                                                                    @entry.Summary
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
                                         }
                                     </div>
                                 </td>
@@ -1409,6 +1453,8 @@
     private Dictionary<int, string> caseActiveTabs = new();
     private Dictionary<int, NewActivityModel> newActivityModels = new();
     private Dictionary<int, EditContext> activityCreateContexts = new();
+    // Per-case calendar month state
+    private Dictionary<int, DateTime> caseCalendarMonths = new();
     // Per-case activity filtering state
     private Dictionary<int, string> activityFilterSummary = new();
     private Dictionary<int, string> activityFilterDescription = new();
@@ -1849,6 +1895,57 @@
     private void SetCaseTab(int caseId, string tab)
     {
         caseActiveTabs[caseId] = tab;
+    }
+
+    private DateTime GetCaseCalendarMonth(int caseId)
+    {
+        if (!caseCalendarMonths.ContainsKey(caseId))
+            caseCalendarMonths[caseId] = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        return caseCalendarMonths[caseId];
+    }
+
+    private void PreviousCaseCalendarMonth(int caseId)
+    {
+        caseCalendarMonths[caseId] = GetCaseCalendarMonth(caseId).AddMonths(-1);
+    }
+
+    private void NextCaseCalendarMonth(int caseId)
+    {
+        caseCalendarMonths[caseId] = GetCaseCalendarMonth(caseId).AddMonths(1);
+    }
+
+    private List<CaseCalendarDay> GetCaseCalendarDays(int caseId)
+    {
+        var month = GetCaseCalendarMonth(caseId);
+        var firstDay = new DateTime(month.Year, month.Month, 1);
+        var dayOfWeek = (int)firstDay.DayOfWeek;
+        if (dayOfWeek == 0) dayOfWeek = 7; // Convert Sunday (0) to 7 for Monday-first grid (Mon=1 … Sun=7)
+        var startDate = firstDay.AddDays(-(dayOfWeek - 1));
+        var activities = caseActivities.ContainsKey(caseId) ? caseActivities[caseId] : null;
+        var days = new List<CaseCalendarDay>();
+        for (int i = 0; i < 42; i++) // 6 weeks × 7 days
+        {
+            var date = startDate.AddDays(i);
+            var entries = activities?
+                .Where(a => a.ActivityDate.Date == date.Date)
+                .ToList() ?? new List<CaseActivityDto>();
+            days.Add(new CaseCalendarDay
+            {
+                Date = date,
+                IsCurrentMonth = date.Month == month.Month && date.Year == month.Year,
+                IsToday = date.Date == DateTime.Today,
+                Entries = entries
+            });
+        }
+        return days;
+    }
+
+    private class CaseCalendarDay
+    {
+        public DateTime Date { get; set; }
+        public bool IsCurrentMonth { get; set; }
+        public bool IsToday { get; set; }
+        public List<CaseActivityDto> Entries { get; set; } = new();
     }
     
     private async Task LoadActivitiesAsync(int caseId)
