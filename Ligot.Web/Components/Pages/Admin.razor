@@ -454,17 +454,26 @@
                     @foreach (var role in roles)
                     {
                         var isAssigned = assigningUser.Roles?.Any(r => r.Id == role.Id) ?? false;
+                        var isAdminRoleRestricted = isControlMyself && role.IsAdmin;
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" 
                                    id="role-@role.Id" 
                                    checked="@isAssigned"
-                                   disabled="@processingRoleChange"
+                                   disabled="@(processingRoleChange || isAdminRoleRestricted)"
                                    @onchange="(e) => ToggleRole(assigningUser.Id, role.Id, (bool)e.Value!)">
                             <label class="form-check-label" for="role-@role.Id">
                                 @role.Name
+                                @if (role.IsAdmin)
+                                {
+                                    <span class="badge bg-warning text-dark ms-1" title="@Localizer.GetString("Admin role - requires Full Control to assign")">Admin</span>
+                                }
                                 @if (!string.IsNullOrEmpty(role.Description))
                                 {
                                     <small class="text-muted">- @role.Description</small>
+                                }
+                                @if (isAdminRoleRestricted)
+                                {
+                                    <small class="text-danger ms-1">(@Localizer.GetString("Requires Full Control"))</small>
                                 }
                             </label>
                         </div>
@@ -581,6 +590,16 @@
                         <div class="mb-3">
                             <label class="form-label">@Localizer.GetString("Description")</label>
                             <InputText @bind-Value="roleForm!.Description" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <InputCheckbox @bind-Value="roleForm!.IsAdmin" class="form-check-input" id="roleIsAdmin" />
+                                <label class="form-check-label" for="roleIsAdmin">
+                                    @Localizer.GetString("Admin Role")
+                                </label>
+                                <small class="text-muted d-block">@Localizer.GetString("If enabled, only full admins can assign this role. Users with 'Control Myself' permission cannot assign or remove it.")</small>
+                            </div>
                         </div>
 
                         <div class="modal-footer">
@@ -968,6 +987,14 @@
 
     private async Task ToggleRole(int userId, int roleId, bool isAssigned)
     {
+        // ControlMyself users cannot assign/remove admin roles
+        var targetRole = roles.FirstOrDefault(r => r.Id == roleId);
+        if (isControlMyself && targetRole?.IsAdmin == true)
+        {
+            ShowToast("Error", "You do not have permission to assign or remove admin roles.", "danger", 5000);
+            return;
+        }
+
         processingRoleChange = true;
         StateHasChanged();
         
@@ -1028,7 +1055,8 @@
         roleForm = new RoleFormModel
         {
             Name = role.Name,
-            Description = role.Description
+            Description = role.Description,
+            IsAdmin = role.IsAdmin
         };
         showRoleModal = true;
     }
@@ -1052,7 +1080,8 @@
                 var createDto = new RoleCreateDto(
                     roleForm.Name!,
                     roleForm.Description,
-                    "" // PagePermissions hidden as implementation detail
+                    "", // PagePermissions hidden as implementation detail
+                    roleForm.IsAdmin
                 );
                 var result = await AdminApi.CreateRoleAsync(createDto);
                 
@@ -1067,7 +1096,8 @@
                     editingRole.Id,
                     roleForm.Name!,
                     roleForm.Description,
-                    editingRole.PagePermissions // Preserve existing permissions
+                    editingRole.PagePermissions, // Preserve existing permissions
+                    roleForm.IsAdmin
                 );
                 var success = await AdminApi.UpdateRoleAsync(editingRole.Id, updateDto);
                 
@@ -1361,6 +1391,8 @@
         public string? Name { get; set; }
         
         public string? Description { get; set; }
+
+        public bool IsAdmin { get; set; } = false;
     }
 
     private class ToastMessage

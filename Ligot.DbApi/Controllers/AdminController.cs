@@ -159,6 +159,7 @@ public class AdminController : AuditableControllerBase
             r.Name,
             r.Description,
             r.PagePermissions,
+            r.IsAdmin,
             UserCount = r.UserRoles?.Count ?? 0,
             CoverageCount = r.RoleCoverages?.Count ?? 0
         });

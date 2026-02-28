@@ -27,6 +27,7 @@ public record RoleDto(
     string Name,
     string? Description,
     string PagePermissions,
+    bool IsAdmin = false,
     int UserCount = 0,
     int CoverageCount = 0);
 
@@ -40,7 +41,8 @@ public record UsersByRoleDto(
 public record RoleCreateDto(
     [Required] string Name,
     string? Description,
-    [Required] string PagePermissions);
+    [Required] string PagePermissions,
+    bool IsAdmin = false);
 
 public record CustomersByRoleDto(
     int Id,
