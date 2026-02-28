@@ -351,7 +351,7 @@ else
                     {
                         <div class="mt-3">
                             <h6>@Localizer.GetString("Description")</h6>
-                            <p class="mb-0 ms-3">@((MarkupString)selectedOrder.Description)</p>
+                            <p class="mb-0 ms-3">@FormatDescription(selectedOrder.Description)</p>
                         </div>
                     }
                 </div>
@@ -797,6 +797,34 @@ else
         ContractType,
         StartDate,
         Status
+    }
+
+    private static MarkupString FormatDescription(string? description)
+    {
+        if (string.IsNullOrEmpty(description))
+            return new MarkupString(string.Empty);
+
+        // Split on newlines and existing <br> tags (to handle migrated old data)
+        var lines = System.Text.RegularExpressions.Regex.Split(
+            description, @"\r?\n|<br\s*/?>",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        var processedLines = lines.Select(line =>
+        {
+            int nbspCount = 0;
+            foreach (char c in line)
+            {
+                if (c == ' ') nbspCount++;
+                else if (c == '\t') nbspCount += 4;
+                else break;
+            }
+            if (nbspCount == 0)
+                return System.Net.WebUtility.HtmlEncode(line);
+            string trimmed = System.Net.WebUtility.HtmlEncode(line.TrimStart(' ', '\t'));
+            return string.Concat(Enumerable.Repeat("&nbsp;", nbspCount)) + trimmed;
+        });
+
+        return new MarkupString(string.Join("<br>", processedLines));
     }
 }
 

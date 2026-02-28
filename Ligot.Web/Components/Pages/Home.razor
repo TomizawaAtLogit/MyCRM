@@ -25,9 +25,12 @@
                 <i class="bi bi-folder"></i> @Localizer.GetString("Projects")
             </button>
             }
+            @if (hasCasesAccess)
+            {
             <button type="button" class="btn @(scheduleType == "case" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetScheduleType("case")'>
                 <i class="bi bi-briefcase"></i> @Localizer.GetString("Cases")
             </button>
+            }
         </div>
         <div class="btn-group" role="group">
             <button type="button" class="btn @(viewMode == "grid" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetViewMode("grid")'>
@@ -450,6 +453,7 @@ else
         activeProjectFilterId.HasValue && string.Equals(activeProjectFilterView, "tasks", StringComparison.OrdinalIgnoreCase);
 
     private bool hasProjectsAccess = false;
+    private bool hasCasesAccess = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -457,9 +461,10 @@ else
         Navigation.LocationChanged += OnLocationChanged;
         await AuthService.RefreshUserPermissionsAsync();
         hasProjectsAccess = await AuthService.HasPageAccessAsync("Projects");
+        hasCasesAccess = await AuthService.HasPageAccessAsync("Cases");
         if (!hasProjectsAccess && scheduleType == "project")
         {
-            scheduleType = "case";
+            scheduleType = hasCasesAccess ? "case" : "project";
         }
         ApplyQueryParameters();
         await LoadCalendarEntriesForMonth();
@@ -513,7 +518,7 @@ else
         if (scheduleTypeOverriddenByQuery && query.TryGetValue("scheduleType", out var scheduleValues) && !string.IsNullOrWhiteSpace(scheduleValues))
         {
             var requestedType = scheduleValues.ToString();
-            if (requestedType != "project" || hasProjectsAccess)
+            if ((requestedType != "project" || hasProjectsAccess) && (requestedType != "case" || hasCasesAccess))
             {
                 scheduleType = requestedType;
             }
@@ -551,6 +556,12 @@ else
 
         try
         {
+            if ((scheduleType == "project" && !hasProjectsAccess) || (scheduleType == "case" && !hasCasesAccess))
+            {
+                calendarEntries = new List<CalendarEntry>();
+                return;
+            }
+
             var startDate = new DateTime(currentDate.Year, currentDate.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
@@ -705,6 +716,10 @@ else
             if (!string.IsNullOrWhiteSpace(stored) && !string.Equals(stored, scheduleType, StringComparison.OrdinalIgnoreCase))
             {
                 if (stored == "project" && !hasProjectsAccess)
+                {
+                    return;
+                }
+                if (stored == "case" && !hasCasesAccess)
                 {
                     return;
                 }
