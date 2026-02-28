@@ -1,4 +1,5 @@
 using Ligot.DbApi.Data;
+using Ligot.DbApi.DTOs;
 using Ligot.DbApi.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,7 @@ public interface IDashboardService
     Task<DashboardMetric> GetCurrentMetricsAsync(int? roleId = null, int? customerId = null);
     Task<List<DashboardMetric>> GetHistoricalMetricsAsync(int? roleId = null, int? customerId = null, int days = 30);
     Task<DashboardMetric> GenerateSnapshotAsync(int? roleId = null, int? customerId = null);
+    Task<PersonalDashboardDto> GetPersonalDashboardAsync(int userId, int? roleId);
 }
 
 public class DashboardService : IDashboardService
@@ -166,6 +168,96 @@ public class DashboardService : IDashboardService
             : 0;
 
         return metric;
+    }
+
+    public async Task<PersonalDashboardDto> GetPersonalDashboardAsync(int userId, int? roleId)
+    {
+        var now = DateTime.UtcNow;
+
+        // === Cases assigned to this user ===
+        var openStatuses = new[]
+        {
+            CaseStatus.SupportCenter, CaseStatus.SC_high, CaseStatus.SC_medium, CaseStatus.SC_low
+        };
+        var inProgressStatuses = new[]
+        {
+            CaseStatus.LogIT, CaseStatus.LogIT_high, CaseStatus.LogIT_medium, CaseStatus.LogIT_low,
+            CaseStatus.Customer_handling, CaseStatus.Manufacturer,
+            CaseStatus.Waiting_for_work, CaseStatus.In_observation_period
+        };
+
+        var allMyCases = _context.Cases.Where(c => c.AssignedToUserId == userId);
+
+        // Top 10 active cases ordered by priority (Critical first) then urgency date
+        var caseItems = await allMyCases
+            .Where(c => c.Status != CaseStatus.Closed)
+            .OrderByDescending(c => c.Priority)
+            .ThenBy(c => c.SlaDeadline == null ? c.DueDate : c.SlaDeadline)
+            .Take(10)
+            .Select(c => new DashboardCaseItem(
+                c.Id,
+                c.Title,
+                _context.Customers.Where(cu => cu.Id == c.CustomerId).Select(cu => cu.Name).FirstOrDefault(),
+                c.Priority,
+                c.Status,
+                c.DueDate,
+                c.SlaDeadline,
+                c.SlaDeadline != null && now > c.SlaDeadline && c.ResolvedAt == null,
+                _context.CaseActivities
+                    .Where(a => a.CaseId == c.Id && a.ActiveFlg)
+                    .Max(a => (DateTime?)a.ActivityDate),
+                _context.CaseActivities
+                    .Where(a => a.CaseId == c.Id && a.ActiveFlg)
+                    .OrderByDescending(a => a.ActivityDate)
+                    .Select(a => a.NextAction)
+                    .FirstOrDefault()
+            ))
+            .ToListAsync();
+
+        var firstOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var caseStats = new DashboardCaseStats(
+            MyOpenCases: await allMyCases.CountAsync(c => openStatuses.Contains(c.Status)),
+            MyInProgressCases: await allMyCases.CountAsync(c => inProgressStatuses.Contains(c.Status)),
+            MyResolvedThisMonth: await allMyCases.CountAsync(c => c.ResolvedAt >= firstOfMonth),
+            MySlaBreachedCases: await allMyCases.CountAsync(c =>
+                c.SlaDeadline != null && c.SlaDeadline < now && c.ResolvedAt == null && c.Status != CaseStatus.Closed)
+        );
+
+        // === Projects within role coverage ===
+        List<int>? customerIds = null;
+        if (roleId.HasValue)
+        {
+            customerIds = await _context.RoleCoverages
+                .Where(rc => rc.RoleId == roleId.Value)
+                .Select(rc => rc.CustomerId)
+                .ToListAsync();
+        }
+
+        var projectsQuery = _context.Projects.AsQueryable();
+        if (customerIds != null && customerIds.Any())
+            projectsQuery = projectsQuery.Where(p => customerIds.Contains(p.CustomerId));
+
+        var projectItems = await projectsQuery
+            .Where(p => p.Status != ProjectStatus.Closed)
+            .OrderBy(p => p.Status)
+            .ThenByDescending(p => p.CreatedAt)
+            .Take(10)
+            .Select(p => new DashboardProjectItem(
+                p.Id,
+                p.Name,
+                _context.Customers.Where(cu => cu.Id == p.CustomerId).Select(cu => cu.Name).FirstOrDefault(),
+                p.Status,
+                p.CreatedAt
+            ))
+            .ToListAsync();
+
+        var projectStats = new DashboardProjectStats(
+            ActiveProjects: await projectsQuery.CountAsync(p => p.Status == ProjectStatus.Wip),
+            CompletedProjects: await projectsQuery.CountAsync(p => p.Status == ProjectStatus.Closed),
+            OnHoldProjects: await projectsQuery.CountAsync(p => p.Status == ProjectStatus.Pending)
+        );
+
+        return new PersonalDashboardDto(caseItems, caseStats, projectItems, projectStats);
     }
 }
 

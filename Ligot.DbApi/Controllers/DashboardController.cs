@@ -91,6 +91,23 @@ public class DashboardController : AuditableControllerBase
     }
 
     /// <summary>
+    /// Get personalized dashboard for the current user based on their assigned cases and role coverage projects
+    /// </summary>
+    [HttpGet("personal")]
+    public async Task<ActionResult<PersonalDashboardDto>> GetPersonalDashboard()
+    {
+        var (username, userId) = await GetCurrentUserInfoAsync();
+        if (!userId.HasValue)
+            return Ok(new PersonalDashboardDto([], new DashboardCaseStats(0, 0, 0, 0), [], new DashboardProjectStats(0, 0, 0)));
+
+        var user = await _userRepo.GetWithRolesAsync(userId.Value);
+        var roleId = user?.UserRoles.FirstOrDefault()?.RoleId;
+
+        var result = await _dashboardService.GetPersonalDashboardAsync(userId.Value, roleId);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Generate a snapshot of current metrics (admin only)
     /// </summary>
     [HttpPost("snapshot")]

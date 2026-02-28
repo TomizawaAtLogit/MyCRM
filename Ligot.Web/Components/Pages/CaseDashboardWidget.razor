@@ -1,0 +1,141 @@
+@using Ligot.Web
+@using Ligot.Web.Services
+@inject LocalizationService Localizer
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+        <i class="bi bi-ticket-detailed me-2"></i>
+        <h5 class="mb-0">@Localizer.GetString("My Cases")</h5>
+    </div>
+    <div class="card-body">
+
+        <div class="row mb-3 g-2">
+            <div class="col-6 col-md-3">
+                <div class="border rounded p-2 text-center">
+                    <div class="fw-bold fs-4">@CaseStats.MyOpenCases</div>
+                    <small class="text-muted">@Localizer.GetString("Open")</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="border rounded p-2 text-center">
+                    <div class="fw-bold fs-4">@CaseStats.MyInProgressCases</div>
+                    <small class="text-muted">@Localizer.GetString("In Progress")</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="border rounded p-2 text-center">
+                    <div class="fw-bold fs-4 text-success">@CaseStats.MyResolvedThisMonth</div>
+                    <small class="text-muted">@Localizer.GetString("Resolved This Month")</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="border rounded p-2 text-center">
+                    <div class="fw-bold fs-4 @(CaseStats.MySlaBreachedCases > 0 ? "text-danger" : "")">
+                        @CaseStats.MySlaBreachedCases
+                    </div>
+                    <small class="text-muted">@Localizer.GetString("SLA Breached")</small>
+                </div>
+            </div>
+        </div>
+
+        @if (!CaseItems.Any())
+        {
+            <div class="text-muted text-center py-3">
+                <i class="bi bi-check-circle"></i> @Localizer.GetString("No active cases assigned to you.")
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover table-sm align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>@Localizer.GetString("Priority")</th>
+                            <th>@Localizer.GetString("Title")</th>
+                            <th>@Localizer.GetString("Customer")</th>
+                            <th>@Localizer.GetString("Status")</th>
+                            <th>@Localizer.GetString("Due / SLA")</th>
+                            <th>@Localizer.GetString("Next Action")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in CaseItems)
+                        {
+                            var (priCss, priText) = GetPriorityBadge(item.Priority);
+                            var (stsCss, stsText) = GetStatusBadge(item.Status);
+                            var urgentDate = item.SlaDeadline ?? item.DueDate;
+                            <tr class="@(item.IsResolutionSlaBreached ? "table-danger" : "")">
+                                <td><span class="@priCss">@priText</span></td>
+                                <td>
+                                    <a href="/cases" class="text-decoration-none">@item.Title</a>
+                                </td>
+                                <td>@item.CustomerName</td>
+                                <td><span class="@stsCss">@stsText</span></td>
+                                <td>
+                                    @if (urgentDate.HasValue)
+                                    {
+                                        <span class="@(item.IsResolutionSlaBreached ? "text-danger fw-bold" : "")">
+                                            @urgentDate.Value.ToLocalTime().ToString("MMM d")
+                                            @if (item.IsResolutionSlaBreached)
+                                            {
+                                                <i class="bi bi-exclamation-triangle-fill ms-1"></i>
+                                            }
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.LatestNextAction))
+                                    {
+                                        <span title="@item.LatestNextAction">
+                                            @(item.LatestNextAction.Length > 60
+                                                ? item.LatestNextAction[..60] + "…"
+                                                : item.LatestNextAction)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public List<DashboardCaseItem> CaseItems { get; set; } = [];
+    [Parameter, EditorRequired] public DashboardCaseStats CaseStats { get; set; } = new(0, 0, 0, 0);
+
+    private (string CssClass, string Text) GetPriorityBadge(CasePriority priority) => priority switch
+    {
+        CasePriority.Critical => ("badge bg-danger", Localizer.GetString("Critical")),
+        CasePriority.High     => ("badge bg-warning text-dark", Localizer.GetString("High")),
+        CasePriority.Medium   => ("badge bg-info", Localizer.GetString("Medium")),
+        _                     => ("badge bg-secondary", Localizer.GetString("Low"))
+    };
+
+    private (string CssClass, string Text) GetStatusBadge(CaseStatus status) => status switch
+    {
+        CaseStatus.SupportCenter         => ("badge bg-primary", Localizer.GetString("Support Center")),
+        CaseStatus.SC_high               => ("badge bg-danger", Localizer.GetString("SC High")),
+        CaseStatus.SC_medium             => ("badge bg-warning text-dark", Localizer.GetString("SC Medium")),
+        CaseStatus.SC_low                => ("badge bg-info text-dark", Localizer.GetString("SC Low")),
+        CaseStatus.LogIT                 => ("badge bg-info text-dark", Localizer.GetString("Log IT")),
+        CaseStatus.LogIT_high            => ("badge bg-danger", Localizer.GetString("LogIT High")),
+        CaseStatus.LogIT_medium          => ("badge bg-warning text-dark", Localizer.GetString("LogIT Medium")),
+        CaseStatus.LogIT_low             => ("badge bg-info text-dark", Localizer.GetString("LogIT Low")),
+        CaseStatus.Customer_handling     => ("badge bg-warning text-dark", Localizer.GetString("Customer Handling")),
+        CaseStatus.Manufacturer          => ("badge bg-info text-dark", Localizer.GetString("Manufacturer")),
+        CaseStatus.Waiting_for_work      => ("badge bg-warning text-dark", Localizer.GetString("Waiting for Work")),
+        CaseStatus.In_observation_period => ("badge bg-success", Localizer.GetString("In Observation Period")),
+        _                                => ("badge bg-secondary", Localizer.GetString("Closed"))
+    };
+}
