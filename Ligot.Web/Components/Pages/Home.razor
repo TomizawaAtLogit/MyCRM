@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/calendar"
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.WebUtilities
 @using System.Globalization
@@ -12,7 +12,7 @@
 @inject AuthorizationService AuthService
 @implements IDisposable
 
-<PageTitle>@Localizer.GetString("Home")</PageTitle>
+<PageTitle>@Localizer.GetString("Activity Calendar")</PageTitle>
 
 <div class="calendar-header-wrapper mb-4">
     <div class="d-flex justify-content-between align-items-center">
