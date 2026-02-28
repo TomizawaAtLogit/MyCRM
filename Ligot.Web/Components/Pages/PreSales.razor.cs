@@ -61,6 +61,10 @@ public class PreSalesBase : ComponentBase
         public string? Status { get; set; }
     }
 
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "id")]
+    public int? IdFilter { get; set; }
+
     protected string? filterCustomerId = "";
     protected string? filterStatus = "";
     protected string? filterStage = "";
@@ -108,6 +112,13 @@ public class PreSalesBase : ComponentBase
         allOrders = await OrdersApi.GetOrdersAsync();
 
         ApplyFilters();
+        if (IdFilter.HasValue)
+        {
+            expandedProposals[IdFilter.Value] = true;
+            proposalActiveTabs[IdFilter.Value] = "activities";
+            if (!cachedProposalActivities.ContainsKey(IdFilter.Value))
+                await LoadActivitiesIfNeededAsync(IdFilter.Value);
+        }
         isLoading = false;
     }
 
@@ -133,6 +144,11 @@ public class PreSalesBase : ComponentBase
         if (!string.IsNullOrEmpty(filterAssignedToUserId) && int.TryParse(filterAssignedToUserId, out var userId))
         {
             filteredProposals = filteredProposals?.Where(p => p.AssignedToUserId == userId).ToArray();
+        }
+
+        if (IdFilter.HasValue)
+        {
+            filteredProposals = filteredProposals?.Where(p => p.Id == IdFilter.Value).ToArray();
         }
         
         // Update total count and reset to first page

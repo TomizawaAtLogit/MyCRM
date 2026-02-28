@@ -1901,6 +1901,11 @@
         }
 
         var projectId = highlightProjectIdFromQuery.Value;
+        // Filter list to show only the linked project
+        if (projects != null)
+        {
+            projects = projects.Where(p => p.Id == projectId).ToArray();
+        }
         expandedProjects[projectId] = true;
         var tab = NormalizeProjectTab(highlightProjectTabFromQuery);
         projectActiveTabs[projectId] = tab;

@@ -67,7 +67,7 @@
                             <tr class="@(item.IsResolutionSlaBreached ? "table-danger" : "")">
                                 <td><span class="@priCss">@priText</span></td>
                                 <td>
-                                    <a href="/cases" class="text-decoration-none">@item.Title</a>
+                                    <a href="/cases?id=@item.Id" class="text-decoration-none">@item.Title</a>
                                 </td>
                                 <td>@item.CustomerName</td>
                                 <td><span class="@stsCss">@stsText</span></td>

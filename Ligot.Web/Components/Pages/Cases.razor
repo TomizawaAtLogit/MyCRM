@@ -1418,6 +1418,10 @@
     [Parameter]
     [SupplyParameterFromQuery(Name = "title")]
     public string? TitleQueryFilter { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "id")]
+    public int? IdFilter { get; set; }
     
     // Pagination
     private int currentPage = 1;
@@ -1500,7 +1504,11 @@
         isReadOnly = await AuthService.IsPageReadOnlyAsync("Cases");
         await LoadCustomersAsync();
         await GetCurrentUserIdAsync();
-        if (!string.IsNullOrWhiteSpace(TitleQueryFilter))
+        if (IdFilter.HasValue)
+        {
+            filterStatus = ""; // Show all statuses so the linked case is always visible
+        }
+        else if (!string.IsNullOrWhiteSpace(TitleQueryFilter))
         {
             filterTitle = TitleQueryFilter;
         }
@@ -1536,6 +1544,13 @@
             allCases = await CasesApi.GetCasesAsync(customerId, status, assignedToUserId, priority);
             loadError = null;
             ApplyClientFilters();
+            if (IdFilter.HasValue)
+            {
+                expandedCases[IdFilter.Value] = true;
+                caseActiveTabs[IdFilter.Value] = "activities";
+                if (!caseActivities.ContainsKey(IdFilter.Value))
+                    await LoadActivitiesAsync(IdFilter.Value);
+            }
         }
         catch (Exception ex)
         {
@@ -1553,6 +1568,14 @@
         }
 
         IEnumerable<CaseDto> q = allCases;
+
+        if (IdFilter.HasValue)
+        {
+            cases = q.Where(c => c.Id == IdFilter.Value).ToArray();
+            totalCount = cases.Length;
+            currentPage = 1;
+            return;
+        }
 
         if (filterStatus == "without_closed")
         {
