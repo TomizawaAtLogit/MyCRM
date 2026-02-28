@@ -257,7 +257,40 @@ public class DashboardService : IDashboardService
             OnHoldProjects: await projectsQuery.CountAsync(p => p.Status == ProjectStatus.Pending)
         );
 
-        return new PersonalDashboardDto(caseItems, caseStats, projectItems, projectStats);
+        // === Pre-sales proposals within role coverage ===
+        var preSalesQuery = _context.PreSalesProposals.AsQueryable();
+        if (customerIds != null && customerIds.Any())
+            preSalesQuery = preSalesQuery.Where(p => customerIds.Contains(p.CustomerId));
+
+        var activePipelineStatuses = new[] { PreSalesStatus.Draft, PreSalesStatus.InReview, PreSalesStatus.Pending, PreSalesStatus.Approved };
+        var closedStages = new[] { PreSalesStage.Won, PreSalesStage.Lost };
+
+        var preSalesItems = await preSalesQuery
+            .Where(p => activePipelineStatuses.Contains(p.Status) && !closedStages.Contains(p.Stage))
+            .OrderBy(p => p.ExpectedCloseDate == null ? DateTime.MaxValue : p.ExpectedCloseDate)
+            .ThenByDescending(p => p.Stage)
+            .Take(10)
+            .Select(p => new DashboardPreSalesItem(
+                p.Id,
+                p.Title,
+                _context.Customers.Where(cu => cu.Id == p.CustomerId).Select(cu => cu.Name).FirstOrDefault(),
+                p.Status,
+                p.Stage,
+                p.ProbabilityPercentage,
+                p.ExpectedCloseDate
+            ))
+            .ToListAsync();
+
+        var preSalesStats = new DashboardPreSalesStats(
+            InPipeline: await preSalesQuery.CountAsync(p =>
+                activePipelineStatuses.Contains(p.Status) && !closedStages.Contains(p.Stage)),
+            Won: await preSalesQuery.CountAsync(p => p.Stage == PreSalesStage.Won),
+            LostOrRejected: await preSalesQuery.CountAsync(p =>
+                p.Stage == PreSalesStage.Lost || p.Status == PreSalesStatus.Rejected)
+        );
+
+        return new PersonalDashboardDto(caseItems, caseStats, projectItems, projectStats,
+            preSalesItems, preSalesStats);
     }
 }
 

@@ -36,9 +36,27 @@ public record DashboardProjectStats(
     int OnHoldProjects
 );
 
+public record DashboardPreSalesItem(
+    int Id,
+    string Title,
+    string? CustomerName,
+    PreSalesStatus Status,
+    PreSalesStage Stage,
+    int? ProbabilityPercentage,
+    DateTime? ExpectedCloseDate
+);
+
+public record DashboardPreSalesStats(
+    int InPipeline,
+    int Won,
+    int LostOrRejected
+);
+
 public record PersonalDashboardDto(
     List<DashboardCaseItem> CaseItems,
     DashboardCaseStats CaseStats,
     List<DashboardProjectItem> ProjectItems,
-    DashboardProjectStats ProjectStats
+    DashboardProjectStats ProjectStats,
+    List<DashboardPreSalesItem> PreSalesItems,
+    DashboardPreSalesStats PreSalesStats
 );

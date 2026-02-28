@@ -34,7 +34,12 @@
             <ProjectDashboardWidget ProjectItems="dashboard.ProjectItems" ProjectStats="dashboard.ProjectStats" />
         }
 
-        @if (!hasCasesAccess && !hasProjectsAccess)
+        @if (hasPreSalesAccess && dashboard != null)
+        {
+            <PreSalesDashboardWidget PreSalesItems="dashboard.PreSalesItems" PreSalesStats="dashboard.PreSalesStats" />
+        }
+
+        @if (!hasCasesAccess && !hasProjectsAccess && !hasPreSalesAccess)
         {
             <div class="alert alert-info">
                 <i class="bi bi-info-circle"></i> @Localizer.GetString("No dashboard data available for your current role.")
@@ -47,6 +52,7 @@
     private PersonalDashboardDto? dashboard;
     private bool hasCasesAccess;
     private bool hasProjectsAccess;
+    private bool hasPreSalesAccess;
     private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
@@ -55,12 +61,14 @@
 
         var casesTask    = AuthService.HasPageAccessAsync("Cases");
         var projectsTask = AuthService.HasPageAccessAsync("Projects");
+        var preSalesTask = AuthService.HasPageAccessAsync("PreSales");
         var dataTask     = DashboardApi.GetPersonalDashboardAsync();
 
-        await Task.WhenAll(casesTask, projectsTask, dataTask);
+        await Task.WhenAll(casesTask, projectsTask, preSalesTask, dataTask);
 
         hasCasesAccess    = casesTask.Result;
         hasProjectsAccess = projectsTask.Result;
+        hasPreSalesAccess = preSalesTask.Result;
         dashboard         = dataTask.Result;
 
         isLoading = false;
