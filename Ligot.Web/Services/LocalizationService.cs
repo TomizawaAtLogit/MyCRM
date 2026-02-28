@@ -269,6 +269,7 @@ public class LocalizationService
             , ["Select permissions for each page"] = "Select permissions for each page"
             , ["No - No access"] = "No - No access"
             , ["Read only - View only"] = "Read only - View only"
+            , ["Control Myself - Edit own account only"] = "Control Myself - Edit own account only"
             , ["Full Control - Full access"] = "Full Control - Full access"
             , ["User and role management"] = "User and role management"
             , ["Project management and tracking"] = "Project management and tracking"
@@ -305,6 +306,11 @@ public class LocalizationService
             , ["PreSales"] = "PreSales"
             , ["Customers"] = "Customers"
             , ["Orders"] = "Orders"
+            // Admin Role flag
+            , ["Admin Role"] = "Admin Role"
+            , ["If enabled, only full admins can assign this role. Users with 'Control Myself' permission cannot assign or remove it."] = "If enabled, only full admins can assign this role. Users with 'Control Myself' permission cannot assign or remove it."
+            , ["Admin role - requires Full Control to assign"] = "Admin role - requires Full Control to assign"
+            , ["Requires Full Control"] = "Requires Full Control"
         },
         ["ja"] = new Dictionary<string, string>
         {
@@ -591,6 +597,7 @@ public class LocalizationService
             , ["Select permissions for each page"] = "各ページのパーミッションを選択"
             , ["No - No access"] = "なし - アクセスなし"
             , ["Read only - View only"] = "読み取り専用 - 表示のみ"
+            , ["Control Myself - Edit own account only"] = "自分のみ管理 - 自分のアカウントのみ編集可能"
             , ["Full Control - Full access"] = "フルコントロール - フルアクセス"
             , ["User and role management"] = "ユーザーとロール管理"
             , ["Project management and tracking"] = "プロジェクト管理と追跡"
@@ -643,6 +650,11 @@ public class LocalizationService
             , ["Customer Name"] = "顧客名"
             , ["Contact Person"] = "担当者"
             , ["Phone"] = "電話"
+            // Admin Role flag
+            , ["Admin Role"] = "管理者ロール"
+            , ["If enabled, only full admins can assign this role. Users with 'Control Myself' permission cannot assign or remove it."] = "有効にすると、フル管理者のみがこのロールを割り当てられます。「自分のみ管理」権限を持つユーザーはこのロールの割り当て・削除ができません。"
+            , ["Admin role - requires Full Control to assign"] = "管理者ロール - 割り当てにはフル管理権限が必要です"
+            , ["Requires Full Control"] = "フル管理権限が必要"
         }
     };
 

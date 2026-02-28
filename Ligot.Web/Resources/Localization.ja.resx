@@ -268,4 +268,16 @@
   <data name="Projects by Status" xml:space="preserve">
     <value>ステータス別プロジェクト</value>
   </data>
+  <data name="Admin Role" xml:space="preserve">
+    <value>管理者ロール</value>
+  </data>
+  <data name="If enabled, only full admins can assign this role. Users with 'Control Myself' permission cannot assign or remove it." xml:space="preserve">
+    <value>有効にすると、フル管理者のみがこのロールを割り当てられます。「自分のみ管理」権限を持つユーザーはこのロールの割り当て・削除ができません。</value>
+  </data>
+  <data name="Admin role - requires Full Control to assign" xml:space="preserve">
+    <value>管理者ロール - 割り当てにはフル管理権限が必要です</value>
+  </data>
+  <data name="Requires Full Control" xml:space="preserve">
+    <value>フル管理権限が必要</value>
+  </data>
 </root>
