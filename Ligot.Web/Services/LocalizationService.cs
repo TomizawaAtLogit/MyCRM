@@ -432,7 +432,7 @@ public class LocalizationService
             ["DeleteCustomerBlocked"] = "関連するケース、プロジェクト、要件定義、またはプレセールス提案が存在するため、この顧客を削除できません。",
             ["DeleteCustomerFailed"] = "顧客の削除に失敗しました。",
             // Common
-            ["Activity Calendar"] = "アクティビティカレンダー",
+            ["Activity Calendar"] = "カレンダー",
             ["Activities for"] = "アクティビティ：",
             ["Calendar"] = "カレンダー",
             ["Gantt"] = "ガントチャート",
@@ -655,6 +655,27 @@ public class LocalizationService
             , ["If enabled, only full admins can assign this role. Users with 'Control Myself' permission cannot assign or remove it."] = "有効にすると、フル管理者のみがこのロールを割り当てられます。「自分のみ管理」権限を持つユーザーはこのロールの割り当て・削除ができません。"
             , ["Admin role - requires Full Control to assign"] = "管理者ロール - 割り当てにはフル管理権限が必要です"
             , ["Requires Full Control"] = "フル管理権限が必要"
+            // Dashboard page
+            , ["Loading"] = "読み込み中"
+            , ["Loading dashboard metrics"] = "ダッシュボード指標を読み込み中"
+            , ["No dashboard data available for your current role."] = "現在のロールにはダッシュボードデータが表示されません。"
+            , ["Pre-Sales"] = "プレセールス"
+            // Pre-sales dashboard widget
+            , ["Pre-sales Pipeline"] = "プレセールスパイプライン"
+            , ["In Pipeline"] = "パイプライン中"
+            , ["Won"] = "受注"
+            , ["Lost / Rejected"] = "失注 / 却下"
+            , ["No active proposals in your coverage."] = "カバレッジ内にアクティブな提案はありません。"
+            // Project dashboard widget
+            , ["My Projects"] = "担当プロジェクト"
+            , ["On Hold"] = "保留中"
+            , ["No active projects in your coverage."] = "カバレッジ内にアクティブなプロジェクトはありません。"
+            , ["Started"] = "開始日"
+            // Case dashboard widget
+            , ["My Cases"] = "担当ケース"
+            , ["Resolved This Month"] = "今月の解決件数"
+            , ["SLA Breached"] = "SLA違反"
+            , ["No active cases assigned to you."] = "担当しているアクティブなケースはありません。"
         }
     };
 
