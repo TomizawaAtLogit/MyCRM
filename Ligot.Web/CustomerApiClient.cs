@@ -10,7 +10,8 @@ public record CustomerDto(
     string? ContactPerson, 
     string? Email, 
     string? Phone, 
-    string? Address, 
+    string? Address,
+    string? Url,
     DateTime CreatedAt,
     bool ActiveFlg = true);
 
@@ -21,6 +22,7 @@ public record CustomerWithChildrenDto(
     string? Email,
     string? Phone,
     string? Address,
+    string? Url,
     DateTime CreatedAt,
     List<CustomerDatabaseDto> Databases,
     List<CustomerSiteDto> Sites,
@@ -33,7 +35,8 @@ public record CustomerCreateDto(
     string? ContactPerson,
     string? Email,
     string? Phone,
-    string? Address);
+    string? Address,
+    string? Url);
 
 public record CustomerUpdateDto(
     int Id,
@@ -41,7 +44,8 @@ public record CustomerUpdateDto(
     string? ContactPerson,
     string? Email,
     string? Phone,
-    string? Address);
+    string? Address,
+    string? Url);
 
 public record CustomerDatabaseDto(
     int Id,

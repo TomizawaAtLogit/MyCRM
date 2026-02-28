@@ -112,6 +112,7 @@ public class CustomersController : AuditableControllerBase
         existing.Email = customer.Email;
         existing.Phone = customer.Phone;
         existing.Address = customer.Address;
+        existing.Url = customer.Url;
         
         await _repo.UpdateAsync(existing);
         
