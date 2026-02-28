@@ -25,17 +25,56 @@
     }
     else
     {
-        @if (hasCasesAccess && dashboard != null)
+        @if (hasCasesAccess || hasProjectsAccess || hasPreSalesAccess)
+        {
+            <ul class="nav nav-pills mb-4">
+                <li class="nav-item">
+                    <button class="nav-link @(activeFilter == "all" ? "active" : "")"
+                            @onclick='() => activeFilter = "all"'>
+                        <i class="bi bi-grid"></i> @Localizer.GetString("All")
+                    </button>
+                </li>
+                @if (hasCasesAccess)
+                {
+                    <li class="nav-item">
+                        <button class="nav-link @(activeFilter == "cases" ? "active" : "")"
+                                @onclick='() => activeFilter = "cases"'>
+                            <i class="bi bi-folder2-open"></i> @Localizer.GetString("Cases")
+                        </button>
+                    </li>
+                }
+                @if (hasProjectsAccess)
+                {
+                    <li class="nav-item">
+                        <button class="nav-link @(activeFilter == "projects" ? "active" : "")"
+                                @onclick='() => activeFilter = "projects"'>
+                            <i class="bi bi-kanban"></i> @Localizer.GetString("Projects")
+                        </button>
+                    </li>
+                }
+                @if (hasPreSalesAccess)
+                {
+                    <li class="nav-item">
+                        <button class="nav-link @(activeFilter == "presales" ? "active" : "")"
+                                @onclick='() => activeFilter = "presales"'>
+                            <i class="bi bi-graph-up-arrow"></i> @Localizer.GetString("Pre-Sales")
+                        </button>
+                    </li>
+                }
+            </ul>
+        }
+
+        @if (hasCasesAccess && dashboard != null && (activeFilter == "all" || activeFilter == "cases"))
         {
             <CaseDashboardWidget CaseItems="dashboard.CaseItems" CaseStats="dashboard.CaseStats" />
         }
 
-        @if (hasProjectsAccess && dashboard != null)
+        @if (hasProjectsAccess && dashboard != null && (activeFilter == "all" || activeFilter == "projects"))
         {
             <ProjectDashboardWidget ProjectItems="dashboard.ProjectItems" ProjectStats="dashboard.ProjectStats" />
         }
 
-        @if (hasPreSalesAccess && dashboard != null)
+        @if (hasPreSalesAccess && dashboard != null && (activeFilter == "all" || activeFilter == "presales"))
         {
             <PreSalesDashboardWidget PreSalesItems="dashboard.PreSalesItems" PreSalesStats="dashboard.PreSalesStats" />
         }
@@ -55,6 +94,7 @@
     private bool hasProjectsAccess;
     private bool hasPreSalesAccess;
     private bool isLoading = true;
+    private string activeFilter = "all";
 
     protected override async Task OnInitializedAsync()
     {
