@@ -1,6 +1,7 @@
 @using System.ComponentModel.DataAnnotations
 @inject CustomerApiClient CustomerApi
 @inject IJSRuntime JSRuntime
+@inject Ligot.Web.Services.LocalizationService Localizer
 
 <!-- Toast Notification Container -->
 @if (!string.IsNullOrEmpty(toastMessage))
@@ -15,10 +16,10 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h5>Systems</h5>
+        <h5>@Localizer.GetString("Systems")</h5>
         @if (Systems == null || !Systems.Any())
         {
-            <p class="text-muted">No systems configured.</p>
+            <p class="text-muted">@Localizer.GetString("No systems configured.")</p>
         }
         else
         {
@@ -34,10 +35,10 @@
                             <button class="accordion-button flex-grow-1" type="button" data-bs-toggle="collapse" 
                                     data-bs-target="#@accordionId" aria-expanded="true" aria-controls="@accordionId">
                                 <span class="me-2">@system.SystemName</span>
-                                <span class="badge @badgeClass me-2">@componentCount component@(componentCount != 1 ? "s" : "")</span>
+                                <span class="badge @badgeClass me-2">@componentCount @Localizer.GetString("component(s)")</span>
                                 @if (system.InstallationDate.HasValue)
                                 {
-                                    <small class="text-muted ms-2">Installed: @system.InstallationDate.Value.ToShortDateString()</small>
+                                    <small class="text-muted ms-2">@Localizer.GetString("Installed:") @system.InstallationDate.Value.ToShortDateString()</small>
                                 }
                             </button>
                             <div class="position-absolute end-0 top-50 translate-middle-y me-2" style="z-index: 1050;">
@@ -78,45 +79,45 @@
                                     <dl class="row mb-3 small">
                                         @if (system.ContractDate.HasValue)
                                         {
-                                            <dt class="col-sm-3">Contract Date</dt>
+                                            <dt class="col-sm-3">@Localizer.GetString("Contract Date")</dt>
                                             <dd class="col-sm-3">@system.ContractDate.Value.ToShortDateString()</dd>
                                         }
                                         @if (system.ExpirationDate.HasValue)
                                         {
-                                            <dt class="col-sm-3">Expiration Date</dt>
+                                            <dt class="col-sm-3">@Localizer.GetString("Expiration Date")</dt>
                                             <dd class="col-sm-3">@system.ExpirationDate.Value.ToShortDateString()</dd>
                                         }
                                         @if (system.ReceptionHours != null)
                                         {
-                                            <dt class="col-sm-3">Reception Hours</dt>
+                                            <dt class="col-sm-3">@Localizer.GetString("Reception Hours")</dt>
                                             <dd class="col-sm-3">@system.ReceptionHours</dd>
                                         }
                                         @if (system.OnsiteHours != null)
                                         {
-                                            <dt class="col-sm-3">Onsite Hours</dt>
+                                            <dt class="col-sm-3">@Localizer.GetString("Onsite Hours")</dt>
                                             <dd class="col-sm-3">@system.OnsiteHours</dd>
                                         }
                                         @if (system.HealthCheck != null)
                                         {
-                                            <dt class="col-sm-3">Health Check</dt>
+                                            <dt class="col-sm-3">@Localizer.GetString("Health Check")</dt>
                                             <dd class="col-sm-3">@system.HealthCheck</dd>
                                         }
                                         @if (system.PowerMaintenance != null)
                                         {
-                                            <dt class="col-sm-3">Power Maintenance</dt>
+                                            <dt class="col-sm-3">@Localizer.GetString("Power Maintenance")</dt>
                                             <dd class="col-sm-3">@system.PowerMaintenance</dd>
                                         }
                                         @if (system.AutomaticRenewal.HasValue)
                                         {
-                                            <dt class="col-sm-3">Automatic Renewal</dt>
-                                            <dd class="col-sm-3">@(system.AutomaticRenewal.Value ? "Yes" : "No")</dd>
+                                            <dt class="col-sm-3">@Localizer.GetString("Automatic Renewal")</dt>
+                                            <dd class="col-sm-3">@(system.AutomaticRenewal.Value ? Localizer.GetString("Yes") : Localizer.GetString("No"))</dd>
                                         }
                                     </dl>
                                 }
                                 @if (componentCount == 0)
                                 {
                                     <div class="text-center py-3">
-                                        <p class="text-muted mb-2">No components yet. Use the form on the right to add components.</p>
+                                        <p class="text-muted mb-2">@Localizer.GetString("No components yet.")</p>
                                     </div>
                                 }
                                 else
@@ -125,13 +126,13 @@
                                         <table class="table table-sm table-hover mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th>Component Type</th>
-                                                    <th>Manufacturer</th>
-                                                    <th>Model</th>
-                                                    <th>Serial Number</th>
-                                                    <th>Location</th>
-                                                    <th>Warranty Expiration</th>
-                                                    <th>Actions</th>
+                                                    <th>@Localizer.GetString("Component Type")</th>
+                                                    <th>@Localizer.GetString("Manufacturer")</th>
+                                                    <th>@Localizer.GetString("Model")</th>
+                                                    <th>@Localizer.GetString("Serial Number")</th>
+                                                    <th>@Localizer.GetString("Location")</th>
+                                                    <th>@Localizer.GetString("Warranty Expiration")</th>
+                                                    <th>@Localizer.GetString("Actions")</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -190,7 +191,7 @@
     <div class="col-md-12">
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Add System</h5>
+                <h5 class="mb-0">@Localizer.GetString("Add System")</h5>
                 @if (!IsReadOnly)
                 {
                     <button class="btn btn-sm btn-outline-primary" @onclick="() => showAddSystemForm = !showAddSystemForm">
@@ -205,43 +206,43 @@
                     <DataAnnotationsValidator />
                     <ValidationSummary class="text-danger" />
                     <div class="mb-2">
-                        <label class="form-label">System Name</label>
+                        <label class="form-label">@Localizer.GetString("System Name")</label>
                         <InputText @bind-Value="newSystem.SystemName" class="form-control form-control-sm" />
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">Installation Date</label>
+                        <label class="form-label">@Localizer.GetString("Installation Date")</label>
                         <InputDate @bind-Value="newSystem.InstallationDate" class="form-control form-control-sm" />
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">Contract Date</label>
+                        <label class="form-label">@Localizer.GetString("Contract Date")</label>
                         <InputDate @bind-Value="newSystem.ContractDate" class="form-control form-control-sm" />
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">Expiration Date</label>
+                        <label class="form-label">@Localizer.GetString("Expiration Date")</label>
                         <InputDate @bind-Value="newSystem.ExpirationDate" class="form-control form-control-sm" />
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">Reception Hours</label>
+                        <label class="form-label">@Localizer.GetString("Reception Hours")</label>
                         <InputText @bind-Value="newSystem.ReceptionHours" class="form-control form-control-sm" />
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">Onsite Hours</label>
+                        <label class="form-label">@Localizer.GetString("Onsite Hours")</label>
                         <InputText @bind-Value="newSystem.OnsiteHours" class="form-control form-control-sm" />
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">Health Check</label>
+                        <label class="form-label">@Localizer.GetString("Health Check")</label>
                         <InputText @bind-Value="newSystem.HealthCheck" class="form-control form-control-sm" />
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">Power Maintenance</label>
+                        <label class="form-label">@Localizer.GetString("Power Maintenance")</label>
                         <InputText @bind-Value="newSystem.PowerMaintenance" class="form-control form-control-sm" />
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">Automatic Renewal</label>
+                        <label class="form-label">@Localizer.GetString("Automatic Renewal")</label>
                         <InputCheckbox @bind-Value="newSystem.AutomaticRenewal" class="form-check-input" />
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">Description</label>
+                        <label class="form-label">@Localizer.GetString("Description")</label>
                         <InputTextArea @bind-Value="newSystem.Description" class="form-control form-control-sm" rows="2" />
                     </div>
                     <button type="submit" class="btn btn-primary btn-sm w-100" disabled="@isAddingSystem">
@@ -249,7 +250,7 @@
                         {
                             <span class="spinner-border spinner-border-sm me-1"></span>
                         }
-                        Add System
+                        @Localizer.GetString("Add System")
                     </button>
                 </EditForm>
                 </div>
@@ -258,7 +259,7 @@
         
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Add Component</h5>
+                <h5 class="mb-0">@Localizer.GetString("Add Component")</h5>
                 @if (!IsReadOnly)
                 {
                     <button class="btn btn-sm btn-outline-primary" @onclick="() => showAddComponentForm = !showAddComponentForm">
@@ -271,7 +272,7 @@
                 <div class="card-body">
                 @if (Systems == null || !Systems.Any())
                 {
-                    <p class="text-muted small">Add a system first</p>
+                    <p class="text-muted small">@Localizer.GetString("Add a system first")</p>
                 }
                 else
                 {
@@ -279,9 +280,9 @@
                         <DataAnnotationsValidator />
                         <ValidationSummary class="text-danger" />
                         <div class="mb-2">
-                            <label class="form-label">Select System</label>
+                            <label class="form-label">@Localizer.GetString("Select System")</label>
                             <InputSelect @bind-Value="selectedSystemId" class="form-control form-control-sm">
-                                <option value="0">Select a system...</option>
+                                <option value="0">@Localizer.GetString("Select a system...")</option>
                                 @foreach (var system in Systems)
                                 {
                                     <option value="@system.Id">@system.SystemName</option>
@@ -289,25 +290,25 @@
                             </InputSelect>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">Component Type</label>
+                            <label class="form-label">@Localizer.GetString("Component Type")</label>
                             <InputText @bind-Value="newComponent.ComponentType" class="form-control form-control-sm" />
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">Manufacturer</label>
+                            <label class="form-label">@Localizer.GetString("Manufacturer")</label>
                             <InputText @bind-Value="newComponent.Manufacturer" class="form-control form-control-sm" />
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">Model</label>
+                            <label class="form-label">@Localizer.GetString("Model")</label>
                             <InputText @bind-Value="newComponent.Model" class="form-control form-control-sm" />
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">Serial Number</label>
+                            <label class="form-label">@Localizer.GetString("Serial Number")</label>
                             <InputText @bind-Value="newComponent.SerialNumber" class="form-control form-control-sm" />
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">Location</label>
+                            <label class="form-label">@Localizer.GetString("Location")</label>
                             <InputSelect @bind-Value="newComponent.Location" class="form-control form-control-sm">
-                                <option value="">Select a site...</option>
+                                <option value="">@Localizer.GetString("Select a site...")</option>
                                 @foreach (var site in Sites)
                                 {
                                     <option value="@site.SiteName">@site.SiteName</option>
@@ -315,11 +316,11 @@
                             </InputSelect>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">Warranty Expiration</label>
+                            <label class="form-label">@Localizer.GetString("Warranty Expiration")</label>
                             <InputDate @bind-Value="newComponent.WarrantyExpiration" class="form-control form-control-sm" />
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">Description</label>
+                            <label class="form-label">@Localizer.GetString("Description")</label>
                             <InputTextArea @bind-Value="newComponent.Description" class="form-control form-control-sm" rows="2" />
                         </div>
                         <button type="submit" class="btn btn-primary btn-sm w-100" disabled="@(isAddingComponent || selectedSystemId == 0)">
@@ -327,7 +328,7 @@
                             {
                                 <span class="spinner-border spinner-border-sm me-1"></span>
                             }
-                            Add Component
+                            @Localizer.GetString("Add Component")
                         </button>
                     </EditForm>
                 }
@@ -342,7 +343,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editSystemModalLabel">Edit System</h5>
+                <h5 class="modal-title" id="editSystemModalLabel">@Localizer.GetString("Edit System")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -350,51 +351,51 @@
                     <DataAnnotationsValidator />
                     <ValidationSummary class="text-danger" />
                     <div class="mb-3">
-                        <label class="form-label">System Name</label>
+                        <label class="form-label">@Localizer.GetString("System Name")</label>
                         <InputText @bind-Value="editSystem.SystemName" class="form-control" />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Installation Date</label>
+                        <label class="form-label">@Localizer.GetString("Installation Date")</label>
                         <InputDate @bind-Value="editSystem.InstallationDate" class="form-control" />
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Contract Date</label>
+                            <label class="form-label">@Localizer.GetString("Contract Date")</label>
                             <InputDate @bind-Value="editSystem.ContractDate" class="form-control" />
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Expiration Date</label>
+                            <label class="form-label">@Localizer.GetString("Expiration Date")</label>
                             <InputDate @bind-Value="editSystem.ExpirationDate" class="form-control" />
                         </div>
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Reception Hours</label>
+                            <label class="form-label">@Localizer.GetString("Reception Hours")</label>
                             <InputText @bind-Value="editSystem.ReceptionHours" class="form-control" />
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Onsite Hours</label>
+                            <label class="form-label">@Localizer.GetString("Onsite Hours")</label>
                             <InputText @bind-Value="editSystem.OnsiteHours" class="form-control" />
                         </div>
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Health Check</label>
+                            <label class="form-label">@Localizer.GetString("Health Check")</label>
                             <InputText @bind-Value="editSystem.HealthCheck" class="form-control" />
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Power Maintenance</label>
+                            <label class="form-label">@Localizer.GetString("Power Maintenance")</label>
                             <InputText @bind-Value="editSystem.PowerMaintenance" class="form-control" />
                         </div>
                     </div>
                     <div class="mb-3">
                         <div class="form-check">
                             <InputCheckbox @bind-Value="editSystem.AutomaticRenewal" class="form-check-input" id="editAutoRenewal" />
-                            <label class="form-check-label" for="editAutoRenewal">Automatic Renewal</label>
+                            <label class="form-check-label" for="editAutoRenewal">@Localizer.GetString("Automatic Renewal")</label>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description</label>
+                        <label class="form-label">@Localizer.GetString("Description")</label>
                         <InputTextArea @bind-Value="editSystem.Description" class="form-control" rows="3" />
                     </div>
                     <div class="d-flex gap-2">
@@ -403,9 +404,9 @@
                             {
                                 <span class="spinner-border spinner-border-sm me-1"></span>
                             }
-                            Save Changes
+                            @Localizer.GetString("Save Changes")
                         </button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer.GetString("Cancel")</button>
                     </div>
                 </EditForm>
             </div>
@@ -418,7 +419,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editComponentModalLabel">Edit Component</h5>
+                <h5 class="modal-title" id="editComponentModalLabel">@Localizer.GetString("Edit Component")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -427,29 +428,29 @@
                     <ValidationSummary class="text-danger" />
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Component Type</label>
+                            <label class="form-label">@Localizer.GetString("Component Type")</label>
                             <InputText @bind-Value="editComponent.ComponentType" class="form-control" />
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Manufacturer</label>
+                            <label class="form-label">@Localizer.GetString("Manufacturer")</label>
                             <InputText @bind-Value="editComponent.Manufacturer" class="form-control" />
                         </div>
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Model</label>
+                            <label class="form-label">@Localizer.GetString("Model")</label>
                             <InputText @bind-Value="editComponent.Model" class="form-control" />
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Serial Number</label>
+                            <label class="form-label">@Localizer.GetString("Serial Number")</label>
                             <InputText @bind-Value="editComponent.SerialNumber" class="form-control" />
                         </div>
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Location</label>
+                            <label class="form-label">@Localizer.GetString("Location")</label>
                             <InputSelect @bind-Value="editComponent.Location" class="form-control">
-                                <option value="">Select a site...</option>
+                                <option value="">@Localizer.GetString("Select a site...")</option>
                                 @foreach (var site in Sites)
                                 {
                                     <option value="@site.SiteName">@site.SiteName</option>
@@ -457,12 +458,12 @@
                             </InputSelect>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Warranty Expiration</label>
+                            <label class="form-label">@Localizer.GetString("Warranty Expiration")</label>
                             <InputDate @bind-Value="editComponent.WarrantyExpiration" class="form-control" />
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description</label>
+                        <label class="form-label">@Localizer.GetString("Description")</label>
                         <InputTextArea @bind-Value="editComponent.Description" class="form-control" rows="6" />
                     </div>
                     <div class="d-flex gap-2">
@@ -471,9 +472,9 @@
                             {
                                 <span class="spinner-border spinner-border-sm me-1"></span>
                             }
-                            Save Changes
+                            @Localizer.GetString("Save Changes")
                         </button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer.GetString("Cancel")</button>
                     </div>
                 </EditForm>
             </div>
@@ -487,34 +488,34 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Component Details</h5>
+                    <h5 class="modal-title">@Localizer.GetString("Component Details")</h5>
                     <button type="button" class="btn-close" @onclick="HideComponentDetails"></button>
                 </div>
                 <div class="modal-body">
                     <dl class="row mb-0">
-                        <dt class="col-sm-5">Component Type</dt>
+                        <dt class="col-sm-5">@Localizer.GetString("Component Type")</dt>
                         <dd class="col-sm-7">@selectedComponent.ComponentType</dd>
-                        <dt class="col-sm-5">Manufacturer</dt>
+                        <dt class="col-sm-5">@Localizer.GetString("Manufacturer")</dt>
                         <dd class="col-sm-7">@(selectedComponent.Manufacturer ?? "-")</dd>
-                        <dt class="col-sm-5">Model</dt>
+                        <dt class="col-sm-5">@Localizer.GetString("Model")</dt>
                         <dd class="col-sm-7">@(selectedComponent.Model ?? "-")</dd>
-                        <dt class="col-sm-5">Serial Number</dt>
+                        <dt class="col-sm-5">@Localizer.GetString("Serial Number")</dt>
                         <dd class="col-sm-7">@(selectedComponent.SerialNumber ?? "-")</dd>
-                        <dt class="col-sm-5">Location</dt>
+                        <dt class="col-sm-5">@Localizer.GetString("Location")</dt>
                         <dd class="col-sm-7">@(selectedComponent.Location ?? "-")</dd>
-                        <dt class="col-sm-5">Warranty Expiration</dt>
+                        <dt class="col-sm-5">@Localizer.GetString("Warranty Expiration")</dt>
                         <dd class="col-sm-7">@(selectedComponent.WarrantyExpiration?.ToShortDateString() ?? "-")</dd>
                     </dl>
                     @if (!string.IsNullOrWhiteSpace(selectedComponent.Description))
                     {
                         <div class="mt-3">
-                            <h6>Description</h6>
+                            <h6>@Localizer.GetString("Description")</h6>
                             <p class="mb-0 ms-3">@FormatDescription(selectedComponent.Description!)</p>
                         </div>
                     }
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="HideComponentDetails">Close</button>
+                    <button type="button" class="btn btn-secondary" @onclick="HideComponentDetails">@Localizer.GetString("Close")</button>
                 </div>
             </div>
         </div>
@@ -527,64 +528,64 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">System Details</h5>
+                    <h5 class="modal-title">@Localizer.GetString("System Details")</h5>
                     <button type="button" class="btn-close" @onclick="HideSystemDetails"></button>
                 </div>
                 <div class="modal-body">
                     <dl class="row mb-0">
-                        <dt class="col-sm-5">System Name</dt>
+                        <dt class="col-sm-5">@Localizer.GetString("System Name")</dt>
                         <dd class="col-sm-7">@selectedSystem.SystemName</dd>
                         @if (selectedSystem.InstallationDate.HasValue)
                         {
-                            <dt class="col-sm-5">Installation Date</dt>
+                            <dt class="col-sm-5">@Localizer.GetString("Installation Date")</dt>
                             <dd class="col-sm-7">@selectedSystem.InstallationDate.Value.ToShortDateString()</dd>
                         }
                         @if (selectedSystem.ContractDate.HasValue)
                         {
-                            <dt class="col-sm-5">Contract Date</dt>
+                            <dt class="col-sm-5">@Localizer.GetString("Contract Date")</dt>
                             <dd class="col-sm-7">@selectedSystem.ContractDate.Value.ToShortDateString()</dd>
                         }
                         @if (selectedSystem.ExpirationDate.HasValue)
                         {
-                            <dt class="col-sm-5">Expiration Date</dt>
+                            <dt class="col-sm-5">@Localizer.GetString("Expiration Date")</dt>
                             <dd class="col-sm-7">@selectedSystem.ExpirationDate.Value.ToShortDateString()</dd>
                         }
                         @if (selectedSystem.ReceptionHours != null)
                         {
-                            <dt class="col-sm-5">Reception Hours</dt>
+                            <dt class="col-sm-5">@Localizer.GetString("Reception Hours")</dt>
                             <dd class="col-sm-7">@selectedSystem.ReceptionHours</dd>
                         }
                         @if (selectedSystem.OnsiteHours != null)
                         {
-                            <dt class="col-sm-5">Onsite Hours</dt>
+                            <dt class="col-sm-5">@Localizer.GetString("Onsite Hours")</dt>
                             <dd class="col-sm-7">@selectedSystem.OnsiteHours</dd>
                         }
                         @if (selectedSystem.HealthCheck != null)
                         {
-                            <dt class="col-sm-5">Health Check</dt>
+                            <dt class="col-sm-5">@Localizer.GetString("Health Check")</dt>
                             <dd class="col-sm-7">@selectedSystem.HealthCheck</dd>
                         }
                         @if (selectedSystem.PowerMaintenance != null)
                         {
-                            <dt class="col-sm-5">Power Maintenance</dt>
+                            <dt class="col-sm-5">@Localizer.GetString("Power Maintenance")</dt>
                             <dd class="col-sm-7">@selectedSystem.PowerMaintenance</dd>
                         }
                         @if (selectedSystem.AutomaticRenewal.HasValue)
                         {
-                            <dt class="col-sm-5">Automatic Renewal</dt>
-                            <dd class="col-sm-7">@(selectedSystem.AutomaticRenewal.Value ? "Yes" : "No")</dd>
+                            <dt class="col-sm-5">@Localizer.GetString("Automatic Renewal")</dt>
+                            <dd class="col-sm-7">@(selectedSystem.AutomaticRenewal.Value ? Localizer.GetString("Yes") : Localizer.GetString("No"))</dd>
                         }
                     </dl>
                     @if (!string.IsNullOrWhiteSpace(selectedSystem.Description))
                     {
                         <div class="mt-3">
-                            <h6>Description</h6>
+                            <h6>@Localizer.GetString("Description")</h6>
                             <p class="mb-0 ms-3">@FormatDescription(selectedSystem.Description!)</p>
                         </div>
                     }
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="HideSystemDetails">Close</button>
+                    <button type="button" class="btn btn-secondary" @onclick="HideSystemDetails">@Localizer.GetString("Close")</button>
                 </div>
             </div>
         </div>

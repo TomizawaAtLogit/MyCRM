@@ -120,34 +120,34 @@
                         
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Name *</label>
+                                <label class="form-label">@Localizer.GetString("Name") *</label>
                                 <InputText @bind-Value="newCustomer.Name" class="form-control" />
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Contact Person</label>
+                                <label class="form-label">@Localizer.GetString("Contact Person")</label>
                                 <InputText @bind-Value="newCustomer.ContactPerson" class="form-control" />
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Email</label>
+                                <label class="form-label">@Localizer.GetString("Email")</label>
                                 <InputText @bind-Value="newCustomer.Email" class="form-control" type="email" />
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Phone</label>
+                                <label class="form-label">@Localizer.GetString("Phone")</label>
                                 <InputText @bind-Value="newCustomer.Phone" class="form-control" />
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Address</label>
+                                <label class="form-label">@Localizer.GetString("Address")</label>
                                 <InputTextArea @bind-Value="newCustomer.Address" class="form-control" rows="2" />
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Customer URL</label>
+                                <label class="form-label">@Localizer.GetString("Customer URL")</label>
                                 <InputText @bind-Value="newCustomer.Url" class="form-control" placeholder="https://..." />
                             </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary">Create Customer</button>
+                        <button type="submit" class="btn btn-primary">@Localizer.GetString("Create Customer")</button>
                     </EditForm>
                     </div>
                 }
@@ -187,42 +187,42 @@
                             
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Name</label>
+                                    <label class="form-label">@Localizer.GetString("Name")</label>
                                     <InputText @bind-Value="editModel.Name" class="form-control" />
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Contact Person</label>
+                                    <label class="form-label">@Localizer.GetString("Contact Person")</label>
                                     <InputText @bind-Value="editModel.ContactPerson" class="form-control" />
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Email</label>
+                                    <label class="form-label">@Localizer.GetString("Email")</label>
                                     <InputText @bind-Value="editModel.Email" class="form-control" type="email" />
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Phone</label>
+                                    <label class="form-label">@Localizer.GetString("Phone")</label>
                                     <InputText @bind-Value="editModel.Phone" class="form-control" />
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-12 mb-3">
-                                    <label class="form-label">Address</label>
+                                    <label class="form-label">@Localizer.GetString("Address")</label>
                                     <InputTextArea @bind-Value="editModel.Address" class="form-control" rows="2" />
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-12 mb-3">
-                                    <label class="form-label">Customer URL</label>
+                                    <label class="form-label">@Localizer.GetString("Customer URL")</label>
                                     <InputText @bind-Value="editModel.Url" class="form-control" placeholder="https://..." />
                                 </div>
                             </div>
                             <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-success">
-                                    <i class="bi bi-check-lg"></i> Save
+                                    <i class="bi bi-check-lg"></i> @Localizer.GetString("Save")
                                 </button>
                                 <button type="button" class="btn btn-secondary" @onclick="CancelEdit">
-                                    <i class="bi bi-x-lg"></i> Cancel
+                                    <i class="bi bi-x-lg"></i> @Localizer.GetString("Cancel")
                                 </button>
                             </div>
                         </EditForm>
@@ -234,10 +234,10 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <dl class="row">
-                            <dt class="col-sm-4">Contact Person:</dt>
+                            <dt class="col-sm-4">@Localizer.GetString("Contact Person"):</dt>
                             <dd class="col-sm-8">@(selectedCustomerDetails.ContactPerson ?? "-")</dd>
                             
-                            <dt class="col-sm-4">Email:</dt>
+                            <dt class="col-sm-4">@Localizer.GetString("Email"):</dt>
                             <dd class="col-sm-8">
                                 @if (!string.IsNullOrEmpty(selectedCustomerDetails.Email))
                                 {
@@ -249,25 +249,25 @@
                                 }
                             </dd>
                             
-                            <dt class="col-sm-4">Phone:</dt>
+                            <dt class="col-sm-4">@Localizer.GetString("Phone"):</dt>
                             <dd class="col-sm-8">@(selectedCustomerDetails.Phone ?? "-")</dd>
                         </dl>
                     </div>
                     <div class="col-md-6">
                         <dl class="row">
-                            <dt class="col-sm-4">Address:</dt>
+                            <dt class="col-sm-4">@Localizer.GetString("Address"):</dt>
                             <dd class="col-sm-8">@(selectedCustomerDetails.Address ?? "-")</dd>
                             
-                            <dt class="col-sm-4">Created:</dt>
+                            <dt class="col-sm-4">@Localizer.GetString("Created"):</dt>
                             <dd class="col-sm-8">@selectedCustomerDetails.CreatedAt.ToShortDateString()</dd>
 
-                            <dt class="col-sm-4">Links:</dt>
+                            <dt class="col-sm-4">@Localizer.GetString("Links"):</dt>
                             <dd class="col-sm-8">
                                 @if (!string.IsNullOrEmpty(selectedCustomerDetails.Url))
                                 {
-                                    <a href="@selectedCustomerDetails.Url" target="_blank" rel="noopener noreferrer" class="me-2">Home page</a>
+                                    <a href="@selectedCustomerDetails.Url" target="_blank" rel="noopener noreferrer" class="me-2">@Localizer.GetString("Home page")</a>
                                 }
-                                <a href="https://www.google.com/search?q=@(Uri.EscapeDataString(selectedCustomerDetails.Name + " news"))" target="_blank" rel="noopener noreferrer">News</a>
+                                <a href="https://www.google.com/search?q=@(Uri.EscapeDataString(selectedCustomerDetails.Name + " news"))" target="_blank" rel="noopener noreferrer">@Localizer.GetString("News")</a>
                             </dd>
                         </dl>
                     </div>
@@ -280,7 +280,7 @@
                             type="button"
                             @onclick="@(() => SetActiveTab("sites"))"
                             role="tab">
-                        <span class="bi bi-geo-alt"></span> Sites
+                        <span class="bi bi-geo-alt"></span> @Localizer.GetString("Sites")
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -288,7 +288,7 @@
                             type="button"
                             @onclick="@(() => SetActiveTab("systems"))"
                             role="tab">
-                        <span class="bi bi-diagram-3"></span> Systems
+                        <span class="bi bi-diagram-3"></span> @Localizer.GetString("Systems")
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -296,7 +296,7 @@
                             type="button"
                             @onclick="@(() => SetActiveTab("files"))"
                             role="tab">
-                        <span class="bi bi-file-earmark-arrow-up"></span> Files
+                        <span class="bi bi-file-earmark-arrow-up"></span> @Localizer.GetString("Files")
                     </button>
                 </li>
             </ul>
