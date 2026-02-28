@@ -3,33 +3,64 @@ window.googleMapsHelper = {
     map: null,
     marker: null,
     geocoder: null,
+    _pendingElementId: null,
+    _pendingResolve: null,
+    _pendingReject: null,
+    _scriptLoading: false,
 
     initMap: function (elementId, apiKey) {
         console.log('Initializing Google Maps...');
-        
-        // Check if Google Maps API is already loaded
-        if (typeof google !== 'undefined' && google.maps) {
-            this._createMap(elementId);
-            return;
-        }
 
-        // Load Google Maps API
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=googleMapsHelper._onGoogleMapsLoaded`;
-        script.async = true;
-        script.defer = true;
-        
-        // Store elementId for callback
-        this._pendingElementId = elementId;
-        
-        document.head.appendChild(script);
+        return new Promise((resolve, reject) => {
+            // Check if Google Maps API is already loaded
+            if (typeof google !== 'undefined' && google.maps) {
+                this._createMap(elementId);
+                resolve();
+                return;
+            }
+
+            // Prevent duplicate script injection if already loading
+            if (this._scriptLoading) {
+                this._pendingElementId = elementId;
+                this._pendingResolve = resolve;
+                this._pendingReject = reject;
+                return;
+            }
+
+            // Load Google Maps API
+            this._scriptLoading = true;
+            this._pendingElementId = elementId;
+            this._pendingResolve = resolve;
+            this._pendingReject = reject;
+
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=googleMapsHelper._onGoogleMapsLoaded&v=weekly`;
+            script.async = true;
+            script.defer = true;
+            script.onerror = () => {
+                this._scriptLoading = false;
+                if (this._pendingReject) {
+                    this._pendingReject(new Error('Failed to load Google Maps API'));
+                    this._pendingResolve = null;
+                    this._pendingReject = null;
+                }
+            };
+
+            document.head.appendChild(script);
+        });
     },
 
     _onGoogleMapsLoaded: function () {
         console.log('Google Maps API loaded');
+        this._scriptLoading = false;
         if (this._pendingElementId) {
             this._createMap(this._pendingElementId);
             this._pendingElementId = null;
+        }
+        if (this._pendingResolve) {
+            this._pendingResolve();
+            this._pendingResolve = null;
+            this._pendingReject = null;
         }
     },
 

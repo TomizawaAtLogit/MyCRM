@@ -243,7 +243,10 @@
         try
         {
             var apiKey = GoogleMapsService.GetApiKey();
-            if (string.IsNullOrEmpty(apiKey) || apiKey == "YOUR_GOOGLE_MAPS_API_KEY_HERE" || apiKey == "YOUR_DEVELOPMENT_GOOGLE_MAPS_API_KEY_HERE")
+            if (string.IsNullOrEmpty(apiKey)
+                || apiKey == "YOUR_GOOGLE_MAPS_API_KEY_HERE"
+                || apiKey == "YOUR_DEVELOPMENT_GOOGLE_MAPS_API_KEY_HERE"
+                || apiKey.StartsWith("${"))
             {
                 Console.WriteLine("Google Maps API key not configured. Map will not be displayed.");
                 return;
