@@ -224,18 +224,22 @@ public class DashboardService : IDashboardService
         );
 
         // === Projects within role coverage ===
-        List<int>? customerIds = null;
+        // Always build a coverage list; empty list means no access (not all access)
+        List<int> coverageCustomerIds;
         if (roleId.HasValue)
         {
-            customerIds = await _context.RoleCoverages
+            coverageCustomerIds = await _context.RoleCoverages
                 .Where(rc => rc.RoleId == roleId.Value)
                 .Select(rc => rc.CustomerId)
                 .ToListAsync();
         }
+        else
+        {
+            coverageCustomerIds = new List<int>();
+        }
 
-        var projectsQuery = _context.Projects.AsQueryable();
-        if (customerIds != null && customerIds.Any())
-            projectsQuery = projectsQuery.Where(p => customerIds.Contains(p.CustomerId));
+        var projectsQuery = _context.Projects
+            .Where(p => coverageCustomerIds.Contains(p.CustomerId));
 
         var projectItems = await projectsQuery
             .Where(p => p.Status != ProjectStatus.Closed)
@@ -258,9 +262,8 @@ public class DashboardService : IDashboardService
         );
 
         // === Pre-sales proposals within role coverage ===
-        var preSalesQuery = _context.PreSalesProposals.AsQueryable();
-        if (customerIds != null && customerIds.Any())
-            preSalesQuery = preSalesQuery.Where(p => customerIds.Contains(p.CustomerId));
+        var preSalesQuery = _context.PreSalesProposals
+            .Where(p => coverageCustomerIds.Contains(p.CustomerId));
 
         var activePipelineStatuses = new[] { PreSalesStatus.Draft, PreSalesStatus.InReview, PreSalesStatus.Pending, PreSalesStatus.Approved };
         var closedStages = new[] { PreSalesStage.Won, PreSalesStage.Lost };
