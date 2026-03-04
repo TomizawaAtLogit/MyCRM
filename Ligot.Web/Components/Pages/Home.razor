@@ -446,6 +446,7 @@ else
     private string? activeProjectFilterName;
     private string? activeProjectFilterView;
     private bool scheduleTypeOverriddenByQuery;
+    private bool viewModeOverriddenByQuery;
     private readonly Dictionary<int, string?> projectNameCache = new();
     private CancellationTokenSource? loadCts;
 
@@ -467,7 +468,16 @@ else
             scheduleType = hasCasesAccess ? "case" : "project";
         }
         ApplyQueryParameters();
-        await LoadCalendarEntriesForMonth();
+        if (viewMode == "gantt")
+        {
+            ganttAnchorDate = DateTime.Today;
+            ganttStartDate = GetPeriodStartDate(ganttAnchorDate, ganttPeriod);
+            await LoadGanttEntries();
+        }
+        else
+        {
+            await LoadCalendarEntriesForMonth();
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -483,7 +493,16 @@ else
     private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
         ApplyQueryParameters(args.Location);
-        _ = InvokeAsync(LoadCalendarEntriesForMonth);
+        if (viewMode == "gantt")
+        {
+            ganttAnchorDate = DateTime.Today;
+            ganttStartDate = GetPeriodStartDate(ganttAnchorDate, ganttPeriod);
+            _ = InvokeAsync(LoadGanttEntries);
+        }
+        else
+        {
+            _ = InvokeAsync(LoadCalendarEntriesForMonth);
+        }
     }
 
     private void ApplyQueryParameters(string? location = null)
@@ -514,6 +533,16 @@ else
         activeProjectFilterView = query.TryGetValue("view", out var viewValues)
             ? viewValues.ToString()
             : null;
+
+        if (string.Equals(activeProjectFilterView, "tasks", StringComparison.OrdinalIgnoreCase) && activeProjectFilterId.HasValue)
+        {
+            viewMode = "gantt";
+            viewModeOverriddenByQuery = true;
+        }
+        else
+        {
+            viewModeOverriddenByQuery = false;
+        }
 
         if (scheduleTypeOverriddenByQuery && query.TryGetValue("scheduleType", out var scheduleValues) && !string.IsNullOrWhiteSpace(scheduleValues))
         {
@@ -689,6 +718,10 @@ else
 
     private async Task LoadViewModeFromStorage()
     {
+        if (viewModeOverriddenByQuery)
+        {
+            return;
+        }
         try
         {
             var storedMode = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "calendarViewMode");
