@@ -115,11 +115,15 @@
         <div class="collapse mt-3" id="advancedFilters">
             <div class="card card-body">
                 <div class="row g-2">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <label class="form-label">@Localizer.GetString("Case ID")</label>
+                        <input class="form-control" value="@filterCaseId" @oninput="OnCaseIdFilterChanged" placeholder="@Localizer.GetString("Search by ID")" />
+                    </div>
+                    <div class="col-md-3">
                         <label class="form-label">@Localizer.GetString("Title")</label>
                         <input class="form-control" value="@filterTitle" @oninput="OnTitleFilterChanged" placeholder="@Localizer.GetString("Search title")" />
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label">@Localizer.GetString("Issue Type")</label>
                         <select class="form-select" value="@filterIssueType" @onchange="OnIssueTypeChanged">
                             <option value="">@Localizer.GetString("All Issue Types")</option>
@@ -133,7 +137,7 @@
                             <option value="Other">@Localizer.GetString("Other")</option>
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label">@Localizer.GetString("Description")</label>
                         <input class="form-control" value="@filterDescription" @oninput="OnDescriptionFilterChanged" placeholder="@Localizer.GetString("Search description")" />
                     </div>
@@ -203,6 +207,7 @@
                 <thead>
                     <tr>
                         <th style="width: 50px;"></th>
+                        <th style="width: 60px;">@Localizer.GetString("ID")</th>
                         <th>@Localizer.GetString("Title")</th>
                         <th>
                             <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(CasesSortColumn.Customer)" aria-label="Sort by customer">
@@ -259,6 +264,9 @@
                                 <button class="btn btn-link btn-chevron" @onclick="() => ToggleCaseExpansionAsync(c.Id)">
                                     <i class="bi @(expandedCases.ContainsKey(c.Id) && expandedCases[c.Id] ? "bi-chevron-down" : "bi-chevron-right")"></i>
                                 </button>
+                            </td>
+                            <td style="vertical-align: middle;">
+                                <span class="badge bg-secondary">#@c.Id</span>
                             </td>
                             <td>
                                 <strong>@c.Title</strong>
@@ -1429,6 +1437,7 @@
     private int totalCount = 0;
     // Advanced / client-side filters
     private Web.CaseDto[]? allCases;
+    private string filterCaseId = "";
     private string filterTitle = "";
     private string filterDescription = "";
     private string filterIssueType = "";
@@ -1582,6 +1591,14 @@
             q = q.Where(c => c.Status != CaseStatus.Closed);
         }
 
+        if (!string.IsNullOrWhiteSpace(filterCaseId))
+        {
+            if (int.TryParse(filterCaseId.Trim(), out int parsedId))
+                q = q.Where(c => c.Id == parsedId);
+            else
+                q = q.Where(c => c.Id.ToString().Contains(filterCaseId.Trim()));
+        }
+
         if (!string.IsNullOrWhiteSpace(filterTitle))
         {
             q = q.Where(c => !string.IsNullOrEmpty(c.Title) && c.Title.Contains(filterTitle, StringComparison.OrdinalIgnoreCase));
@@ -1677,6 +1694,12 @@
         return sortDescending ? "▼" : "▲";
     }
 
+    private Task OnCaseIdFilterChanged(ChangeEventArgs e)
+    {
+        filterCaseId = e.Value?.ToString() ?? string.Empty;
+        return Task.CompletedTask;
+    }
+
     private Task OnTitleFilterChanged(ChangeEventArgs e)
     {
         filterTitle = e.Value?.ToString() ?? string.Empty;
@@ -1703,6 +1726,7 @@
 
     private async Task ClearAdvancedFilters()
     {
+        filterCaseId = string.Empty;
         filterTitle = string.Empty;
         filterDescription = string.Empty;
         filterIssueType = string.Empty;
