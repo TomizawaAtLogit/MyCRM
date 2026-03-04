@@ -190,7 +190,7 @@ public class DashboardService : IDashboardService
                 coverageCustomerIds = ids;
         }
 
-        // === Cases assigned to this user, within role coverage ===
+        // === Cases assigned to this user (personal ownership — no coverage filter) ===
         var openStatuses = new[]
         {
             CaseStatus.SupportCenter, CaseStatus.SC_high, CaseStatus.SC_medium, CaseStatus.SC_low
@@ -203,8 +203,6 @@ public class DashboardService : IDashboardService
         };
 
         var allMyCases = _context.Cases.Where(c => c.AssignedToUserId == userId);
-        if (coverageCustomerIds != null)
-            allMyCases = allMyCases.Where(c => coverageCustomerIds.Contains(c.CustomerId));
 
         // Top 10 active cases ordered by priority (Critical first) then urgency date
         var caseItems = await allMyCases
