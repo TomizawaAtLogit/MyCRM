@@ -174,7 +174,23 @@ public class DashboardService : IDashboardService
     {
         var now = DateTime.UtcNow;
 
-        // === Cases assigned to this user ===
+        // Resolve role coverage:
+        // - null  = role has no specific coverage entries → unrestricted (show all customers)
+        // - List  = role has specific entries → restrict to those customer IDs only
+        // This matches the Admin UI convention: CoverageCount == 0 shows "All" badge.
+        List<int>? coverageCustomerIds = null;
+        if (roleId.HasValue)
+        {
+            var ids = await _context.RoleCoverages
+                .Where(rc => rc.RoleId == roleId.Value)
+                .Select(rc => rc.CustomerId)
+                .ToListAsync();
+
+            if (ids.Count > 0)
+                coverageCustomerIds = ids;
+        }
+
+        // === Cases assigned to this user, within role coverage ===
         var openStatuses = new[]
         {
             CaseStatus.SupportCenter, CaseStatus.SC_high, CaseStatus.SC_medium, CaseStatus.SC_low
@@ -187,6 +203,8 @@ public class DashboardService : IDashboardService
         };
 
         var allMyCases = _context.Cases.Where(c => c.AssignedToUserId == userId);
+        if (coverageCustomerIds != null)
+            allMyCases = allMyCases.Where(c => coverageCustomerIds.Contains(c.CustomerId));
 
         // Top 10 active cases ordered by priority (Critical first) then urgency date
         var caseItems = await allMyCases
@@ -224,22 +242,9 @@ public class DashboardService : IDashboardService
         );
 
         // === Projects within role coverage ===
-        // Always build a coverage list; empty list means no access (not all access)
-        List<int> coverageCustomerIds;
-        if (roleId.HasValue)
-        {
-            coverageCustomerIds = await _context.RoleCoverages
-                .Where(rc => rc.RoleId == roleId.Value)
-                .Select(rc => rc.CustomerId)
-                .ToListAsync();
-        }
-        else
-        {
-            coverageCustomerIds = new List<int>();
-        }
-
-        var projectsQuery = _context.Projects
-            .Where(p => coverageCustomerIds.Contains(p.CustomerId));
+        var projectsQuery = _context.Projects.AsQueryable();
+        if (coverageCustomerIds != null)
+            projectsQuery = projectsQuery.Where(p => coverageCustomerIds.Contains(p.CustomerId));
 
         var projectItems = await projectsQuery
             .Where(p => p.Status != ProjectStatus.Closed)
@@ -262,8 +267,9 @@ public class DashboardService : IDashboardService
         );
 
         // === Pre-sales proposals within role coverage ===
-        var preSalesQuery = _context.PreSalesProposals
-            .Where(p => coverageCustomerIds.Contains(p.CustomerId));
+        var preSalesQuery = _context.PreSalesProposals.AsQueryable();
+        if (coverageCustomerIds != null)
+            preSalesQuery = preSalesQuery.Where(p => coverageCustomerIds.Contains(p.CustomerId));
 
         var activePipelineStatuses = new[] { PreSalesStatus.Draft, PreSalesStatus.InReview, PreSalesStatus.Pending, PreSalesStatus.Approved };
         var closedStages = new[] { PreSalesStage.Won, PreSalesStage.Lost };
