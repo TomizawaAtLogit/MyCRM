@@ -39,7 +39,7 @@
         <input type="text" class="form-control" @bind="searchText" @bind:event="oninput" @onkeyup="ApplyFilters" placeholder='@Localizer.GetString("Order number, customer...")' />
     </div>
     <div class="col-md-2">
-        <label class="form-label">@Localizer.GetString("Contract Type")</label>
+        <label class="form-label">@Localizer.GetString("Order Type")</label>
         <select class="form-select" @bind="filterContractType" @bind:after="ApplyFilters">
             <option value="">@Localizer.GetString("All Types")</option>
             @foreach (var type in availableContractTypes)
@@ -104,8 +104,8 @@ else
                         </button>
                     </th>
                     <th>
-                        <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(OrdersSortColumn.ContractType)" aria-label="Sort by contract type">
-                            <span>@Localizer.GetString("Contract Type")</span>
+                        <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(OrdersSortColumn.ContractType)" aria-label="Sort by Order type">
+                            <span>@Localizer.GetString("Order Type")</span>
                             <span class="sort-indicator text-muted small">@GetSortIndicator(OrdersSortColumn.ContractType)</span>
                         </button>
                     </th>
@@ -250,8 +250,15 @@ else
                                 <InputText class="form-control" @bind-Value="editingOrder.OrderNumber" />
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">@Localizer.GetString("Contract Type") *</label>
-                                <InputText class="form-control" @bind-Value="editingOrder.ContractType" />
+                                <label class="form-label">@Localizer.GetString("Order Type") *</label>
+                                <InputSelect TValue="string" class="form-select" @bind-Value="editingOrder.ContractType" @bind-Value:after="OnContractTypeChanged">
+                                    <option value="">-- @Localizer.GetString("Select Type") --</option>
+                                    @foreach (var type in PredefinedContractTypes)
+                                    {
+                                        <option value="@type">@type</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="() => editingOrder.ContractType" />
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">@Localizer.GetString("Status")</label>
@@ -322,7 +329,7 @@ else
                                 <dd class="col-sm-8">@selectedOrder.OrderNumber</dd>
                                 <dt class="col-sm-4">@Localizer.GetString("Customer")</dt>
                                 <dd class="col-sm-8">@selectedOrder.CustomerName</dd>
-                                <dt class="col-sm-4">@Localizer.GetString("Contract Type")</dt>
+                                <dt class="col-sm-4">@Localizer.GetString("Order Type")</dt>
                                 <dd class="col-sm-8">@selectedOrder.ContractType</dd>
                                 <dt class="col-sm-4">@Localizer.GetString("Status")</dt>
                                 <dd class="col-sm-8">
@@ -414,12 +421,14 @@ else
 
             if (orders != null)
             {
-                availableContractTypes = orders
+                var dbTypes = orders
                     .Select(o => o.ContractType)
                     .Where(ct => !string.IsNullOrWhiteSpace(ct))
-                    .Select(ct => ct!)
+                    .Select(ct => ct!);
+
+                availableContractTypes = PredefinedContractTypes
+                    .Concat(dbTypes)
                     .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .OrderBy(ct => ct)
                     .ToList();
 
                 availableStatuses = orders
@@ -768,6 +777,112 @@ else
     {
         Localizer.OnLanguageChanged -= OnLanguageChanged;
     }
+
+    private void OnContractTypeChanged()
+    {
+        if (!string.IsNullOrEmpty(editingOrder.ContractType) &&
+            ContractTypeDescriptions.TryGetValue(editingOrder.ContractType, out var template))
+        {
+            editingOrder.Description = template;
+        }
+    }
+
+    private static readonly List<string> PredefinedContractTypes = new()
+    {
+        "見積り・提案フェーズ",
+        "要件定義フェーズ契約",
+        "基本設計・詳細設計フェーズ契約",
+        "開発・構築契約",
+        "テストフェーズ契約",
+        "移行・カットオーバー支援契約",
+        "監視・運用アウトソーシング契約",
+        "SLO/SLA契約（サービスレベル保証）",
+        "プロジェクトマネジメント支援契約",
+        "教育・トレーニング契約",
+        "ライセンス契約",
+        "スポット作業契約"
+    };
+
+    private static readonly Dictionary<string, string> ContractTypeDescriptions = new()
+    {
+        ["見積り・提案フェーズ"] =
+            "見積り・提案フェーズ契約\n" +
+            "・提案内容の範囲と無料/有料の境界\n" +
+            "・前提条件の記載（顧客側作業、データ支給範囲など）\n" +
+            "・見積りの有効期限\n" +
+            "・後続フェーズで価格がブレないための条件整備",
+        ["要件定義フェーズ契約"] =
+            "要件定義契約\n" +
+            "・成果物（要件定義書）の粒度\n" +
+            "・追加要件の扱い（追加費用ルール）\n" +
+            "・ユーザー側の決定責任\n" +
+            "・曖昧さ・不確実性の扱い\n" +
+            "要件定義が曖昧だと、後工程が揉めます。",
+        ["基本設計・詳細設計フェーズ契約"] =
+            "導入契約（設計・構築・テスト含む）\n" +
+            "・契約形態（請負 / 準委任 / SES）の明確化\n" +
+            "・検収条件と検収プロセス\n" +
+            "・手戻り範囲と例外条件\n" +
+            "・変更管理（Change Request）の扱い\n" +
+            "・品質保証範囲・瑕疵担保責任の期間",
+        ["開発・構築契約"] =
+            "導入契約（設計・構築・テスト含む）\n" +
+            "・契約形態（請負 / 準委任 / SES）の明確化\n" +
+            "・検収条件と検収プロセス\n" +
+            "・手戻り範囲と例外条件\n" +
+            "・変更管理（Change Request）の扱い\n" +
+            "・品質保証範囲・瑕疵担保責任の期間",
+        ["テストフェーズ契約"] =
+            "導入契約（設計・構築・テスト含む）\n" +
+            "・契約形態（請負 / 準委任 / SES）の明確化\n" +
+            "・検収条件と検収プロセス\n" +
+            "・手戻り範囲と例外条件\n" +
+            "・変更管理（Change Request）の扱い\n" +
+            "・品質保証範囲・瑕疵担保責任の期間",
+        ["移行・カットオーバー支援契約"] =
+            "移行・カットオーバー契約\n" +
+            "・移行データの責任分界（誰が抽出するか）\n" +
+            "・移行エラー対応の範囲\n" +
+            "・バックアウト（切替中止）時の対応・費用",
+        ["監視・運用アウトソーシング契約"] =
+            "運用保守契約\n" +
+            "・SLA（復旧時間、応答時間）\n" +
+            "・対象外作業（よく抜けるので要注意）\n" +
+            "・ログイン情報、運用権限の管理\n" +
+            "・アラート閾値や監視ツールの管理責任\n" +
+            "・障害対応の切り分け（ベンダー／クラウド／顧客）",
+        ["SLO/SLA契約（サービスレベル保証）"] =
+            "運用保守契約\n" +
+            "・SLA（復旧時間、応答時間）\n" +
+            "・対象外作業（よく抜けるので要注意）\n" +
+            "・ログイン情報、運用権限の管理\n" +
+            "・アラート閾値や監視ツールの管理責任\n" +
+            "・障害対応の切り分け（ベンダー／クラウド／顧客）",
+        ["プロジェクトマネジメント支援契約"] =
+            "プロジェクトマネジメント契約\n" +
+            "・責任範囲（指揮権があるかどうか）\n" +
+            "・遅延時の責任分界\n" +
+            "・レポート頻度・形式\n" +
+            "・ベンダー管理の裁量範囲",
+        ["教育・トレーニング契約"] =
+            "教育・トレーニング契約\n" +
+            "・教材の著作権\n" +
+            "・録画可否\n" +
+            "・再利用可否\n" +
+            "・受講人数の上限",
+        ["ライセンス契約"] =
+            "ライセンス契約\n" +
+            "・ユーザー数、台数、CPU数などの課金単位\n" +
+            "・自動更新の有無\n" +
+            "・解約金／途中解約の扱い\n" +
+            "・第三者配布（OEM）可否",
+        ["スポット作業契約"] =
+            "スポット作業契約\n" +
+            "・作業指示書の有無\n" +
+            "・成果保証の範囲（基本的に保証しないことが多い）\n" +
+            "・再作業の費用ルール\n" +
+            "・作業後のトラブル責任の有無",
+    };
 
     private class OrderFormModel
     {
