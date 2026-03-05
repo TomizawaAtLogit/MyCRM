@@ -86,6 +86,10 @@ public class LocalizationService
             ["Order number, customer..."] = "Order number, customer...",
             ["Contract Type"] = "Contract Type",
             ["All Status"] = "All Status",
+            ["OrderStatus.Valid"] = "Valid",
+            ["OrderStatus.Invalid"] = "Invalid",
+            ["OrderStatus.Undetermined"] = "Undetermined",
+            ["Select Status"] = "Select Status",
             ["Start Date From"] = "Start Date From",
             ["Start Date To"] = "Start Date To",
             ["Loading orders..."] = "Loading orders...",
@@ -413,6 +417,10 @@ public class LocalizationService
             ["Order number, customer..."] = "注文番号、顧客名など...",
             ["Contract Type"] = "契約タイプ",
             ["All Status"] = "すべてのステータス",
+            ["OrderStatus.Valid"] = "有効",
+            ["OrderStatus.Invalid"] = "無効",
+            ["OrderStatus.Undetermined"] = "未確認",
+            ["Select Status"] = "ステータスを選択",
             ["Start Date From"] = "開始日（開始）",
             ["Start Date To"] = "開始日（終了）",
             ["Loading orders..."] = "注文を読み込み中...",
@@ -722,8 +730,8 @@ public class LocalizationService
             , ["ContractTypeDesc.開発・構築契約"] = "導入契約（設計・構築・テスト含む）\n・契約形態（請負 / 準委任 / SES）の明確化\n・検収条件と検収プロセス\n・手戻り範囲と例外条件\n・変更管理（Change Request）の扱い\n・品質保証範囲・瑕疵担保責任の期間"
             , ["ContractTypeDesc.テストフェーズ契約"] = "導入契約（設計・構築・テスト含む）\n・契約形態（請負 / 準委任 / SES）の明確化\n・検収条件と検収プロセス\n・手戻り範囲と例外条件\n・変更管理（Change Request）の扱い\n・品質保証範囲・瑕疵担保責任の期間"
             , ["ContractTypeDesc.移行・カットオーバー支援契約"] = "移行・カットオーバー契約\n・移行データの責任分界（誰が抽出するか）\n・移行エラー対応の範囲\n・バックアウト（切替中止）時の対応・費用"
-            , ["ContractTypeDesc.監視・運用アウトソーシング契約"] = "運用保守契約\n・SLA（復旧時間、応答時間）\n・対象外作業（よく抜けるので要注意）\n・ログイン情報、運用権限の管理\n・アラート閾値や監視ツールの管理責任\n・障害対応の切り分け（ベンダー／クラウド／顧客）"
-            , ["ContractTypeDesc.SLO/SLA契約（サービスレベル保証）"] = "運用保守契約\n・SLA（復旧時間、応答時間）\n・対象外作業（よく抜けるので要注意）\n・ログイン情報、運用権限の管理\n・アラート閾値や監視ツールの管理責任\n・障害対応の切り分け（ベンダー／クラウド／顧客）"
+            , ["ContractTypeDesc.監視・運用アウトソーシング契約"] = "運用保守契約\n・SLA（例：駆けつけ４時間）\n・受付時間帯(例：24時間365日)\n・出動時間帯（例：平日 月～金 9:00～18:00）\n・定期検査の有無\n・ビル停電対応の有無\n・契約の自動更新の有無"
+            , ["ContractTypeDesc.SLO/SLA契約（サービスレベル保証）"] = "運用保守契約\n・SLA（例：駆けつけ４時間）\n・受付時間帯(例：24時間365日)\n・出動時間帯（例：平日 月～金 9:00～18:00）\n・定期検査の有無\n・ビル停電対応の有無\n・契約の自動更新の有無"
             , ["ContractTypeDesc.プロジェクトマネジメント支援契約"] = "プロジェクトマネジメント契約\n・責任範囲（指揮権があるかどうか）\n・遅延時の責任分界\n・レポート頻度・形式\n・ベンダー管理の裁量範囲"
             , ["ContractTypeDesc.教育・トレーニング契約"] = "教育・トレーニング契約\n・教材の著作権\n・録画可否\n・再利用可否\n・受講人数の上限"
             , ["ContractTypeDesc.ライセンス契約"] = "ライセンス契約\n・ユーザー数、台数、CPU数などの課金単位\n・自動更新の有無\n・解約金／途中解約の扱い\n・第三者配布（OEM）可否"

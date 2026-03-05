@@ -52,9 +52,9 @@
         <label class="form-label">@Localizer.GetString("Status")</label>
         <select class="form-select" @bind="filterStatus" @bind:after="ApplyFilters">
             <option value="">@Localizer.GetString("All Status")</option>
-            @foreach (var status in availableStatuses)
+            @foreach (var status in OrderStatuses)
             {
-                <option value="@status">@status</option>
+                <option value="@status">@Localizer.GetString($"OrderStatus.{status}")</option>
             }
         </select>
     </div>
@@ -137,7 +137,7 @@ else
                         <td>@(order.EndDate?.ToString("yyyy-MM-dd") ?? "-")</td>
                         <td>
                             <span class="badge @GetStatusBadgeClass(order.Status)">
-                                @(order.Status ?? Localizer.GetString("Unknown"))
+                                @(order.Status != null ? Localizer.GetString($"OrderStatus.{order.Status}") : Localizer.GetString("Unknown"))
                             </span>
                         </td>
                         <td class="text-end">
@@ -262,7 +262,13 @@ else
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">@Localizer.GetString("Status")</label>
-                                <InputText class="form-control" @bind-Value="editingOrder.Status" />
+                                <InputSelect class="form-select" @bind-Value="editingOrder.Status">
+                                    <option value="">-- @Localizer.GetString("Select Status") --</option>
+                                    @foreach (var status in OrderStatuses)
+                                    {
+                                        <option value="@status">@Localizer.GetString($"OrderStatus.{status}")</option>
+                                    }
+                                </InputSelect>
                             </div>
                         </div>
                         <div class="row g-3 mt-2">
@@ -389,7 +395,7 @@ else
     private bool isReadOnly = false;
 
     private List<string> availableContractTypes = new();
-    private List<string> availableStatuses = new();
+    private static readonly List<string> OrderStatuses = new() { "Valid", "Invalid", "Undetermined" };
 
     private string searchText = string.Empty;
     private string filterContractType = string.Empty;
@@ -431,18 +437,10 @@ else
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
 
-                availableStatuses = orders
-                    .Select(o => o.Status)
-                    .Where(s => !string.IsNullOrWhiteSpace(s))
-                    .Select(s => s!)
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .OrderBy(s => s)
-                    .ToList();
             }
             else
             {
                 availableContractTypes.Clear();
-                availableStatuses.Clear();
             }
 
             ApplyFilters();
@@ -604,9 +602,9 @@ else
     {
         return status?.ToLowerInvariant() switch
         {
-            "active" => "bg-success",
-            "expired" => "bg-danger",
-            "pending" => "bg-warning text-dark",
+            "valid" => "bg-success",
+            "invalid" => "bg-danger",
+            "undetermined" => "bg-warning text-dark",
             _ => "bg-secondary"
         };
     }
@@ -852,18 +850,20 @@ else
             "・バックアウト（切替中止）時の対応・費用",
         ["監視・運用アウトソーシング契約"] =
             "運用保守契約\n" +
-            "・SLA（復旧時間、応答時間）\n" +
-            "・対象外作業（よく抜けるので要注意）\n" +
-            "・ログイン情報、運用権限の管理\n" +
-            "・アラート閾値や監視ツールの管理責任\n" +
-            "・障害対応の切り分け（ベンダー／クラウド／顧客）",
+            "・SLA（例：駆けつけ４時間）\n" +
+            "・受付時間帯(例：24時間365日)\n" +
+            "・出動時間帯（例：平日 月～金 9:00～18:00）\n" +
+            "・定期検査の有無\n" +
+            "・ビル停電対応の有無\n" +
+            "・契約の自動更新の有無",
         ["SLO/SLA契約（サービスレベル保証）"] =
             "運用保守契約\n" +
-            "・SLA（復旧時間、応答時間）\n" +
-            "・対象外作業（よく抜けるので要注意）\n" +
-            "・ログイン情報、運用権限の管理\n" +
-            "・アラート閾値や監視ツールの管理責任\n" +
-            "・障害対応の切り分け（ベンダー／クラウド／顧客）",
+            "・SLA（例：駆けつけ４時間）\n" +
+            "・受付時間帯(例：24時間365日)\n" +
+            "・出動時間帯（例：平日 月～金 9:00～18:00）\n" +
+            "・定期検査の有無\n" +
+            "・ビル停電対応の有無\n" +
+            "・契約の自動更新の有無",
         ["プロジェクトマネジメント支援契約"] =
             "プロジェクトマネジメント契約\n" +
             "・責任範囲（指揮権があるかどうか）\n" +
