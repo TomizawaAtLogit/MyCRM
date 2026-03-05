@@ -377,17 +377,6 @@ public class CustomersController : AuditableControllerBase
                     ? DateTime.SpecifyKind(dto.InstallationDate.Value, DateTimeKind.Utc)
                     : null,
                 Description = dto.Description,
-                ContractDate = dto.ContractDate.HasValue
-                    ? DateTime.SpecifyKind(dto.ContractDate.Value, DateTimeKind.Utc)
-                    : null,
-                ExpirationDate = dto.ExpirationDate.HasValue
-                    ? DateTime.SpecifyKind(dto.ExpirationDate.Value, DateTimeKind.Utc)
-                    : null,
-                ReceptionHours = dto.ReceptionHours,
-                AutomaticRenewal = dto.AutomaticRenewal,
-                OnsiteHours = dto.OnsiteHours,
-                HealthCheck = dto.HealthCheck,
-                PowerMaintenance = dto.PowerMaintenance
             };
             var created = await _repo.AddNewSystemAsync(system);
             
@@ -435,17 +424,6 @@ public class CustomersController : AuditableControllerBase
                     ? DateTime.SpecifyKind(dto.InstallationDate.Value, DateTimeKind.Utc)
                     : null,
                 Description = dto.Description,
-                ContractDate = dto.ContractDate.HasValue
-                    ? DateTime.SpecifyKind(dto.ContractDate.Value, DateTimeKind.Utc)
-                    : null,
-                ExpirationDate = dto.ExpirationDate.HasValue
-                    ? DateTime.SpecifyKind(dto.ExpirationDate.Value, DateTimeKind.Utc)
-                    : null,
-                ReceptionHours = dto.ReceptionHours,
-                AutomaticRenewal = dto.AutomaticRenewal,
-                OnsiteHours = dto.OnsiteHours,
-                HealthCheck = dto.HealthCheck,
-                PowerMaintenance = dto.PowerMaintenance
             };
             
             await _repo.UpdateNewSystemAsync(system);

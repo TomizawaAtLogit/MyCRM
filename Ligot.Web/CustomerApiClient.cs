@@ -173,26 +173,12 @@ public record SystemDto(
     string SystemName,
     DateTime? InstallationDate,
     string? Description,
-    List<SystemComponentDto> Components,
-    DateTime? ContractDate,
-    DateTime? ExpirationDate,
-    string? ReceptionHours,
-    bool? AutomaticRenewal,
-    string? OnsiteHours,
-    string? HealthCheck,
-    string? PowerMaintenance);
+    List<SystemComponentDto> Components);
 
 public record SystemCreateDto(
     [Required] string SystemName,
     DateTime? InstallationDate,
-    string? Description,
-    DateTime? ContractDate,
-    DateTime? ExpirationDate,
-    string? ReceptionHours,
-    bool? AutomaticRenewal,
-    string? OnsiteHours,
-    string? HealthCheck,
-    string? PowerMaintenance);
+    string? Description);
 
 public record SystemComponentDto(
     int Id,

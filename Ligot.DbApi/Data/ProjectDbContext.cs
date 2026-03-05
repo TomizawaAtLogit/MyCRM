@@ -178,13 +178,6 @@ namespace Ligot.DbApi.Data
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("now()").HasColumnName("created_at");
                 b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
                 b.Property(x => x.ActiveFlg).HasColumnName("active_flg");
-                b.Property(x => x.ContractDate).HasColumnName("contract_date");
-                b.Property(x => x.ExpirationDate).HasColumnName("expiration_date");
-                b.Property(x => x.ReceptionHours).HasMaxLength(50).HasColumnName("reception_hours");
-                b.Property(x => x.AutomaticRenewal).HasColumnName("automatic_renewal");
-                b.Property(x => x.OnsiteHours).HasMaxLength(50).HasColumnName("onsite_hours");
-                b.Property(x => x.HealthCheck).HasMaxLength(50).HasColumnName("health_check");
-                b.Property(x => x.PowerMaintenance).HasMaxLength(50).HasColumnName("power_maintenance");
                 b.HasOne(x => x.Customer).WithMany(x => x.Systems).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
                 b.HasMany(x => x.Components).WithOne(x => x.System).HasForeignKey(x => x.SystemId).OnDelete(DeleteBehavior.Cascade);
                 b.HasIndex(x => x.CustomerId);

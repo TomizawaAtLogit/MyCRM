@@ -74,46 +74,6 @@
                         <div id="@accordionId" class="accordion-collapse collapse show" 
                              aria-labelledby="heading-@system.Id" data-bs-parent="#systemsAccordion">
                             <div class="accordion-body">
-                                @if (HasContractDetails(system))
-                                {
-                                    <dl class="row mb-3 small">
-                                        @if (system.ContractDate.HasValue)
-                                        {
-                                            <dt class="col-sm-3">@Localizer.GetString("Contract Date")</dt>
-                                            <dd class="col-sm-3">@system.ContractDate.Value.ToShortDateString()</dd>
-                                        }
-                                        @if (system.ExpirationDate.HasValue)
-                                        {
-                                            <dt class="col-sm-3">@Localizer.GetString("Expiration Date")</dt>
-                                            <dd class="col-sm-3">@system.ExpirationDate.Value.ToShortDateString()</dd>
-                                        }
-                                        @if (system.ReceptionHours != null)
-                                        {
-                                            <dt class="col-sm-3">@Localizer.GetString("Reception Hours")</dt>
-                                            <dd class="col-sm-3">@system.ReceptionHours</dd>
-                                        }
-                                        @if (system.OnsiteHours != null)
-                                        {
-                                            <dt class="col-sm-3">@Localizer.GetString("Onsite Hours")</dt>
-                                            <dd class="col-sm-3">@system.OnsiteHours</dd>
-                                        }
-                                        @if (system.HealthCheck != null)
-                                        {
-                                            <dt class="col-sm-3">@Localizer.GetString("Health Check")</dt>
-                                            <dd class="col-sm-3">@system.HealthCheck</dd>
-                                        }
-                                        @if (system.PowerMaintenance != null)
-                                        {
-                                            <dt class="col-sm-3">@Localizer.GetString("Power Maintenance")</dt>
-                                            <dd class="col-sm-3">@system.PowerMaintenance</dd>
-                                        }
-                                        @if (system.AutomaticRenewal.HasValue)
-                                        {
-                                            <dt class="col-sm-3">@Localizer.GetString("Automatic Renewal")</dt>
-                                            <dd class="col-sm-3">@(system.AutomaticRenewal.Value ? Localizer.GetString("Yes") : Localizer.GetString("No"))</dd>
-                                        }
-                                    </dl>
-                                }
                                 @if (componentCount == 0)
                                 {
                                     <div class="text-center py-3">
@@ -212,34 +172,6 @@
                     <div class="mb-2">
                         <label class="form-label">@Localizer.GetString("Installation Date")</label>
                         <InputDate @bind-Value="newSystem.InstallationDate" class="form-control form-control-sm" />
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">@Localizer.GetString("Contract Date")</label>
-                        <InputDate @bind-Value="newSystem.ContractDate" class="form-control form-control-sm" />
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">@Localizer.GetString("Expiration Date")</label>
-                        <InputDate @bind-Value="newSystem.ExpirationDate" class="form-control form-control-sm" />
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">@Localizer.GetString("Reception Hours")</label>
-                        <InputText @bind-Value="newSystem.ReceptionHours" class="form-control form-control-sm" />
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">@Localizer.GetString("Onsite Hours")</label>
-                        <InputText @bind-Value="newSystem.OnsiteHours" class="form-control form-control-sm" />
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">@Localizer.GetString("Health Check")</label>
-                        <InputText @bind-Value="newSystem.HealthCheck" class="form-control form-control-sm" />
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">@Localizer.GetString("Power Maintenance")</label>
-                        <InputText @bind-Value="newSystem.PowerMaintenance" class="form-control form-control-sm" />
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">@Localizer.GetString("Automatic Renewal")</label>
-                        <InputCheckbox @bind-Value="newSystem.AutomaticRenewal" class="form-check-input" />
                     </div>
                     <div class="mb-2">
                         <label class="form-label">@Localizer.GetString("Description")</label>
@@ -357,42 +289,6 @@
                     <div class="mb-3">
                         <label class="form-label">@Localizer.GetString("Installation Date")</label>
                         <InputDate @bind-Value="editSystem.InstallationDate" class="form-control" />
-                    </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">@Localizer.GetString("Contract Date")</label>
-                            <InputDate @bind-Value="editSystem.ContractDate" class="form-control" />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">@Localizer.GetString("Expiration Date")</label>
-                            <InputDate @bind-Value="editSystem.ExpirationDate" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">@Localizer.GetString("Reception Hours")</label>
-                            <InputText @bind-Value="editSystem.ReceptionHours" class="form-control" />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">@Localizer.GetString("Onsite Hours")</label>
-                            <InputText @bind-Value="editSystem.OnsiteHours" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">@Localizer.GetString("Health Check")</label>
-                            <InputText @bind-Value="editSystem.HealthCheck" class="form-control" />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">@Localizer.GetString("Power Maintenance")</label>
-                            <InputText @bind-Value="editSystem.PowerMaintenance" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <InputCheckbox @bind-Value="editSystem.AutomaticRenewal" class="form-check-input" id="editAutoRenewal" />
-                            <label class="form-check-label" for="editAutoRenewal">@Localizer.GetString("Automatic Renewal")</label>
-                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">@Localizer.GetString("Description")</label>
@@ -540,41 +436,6 @@
                             <dt class="col-sm-5">@Localizer.GetString("Installation Date")</dt>
                             <dd class="col-sm-7">@selectedSystem.InstallationDate.Value.ToShortDateString()</dd>
                         }
-                        @if (selectedSystem.ContractDate.HasValue)
-                        {
-                            <dt class="col-sm-5">@Localizer.GetString("Contract Date")</dt>
-                            <dd class="col-sm-7">@selectedSystem.ContractDate.Value.ToShortDateString()</dd>
-                        }
-                        @if (selectedSystem.ExpirationDate.HasValue)
-                        {
-                            <dt class="col-sm-5">@Localizer.GetString("Expiration Date")</dt>
-                            <dd class="col-sm-7">@selectedSystem.ExpirationDate.Value.ToShortDateString()</dd>
-                        }
-                        @if (selectedSystem.ReceptionHours != null)
-                        {
-                            <dt class="col-sm-5">@Localizer.GetString("Reception Hours")</dt>
-                            <dd class="col-sm-7">@selectedSystem.ReceptionHours</dd>
-                        }
-                        @if (selectedSystem.OnsiteHours != null)
-                        {
-                            <dt class="col-sm-5">@Localizer.GetString("Onsite Hours")</dt>
-                            <dd class="col-sm-7">@selectedSystem.OnsiteHours</dd>
-                        }
-                        @if (selectedSystem.HealthCheck != null)
-                        {
-                            <dt class="col-sm-5">@Localizer.GetString("Health Check")</dt>
-                            <dd class="col-sm-7">@selectedSystem.HealthCheck</dd>
-                        }
-                        @if (selectedSystem.PowerMaintenance != null)
-                        {
-                            <dt class="col-sm-5">@Localizer.GetString("Power Maintenance")</dt>
-                            <dd class="col-sm-7">@selectedSystem.PowerMaintenance</dd>
-                        }
-                        @if (selectedSystem.AutomaticRenewal.HasValue)
-                        {
-                            <dt class="col-sm-5">@Localizer.GetString("Automatic Renewal")</dt>
-                            <dd class="col-sm-7">@(selectedSystem.AutomaticRenewal.Value ? Localizer.GetString("Yes") : Localizer.GetString("No"))</dd>
-                        }
                     </dl>
                     @if (!string.IsNullOrWhiteSpace(selectedSystem.Description))
                     {
@@ -654,14 +515,7 @@
             var dto = new SystemCreateDto(
                 newSystem.SystemName!,
                 newSystem.InstallationDate,
-                newSystem.Description,
-                newSystem.ContractDate,
-                newSystem.ExpirationDate,
-                newSystem.ReceptionHours,
-                newSystem.AutomaticRenewal,
-                newSystem.OnsiteHours,
-                newSystem.HealthCheck,
-                newSystem.PowerMaintenance);
+                newSystem.Description);
 
             var result = await CustomerApi.AddNewSystemAsync(CustomerId, dto);
             if (result != null)
@@ -777,14 +631,7 @@
         {
             SystemName = system.SystemName,
             InstallationDate = system.InstallationDate,
-            Description = system.Description,
-            ContractDate = system.ContractDate,
-            ExpirationDate = system.ExpirationDate,
-            ReceptionHours = system.ReceptionHours,
-            AutomaticRenewal = system.AutomaticRenewal ?? false,
-            OnsiteHours = system.OnsiteHours,
-            HealthCheck = system.HealthCheck,
-            PowerMaintenance = system.PowerMaintenance
+            Description = system.Description
         };
         await JSRuntime.InvokeVoidAsync("modalHelper.show", "editSystemModal");
     }
@@ -800,14 +647,7 @@
                 editSystem.SystemName!,
                 editSystem.InstallationDate,
                 editSystem.Description,
-                new List<SystemComponentDto>(),
-                editSystem.ContractDate,
-                editSystem.ExpirationDate,
-                editSystem.ReceptionHours,
-                editSystem.AutomaticRenewal,
-                editSystem.OnsiteHours,
-                editSystem.HealthCheck,
-                editSystem.PowerMaintenance);
+                new List<SystemComponentDto>());
 
             var success = await CustomerApi.UpdateNewSystemAsync(CustomerId, editingSystemId, dto);
             if (success)
@@ -966,12 +806,6 @@
         toastTimer?.Dispose();
     }
 
-    private static bool HasContractDetails(SystemDto system) =>
-        system.ContractDate.HasValue || system.ExpirationDate.HasValue ||
-        system.ReceptionHours != null || system.OnsiteHours != null ||
-        system.HealthCheck != null || system.PowerMaintenance != null ||
-        system.AutomaticRenewal.HasValue;
-
     public void Dispose()
     {
         toastTimer?.Dispose();
@@ -983,13 +817,6 @@
         public string? SystemName { get; set; }
         public DateTime? InstallationDate { get; set; }
         public string? Description { get; set; }
-        public DateTime? ContractDate { get; set; }
-        public DateTime? ExpirationDate { get; set; }
-        public string? ReceptionHours { get; set; }
-        public bool AutomaticRenewal { get; set; }
-        public string? OnsiteHours { get; set; }
-        public string? HealthCheck { get; set; }
-        public string? PowerMaintenance { get; set; }
     }
 
     class NewComponentModel
@@ -1010,13 +837,6 @@
         public string? SystemName { get; set; }
         public DateTime? InstallationDate { get; set; }
         public string? Description { get; set; }
-        public DateTime? ContractDate { get; set; }
-        public DateTime? ExpirationDate { get; set; }
-        public string? ReceptionHours { get; set; }
-        public bool AutomaticRenewal { get; set; }
-        public string? OnsiteHours { get; set; }
-        public string? HealthCheck { get; set; }
-        public string? PowerMaintenance { get; set; }
     }
 
     class EditComponentModel
