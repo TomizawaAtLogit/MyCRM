@@ -11,51 +11,17 @@ namespace Ligot.BackEnd.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "automatic_renewal",
-                table: "systems",
-                type: "boolean",
-                nullable: true);
-
-            migrationBuilder.AddColumn<DateTime>(
-                name: "contract_date",
-                table: "systems",
-                type: "timestamp with time zone",
-                nullable: true);
-
-            migrationBuilder.AddColumn<DateTime>(
-                name: "expiration_date",
-                table: "systems",
-                type: "timestamp with time zone",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "health_check",
-                table: "systems",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "onsite_hours",
-                table: "systems",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "power_maintenance",
-                table: "systems",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "reception_hours",
-                table: "systems",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: true);
+            // Use IF NOT EXISTS to handle databases where these columns were already added
+            // (e.g., via EnsureCreated or manual SQL), preventing duplicate-column errors.
+            migrationBuilder.Sql(@"
+                ALTER TABLE systems ADD COLUMN IF NOT EXISTS automatic_renewal boolean NULL;
+                ALTER TABLE systems ADD COLUMN IF NOT EXISTS contract_date timestamp with time zone NULL;
+                ALTER TABLE systems ADD COLUMN IF NOT EXISTS expiration_date timestamp with time zone NULL;
+                ALTER TABLE systems ADD COLUMN IF NOT EXISTS health_check character varying(50) NULL;
+                ALTER TABLE systems ADD COLUMN IF NOT EXISTS onsite_hours character varying(50) NULL;
+                ALTER TABLE systems ADD COLUMN IF NOT EXISTS power_maintenance character varying(50) NULL;
+                ALTER TABLE systems ADD COLUMN IF NOT EXISTS reception_hours character varying(50) NULL;
+            ");
         }
 
         /// <inheritdoc />
