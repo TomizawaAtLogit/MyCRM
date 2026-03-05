@@ -894,6 +894,15 @@
                                         }
                                     }
                                 </InputSelect>
+                                @{
+                                    var _createOrderDesc = GetSelectedOrderDescription(newCase.CustomerOrderId, filteredOrders);
+                                }
+                                @if (!string.IsNullOrWhiteSpace(_createOrderDesc))
+                                {
+                                    <div class="alert alert-info mt-2 mb-0 py-2 px-3 small">
+                                        <strong>@Localizer.GetString("Description"):</strong> @_createOrderDesc
+                                    </div>
+                                }
                             </div>
                         </div>
 
@@ -1033,6 +1042,15 @@
                                         }
                                     }
                                 </InputSelect>
+                                @{
+                                    var _editOrderDesc = GetSelectedOrderDescription(editModel.CustomerOrderId, filteredOrders);
+                                }
+                                @if (!string.IsNullOrWhiteSpace(_editOrderDesc))
+                                {
+                                    <div class="alert alert-info mt-2 mb-0 py-2 px-3 small">
+                                        <strong>@Localizer.GetString("Description"):</strong> @_editOrderDesc
+                                    </div>
+                                }
                             </div>
                         </div>
 
@@ -2295,6 +2313,12 @@
         }
 
         return allOrders.FirstOrDefault(o => o.Id == orderId);
+    }
+
+    private static string? GetSelectedOrderDescription(int? orderId, OrderWithCustomerDto[]? orders)
+    {
+        if (orderId == null || orders == null) return null;
+        return orders.FirstOrDefault(o => o.Id == orderId)?.Description;
     }
 
     private string GetStatusBadgeClass(string? status)
