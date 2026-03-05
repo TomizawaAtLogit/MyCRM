@@ -39,7 +39,7 @@
         <input type="text" class="form-control" @bind="searchText" @bind:event="oninput" @onkeyup="ApplyFilters" placeholder='@Localizer.GetString("Order number, customer...")' />
     </div>
     <div class="col-md-2">
-        <label class="form-label">@Localizer.GetString("Contract Type")</label>
+        <label class="form-label">@Localizer.GetString("Order Type")</label>
         <select class="form-select" @bind="filterContractType" @bind:after="ApplyFilters">
             <option value="">@Localizer.GetString("All Types")</option>
             @foreach (var type in availableContractTypes)
@@ -104,8 +104,8 @@ else
                         </button>
                     </th>
                     <th>
-                        <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(OrdersSortColumn.ContractType)" aria-label="Sort by contract type">
-                            <span>@Localizer.GetString("Contract Type")</span>
+                        <button type="button" class="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center gap-1" @onclick="() => SetSortColumn(OrdersSortColumn.ContractType)" aria-label="Sort by Order type">
+                            <span>@Localizer.GetString("Order Type")</span>
                             <span class="sort-indicator text-muted small">@GetSortIndicator(OrdersSortColumn.ContractType)</span>
                         </button>
                     </th>
@@ -250,7 +250,7 @@ else
                                 <InputText class="form-control" @bind-Value="editingOrder.OrderNumber" />
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">@Localizer.GetString("Contract Type") *</label>
+                                <label class="form-label">@Localizer.GetString("Order Type") *</label>
                                 <InputText class="form-control" @bind-Value="editingOrder.ContractType" />
                             </div>
                             <div class="col-md-6">
@@ -322,7 +322,7 @@ else
                                 <dd class="col-sm-8">@selectedOrder.OrderNumber</dd>
                                 <dt class="col-sm-4">@Localizer.GetString("Customer")</dt>
                                 <dd class="col-sm-8">@selectedOrder.CustomerName</dd>
-                                <dt class="col-sm-4">@Localizer.GetString("Contract Type")</dt>
+                                <dt class="col-sm-4">@Localizer.GetString("Order Type")</dt>
                                 <dd class="col-sm-8">@selectedOrder.ContractType</dd>
                                 <dt class="col-sm-4">@Localizer.GetString("Status")</dt>
                                 <dd class="col-sm-8">
