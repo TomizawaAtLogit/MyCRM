@@ -44,7 +44,7 @@
             <option value="">@Localizer.GetString("All Types")</option>
             @foreach (var type in availableContractTypes)
             {
-                <option value="@type">@type</option>
+                <option value="@type">@Localizer.GetString($"ContractType.{type}")</option>
             }
         </select>
     </div>
@@ -132,7 +132,7 @@ else
                     <tr>
                         <td><strong>@order.OrderNumber</strong></td>
                         <td>@GetCustomerName(order)</td>
-                        <td>@order.ContractType</td>
+                        <td>@Localizer.GetString($"ContractType.{order.ContractType}")</td>
                         <td>@order.StartDate.ToString("yyyy-MM-dd")</td>
                         <td>@(order.EndDate?.ToString("yyyy-MM-dd") ?? "-")</td>
                         <td>
@@ -255,7 +255,7 @@ else
                                     <option value="">-- @Localizer.GetString("Select Type") --</option>
                                     @foreach (var type in PredefinedContractTypes)
                                     {
-                                        <option value="@type">@type</option>
+                                        <option value="@type">@Localizer.GetString($"ContractType.{type}")</option>
                                     }
                                 </InputSelect>
                                 <ValidationMessage For="() => editingOrder.ContractType" />
@@ -330,7 +330,7 @@ else
                                 <dt class="col-sm-4">@Localizer.GetString("Customer")</dt>
                                 <dd class="col-sm-8">@selectedOrder.CustomerName</dd>
                                 <dt class="col-sm-4">@Localizer.GetString("Order Type")</dt>
-                                <dd class="col-sm-8">@selectedOrder.ContractType</dd>
+                                <dd class="col-sm-8">@Localizer.GetString($"ContractType.{selectedOrder.ContractType}")</dd>
                                 <dt class="col-sm-4">@Localizer.GetString("Status")</dt>
                                 <dd class="col-sm-8">
                                     <span class="badge @GetStatusBadgeClass(selectedOrder.Status)">
@@ -780,10 +780,14 @@ else
 
     private void OnContractTypeChanged()
     {
-        if (!string.IsNullOrEmpty(editingOrder.ContractType) &&
-            ContractTypeDescriptions.TryGetValue(editingOrder.ContractType, out var template))
+        if (!string.IsNullOrEmpty(editingOrder.ContractType))
         {
-            editingOrder.Description = template;
+            var descKey = $"ContractTypeDesc.{editingOrder.ContractType}";
+            var localizedDesc = Localizer.GetString(descKey);
+            if (localizedDesc != descKey)
+            {
+                editingOrder.Description = localizedDesc;
+            }
         }
     }
 
@@ -803,6 +807,8 @@ else
         "スポット作業契約"
     };
 
+    // ContractTypeDescriptions moved to LocalizationService under "ContractTypeDesc.*" keys.
+    // Kept here only as reference; no longer used at runtime.
     private static readonly Dictionary<string, string> ContractTypeDescriptions = new()
     {
         ["見積り・提案フェーズ"] =
