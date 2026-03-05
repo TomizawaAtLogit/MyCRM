@@ -899,8 +899,9 @@
                                 }
                                 @if (!string.IsNullOrWhiteSpace(_createOrderDesc))
                                 {
-                                    <div class="alert alert-info mt-2 mb-0 py-2 px-3 small">
-                                        <strong>@Localizer.GetString("Description"):</strong> @_createOrderDesc
+                                    <div class="mt-2 mb-0 py-2 px-3 small rounded" style="background-color:#f0f0f0; color:#444;">
+                                        <strong>@Localizer.GetString("Description"):</strong>
+                                        <div style="white-space:pre-wrap; padding-left:0.75rem; margin-top:0.25rem;">@StripBrTags(_createOrderDesc)</div>
                                     </div>
                                 }
                             </div>
@@ -1047,8 +1048,9 @@
                                 }
                                 @if (!string.IsNullOrWhiteSpace(_editOrderDesc))
                                 {
-                                    <div class="alert alert-info mt-2 mb-0 py-2 px-3 small">
-                                        <strong>@Localizer.GetString("Description"):</strong> @_editOrderDesc
+                                    <div class="mt-2 mb-0 py-2 px-3 small rounded" style="background-color:#f0f0f0; color:#444;">
+                                        <strong>@Localizer.GetString("Description"):</strong>
+                                        <div style="white-space:pre-wrap; padding-left:0.75rem; margin-top:0.25rem;">@StripBrTags(_editOrderDesc)</div>
                                     </div>
                                 }
                             </div>
