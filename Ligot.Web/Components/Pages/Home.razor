@@ -538,6 +538,10 @@ else
         {
             viewMode = "gantt";
             viewModeOverriddenByQuery = true;
+            if (query.TryGetValue("ganttPeriod", out var ganttPeriodValue) && !string.IsNullOrWhiteSpace(ganttPeriodValue))
+            {
+                ganttPeriod = ganttPeriodValue.ToString();
+            }
         }
         else
         {

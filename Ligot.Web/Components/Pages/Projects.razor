@@ -1855,7 +1855,8 @@
             ["projectId"] = project.Id,
             ["projectName"] = project.Name,
             ["view"] = "tasks",
-            ["scheduleType"] = "project"
+            ["scheduleType"] = "project",
+            ["ganttPeriod"] = "yearly"
         };
 
         return Navigation.GetUriWithQueryParameters("/calendar", parameters);
