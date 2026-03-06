@@ -10,7 +10,7 @@ public interface IDashboardService
     Task<DashboardMetric> GetCurrentMetricsAsync(int? roleId = null, int? customerId = null);
     Task<List<DashboardMetric>> GetHistoricalMetricsAsync(int? roleId = null, int? customerId = null, int days = 30);
     Task<DashboardMetric> GenerateSnapshotAsync(int? roleId = null, int? customerId = null);
-    Task<PersonalDashboardDto> GetPersonalDashboardAsync(int userId, int? roleId);
+    Task<PersonalDashboardDto> GetPersonalDashboardAsync(int userId, int[]? allowedCustomerIds);
 }
 
 public class DashboardService : IDashboardService
@@ -170,25 +170,14 @@ public class DashboardService : IDashboardService
         return metric;
     }
 
-    public async Task<PersonalDashboardDto> GetPersonalDashboardAsync(int userId, int? roleId)
+    public async Task<PersonalDashboardDto> GetPersonalDashboardAsync(int userId, int[]? allowedCustomerIds)
     {
         var now = DateTime.UtcNow;
 
-        // Resolve role coverage:
-        // - null  = role has no specific coverage entries → unrestricted (show all customers)
-        // - List  = role has specific entries → restrict to those customer IDs only
-        // This matches the Admin UI convention: CoverageCount == 0 shows "All" badge.
-        List<int>? coverageCustomerIds = null;
-        if (roleId.HasValue)
-        {
-            var ids = await _context.RoleCoverages
-                .Where(rc => rc.RoleId == roleId.Value)
-                .Select(rc => rc.CustomerId)
-                .ToListAsync();
-
-            if (ids.Count > 0)
-                coverageCustomerIds = ids;
-        }
+        // allowedCustomerIds comes pre-resolved from GetAllowedCustomerIdsAsync:
+        // - null  = user has at least one unrestricted role → show all customers
+        // - int[] = union of all roles' coverage → restrict to those customer IDs only
+        List<int>? coverageCustomerIds = allowedCustomerIds?.ToList();
 
         // === Cases assigned to this user (personal ownership — no coverage filter) ===
         var openStatuses = new[]

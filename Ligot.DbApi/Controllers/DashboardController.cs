@@ -100,10 +100,9 @@ public class DashboardController : AuditableControllerBase
         if (!userId.HasValue)
             return Ok(new PersonalDashboardDto([], new DashboardCaseStats(0, 0, 0, 0), [], new DashboardProjectStats(0, 0, 0), [], new DashboardPreSalesStats(0, 0, 0)));
 
-        var user = await _userRepo.GetWithRolesAsync(userId.Value);
-        var roleId = user?.UserRoles.FirstOrDefault()?.RoleId;
+        var allowedCustomerIds = await _userRepo.GetAllowedCustomerIdsAsync(userId.Value);
 
-        var result = await _dashboardService.GetPersonalDashboardAsync(userId.Value, roleId);
+        var result = await _dashboardService.GetPersonalDashboardAsync(userId.Value, allowedCustomerIds);
         return Ok(result);
     }
 
