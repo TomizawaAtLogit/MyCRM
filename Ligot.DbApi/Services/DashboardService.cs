@@ -191,13 +191,15 @@ public class DashboardService : IDashboardService
             CaseStatus.Waiting_for_work, CaseStatus.In_observation_period
         };
 
-        var allMyCases = _context.Cases.Where(c => c.AssignedToUserId == userId);
+        var allMyCases = _context.Cases
+            .Where(c => c.AssignedToUserId == userId)
+            .Where(c => coverageCustomerIds == null || coverageCustomerIds.Contains(c.CustomerId));
 
-        // Top 10 active cases ordered by priority (Critical first) then urgency date
+        // Top 10 active cases ordered by latest updated/created date
         var caseItems = await allMyCases
             .Where(c => c.Status != CaseStatus.Closed)
-            .OrderByDescending(c => c.Priority)
-            .ThenBy(c => c.SlaDeadline == null ? c.DueDate : c.SlaDeadline)
+            .OrderByDescending(c => c.UpdatedAt ?? c.CreatedAt)
+            .ThenByDescending(c => c.CreatedAt)
             .Take(10)
             .Select(c => new DashboardCaseItem(
                 c.Id,
