@@ -1,6 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <Sdk Name="Aspire.AppHost.Sdk" Version="13.1.0" />
+<Project Sdk="Aspire.AppHost.Sdk/13.2.0">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -15,10 +13,6 @@
     <ProjectReference Include="..\Ligot.ApiService\Ligot.ApiService.csproj" />
     <ProjectReference Include="..\Ligot.Web\Ligot.FrontEnd.csproj" />
     <ProjectReference Include="..\Ligot.DbApi\Ligot.BackEnd.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="13.1.0" />
   </ItemGroup>
 
 </Project>
