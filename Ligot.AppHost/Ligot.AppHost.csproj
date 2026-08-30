@@ -10,6 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MessagePack" Version="2.5.301" />
+
     <ProjectReference Include="..\Ligot.ApiService\Ligot.ApiService.csproj" />
     <ProjectReference Include="..\Ligot.Web\Ligot.FrontEnd.csproj" />
     <ProjectReference Include="..\Ligot.DbApi\Ligot.BackEnd.csproj" />
